@@ -14,3 +14,7 @@ Distributed DataFrame - Native R Support on Spark
 ### Regenerating Eclipse projects
 		
     DDF% bin/make-eclipse-projects.sh
+
+### Building `DDF_core`
+		
+    DDF/core% mvn clean package

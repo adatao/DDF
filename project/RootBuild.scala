@@ -384,19 +384,19 @@ object RootBuild extends Build {
 
 
 	//def communitySettings = commonSettings ++ Seq(
-	//	name := projectName + "-community",
+	//	name := projectName + "_community",
 	//	libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
 	//)
 
 
 	//def enterpriseSettings = commonSettings ++ Seq(
-	//	name := projectName + "-enterprise",
+	//	name := projectName + "_enterprise",
 	//	libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
 	//)
 
 
 	def examplesSettings = commonSettings ++ Seq(
-		name := projectName + "-examples"
+		name := projectName + "_examples"
 		//libraryDependencies ++= Seq("com.twitter" % "algebird-core_2.9.2" % "0.1.11")
 	)
 
