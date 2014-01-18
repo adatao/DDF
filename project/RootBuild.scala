@@ -13,10 +13,11 @@ import scala.sys.process._
 object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
-	val SPARK_VERSION = "0.7.3-adatao"
+	val SPARK_VERSION = "0.8.1-incubating"
 	val SHARK_VERSION = "0.7.1"
 	
-	val theScalaVersion = "2.10.0"
+	//val theScalaVersion = "2.10.0"
+	val theScalaVersion = "2.9.3"
 	val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
 	val rootOrganization = "com.adatao"
@@ -39,7 +40,7 @@ object RootBuild extends Build {
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	//lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core)
 	//lazy val community = Project("community", file("community"), settings = communitySettings) dependsOn (core)
-	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (core) dependsOn (core)
+	//lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (core) dependsOn (core)
 
 	// A configuration to set an alternative publishLocalConfiguration
 	lazy val MavenCompile = config("m2r") extend(Compile)
@@ -132,9 +133,9 @@ object RootBuild extends Build {
 		resolvers ++= Seq(
 			//"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
 			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-			"scala-tools.org" at "https://oss.sonatype.org/content/groups/scala-tools/"
+			"scala-tools.org" at "https://oss.sonatype.org/content/groups/scala-tools/",
 //			"Spark-project" at "https://oss.sonatype.org/"
-//			"Akka Repository" at "http://repo.akka.io/releases/"
+			"Akka Repository" at "http://repo.akka.io/releases/"
 		),
 		
 		
@@ -278,11 +279,13 @@ object RootBuild extends Build {
 			//"commons-configuration" % "commons-configuration" % "1.6",
 			//"com.google.code.gson"% "gson" % "2.2.2",
 			//"org.spark-project" % "spark-core_2.10" % SPARK_VERSION, 
+			"org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION,
+
 			//"edu.berkeley.cs.amplab" % "shark_2.10" % SHARK_VERSION excludeAll(excludeSpark), //use Adatao version of spark
 			//"javax.jdo" % "jdo2-api" % "2.3-eb",
 			//"org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
 			//"org.eclipse.jetty" % "jetty-util" % "7.6.8.v20121106",
-			"org.scalatest" % "scalatest_2.10" % "2.0", // depends on scala-lang 2.10.0
+			"org.scalatest" % "scalatest_2.9.3" % "1.9.1",
 			//"org.scalacheck" % "scalacheck_2.10" % "1.10.0", // depends on scala-lang 2.10.0
 			//"com.novocode" % "junit-interface" % "0.9" % "test",
 			"org.easymock" % "easymock" % "3.1" % "test"
