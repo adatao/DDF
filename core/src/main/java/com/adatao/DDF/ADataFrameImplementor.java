@@ -17,11 +17,16 @@
 package com.adatao.DDF;
 
 /**
+ * A DataFrame implementor provides the support methods necessary to implement various DataFrame
+ * interfaces, such as {@link IHandleRepresentations} and {@link IRunAlgorithms}.
+ * 
  * We use the Dependency Injection, Delegation, and Composite patterns to make it easy for others to
  * provide alternative (even snap-in replacements), support/implementation for DDF.
  * 
- * A DDF has a number of key properties (metadata, representations, etc.) and capabilities
- * (self-compute basic statistics, aggregations, etc.).
+ * An implementor need not provide all or even most of these interfaces. Each interface handler can
+ * be get/set separately, as long as they cooperate properly on things like the underlying
+ * representation. This makes it easy to roll out additional interfaces and their implementations
+ * over time.
  * 
  * @author ctn
  * 
