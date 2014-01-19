@@ -3,9 +3,9 @@ package com.adatao.ddf;
 import org.junit.Test;
 
 /**
- * Unit tests for DataFrame.
+ * Unit tests for DDF.
  */
-public class DataFrameTests {
+public class DDFTests {
 
   @Test
   public void testDummy() {

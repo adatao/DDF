@@ -19,7 +19,7 @@ package com.adatao.ddf;
 /**
  * <p>
  * Abstract base class for a {@link DDF} implementor, which provides the support methods
- * necessary to implement various DataFrame interfaces, such as {@link IHandleRepresentations} and
+ * necessary to implement various DDF interfaces, such as {@link IHandleRepresentations} and
  * {@link IRunAlgorithms}.
  * </p>
  * <p>
@@ -30,7 +30,7 @@ package com.adatao.ddf;
  * 
  * <pre>
  * -------------    -------------------------
- * | DataFrame |<-->| ADataFrameImplementor |
+ * | DDF |<-->| ADDFImplementor |
  * -------------    -------------------------
  *                         ^          ^
  *                         |   ...    |        -------------------
@@ -51,21 +51,21 @@ package com.adatao.ddf;
  * @author ctn
  * 
  */
-public abstract class ADataFrameImplementor implements IDataFrameImplementor {
+public abstract class ADDFImplementor implements IDDFImplementor {
 
-  public ADataFrameImplementor(DDF theDataFrame) {
-    this.setDataFrame(theDataFrame);
+  public ADDFImplementor(DDF theDDF) {
+    this.setDDF(theDDF);
   }
 
 
-  private DDF mDataFrame;
+  private DDF mDDF;
 
-  public DDF getDataFrame() {
-    return mDataFrame;
+  public DDF getDDF() {
+    return mDDF;
   }
 
-  public ADataFrameImplementor setDataFrame(DDF aDataFrame) {
-    this.mDataFrame = aDataFrame;
+  public ADDFImplementor setDDF(DDF aDDF) {
+    this.mDDF = aDDF;
     return this;
   }
 
@@ -92,7 +92,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mBasicStatisticsHandler;
   }
 
-  public ADataFrameImplementor setBasicStatisticsHandler(IComputeBasicStatistics aBasicStatisticsHandler) {
+  public ADDFImplementor setBasicStatisticsHandler(IComputeBasicStatistics aBasicStatisticsHandler) {
     this.mBasicStatisticsHandler = aBasicStatisticsHandler;
     return this;
   }
@@ -102,7 +102,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mFilterAndProjectionHandler;
   }
 
-  public ADataFrameImplementor setFilterAndProjectionHandler(IHandleFilteringAndProjections aFilterAndProjectionHandler) {
+  public ADDFImplementor setFilterAndProjectionHandler(IHandleFilteringAndProjections aFilterAndProjectionHandler) {
     this.mFilterAndProjectionHandler = aFilterAndProjectionHandler;
     return this;
   }
@@ -112,7 +112,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mIndexingHandler;
   }
 
-  public ADataFrameImplementor setIndexingHandler(IHandleIndexing anIndexingHandler) {
+  public ADDFImplementor setIndexingHandler(IHandleIndexing anIndexingHandler) {
     this.mIndexingHandler = anIndexingHandler;
     return this;
   }
@@ -122,7 +122,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mJoinsHandler;
   }
 
-  public ADataFrameImplementor setJoinsHandler(IHandleJoins aJoinsHandler) {
+  public ADDFImplementor setJoinsHandler(IHandleJoins aJoinsHandler) {
     this.mJoinsHandler = aJoinsHandler;
     return this;
   }
@@ -132,7 +132,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mMetaDataHandler;
   }
 
-  public ADataFrameImplementor setMetaDataHandler(IHandleMetadata aMetaDataHandler) {
+  public ADDFImplementor setMetaDataHandler(IHandleMetadata aMetaDataHandler) {
     this.mMetaDataHandler = aMetaDataHandler;
     return this;
   }
@@ -142,7 +142,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mMiscellanyHandler;
   }
 
-  public ADataFrameImplementor setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
+  public ADDFImplementor setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
     this.mMiscellanyHandler = aMiscellanyHandler;
     return this;
   }
@@ -152,7 +152,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mMissingDataHandler;
   }
 
-  public ADataFrameImplementor setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
+  public ADDFImplementor setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
     this.mMissingDataHandler = aMissingDataHandler;
     return this;
   }
@@ -162,7 +162,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mMutabilityHandler;
   }
 
-  public ADataFrameImplementor setMutabilityHandler(IHandleMutability aMutabilityHandler) {
+  public ADDFImplementor setMutabilityHandler(IHandleMutability aMutabilityHandler) {
     this.mMutabilityHandler = aMutabilityHandler;
     return this;
   }
@@ -172,7 +172,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mPersistenceHandler;
   }
 
-  public ADataFrameImplementor setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
+  public ADDFImplementor setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
     this.mPersistenceHandler = aPersistenceHandler;
     return this;
   }
@@ -182,7 +182,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mRepresentationHandler;
   }
 
-  public ADataFrameImplementor setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
+  public ADDFImplementor setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
     this.mRepresentationHandler = aRepresentationHandler;
     return this;
   }
@@ -192,7 +192,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mReshapingHandler;
   }
 
-  public ADataFrameImplementor setReshapingHandler(IHandleReshaping aReshapingHandler) {
+  public ADDFImplementor setReshapingHandler(IHandleReshaping aReshapingHandler) {
     this.mReshapingHandler = aReshapingHandler;
     return this;
   }
@@ -202,7 +202,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mSchemaHandler;
   }
 
-  public ADataFrameImplementor setSchemaHandler(IHandleSchema aSchemaHandler) {
+  public ADDFImplementor setSchemaHandler(IHandleSchema aSchemaHandler) {
     this.mSchemaHandler = aSchemaHandler;
     return this;
   }
@@ -212,7 +212,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mStreamingDataHandler;
   }
 
-  public ADataFrameImplementor setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
+  public ADDFImplementor setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
     this.mStreamingDataHandler = aStreamingDataHandler;
     return this;
   }
@@ -222,7 +222,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mTimeSeriesHandler;
   }
 
-  public ADataFrameImplementor setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
+  public ADDFImplementor setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
     this.mTimeSeriesHandler = aTimeSeriesHandler;
     return this;
   }
@@ -232,7 +232,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mETLPerformer;
   }
 
-  public ADataFrameImplementor setETLPerformer(IPerformETL aETLPerformer) {
+  public ADDFImplementor setETLPerformer(IPerformETL aETLPerformer) {
     this.mETLPerformer = aETLPerformer;
     return this;
   }
@@ -242,7 +242,7 @@ public abstract class ADataFrameImplementor implements IDataFrameImplementor {
     else return mAlgorithmRunner;
   }
 
-  public ADataFrameImplementor setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
+  public ADDFImplementor setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
     this.mAlgorithmRunner = aAlgorithmRunner;
     return this;
   }

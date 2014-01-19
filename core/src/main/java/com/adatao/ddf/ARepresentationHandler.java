@@ -9,14 +9,14 @@ import java.util.HashMap;
  * @author ctn
  * 
  */
-public class ARepresentationHandler extends ADataFrameFunctionalGroupHandler implements IHandleRepresentations {
+public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADataFrameImplementor container) {
+  public ARepresentationHandler(ADDFImplementor container) {
     super(container);
   }
 
 
-  // The various representations for our DataFrame
+  // The various representations for our DDF
   private HashMap<String, Object> mReps = new HashMap<String, Object>();
 
   protected String getKeyFor(Class<?> containerType, Class<?> elementType) {

@@ -12,13 +12,13 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.adatao.ddf.DataFrame;
+import com.adatao.ddf.DDF;
 
 /**
  * @author ctn
  * 
  */
-public class DataFrameTests {
+public class DDFTests {
   private static JavaSparkContext sc;
   private static List<String> list = new ArrayList<String>();
 
@@ -28,7 +28,7 @@ public class DataFrameTests {
     String sparkHome = System.getenv("SPARK_HOME");
     if (sparkHome == null) sparkHome = "/root/spark";
 
-    sc = new JavaSparkContext("local", DataFrameTests.class.getName(), sparkHome, (String) null);
+    sc = new JavaSparkContext("local", DDFTests.class.getName(), sparkHome, (String) null);
 
     list.add("a");
     list.add("b");
@@ -42,11 +42,11 @@ public class DataFrameTests {
 
 
   @Test
-  public void testCreateDataFrame() {
-    DDF newInstance = DataFrameImplementor.newDataFrame();
-    Assert.assertNotNull("Newly instantiated DataFrame should not be null", newInstance);
+  public void testCreateDDF() {
+    DDF newInstance = DDFImplementor.newDDF();
+    Assert.assertNotNull("Newly instantiated DDF should not be null", newInstance);
 
-    newInstance = DataFrameImplementor.newDataFrame(sc.parallelize(list, 1).rdd());
-    Assert.assertNotNull("Newly instantiated DataFrame from RDD should not be null", newInstance);
+    newInstance = DDFImplementor.newDDF(sc.parallelize(list, 1).rdd(), String.class);
+    Assert.assertNotNull("Newly instantiated DDF from RDD should not be null", newInstance);
   }
 }

@@ -17,7 +17,7 @@
 package com.adatao.ddf;
 
 /**
- * A Distributed DataFrame (DDF) has a number of key properties (metadata, representations, etc.)
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.)
  * and capabilities (self-compute basic statistics, aggregations, etc.).
  * 
  * @author ctn
@@ -25,31 +25,31 @@ package com.adatao.ddf;
  */
 public class DDF {
 
-  public DDF(ADataFrameImplementor implementor) {
+  public DDF(ADDFImplementor implementor) {
     this.mImplementor = implementor;
-    if (implementor != null) implementor.setDataFrame(this);
+    if (implementor != null) implementor.setDDF(this);
   }
 
 
-  private ADataFrameImplementor mImplementor;
+  private ADDFImplementor mImplementor;
 
   /**
-   * Gets the underlying implementor of this DataFrame
+   * Gets the underlying implementor of this DDF
    * 
    * @return
    */
-  public ADataFrameImplementor getImplementor() {
+  public ADDFImplementor getImplementor() {
     if (mImplementor != null) return mImplementor;
     else throw new UnsupportedOperationException("No implementor has been set");
   }
 
   /**
-   * Sets the underlying implementor for this DataFrame
+   * Sets the underlying implementor for this DDF
    * 
-   * @param aDataFrameImplementor
+   * @param aDDFImplementor
    */
-  public void setImplementor(ADataFrameImplementor aDataFrameImplementor) {
-    this.mImplementor = aDataFrameImplementor;
+  public void setImplementor(ADDFImplementor aDDFImplementor) {
+    this.mImplementor = aDDFImplementor;
   }
 
 

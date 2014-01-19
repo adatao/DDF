@@ -19,8 +19,8 @@ package com.adatao.ddf.spark
 
 import com.adatao.ddf.DDF
 import org.apache.spark.rdd.RDD
-import com.adatao.ddf.ADataFrameImplementor
-import com.adatao.ddf.IDataFrameFactory
+import com.adatao.ddf.ADDFImplementor
+import com.adatao.ddf.IDDFFactory
 
 /**
  * @author ctn
@@ -37,7 +37,7 @@ import com.adatao.ddf.IDataFrameFactory
  * <li>Ability to start with an RDD and get a DDF, and vice versa.</li>
  * </ul>
  */
-class DataFrameImplementor(ddf: DDF) extends ADataFrameImplementor(ddf) {
+class DDFImplementor(ddf: DDF) extends ADDFImplementor(ddf) {
 	this
 		.setAlgorithmRunner(null)
 		.setBasicStatisticsHandler(null)
@@ -57,18 +57,26 @@ class DataFrameImplementor(ddf: DDF) extends ADataFrameImplementor(ddf) {
 		.setTimeSeriesHandler(null)
 }
 
-object DataFrameImplementor extends IDataFrameFactory {
+object DDFImplementor extends IDDFFactory {
 	/**
-	 * Instantiates a new DataFrame with all the Spark implementation
+	 * Instantiates a new DDF with all the Spark implementation
 	 */
-	def newDataFrame = new DDF(new DataFrameImplementor(null))
+	def newDDF = new DDF(new DDFImplementor(null))
 
 	/**
-	 * Instantiates a new DataFrame based on the supplied RDD[Any]
+	 * Instantiates a new DDF based on the supplied RDD[T]
 	 */
-	def newDataFrame[T](rdd: RDD[T])(implicit m: Manifest[T]): DDF = {
-		val ddf = new DDF(new DataFrameImplementor(null))
-		ddf.getImplementor().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, m.erasure)
+	def newDDF[T](rdd: RDD[T])(implicit m: Manifest[T]): DDF = this.newDDF(rdd, m.erasure)
+
+	/**
+	 * Instantiates a new DDF based on the supplied RDD[_].
+	 * This signature is useful for Java clients, due to type erasure, so the client
+	 * needs to be able to pass in the elementType explicitly.
+	 */
+	def newDDF(rdd: RDD[_], elementType: Class[_]): DDF = {
+		val ddf = new DDF(new DDFImplementor(null))
+		ddf.getImplementor().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, elementType)
 		ddf
 	}
+
 }
