@@ -19,6 +19,8 @@ package com.adatao.DDF.spark
 
 import com.adatao.DDF.DataFrame
 import org.apache.spark.rdd.RDD
+import com.adatao.DDF.ADataFrameImplementor
+import com.adatao.DDF.IDataFrameFactory
 
 /**
  * @author ctn
@@ -35,10 +37,17 @@ import org.apache.spark.rdd.RDD
  * <li>Ability to start with an RDD and get a DDF, and vice versa.</li>
  * </ul>
  */
-class SparkDataFrame extends DataFrame {
-	def getRdd : RDD[Any] = { null }
+class DataFrameImplementor extends ADataFrameImplementor {
 }
 
-object SparkDataFrame {
-	def newDataFrame(rdd: RDD[Any]) = {}
+object DataFrameImplementor extends IDataFrameFactory {
+	/**
+	 * Instantiates a new DataFrame with all the Spark implementation
+	 */
+	def newDataFrame: DataFrame = { new DataFrame }
+
+	/**
+	 * Instantiates a new DataFrame based on the supplied RDD[Any]
+	 */
+	def newDataFrame(rdd: RDD[Any]): DataFrame = { new DataFrame }
 }
