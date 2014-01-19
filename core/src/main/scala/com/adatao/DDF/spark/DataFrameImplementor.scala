@@ -37,17 +37,38 @@ import com.adatao.DDF.IDataFrameFactory
  * <li>Ability to start with an RDD and get a DDF, and vice versa.</li>
  * </ul>
  */
-class DataFrameImplementor extends ADataFrameImplementor {
+class DataFrameImplementor(ddf: DataFrame) extends ADataFrameImplementor(ddf) {
+	this
+		.setAlgorithmRunner(null)
+		.setBasicStatisticsHandler(null)
+		.setETLPerformer(null)
+		.setFilterAndProjectionHandler(null)
+		.setIndexingHandler(null)
+		.setJoinsHandler(null)
+		.setMetaDataHandler(null)
+		.setMiscellanyHandler(null)
+		.setMissingDataHandler(null)
+		.setMutabilityHandler(null)
+		.setPersistenceHandler(null)
+		.setRepresentationHandler(new RepresentationHandler(this))
+		.setReshapingHandler(null)
+		.setSchemaHandler(null)
+		.setStreamingDataHandler(null)
+		.setTimeSeriesHandler(null)
 }
 
 object DataFrameImplementor extends IDataFrameFactory {
 	/**
 	 * Instantiates a new DataFrame with all the Spark implementation
 	 */
-	def newDataFrame: DataFrame = { new DataFrame }
+	def newDataFrame: DataFrame = new DataFrame(new DataFrameImplementor(null))
 
 	/**
 	 * Instantiates a new DataFrame based on the supplied RDD[Any]
 	 */
-	def newDataFrame(rdd: RDD[Any]): DataFrame = { new DataFrame }
+	def newDataFrame(rdd: RDD[_]): DataFrame = {
+		val ddf = new DataFrame(new DataFrameImplementor(null))
+		//ddf.getImplementor().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, classOf[String])
+		ddf
+	}
 }

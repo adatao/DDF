@@ -17,17 +17,19 @@
 package com.adatao.DDF;
 
 /**
- * A DDF has a number of key properties (metadata, representations, etc.) and capabilities
- * (self-compute basic statistics, aggregations, etc.).
+ * A Distributed DataFrame (DDF) has a number of key properties (metadata, representations, etc.)
+ * and capabilities (self-compute basic statistics, aggregations, etc.).
  * 
  * @author ctn
  * 
  */
 public class DataFrame {
-  
-  public DataFrame() {
 
+  public DataFrame(ADataFrameImplementor implementor) {
+    this.mImplementor = implementor;
+    if (implementor != null) implementor.setDataFrame(this);
   }
+
 
   private ADataFrameImplementor mImplementor;
 
@@ -49,6 +51,7 @@ public class DataFrame {
   public void setImplementor(ADataFrameImplementor aDataFrameImplementor) {
     this.mImplementor = aDataFrameImplementor;
   }
+
 
   public DataFrame getRandomSample(int numSamples) {
     return this.getImplementor().getMiscellanyHandler().getRandomSample(this, numSamples);

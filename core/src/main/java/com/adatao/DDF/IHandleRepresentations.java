@@ -23,16 +23,35 @@ package com.adatao.DDF;
  */
 public interface IHandleRepresentations {
   /**
-   * Retrieves a row-based representation as an arrayType of elementType. There are no guarantees
-   * whether this is the actual
+   * Retrieves a row-based representation as an containerType of elementType. There are no
+   * guarantees whether this is the actual
    * 
-   * @param arrayType
+   * @param containerType
    * @param elementType
    * @return a pointer to the specified
    */
-  public Object getAsRows(Class<?> arrayType, Class<?> elementType);
+  public Object get(Class<?> containerType, Class<?> elementType);
 
-  //public Object getAsColumns(Class<?> arrayType, Class<?> elementType);
+  /**
+   * Clears out all current representations.
+   */
+  public void reset();
 
-  //public void setAsRows(Object rows, Class<?> arrayType, Class<?> elementType);
+  /**
+   * Clears all current representations and set it to the supplied one.
+   * 
+   * @param rows
+   * @param containerType
+   * @param elementType
+   */
+  public void set(Object rows, Class<?> containerType, Class<?> elementType);
+
+  /**
+   * Add a representation to the set of existing representations.
+   * 
+   * @param rows
+   * @param containerType
+   * @param elementType
+   */
+  public void add(Object rows, Class<?> containerType, Class<?> elementType);
 }
