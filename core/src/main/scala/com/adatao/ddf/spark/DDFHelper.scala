@@ -19,7 +19,7 @@ package com.adatao.ddf.spark
 
 import com.adatao.ddf.DDF
 import org.apache.spark.rdd.RDD
-import com.adatao.ddf.ADDFImplementor
+import com.adatao.ddf.ADDFHelper
 import com.adatao.ddf.IDDFFactory
 
 /**
@@ -37,7 +37,7 @@ import com.adatao.ddf.IDDFFactory
  * <li>Ability to start with an RDD and get a DDF, and vice versa.</li>
  * </ul>
  */
-class DDFImplementor(ddf: DDF) extends ADDFImplementor(ddf) {
+class DDFHelper(ddf: DDF) extends ADDFHelper(ddf) {
 	this
 		.setAlgorithmRunner(null)
 		.setBasicStatisticsHandler(null)
@@ -57,11 +57,11 @@ class DDFImplementor(ddf: DDF) extends ADDFImplementor(ddf) {
 		.setTimeSeriesHandler(null)
 }
 
-object DDFImplementor extends IDDFFactory {
+object DDFHelper extends IDDFFactory {
 	/**
 	 * Instantiates a new DDF with all the Spark implementation
 	 */
-	def newDDF = new DDF(new DDFImplementor(null))
+	def newDDF = new DDF(new DDFHelper(null))
 
 	/**
 	 * Instantiates a new DDF based on the supplied RDD[T]
@@ -74,8 +74,8 @@ object DDFImplementor extends IDDFFactory {
 	 * needs to be able to pass in the elementType explicitly.
 	 */
 	def newDDF(rdd: RDD[_], elementType: Class[_]): DDF = {
-		val ddf = new DDF(new DDFImplementor(null))
-		ddf.getImplementor().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, elementType)
+		val ddf = new DDF(new DDFHelper(null))
+		ddf.getHelper().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, elementType)
 		ddf
 	}
 

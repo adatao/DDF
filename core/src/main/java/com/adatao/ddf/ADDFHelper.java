@@ -30,7 +30,7 @@ package com.adatao.ddf;
  * 
  * <pre>
  * -------------    -------------------------
- * | DDF |<-->| ADDFImplementor |
+ * | DDF |<-->| ADDFHelper |
  * -------------    -------------------------
  *                         ^          ^
  *                         |   ...    |        -------------------
@@ -51,9 +51,9 @@ package com.adatao.ddf;
  * @author ctn
  * 
  */
-public abstract class ADDFImplementor implements IDDFImplementor {
+public abstract class ADDFHelper implements IDDFHelper {
 
-  public ADDFImplementor(DDF theDDF) {
+  public ADDFHelper(DDF theDDF) {
     this.setDDF(theDDF);
   }
 
@@ -64,7 +64,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     return mDDF;
   }
 
-  public ADDFImplementor setDDF(DDF aDDF) {
+  public ADDFHelper setDDF(DDF aDDF) {
     this.mDDF = aDDF;
     return this;
   }
@@ -92,7 +92,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mBasicStatisticsHandler;
   }
 
-  public ADDFImplementor setBasicStatisticsHandler(IComputeBasicStatistics aBasicStatisticsHandler) {
+  public ADDFHelper setBasicStatisticsHandler(IComputeBasicStatistics aBasicStatisticsHandler) {
     this.mBasicStatisticsHandler = aBasicStatisticsHandler;
     return this;
   }
@@ -102,7 +102,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mFilterAndProjectionHandler;
   }
 
-  public ADDFImplementor setFilterAndProjectionHandler(IHandleFilteringAndProjections aFilterAndProjectionHandler) {
+  public ADDFHelper setFilterAndProjectionHandler(IHandleFilteringAndProjections aFilterAndProjectionHandler) {
     this.mFilterAndProjectionHandler = aFilterAndProjectionHandler;
     return this;
   }
@@ -112,7 +112,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mIndexingHandler;
   }
 
-  public ADDFImplementor setIndexingHandler(IHandleIndexing anIndexingHandler) {
+  public ADDFHelper setIndexingHandler(IHandleIndexing anIndexingHandler) {
     this.mIndexingHandler = anIndexingHandler;
     return this;
   }
@@ -122,7 +122,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mJoinsHandler;
   }
 
-  public ADDFImplementor setJoinsHandler(IHandleJoins aJoinsHandler) {
+  public ADDFHelper setJoinsHandler(IHandleJoins aJoinsHandler) {
     this.mJoinsHandler = aJoinsHandler;
     return this;
   }
@@ -132,7 +132,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mMetaDataHandler;
   }
 
-  public ADDFImplementor setMetaDataHandler(IHandleMetadata aMetaDataHandler) {
+  public ADDFHelper setMetaDataHandler(IHandleMetadata aMetaDataHandler) {
     this.mMetaDataHandler = aMetaDataHandler;
     return this;
   }
@@ -142,7 +142,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mMiscellanyHandler;
   }
 
-  public ADDFImplementor setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
+  public ADDFHelper setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
     this.mMiscellanyHandler = aMiscellanyHandler;
     return this;
   }
@@ -152,7 +152,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mMissingDataHandler;
   }
 
-  public ADDFImplementor setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
+  public ADDFHelper setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
     this.mMissingDataHandler = aMissingDataHandler;
     return this;
   }
@@ -162,7 +162,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mMutabilityHandler;
   }
 
-  public ADDFImplementor setMutabilityHandler(IHandleMutability aMutabilityHandler) {
+  public ADDFHelper setMutabilityHandler(IHandleMutability aMutabilityHandler) {
     this.mMutabilityHandler = aMutabilityHandler;
     return this;
   }
@@ -172,7 +172,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mPersistenceHandler;
   }
 
-  public ADDFImplementor setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
+  public ADDFHelper setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
     this.mPersistenceHandler = aPersistenceHandler;
     return this;
   }
@@ -182,7 +182,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mRepresentationHandler;
   }
 
-  public ADDFImplementor setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
+  public ADDFHelper setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
     this.mRepresentationHandler = aRepresentationHandler;
     return this;
   }
@@ -192,7 +192,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mReshapingHandler;
   }
 
-  public ADDFImplementor setReshapingHandler(IHandleReshaping aReshapingHandler) {
+  public ADDFHelper setReshapingHandler(IHandleReshaping aReshapingHandler) {
     this.mReshapingHandler = aReshapingHandler;
     return this;
   }
@@ -202,7 +202,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mSchemaHandler;
   }
 
-  public ADDFImplementor setSchemaHandler(IHandleSchema aSchemaHandler) {
+  public ADDFHelper setSchemaHandler(IHandleSchema aSchemaHandler) {
     this.mSchemaHandler = aSchemaHandler;
     return this;
   }
@@ -212,7 +212,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mStreamingDataHandler;
   }
 
-  public ADDFImplementor setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
+  public ADDFHelper setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
     this.mStreamingDataHandler = aStreamingDataHandler;
     return this;
   }
@@ -222,7 +222,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mTimeSeriesHandler;
   }
 
-  public ADDFImplementor setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
+  public ADDFHelper setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
     this.mTimeSeriesHandler = aTimeSeriesHandler;
     return this;
   }
@@ -232,7 +232,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mETLPerformer;
   }
 
-  public ADDFImplementor setETLPerformer(IPerformETL aETLPerformer) {
+  public ADDFHelper setETLPerformer(IPerformETL aETLPerformer) {
     this.mETLPerformer = aETLPerformer;
     return this;
   }
@@ -242,7 +242,7 @@ public abstract class ADDFImplementor implements IDDFImplementor {
     else return mAlgorithmRunner;
   }
 
-  public ADDFImplementor setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
+  public ADDFHelper setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
     this.mAlgorithmRunner = aAlgorithmRunner;
     return this;
   }

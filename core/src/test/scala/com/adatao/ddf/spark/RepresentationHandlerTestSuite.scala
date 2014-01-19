@@ -15,7 +15,7 @@ class RepresentationHandlerTestSuite extends ATestSuite {
 
 		val sc = new SparkContext("local", classOf[RepresentationHandlerTestSuite].getName(), sparkHome)
 		val rdd = sc.parallelize(List(1.0, 2, 3, 4), 1)
-		df = DDFImplementor.newDDF(rdd)
+		df = DDFHelper.newDDF(rdd)
 	}
 
 	test("Can instantiate a new DDF") {
@@ -23,7 +23,7 @@ class RepresentationHandlerTestSuite extends ATestSuite {
 	}
 	
 	test("Can list DDF representations") {
-		val list: String = df.getImplementor().getRepresentationHandler().asInstanceOf[ARepresentationHandler].getList()
+		val list: String = df.getHelper().getRepresentationHandler().asInstanceOf[ARepresentationHandler].getList()
 		assert(list.startsWith("1. key='class org.apache.spark.rdd.RDD[double]', value='ParallelCollectionRDD[0]"))
 	}
 

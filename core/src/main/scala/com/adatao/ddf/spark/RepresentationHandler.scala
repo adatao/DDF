@@ -14,7 +14,7 @@ import com.adatao.ddf.ARepresentationHandler
  * @author ctn
  *
  */
-class RepresentationHandler(container: DDFImplementor) extends ARepresentationHandler(container) with IHandleRepresentations {
+class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler(container) with IHandleRepresentations {
 
 	// The various representations for our DDF
 	private val mReps = new HashMap[String, Any]

@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADDFImplementor container) {
+  public ARepresentationHandler(ADDFHelper container) {
     super(container);
   }
 

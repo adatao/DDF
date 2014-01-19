@@ -12,7 +12,7 @@ package com.adatao.ddf;
  */
 public class ADDFFunctionalGroupHandler {
 
-  public ADDFFunctionalGroupHandler(ADDFImplementor theContainer) {
+  public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
     this.setContainer(theContainer);
   }
 
@@ -24,22 +24,22 @@ public class ADDFFunctionalGroupHandler {
     return this.getContainer().getDDF();
   }
 
-  private ADDFImplementor mContainer;
+  private ADDFHelper mContainer;
 
   /**
-   * @return the {@link ADDFImplementor} that contains this handler
+   * @return the {@link ADDFHelper} that contains this handler
    */
-  public ADDFImplementor getContainer() {
+  public ADDFHelper getContainer() {
     return mContainer;
   }
 
   /**
    * @param aContainer
-   *          the containing {@link ADDFImplementor} to set
+   *          the containing {@link ADDFHelper} to set
    * 
    * @return this instance, for call-chaining style
    */
-  public ADDFFunctionalGroupHandler setContainer(ADDFImplementor aContainer) {
+  public ADDFFunctionalGroupHandler setContainer(ADDFHelper aContainer) {
     this.mContainer = aContainer;
     return this;
   }

@@ -25,35 +25,35 @@ package com.adatao.ddf;
  */
 public class DDF {
 
-  public DDF(ADDFImplementor implementor) {
-    this.mImplementor = implementor;
+  public DDF(ADDFHelper implementor) {
+    this.mHelper = implementor;
     if (implementor != null) implementor.setDDF(this);
   }
 
 
-  private ADDFImplementor mImplementor;
+  private ADDFHelper mHelper;
 
   /**
    * Gets the underlying implementor of this DDF
    * 
    * @return
    */
-  public ADDFImplementor getImplementor() {
-    if (mImplementor != null) return mImplementor;
+  public ADDFHelper getHelper() {
+    if (mHelper != null) return mHelper;
     else throw new UnsupportedOperationException("No implementor has been set");
   }
 
   /**
    * Sets the underlying implementor for this DDF
    * 
-   * @param aDDFImplementor
+   * @param aDDFHelper
    */
-  public void setImplementor(ADDFImplementor aDDFImplementor) {
-    this.mImplementor = aDDFImplementor;
+  public void setHelper(ADDFHelper aDDFHelper) {
+    this.mHelper = aDDFHelper;
   }
 
 
   public DDF getRandomSample(int numSamples) {
-    return this.getImplementor().getMiscellanyHandler().getRandomSample(this, numSamples);
+    return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
   }
 }

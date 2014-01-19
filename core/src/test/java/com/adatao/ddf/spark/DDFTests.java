@@ -43,10 +43,10 @@ public class DDFTests {
 
   @Test
   public void testCreateDDF() {
-    DDF newInstance = DDFImplementor.newDDF();
+    DDF newInstance = DDFHelper.newDDF();
     Assert.assertNotNull("Newly instantiated DDF should not be null", newInstance);
 
-    newInstance = DDFImplementor.newDDF(sc.parallelize(list, 1).rdd(), String.class);
+    newInstance = DDFHelper.newDDF(sc.parallelize(list, 1).rdd(), list.get(0).getClass());
     Assert.assertNotNull("Newly instantiated DDF from RDD should not be null", newInstance);
   }
 }
