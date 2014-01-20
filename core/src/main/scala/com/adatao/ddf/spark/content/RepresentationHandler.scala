@@ -3,14 +3,17 @@
  */
 package com.adatao.ddf.spark.content
 
-import com.adatao.ddf.content.IHandleRepresentations
 import java.lang.Class
+
 import scala.collection.mutable.HashMap
-import org.apache.spark.rdd.RDD
-import com.adatao.ddf.content.ARepresentationHandler
 import scala.reflect.Manifest
-import com.adatao.ddf.spark.DDFHelper
+
+import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.{RDD => RDD[T]}
+
+import com.adatao.ddf.content.ARepresentationHandler
+import com.adatao.ddf.content.IHandleRepresentations
+import com.adatao.ddf.spark.DDFHelper
 
 /**
  * RDD-based RepresentationHandler
