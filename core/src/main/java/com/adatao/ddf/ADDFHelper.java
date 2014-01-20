@@ -29,6 +29,7 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.util.ISupportPhantomReference;
+import com.adatao.ddf.util.PhantomReference;
 
 /**
  * <p>
@@ -69,6 +70,8 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
 
   public ADDFHelper(DDF theDDF) {
     this.setDDF(theDDF);
+    
+    PhantomReference.register(this);
   }
 
 

@@ -6,6 +6,7 @@ package com.adatao.ddf;
 import com.adatao.ddf.content.IHandleMetadata;
 import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.util.ISupportPhantomReference;
+import com.adatao.ddf.util.PhantomReference;
 
 /**
  * Abstract base class for a handler of a group of DDF functionality, e.g., {@link IHandleMetadata},
@@ -18,6 +19,8 @@ public class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
 
   public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
     this.setContainer(theContainer);
+    
+    PhantomReference.register(this);
   }
 
 

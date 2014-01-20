@@ -17,6 +17,7 @@
 package com.adatao.ddf;
 
 import com.adatao.ddf.util.ISupportPhantomReference;
+import com.adatao.ddf.util.PhantomReference;
 
 /**
  * <p>
@@ -30,9 +31,11 @@ import com.adatao.ddf.util.ISupportPhantomReference;
  */
 public class DDF implements ISupportPhantomReference {
 
-  public DDF(ADDFHelper implementor) {
-    this.mHelper = implementor;
-    if (implementor != null) implementor.setDDF(this);
+  public DDF(ADDFHelper helper) {
+    this.mHelper = helper;
+    if (helper != null) helper.setDDF(this);
+    
+    PhantomReference.register(this);
   }
 
 
