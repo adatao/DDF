@@ -3,7 +3,7 @@ package com.adatao.ddf;
 import org.junit.Test;
 
 /**
- * Unit tests for DDF.
+ * Unit tests for generic DDF.
  */
 public class DDFTests {
 

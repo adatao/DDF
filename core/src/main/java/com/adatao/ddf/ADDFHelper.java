@@ -18,8 +18,8 @@ package com.adatao.ddf;
 
 /**
  * <p>
- * Abstract base class for a {@link DDF} implementor, which provides the support methods
- * necessary to implement various DDF interfaces, such as {@link IHandleRepresentations} and
+ * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary
+ * to implement various DDF interfaces, such as {@link IHandleRepresentations} and
  * {@link IRunAlgorithms}.
  * </p>
  * <p>
@@ -30,7 +30,7 @@ package com.adatao.ddf;
  * 
  * <pre>
  * -------------    -------------------------
- * | DDF |<-->| ADDFHelper |
+ * |    DDF    |<-->|       ADDFHelper      |
  * -------------    -------------------------
  *                         ^          ^
  *                         |   ...    |        -------------------

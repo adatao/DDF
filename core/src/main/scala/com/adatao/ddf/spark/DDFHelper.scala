@@ -23,12 +23,12 @@ import com.adatao.ddf.ADDFHelper
 import com.adatao.ddf.IDDFFactory
 
 /**
- * @author ctn
- *
- * A Spark-based representation and implementation of a DDF.
+ * <p>
+ * An RDD-based representation and implementation of a DDF.
  * In particular DDFs are represented by underlying immutable RDDs.
  * This class allows users to access a number of useful, Spark-related
  * idioms and facilities, including:
+ * </p>
  * <ul>
  * <li>The various underlying RDD representations of a DDF</li>
  * <li>Convenient conversions between different RDD types, e.g., row- or column-based</li>
@@ -36,6 +36,8 @@ import com.adatao.ddf.IDDFFactory
  * <li>Shark's SQL facilities</li>
  * <li>Ability to start with an RDD and get a DDF, and vice versa.</li>
  * </ul>
+ *
+ * @author ctn
  */
 class DDFHelper(ddf: DDF) extends ADDFHelper(ddf) {
 	this

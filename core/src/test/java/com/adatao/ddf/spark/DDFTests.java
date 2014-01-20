@@ -15,6 +15,8 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 
 /**
+ * Spark-specific DDF tests
+ * 
  * @author ctn
  * 
  */

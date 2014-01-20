@@ -7,6 +7,9 @@ import com.adatao.ddf.ARepresentationHandler
 import org.scalatest.Assertions
 import org.apache.spark.rdd.RDD
 
+/**
+ * Spark-specific RepresentationHandler tests
+ */
 class RepresentationHandlerTestSuite extends ATestSuite {
 
 	private var df: DDF = _

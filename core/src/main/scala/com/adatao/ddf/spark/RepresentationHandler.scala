@@ -12,6 +12,8 @@ import com.adatao.ddf.ARepresentationHandler
 import scala.reflect.Manifest
 
 /**
+ * RDD-based RepresentationHandler
+ *
  * @author ctn
  *
  */

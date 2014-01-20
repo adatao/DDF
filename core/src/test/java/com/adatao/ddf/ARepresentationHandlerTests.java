@@ -10,7 +10,7 @@ import org.junit.Test;
 
 
 /**
- * Unit tests for DDF.
+ * Unit tests for generic DDF.
  */
 public class ARepresentationHandlerTests {
   public static class Helper extends ADDFHelper {
