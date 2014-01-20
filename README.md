@@ -1,7 +1,7 @@
-DDF
+DDF (Distributed DataFrame)
 ===
 
-Distributed DataFrame - Native R Support on Spark
+Distributed DataFrame - Native R Support on Spark, with API access for R, Python, Java, Scala
 
 ### Getting Started
 

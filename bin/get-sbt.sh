@@ -17,14 +17,14 @@ cd `dirname $0` ; pwd
 
 [ "$1" != "-f" -a -d sbt.dir ] && usage
 
-if which curl ; then
-	curl  -o /tmp/sbt.zip $URL
-elif which wget ; then
-	wget -O /tmp/sbt.zip $URL
+if hash wget 2>/dev/null; then
+ wget -O /tmp/sbt.zip $URL
+elif hash curl 2>/dev/null; then
+ curl -o /tmp/sbt.zip $URL
 else
-	echo "ERROR: must have either curl or wget to retrieve sbt from $URL"
-	exit 1
+ echo "You need curl or wget installed to download sbt."
+ usage
 fi
 
-rm -fr sbt sbt.dir ; unzip /tmp/sbt.zip ; mv sbt sbt.dir
+rm -fr sbt ; unzip /tmp/sbt.zip ; mv sbt sbt.dir
 ln -s sbt.dir/bin/sbt sbt
