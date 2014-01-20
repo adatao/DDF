@@ -34,7 +34,7 @@ public class DDFTests {
     list.add("b");
     list.add("c");
   }
-  
+
   @AfterClass
   public static void shutdownFixture() {
     sc.stop();
@@ -48,5 +48,16 @@ public class DDFTests {
 
     newInstance = DDFHelper.newDDF(sc.parallelize(list, 1).rdd(), list.get(0).getClass());
     Assert.assertNotNull("Newly instantiated DDF from RDD should not be null", newInstance);
+  }
+
+  @Test
+  public void testRepresentDDF() {
+    DDF newInstance = DDFHelper.newDDF(sc.parallelize(list, 1).rdd(), list.get(0).getClass());
+    Assert.assertNotNull("Newly instantiated DDF from RDD should not be null", newInstance);
+
+    Assert.assertTrue(
+        "DDF Representation should be RDD[String]",
+        ((RepresentationHandler) (newInstance.getHelper().getRepresentationHandler())).getList().startsWith(
+            "1. key='class org.apache.spark.rdd.RDD[class java.lang.String]', value='ParallelCollectionRDD"));
   }
 }

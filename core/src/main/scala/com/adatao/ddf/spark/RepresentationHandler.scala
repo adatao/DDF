@@ -9,6 +9,7 @@ import scala.collection.mutable.HashMap
 import com.adatao.ddf.ADDFFunctionalGroupHandler
 import org.apache.spark.rdd.RDD
 import com.adatao.ddf.ARepresentationHandler
+import scala.reflect.Manifest
 
 /**
  * @author ctn
@@ -29,19 +30,24 @@ class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler
 	 *
 	 * @return null if no matching {@link DDF}
 	 */
-	def get(elementType: Class[_]): Object = this.get(classOf[RDD[_]], elementType)
+	def get[T](elementType: Class[T]): Object = this.get(classOf[RDD[T]], elementType)
 
 	/**
 	 * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
 	 */
-	def set(data: Object, elementType: Class[_]) = {
+	def set[T](data: RDD[T])(implicit m: Manifest[T]) = {
 		this.reset
-		this.add(data, classOf[RDD[_]], elementType)
+		this.add(data)
 	}
 
 	/**
 	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
 	 */
-	def add(data: Object, elementType: Class[_]): Unit = this.add(data, classOf[RDD[_]], elementType)
+	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, classOf[RDD[T]], m.erasure)
+
+	/**
+	 * Removes a representation from the set of existing representations.
+	 */
+	def remove[T](elementType: Class[T]): Unit = this.remove(classOf[RDD[T]], elementType)
 
 }

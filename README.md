@@ -22,3 +22,7 @@ Distributed DataFrame - Native R Support on Spark
 ### Running tests
 		
     DDF% bin/sbt test
+
+or
+
+   DDF/core% mvn test

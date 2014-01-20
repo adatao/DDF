@@ -73,9 +73,9 @@ object DDFHelper extends IDDFFactory {
 	 * This signature is useful for Java clients, due to type erasure, so the client
 	 * needs to be able to pass in the elementType explicitly.
 	 */
-	def newDDF(rdd: RDD[_], elementType: Class[_]): DDF = {
-		val ddf = new DDF(new DDFHelper(null))
-		ddf.getHelper().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, elementType)
+	def newDDF[T](rdd: RDD[T], elementType: Class[_]): DDF = {
+		val ddf = newDDF
+		ddf.getHelper().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, classOf[RDD[T]], elementType)
 		ddf
 	}
 

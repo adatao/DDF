@@ -9,7 +9,7 @@ import java.util.HashMap;
  * @author ctn
  * 
  */
-public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
+public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
   public ARepresentationHandler(ADDFHelper container) {
     super(container);
@@ -79,6 +79,18 @@ public class ARepresentationHandler extends ADDFFunctionalGroupHandler implement
   }
 
   /**
+   * Removes a representation from the set of existing representations.
+   * 
+   * @param containerType
+   * @param elementType
+   */
+  @Override
+  public void remove(Class<?> containerType, Class<?> elementType) {
+    mReps.remove(getKeyFor(containerType, elementType));
+  }
+
+
+  /**
    * Returns a String list of current representations, useful for debugging
    */
   public String getList() {
@@ -91,4 +103,6 @@ public class ARepresentationHandler extends ADDFFunctionalGroupHandler implement
 
     return result;
   }
+
+
 }
