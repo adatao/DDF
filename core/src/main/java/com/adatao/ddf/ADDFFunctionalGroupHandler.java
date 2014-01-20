@@ -15,7 +15,7 @@ import com.adatao.ddf.util.PhantomReference;
  * @author ctn
  * 
  */
-public class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
+public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
 
   public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
     this.setContainer(theContainer);

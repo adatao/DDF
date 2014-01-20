@@ -21,20 +21,21 @@ import com.adatao.ddf.util.PhantomReference;
 
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.)
- * and capabilities (self-compute basic statistics, aggregations, etc.).
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and
+ * capabilities (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
  * </p>
+ * 
  * @author ctn
  * 
  */
 public class DDF implements ISupportPhantomReference {
 
   public DDF(ADDFHelper helper) {
-    this.mHelper = helper;
+    this.setHelper(helper);
     if (helper != null) helper.setDDF(this);
-    
+
     PhantomReference.register(this);
   }
 
@@ -65,8 +66,23 @@ public class DDF implements ISupportPhantomReference {
     return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
   }
 
-  @Override // ISupportPhantomReference
+  @Override
+  // ISupportPhantomReference
   public void cleanup() {
     this.setHelper(null);
   }
+
+  // /////////////////////////////////////
+  // Content: Views & Representations
+  // /////////////////////////////////////
+
+
+  // /////////////////////////////////////
+  // ETL
+  // /////////////////////////////////////
+
+
+  // /////////////////////////////////////
+  // Analytics
+  // /////////////////////////////////////
 }

@@ -70,7 +70,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
 
   public ADDFHelper(DDF theDDF) {
     this.setDDF(theDDF);
-    
+
     PhantomReference.register(this);
   }
 
@@ -87,7 +87,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   }
 
 
-  private IComputeBasicStatistics mBasicStatisticsHandler;
+  private IComputeBasicStatistics mBasicStatisticsComputer;
   private IHandleFilteringAndProjections mFilterAndProjectionHandler;
   private IHandleIndexing mIndexingHandler;
   private IHandleJoins mJoinsHandler;
@@ -103,17 +103,23 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   private IHandleTimeSeries mTimeSeriesHandler;
   private IRunAlgorithms mAlgorithmRunner;
 
-  public IComputeBasicStatistics getBasicStatisticsHandler() {
-    if (mBasicStatisticsHandler == null) throw new UnsupportedOperationException();
-    else return mBasicStatisticsHandler;
+
+  public IComputeBasicStatistics getBasicStatisticsComputer() {
+    if (mBasicStatisticsComputer == null) mBasicStatisticsComputer = this.createBasicStatisticsComputer();
+    if (mBasicStatisticsComputer == null) throw new UnsupportedOperationException();
+    else return mBasicStatisticsComputer;
   }
 
-  public ADDFHelper setBasicStatisticsHandler(IComputeBasicStatistics aBasicStatisticsHandler) {
-    this.mBasicStatisticsHandler = aBasicStatisticsHandler;
+  public ADDFHelper setBasicStatisticsComputer(IComputeBasicStatistics aBasicStatisticsComputer) {
+    this.mBasicStatisticsComputer = aBasicStatisticsComputer;
     return this;
   }
 
+  protected abstract IComputeBasicStatistics createBasicStatisticsComputer();
+
+
   public IHandleFilteringAndProjections getFilterAndProjectionHandler() {
+    if (mFilterAndProjectionHandler == null) mFilterAndProjectionHandler = this.createFilteringAndProjectionsHandler();
     if (mFilterAndProjectionHandler == null) throw new UnsupportedOperationException();
     else return mFilterAndProjectionHandler;
   }
@@ -123,7 +129,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleFilteringAndProjections createFilteringAndProjectionsHandler();
+
+
   public IHandleIndexing getIndexingHandler() {
+    if (mIndexingHandler == null) mIndexingHandler = this.createIndexingHandler();
     if (mIndexingHandler == null) throw new UnsupportedOperationException();
     else return mIndexingHandler;
   }
@@ -133,7 +143,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleIndexing createIndexingHandler();
+  
+
   public IHandleJoins getJoinsHandler() {
+    if (mJoinsHandler == null) mJoinsHandler = this.createJoinsHandler();
     if (mJoinsHandler == null) throw new UnsupportedOperationException();
     else return mJoinsHandler;
   }
@@ -143,7 +157,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleJoins createJoinsHandler();
+
+
   public IHandleMetadata getMetaDataHandler() {
+    if (mMetaDataHandler == null) mMetaDataHandler = this.createMetadataHandler();
     if (mMetaDataHandler == null) throw new UnsupportedOperationException();
     else return mMetaDataHandler;
   }
@@ -153,7 +171,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleMetadata createMetadataHandler();
+
+
   public IHandleMiscellany getMiscellanyHandler() {
+    if (mMiscellanyHandler == null) mMiscellanyHandler = this.createMiscellanyHandler();
     if (mMiscellanyHandler == null) throw new UnsupportedOperationException();
     else return mMiscellanyHandler;
   }
@@ -163,7 +185,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleMiscellany createMiscellanyHandler();
+
+  
   public IHandleMissingData getMissingDataHandler() {
+    if (mMissingDataHandler == null) mMissingDataHandler = this.createMissingDataHandler();
     if (mMissingDataHandler == null) throw new UnsupportedOperationException();
     else return mMissingDataHandler;
   }
@@ -172,8 +198,12 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     this.mMissingDataHandler = aMissingDataHandler;
     return this;
   }
+  
+  protected abstract IHandleMissingData createMissingDataHandler();
+
 
   public IHandleMutability getMutabilityHandler() {
+    if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
     else return mMutabilityHandler;
   }
@@ -183,7 +213,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleMutability createMutabilityHandler();
+  
+
   public IHandlePersistence getPersistenceHandler() {
+    if (mPersistenceHandler == null) mPersistenceHandler = this.createPersistenceHandler();
     if (mPersistenceHandler == null) throw new UnsupportedOperationException();
     else return mPersistenceHandler;
   }
@@ -193,7 +227,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandlePersistence createPersistenceHandler();
+
+
   public IHandleRepresentations getRepresentationHandler() {
+    if (mRepresentationHandler == null) mRepresentationHandler = this.createRepresentationHandler();
     if (mRepresentationHandler == null) throw new UnsupportedOperationException();
     else return mRepresentationHandler;
   }
@@ -203,7 +241,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleRepresentations createRepresentationHandler();
+
+
   public IHandleReshaping getReshapingHandler() {
+    if (mReshapingHandler == null) mReshapingHandler = this.createReshapingHandler();
     if (mReshapingHandler == null) throw new UnsupportedOperationException();
     else return mReshapingHandler;
   }
@@ -213,7 +255,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleReshaping createReshapingHandler();
+
+
   public IHandleSchema getSchemaHandler() {
+    if (mSchemaHandler == null) mSchemaHandler = this.createSchemaHandler();
     if (mSchemaHandler == null) throw new UnsupportedOperationException();
     else return mSchemaHandler;
   }
@@ -223,7 +269,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleSchema createSchemaHandler();
+
+
   public IHandleStreamingData getStreamingDataHandler() {
+    if (mStreamingDataHandler == null) mStreamingDataHandler = this.createStreamingDataHandler();
     if (mStreamingDataHandler == null) throw new UnsupportedOperationException();
     else return mStreamingDataHandler;
   }
@@ -233,7 +283,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleStreamingData createStreamingDataHandler();
+
+
   public IHandleTimeSeries getTimeSeriesHandler() {
+    if (mTimeSeriesHandler == null) mTimeSeriesHandler = this.createTimeSeriesHandler();
     if (mTimeSeriesHandler == null) throw new UnsupportedOperationException();
     else return mTimeSeriesHandler;
   }
@@ -243,7 +297,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IHandleTimeSeries createTimeSeriesHandler();
+
+
   public IRunAlgorithms getAlgorithmRunner() {
+    if (mAlgorithmRunner == null) mAlgorithmRunner = this.createAlgorithmRunner();
     if (mAlgorithmRunner == null) throw new UnsupportedOperationException();
     else return mAlgorithmRunner;
   }
@@ -253,6 +311,9 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     return this;
   }
 
+  protected abstract IRunAlgorithms createAlgorithmRunner();
+
+
   @Override
   // ISupportPhantomReference
   public void cleanup() {
@@ -260,7 +321,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     this
     .setDDF(null)
     .setAlgorithmRunner(null)
-    .setBasicStatisticsHandler(null)
+    .setBasicStatisticsComputer(null)
     .setFilterAndProjectionHandler(null)
     .setIndexingHandler(null)
     .setJoinsHandler(null)
