@@ -16,6 +16,20 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.content.IHandleIndexing;
+import com.adatao.ddf.content.IHandleMetadata;
+import com.adatao.ddf.content.IHandleMissingData;
+import com.adatao.ddf.content.IHandleMutability;
+import com.adatao.ddf.content.IHandleRepresentations;
+import com.adatao.ddf.content.IHandleSchema;
+import com.adatao.ddf.etl.IHandleFilteringAndProjections;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.util.ISupportPhantomReference;
+
 /**
  * <p>
  * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary
@@ -51,7 +65,7 @@ package com.adatao.ddf;
  * @author ctn
  * 
  */
-public abstract class ADDFHelper implements IDDFHelper {
+public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference {
 
   public ADDFHelper(DDF theDDF) {
     this.setDDF(theDDF);
@@ -84,7 +98,6 @@ public abstract class ADDFHelper implements IDDFHelper {
   private IHandleSchema mSchemaHandler;
   private IHandleStreamingData mStreamingDataHandler;
   private IHandleTimeSeries mTimeSeriesHandler;
-  private IPerformETL mETLPerformer;
   private IRunAlgorithms mAlgorithmRunner;
 
   public IComputeBasicStatistics getBasicStatisticsHandler() {
@@ -227,16 +240,6 @@ public abstract class ADDFHelper implements IDDFHelper {
     return this;
   }
 
-  public IPerformETL getETLPerformer() {
-    if (mETLPerformer == null) throw new UnsupportedOperationException();
-    else return mETLPerformer;
-  }
-
-  public ADDFHelper setETLPerformer(IPerformETL aETLPerformer) {
-    this.mETLPerformer = aETLPerformer;
-    return this;
-  }
-
   public IRunAlgorithms getAlgorithmRunner() {
     if (mAlgorithmRunner == null) throw new UnsupportedOperationException();
     else return mAlgorithmRunner;
@@ -245,5 +248,30 @@ public abstract class ADDFHelper implements IDDFHelper {
   public ADDFHelper setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
     this.mAlgorithmRunner = aAlgorithmRunner;
     return this;
+  }
+
+  @Override
+  // ISupportPhantomReference
+  public void cleanup() {
+    // @formatter:off
+    this
+    .setDDF(null)
+    .setAlgorithmRunner(null)
+    .setBasicStatisticsHandler(null)
+    .setFilterAndProjectionHandler(null)
+    .setIndexingHandler(null)
+    .setJoinsHandler(null)
+    .setMetaDataHandler(null)
+    .setMiscellanyHandler(null)
+    .setMissingDataHandler(null)
+    .setMutabilityHandler(null)
+    .setPersistenceHandler(null)
+    .setRepresentationHandler(null)
+    .setReshapingHandler(null)
+    .setSchemaHandler(null)
+    .setStreamingDataHandler(null)
+    .setTimeSeriesHandler(null)
+    ;
+    // @formatter:on
   }
 }

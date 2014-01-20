@@ -3,14 +3,18 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.content.IHandleMetadata;
+import com.adatao.ddf.etl.IHandleFilteringAndProjections;
+import com.adatao.ddf.util.ISupportPhantomReference;
+
 /**
- * Abstract base class for a handler of a group of DDF functionality, e.g.,
- * {@link IHandleMetadata}, or {@link IHandleFilteringAndProjections}.
+ * Abstract base class for a handler of a group of DDF functionality, e.g., {@link IHandleMetadata},
+ * or {@link IHandleFilteringAndProjections}.
  * 
  * @author ctn
  * 
  */
-public class ADDFFunctionalGroupHandler {
+public class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
 
   public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
     this.setContainer(theContainer);
@@ -44,4 +48,9 @@ public class ADDFFunctionalGroupHandler {
     return this;
   }
 
+  @Override
+  // ISupportPhantomReference
+  public void cleanup() {
+    this.setContainer(null);
+  }
 }

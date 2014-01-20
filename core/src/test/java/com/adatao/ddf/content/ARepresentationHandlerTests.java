@@ -1,4 +1,4 @@
-package com.adatao.ddf;
+package com.adatao.ddf.content;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,11 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.ARepresentationHandler;
+import com.adatao.ddf.content.IHandleRepresentations;
 
 
 /**

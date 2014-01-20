@@ -21,6 +21,7 @@ import com.adatao.ddf.DDF
 import org.apache.spark.rdd.RDD
 import com.adatao.ddf.ADDFHelper
 import com.adatao.ddf.IDDFFactory
+import com.adatao.ddf.spark.content.RepresentationHandler
 
 /**
  * <p>
@@ -43,7 +44,6 @@ class DDFHelper(ddf: DDF) extends ADDFHelper(ddf) {
 	this
 		.setAlgorithmRunner(null)
 		.setBasicStatisticsHandler(null)
-		.setETLPerformer(null)
 		.setFilterAndProjectionHandler(null)
 		.setIndexingHandler(null)
 		.setJoinsHandler(null)

@@ -1,9 +1,13 @@
 /**
  * 
  */
-package com.adatao.ddf;
+package com.adatao.ddf.content;
 
 import java.util.HashMap;
+
+import com.adatao.ddf.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.DDF;
 
 /**
  * @author ctn

@@ -16,14 +16,19 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.util.ISupportPhantomReference;
+
 /**
+ * <p>
  * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.)
  * and capabilities (self-compute basic statistics, aggregations, etc.).
- * 
+ * </p>
+ * <p>
+ * </p>
  * @author ctn
  * 
  */
-public class DDF {
+public class DDF implements ISupportPhantomReference {
 
   public DDF(ADDFHelper implementor) {
     this.mHelper = implementor;
@@ -55,5 +60,10 @@ public class DDF {
 
   public DDF getRandomSample(int numSamples) {
     return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
+  }
+
+  @Override // ISupportPhantomReference
+  public void cleanup() {
+    this.setHelper(null);
   }
 }
