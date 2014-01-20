@@ -25,8 +25,8 @@ function run() {
   ***************************************************************************************
   Retrieving sbt
   ***************************************************************************************
-	bin/get-sbt.sh
   "
+	bin/get-sbt.sh
 
   # Don't do this automatically; it seems too expensive in terms of people having to re-download stuff
   #echo "

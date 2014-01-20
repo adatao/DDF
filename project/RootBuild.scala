@@ -287,7 +287,7 @@ object RootBuild extends Build {
 			//"org.eclipse.jetty" % "jetty-util" % "7.6.8.v20121106",
 			"org.scalatest" % "scalatest_2.9.3" % "1.9.1",
 			//"org.scalacheck" % "scalacheck_2.10" % "1.10.0", // depends on scala-lang 2.10.0
-			//"com.novocode" % "junit-interface" % "0.9" % "test",
+			"com.novocode" % "junit-interface" % "0.9" % "test",
 			"org.easymock" % "easymock" % "3.1" % "test"
 			
 		),

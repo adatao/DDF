@@ -1,4 +1,4 @@
-package com.adatao.DDF;
+package com.adatao.ddf;
 
 public interface IHandlePersistence {
 
