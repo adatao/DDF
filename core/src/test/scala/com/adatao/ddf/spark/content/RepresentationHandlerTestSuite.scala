@@ -43,7 +43,7 @@ class RepresentationHandlerTestSuite extends ATestSuite {
 	test("Can list DDF representations") {
 		val list: String = df.getHelper().getRepresentationHandler().asInstanceOf[ARepresentationHandler].getList()
 		//println(list)
-		assert(list.startsWith("1. key='class org.apache.spark.rdd.RDD[double]', value='ParallelCollectionRDD"))
+		assert(list.startsWith("1. key='double', value='ParallelCollectionRDD"))
 	}
 
 	test("Can represent DDFs as RDDs") {

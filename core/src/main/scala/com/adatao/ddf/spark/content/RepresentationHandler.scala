@@ -11,6 +11,7 @@ import com.adatao.ddf.content.ARepresentationHandler
 import scala.reflect.Manifest
 import com.adatao.ddf.spark.DDFHelper
 import org.apache.spark.rdd.RDD
+import scala.collection.JavaConversions._
 
 /**
  * RDD-based RepresentationHandler
@@ -19,21 +20,6 @@ import org.apache.spark.rdd.RDD
  *
  */
 class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler(container) with IHandleRepresentations {
-
-	// The various representations for our DDF
-	private val mReps = new HashMap[String, Any]
-
-	private def getKeyFor(elementType: Class[_]): String = this.getKeyFor(classOf[RDD[_]], elementType)
-
-	/**
-	 * Gets an existing RDD representation for our {@link DDF} matching the given
-	 * elementType, if any.
-	 *
-	 * @param elementType the type of the RDD element
-	 *
-	 * @return null if no matching {@link DDF}
-	 */
-	def get[T](elementType: Class[T]): Object = this.get(classOf[RDD[T]], elementType)
 
 	/**
 	 * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
@@ -46,11 +32,19 @@ class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler
 	/**
 	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
 	 */
-	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, classOf[RDD[T]], m.erasure)
+	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, m.erasure)
 
-	/**
-	 * Removes a representation from the set of existing representations.
-	 */
-	def remove[T](elementType: Class[T]): Unit = this.remove(classOf[RDD[T]], elementType)
-
+	override def cleanup = {
+		// Make sure we unpersist all RDDs we own
+		mReps.foreach {
+			kv ⇒
+				{
+					if (kv._2 != null) {
+						val rdd = kv._2.asInstanceOf[RDD[_]]
+						if (rdd != null) rdd.unpersist(false)
+					}
+				}
+		}
+		super.cleanup()
+	}
 }

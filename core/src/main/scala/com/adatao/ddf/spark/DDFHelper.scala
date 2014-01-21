@@ -98,7 +98,7 @@ object DDFHelper extends IDDFFactory {
 	 */
 	def newDDF[T](rdd: RDD[T], elementType: Class[_]): DDF = {
 		val ddf = newDDF
-		ddf.getHelper().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, classOf[RDD[T]], elementType)
+		ddf.getHelper().getRepresentationHandler().asInstanceOf[RepresentationHandler].set(rdd, elementType)
 		ddf
 	}
 
