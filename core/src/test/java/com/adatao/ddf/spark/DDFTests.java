@@ -13,8 +13,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.spark.content.RepresentationHandler;
 
 /**
+ * Spark-specific DDF tests
+ * 
  * @author ctn
  * 
  */

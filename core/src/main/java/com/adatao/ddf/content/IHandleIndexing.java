@@ -1,4 +1,4 @@
-package com.adatao.ddf;
+package com.adatao.ddf.content;
 
 public interface IHandleIndexing {
 

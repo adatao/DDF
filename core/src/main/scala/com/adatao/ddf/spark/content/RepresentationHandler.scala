@@ -1,17 +1,20 @@
 /**
  *
  */
-package com.adatao.ddf.spark
+package com.adatao.ddf.spark.content
 
-import com.adatao.ddf.IHandleRepresentations
+import com.adatao.ddf.content.IHandleRepresentations
 import java.lang.Class
 import scala.collection.mutable.HashMap
-import com.adatao.ddf.ADDFFunctionalGroupHandler
 import org.apache.spark.rdd.RDD
-import com.adatao.ddf.ARepresentationHandler
+import com.adatao.ddf.content.ARepresentationHandler
 import scala.reflect.Manifest
+import com.adatao.ddf.spark.DDFHelper
+import org.apache.spark.rdd.RDD
 
 /**
+ * RDD-based RepresentationHandler
+ *
  * @author ctn
  *
  */
