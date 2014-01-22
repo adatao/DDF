@@ -5,6 +5,7 @@ package com.adatao.ddf.content;
 
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -65,13 +66,20 @@ public abstract class AViewsHandler extends ADDFFunctionalGroupHandler implement
 
   @Override
   public void reset() {
-    // TODO Auto-generated method stub
-
+    mViews.clear();
   }
 
   @Override
   public void remove(UUID ddfId) {
-    // TODO Auto-generated method stub
+    if (ddfId == null) return;
 
+    for (Entry<String, DDF> entry : mViews.entrySet()) {
+      DDF ddf = entry.getValue();
+      if (ddf != null) {
+        if (ddfId.equals(ddf.getHelper().getMetaDataHandler().getId())) {
+          mViews.remove(entry.getKey());
+        }
+      }
+    }
   }
 }
