@@ -7,6 +7,8 @@ import com.adatao.ddf.content.IHandleViews
 import com.adatao.ddf.spark.DDFHelper
 import com.adatao.ddf.content.AViewHandler
 import com.adatao.ddf.DDF
+import shark.memstore2.TablePartition
+import org.apache.spark.rdd.RDD
 
 /**
  * RDD-based ViewHandler
@@ -17,7 +19,7 @@ import com.adatao.ddf.DDF
 class ViewHandler(container: DDFHelper) extends AViewHandler(container) with IHandleViews {
 	object ViewFormat extends Enumeration {
 		type ViewFormat = Value
-		val DEFAULT, ARRAY_OBJECT, ARRAY_DOUBLE, TABLE_PARTITION = Value
+		val DEFAULT, ARRAY_OBJECT, ARRAY_DOUBLE, TABLE_PARTITION, LABELED_POINT, LABELED_POINTS = Value
 	}
 	import ViewFormat._
 
@@ -32,10 +34,12 @@ class ViewHandler(container: DDFHelper) extends AViewHandler(container) with IHa
 	 */
 	def get(columns: Array[Int], formatEnum: ViewFormat): DDF = {
 		formatEnum match {
-			case ViewFormat.DEFAULT ⇒ {}
-			case ViewFormat.ARRAY_OBJECT ⇒ {}
-			case ViewFormat.ARRAY_DOUBLE ⇒ {}
-			case ViewFormat.TABLE_PARTITION ⇒ {}
+			case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, container)
+			case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, container)
+			case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, container)
+			case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, container)
+      case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, container)
+      case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, container)
 			case _ ⇒ {}
 		}
 		null
@@ -44,4 +48,46 @@ class ViewHandler(container: DDFHelper) extends AViewHandler(container) with IHa
 	protected def getImpl(columns: Array[Int], format: String): DDF = {
 		this.get(columns, ViewFormat.withName(format))
 	}
+}
+
+object ViewHandler {
+  def getDefault(cols: Array[Int], container: DDFHelper): DDF = {
+    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
+
+    null
+  }
+
+  def getArrayObject(cols: Array[Int], container: DDFHelper): DDF = {
+    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
+    val clas= classOf[TablePartition]
+    val obj= helper.get(clas)
+    if(obj != null){
+      val rdd= obj.asInstanceOf[RDD[TablePartition]]
+      //build RDD[Array[Object]]
+
+    }else{
+      throw new Exception("TablePartition representation not found")
+    }
+    null
+  }
+
+  def getArrayDouble(cols: Array[Int], container: DDFHelper): DDF = {
+
+    null
+  }
+
+  def getTablePartition(cols: Array[Int], container: DDFHelper): DDF = {
+
+    null
+  }
+
+  def getLabeledPoint(cols: Array[Int], container: DDFHelper): DDF = {
+
+    null
+  }
+
+  def getLabeledPoints(cols: Array[Int], container: DDFHelper): DDF = {
+
+    null
+  }
 }
