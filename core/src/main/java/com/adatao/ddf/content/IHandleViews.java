@@ -4,7 +4,9 @@
 package com.adatao.ddf.content;
 
 import java.util.Enumeration;
+import java.util.UUID;
 
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 
 /**
@@ -24,27 +26,26 @@ import com.adatao.ddf.etl.IHandleFilteringAndProjections;
  * 
  */
 public interface IHandleViews {
-  public Object get(int[] xCols, int[] yCols, Enumeration<Integer> format);
+  /**
+   * Returns a DDF (new or cached) that has the given columns in the specified format.
+   * For example, it may be columns 1,2,7,3, with format LabeledPoint, in which case columns
+   * (1,2,7) are the x-values, and column 3 is the y-value, by convention.
+   * 
+   * @param columns
+   * @param format
+   * @return
+   */
+  public DDF get(int[] columns, Enumeration<Integer> format);
 
   /**
-   * Clears out all current views.
+   * Clears out all current views for this DDF.
    */
   public void reset();
 
   /**
-   * Adds a view to the set of existing views.
+   * Removes the specified view from this DDF.
    * 
-   * @param rows
-   * @param containerType
-   * @param elementType
+   * @param ddfId
    */
-  public void add(Object data, int[] xCols, int[] yCols, Enumeration<Integer> format);
-
-  /**
-   * Removes a representation from the set of existing representations.
-   * 
-   * @param containerType
-   * @param elementType
-   */
-  public void remove(Enumeration<Integer> format);
+  public void remove(UUID ddfId);
 }

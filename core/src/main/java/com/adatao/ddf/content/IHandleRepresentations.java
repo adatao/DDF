@@ -67,4 +67,14 @@ public interface IHandleRepresentations {
    * @param elementType
    */
   public void remove(Class<?> elementType);
+  
+  /**
+   * Cache all representations, e.g., in an in-memory context
+   */
+  public void cacheAll();
+  
+  /**
+   * Uncache all representations, e.g., in an in-memory context
+   */
+  public void uncacheAll();
 }

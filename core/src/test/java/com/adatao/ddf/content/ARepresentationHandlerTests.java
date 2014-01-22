@@ -128,6 +128,18 @@ public class ARepresentationHandlerTests {
     public Handler(ADDFHelper container) {
       super(container);
     }
+
+    @Override
+    public void cacheAll() {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void uncacheAll() {
+      // TODO Auto-generated method stub
+      
+    }
   }
 
   private static DDF ddf = new DDF(new Helper(null));

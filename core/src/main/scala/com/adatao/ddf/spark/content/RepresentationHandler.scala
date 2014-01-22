@@ -36,15 +36,31 @@ class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler
 
 	override def cleanup = {
 		// Make sure we unpersist all RDDs we own
-		mReps.foreach {
-			kv ⇒
-				{
-					if (kv._2 != null) {
-						val rdd = kv._2.asInstanceOf[RDD[_]]
-						if (rdd != null) rdd.unpersist(false)
-					}
-				}
-		}
+		uncacheAll()
 		super.cleanup()
+	}
+
+	private def forAllReps[T](f: RDD[_] ⇒ Any) {
+		mReps.foreach {
+			kv ⇒ if (kv._2 != null) f(kv._2.asInstanceOf[RDD[_]])
+		}
+	}
+
+	override def cacheAll = {
+		forAllReps({ rdd: RDD[_] ⇒
+			if (rdd != null) {
+				LOG.info(this.getClass() + ": Persisting " + rdd)
+				rdd.persist
+			}
+		})
+	}
+
+	override def uncacheAll = {
+		forAllReps({ rdd: RDD[_] ⇒
+			if (rdd != null) {
+				LOG.info(this.getClass() + ": Unpersisting " + rdd)
+				rdd.unpersist(false)
+			}
+		})
 	}
 }
