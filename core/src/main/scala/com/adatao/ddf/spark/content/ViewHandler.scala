@@ -59,21 +59,28 @@ object ViewHandler {
 
   def getArrayObject(cols: Array[Int], container: DDFHelper): DDF = {
     val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
-    val clas= classOf[TablePartition]
-    val obj= helper.get(clas)
+    val obj= helper.get(classOf[TablePartition])
+
     if(obj != null){
       val rdd= obj.asInstanceOf[RDD[TablePartition]]
-      //build RDD[Array[Object]]
-
+      val newRDD= TablePartitionHelper.getArrayObject(cols, rdd)
+      DDFHelper.newDDF(newRDD)
     }else{
       throw new Exception("TablePartition representation not found")
     }
-    null
   }
 
   def getArrayDouble(cols: Array[Int], container: DDFHelper): DDF = {
+    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
+    val obj= helper.get(classOf[TablePartition])
 
-    null
+    if(obj != null){
+      val rdd= obj.asInstanceOf[RDD[TablePartition]]
+      val newRDD= TablePartitionHelper.getArrayDouble(cols, rdd)
+      DDFHelper.newDDF(newRDD)
+    }else{
+      throw new Exception("TablePartition representation not found")
+    }
   }
 
   def getTablePartition(cols: Array[Int], container: DDFHelper): DDF = {
@@ -82,12 +89,31 @@ object ViewHandler {
   }
 
   def getLabeledPoint(cols: Array[Int], container: DDFHelper): DDF = {
+    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
+    val obj= helper.get(classOf[TablePartition])
 
-    null
+    if(obj != null){
+      val rdd= obj.asInstanceOf[RDD[TablePartition]]
+      val newRDD= TablePartitionHelper.getLabeledPoint(cols, rdd)
+      DDFHelper.newDDF(newRDD)
+    }else{
+      throw new Exception("TablePartition representation not found")
+    }
+
   }
 
   def getLabeledPoints(cols: Array[Int], container: DDFHelper): DDF = {
 
-    null
+    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
+    val obj= helper.get(classOf[TablePartition])
+
+    if(obj != null){
+      val rdd= obj.asInstanceOf[RDD[TablePartition]]
+      val newRDD= TablePartitionHelper.getLabeledPoints(cols, rdd)
+      DDFHelper.newDDF(newRDD)
+    }else{
+      throw new Exception("TablePartition representation not found")
+    }
+
   }
 }
