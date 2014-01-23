@@ -38,6 +38,9 @@ import com.adatao.ddf.IHandleStreamingData
 import com.adatao.ddf.IHandleTimeSeries
 import com.adatao.ddf.spark.content.RepresentationHandler
 import com.adatao.ddf.etl.IHandleReshaping
+import com.adatao.ddf.content.IHandleViews
+import com.adatao.ddf.spark.content.ViewHandler
+import com.adatao.ddf.etl.PersistenceHandler
 
 /**
  * <p>
@@ -71,12 +74,13 @@ class DDFHelper(ddf: DDF) extends ADDFHelper(ddf) {
 	override protected def createMiscellanyHandler: IHandleMiscellany = null
 	override protected def createMissingDataHandler: IHandleMissingData = null
 	override protected def createMutabilityHandler: IHandleMutability = null
-	override protected def createPersistenceHandler: IHandlePersistence = null
+	override protected def createPersistenceHandler: IHandlePersistence = new PersistenceHandler(this)
 	override protected def createRepresentationHandler: IHandleRepresentations = new RepresentationHandler(this)
 	override protected def createReshapingHandler: IHandleReshaping = null
 	override protected def createSchemaHandler: IHandleSchema = null
 	override protected def createStreamingDataHandler: IHandleStreamingData = null
-	override protected def createTimeSeriesHandler: IHandleTimeSeries = null
+  override protected def createTimeSeriesHandler: IHandleTimeSeries = null
+  override protected def createViewHandler: IHandleViews = new ViewHandler(this)
 
 }
 
