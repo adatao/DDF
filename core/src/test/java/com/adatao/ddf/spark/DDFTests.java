@@ -58,9 +58,9 @@ public class DDFTests {
     DDF newInstance = DDFHelper.newDDF(sc.parallelize(list, 1).rdd(), list.get(0).getClass());
     Assert.assertNotNull("Newly instantiated DDF from RDD should not be null", newInstance);
 
-    Assert.assertTrue(
-        "DDF Representation should be RDD[String]",
-        ((RepresentationHandler) (newInstance.getHelper().getRepresentationHandler())).getList().startsWith(
-            "1. key='class org.apache.spark.rdd.RDD[class java.lang.String]', value='ParallelCollectionRDD"));
+    String list = ((RepresentationHandler) (newInstance.getHelper().getRepresentationHandler())).getList();
+    //System.out.println(list);
+    Assert.assertTrue("DDF Representation should be RDD[String]", list
+        .startsWith("1. key='class java.lang.String', value='ParallelCollectionRDD"));
   }
 }

@@ -3,6 +3,9 @@
  */
 package com.adatao.ddf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.content.IHandleMetadata;
 import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -16,10 +19,11 @@ import com.adatao.ddf.util.PhantomReference;
  * 
  */
 public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
+  protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
     this.setContainer(theContainer);
-    
+
     PhantomReference.register(this);
   }
 

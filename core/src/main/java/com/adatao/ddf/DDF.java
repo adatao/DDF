@@ -75,6 +75,20 @@ public class DDF implements ISupportPhantomReference {
   // /////////////////////////////////////
   // Content: Views & Representations
   // /////////////////////////////////////
+  
+  /**
+   * Override to implement, e.g., in-memory caching support
+   */
+  public void cache() {
+    // Nothing
+  }
+  
+  /**
+   * Override to implement, e.g., in-memory caching support
+   */
+  public void uncache() {
+    // Nothing
+  }
 
 
   // /////////////////////////////////////

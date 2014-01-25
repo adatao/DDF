@@ -21,27 +21,24 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
 
 
   // The various representations for our DDF
-  private HashMap<String, Object> mReps = new HashMap<String, Object>();
+  protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
-  protected String getKeyFor(Class<?> containerType, Class<?> elementType) {
-    return containerType.toString() + "[" + elementType.toString() + "]";
+  protected String getKeyFor(Class<?> elementType) {
+    return elementType.toString();
   }
 
 
   /**
-   * Gets an existing representation for our {@link DDF} matching the given containerType and
-   * elementType, if any.
+   * Gets an existing representation for our {@link DDF} matching the given elementType, if any.
    * 
-   * @param containerType
-   *          the type of the container
    * @param elementType
    *          the type of each element in the container
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> containerType, Class<?> elementType) {
-    return mReps.get(getKeyFor(containerType, elementType));
+  public Object get(Class<?> elementType) {
+    return mReps.get(getKeyFor(elementType));
   }
 
   /**
@@ -55,42 +52,35 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
-   * @param containerType
-   *          the type of the container
-   * 
    * @param elementType
    *          the type of each element in the container
    */
   @Override
-  public void set(Object data, Class<?> containerType, Class<?> elementType) {
+  public void set(Object data, Class<?> elementType) {
     this.reset();
-    this.add(data, containerType, elementType);
+    this.add(data, elementType);
   }
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
    * replacing the one that matches the given containerType, elementType tuple.
    * 
-   * @param containerType
-   *          the type of the container
-   * 
    * @param elementType
    *          the type of each element in the container
    */
   @Override
-  public void add(Object data, Class<?> containerType, Class<?> elementType) {
-    mReps.put(getKeyFor(containerType, elementType), data);
+  public void add(Object data, Class<?> elementType) {
+    mReps.put(getKeyFor(elementType), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param containerType
    * @param elementType
    */
   @Override
-  public void remove(Class<?> containerType, Class<?> elementType) {
-    mReps.remove(getKeyFor(containerType, elementType));
+  public void remove(Class<?> elementType) {
+    mReps.remove(getKeyFor(elementType));
   }
 
 
@@ -108,5 +98,9 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
     return result;
   }
 
-
+  @Override
+  public void cleanup() {
+    mReps.clear();
+    super.cleanup();
+  }
 }

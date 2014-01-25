@@ -128,6 +128,18 @@ public class ARepresentationHandlerTests {
     public Handler(ADDFHelper container) {
       super(container);
     }
+
+    @Override
+    public void cacheAll() {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void uncacheAll() {
+      // TODO Auto-generated method stub
+      
+    }
   }
 
   private static DDF ddf = new DDF(new Helper(null));
@@ -154,19 +166,18 @@ public class ARepresentationHandlerTests {
   @Test
   public void testRepresentDDF() {
     handler.reset();
-    Assert.assertNull("There should not be any existing representations",
-        handler.get(list.getClass(), list.get(0).getClass()));
+    Assert.assertNull("There should not be any existing representations", handler.get(list.get(0).getClass()));
 
-    handler.set(list, list.getClass(), list.get(0).getClass());
+    handler.set(list, list.get(0).getClass());
     Assert.assertNotNull("There should now be a representation of type <List,String>",
-        handler.get(list.getClass(), list.get(0).getClass()));
+        handler.get(list.get(0).getClass()));
 
-    handler.add(list, list.getClass(), list.get(0).getClass());
+    handler.add(list, list.get(0).getClass());
     Assert.assertNotNull("There should now be a representation of type <List,String>",
-        handler.get(list.getClass(), list.get(0).getClass()));
+        handler.get(list.get(0).getClass()));
 
-    handler.remove(list.getClass(), list.get(0).getClass());
+    handler.remove(list.get(0).getClass());
     Assert.assertNull("There should now be no representation of type <List,String>",
-        handler.get(list.getClass(), list.get(0).getClass()));
+        handler.get(list.get(0).getClass()));
   }
 }

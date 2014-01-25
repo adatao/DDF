@@ -24,6 +24,7 @@ import com.adatao.ddf.content.IHandleMissingData;
 import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
+import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
@@ -101,6 +102,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   private IHandleSchema mSchemaHandler;
   private IHandleStreamingData mStreamingDataHandler;
   private IHandleTimeSeries mTimeSeriesHandler;
+  private IHandleViews mViewHandler;
   private IRunAlgorithms mAlgorithmRunner;
 
 
@@ -144,7 +146,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   }
 
   protected abstract IHandleIndexing createIndexingHandler();
-  
+
 
   public IHandleJoins getJoinsHandler() {
     if (mJoinsHandler == null) mJoinsHandler = this.createJoinsHandler();
@@ -187,7 +189,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
 
   protected abstract IHandleMiscellany createMiscellanyHandler();
 
-  
+
   public IHandleMissingData getMissingDataHandler() {
     if (mMissingDataHandler == null) mMissingDataHandler = this.createMissingDataHandler();
     if (mMissingDataHandler == null) throw new UnsupportedOperationException();
@@ -198,7 +200,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     this.mMissingDataHandler = aMissingDataHandler;
     return this;
   }
-  
+
   protected abstract IHandleMissingData createMissingDataHandler();
 
 
@@ -214,7 +216,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   }
 
   protected abstract IHandleMutability createMutabilityHandler();
-  
+
 
   public IHandlePersistence getPersistenceHandler() {
     if (mPersistenceHandler == null) mPersistenceHandler = this.createPersistenceHandler();
@@ -298,6 +300,20 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   }
 
   protected abstract IHandleTimeSeries createTimeSeriesHandler();
+
+
+  public IHandleViews getViewHandler() {
+    if (mViewHandler == null) mViewHandler = this.createViewHandler();
+    if (mViewHandler == null) throw new UnsupportedOperationException();
+    else return mViewHandler;
+  }
+
+  public ADDFHelper setViewHandler(IHandleViews aViewHandler) {
+    this.mViewHandler = aViewHandler;
+    return this;
+  }
+
+  protected abstract IHandleViews createViewHandler();
 
 
   public IRunAlgorithms getAlgorithmRunner() {
