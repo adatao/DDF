@@ -20,7 +20,6 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
 
 
   private UUID mId = UUID.randomUUID();
-
   @Override
   public UUID getId() {
     return mId;
@@ -49,7 +48,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   }
 
   /**
-   * Called to assert that the row count needs to be recomputed at next access
+   * Called to assert that the column count needs to be recomputed at next access
    */
   protected void invalidateNumColumns() {
     bNumColumnsIsValid = false;

@@ -62,6 +62,13 @@ public class DDF implements ISupportPhantomReference {
   }
 
 
+  public long nrows(){
+    return this.getHelper().getMetaDataHandler().getNumRows();
+  }
+  
+  public long ncols(){
+    return this.getHelper().getMetaDataHandler().getNumColumns();
+  }
   public DDF getRandomSample(int numSamples) {
     return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
   }
