@@ -13,7 +13,7 @@ function usage {
 	exit 1
 }
 
-cd `dirname $0` ; pwd
+cd `dirname $0`
 
 [ "$1" != "-f" -a -d sbt.dir ] && usage
 

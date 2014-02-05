@@ -14,7 +14,7 @@ object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
 	val SPARK_VERSION = "0.8.1-incubating"
-	val SHARK_VERSION = "0.8.1-snapshot"
+	val SHARK_VERSION = "0.8.1-SNAPSHOT"
 	
 	//val theScalaVersion = "2.10.0"
 	val theScalaVersion = "2.9.3"
