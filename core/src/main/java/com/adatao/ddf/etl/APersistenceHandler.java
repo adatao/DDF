@@ -5,7 +5,6 @@ package com.adatao.ddf.etl;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.ADDFHelper;
-import com.adatao.ddf.DDF;
 
 /**
  * @author ctn
