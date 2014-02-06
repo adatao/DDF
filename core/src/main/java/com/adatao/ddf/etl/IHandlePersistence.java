@@ -1,7 +1,5 @@
 package com.adatao.ddf.etl;
 
-import com.adatao.ddf.DDF;
-
 public interface IHandlePersistence {
 
   /**

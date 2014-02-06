@@ -122,6 +122,12 @@ public class ARepresentationHandlerTests {
       // TODO Auto-generated method stub
       return null;
     }
+
+    @Override
+    protected IHandleViews createViewHandler() {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 
   public static class Handler extends ARepresentationHandler {
