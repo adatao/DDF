@@ -36,6 +36,10 @@ public interface IHandlePersistence {
    */
   public void jdbcSave(String connection, String command);
 
+  public void hdfsLoad(String path);
+
+  public void hdfdsSave(String path);
+  
   /**
    * Perform a load of the given "source type" into the DDF
    * 

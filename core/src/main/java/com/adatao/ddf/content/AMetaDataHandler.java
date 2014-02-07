@@ -35,11 +35,13 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   private boolean bNumRowsIsValid = false;
   private long mNumColumns = 0L;
   private boolean bNumColumnsIsValid = false;
-
+  private ColumnInfo[] columnMetadata;
+  
   protected abstract long getNumRowsImpl();
 
-  protected abstract long getNumColumnsImpl();
-
+  protected long getNumColumnsImpl() {
+    return columnMetadata.length;
+  }
   /**
    * Called to assert that the row count needs to be recomputed at next access
    */
@@ -52,6 +54,10 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
    */
   protected void invalidateNumColumns() {
     bNumColumnsIsValid = false;
+  }
+
+  public ColumnInfo[] getColumnMetadata() {
+    return columnMetadata;
   }
 
   @Override

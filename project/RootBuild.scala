@@ -14,7 +14,7 @@ object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
 	val SPARK_VERSION = "0.8.1-incubating"
-	val SHARK_VERSION = "0.8.1-snapshot"
+	val SHARK_VERSION = "0.8.1-SNAPSHOT"
 	
 	//val theScalaVersion = "2.10.0"
 	val theScalaVersion = "2.9.3"
@@ -27,7 +27,7 @@ object RootBuild extends Build {
 
 	val projectOrganization = rootOrganization + "." + projectName
 
-	val coreProjectName = projectName + "_core"
+	val coreProjectName = projectName + "-core"
 	val coreVersion = rootVersion
 	//val coreJarName = coreProjectName + "_" + theScalaVersion + "-" + coreVersion + ".jar"
 	//val coreTestJarName = coreProjectName + "_" + theScalaVersion + "-" + coreVersion + "-tests.jar"
