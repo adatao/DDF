@@ -25,9 +25,9 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
-*.ear
+#*.jar
+#*.war
+#*.ear
 
 ### Scala
 *.class
