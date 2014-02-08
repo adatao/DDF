@@ -16,6 +16,7 @@
  */
 package com.adatao.ddf;
 
+
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -25,7 +26,7 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
+
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
@@ -81,9 +82,7 @@ public class DDF implements ISupportPhantomReference {
     return this.getHelper().getBasicStatisticsComputer();
   }
 
-  public IHandleFilteringAndProjections getFilterAndProjectionHandler() {
-    return this.getHelper().getFilterAndProjectionHandler();
-  }
+
 
   public IHandleIndexing getIndexingHandler() {
     return this.getHelper().getIndexingHandler();
@@ -96,6 +95,7 @@ public class DDF implements ISupportPhantomReference {
   public IHandleMetadata getMetaDataHandler() {
     return this.getHelper().getMetaDataHandler();
   }
+
 
   public IHandleMiscellany getMiscellanyHandler() {
     return this.getHelper().getMiscellanyHandler();
@@ -147,6 +147,7 @@ public class DDF implements ISupportPhantomReference {
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from this DDF.
    */
+
   public DDF getRandomSample(int numSamples) {
     return this.getViewHandler().getRandomSample(numSamples);
   }
