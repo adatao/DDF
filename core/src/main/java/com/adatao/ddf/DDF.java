@@ -16,6 +16,7 @@
  */
 package com.adatao.ddf;
 
+<<<<<<< HEAD
 
 
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
@@ -136,6 +137,7 @@ public class DDF implements ISupportPhantomReference {
     return this.getHelper().getTimeSeriesHandler();
   }
 
+
   public IHandleViews getViewHandler() {
     return this.getHelper().getViewHandler();
   }
@@ -143,6 +145,7 @@ public class DDF implements ISupportPhantomReference {
   public IRunAlgorithms getAlgorithmRunner() {
     return this.getHelper().getAlgorithmRunner();
   }
+
 
   public long getNumRows(){
     return this.getMetaDataHandler().getNumRows();
@@ -156,10 +159,12 @@ public class DDF implements ISupportPhantomReference {
     return this.getMetaDataHandler().getSchema();
   }
 
+
   /**
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from this DDF.
    */
+
 
   public DDF getRandomSample(int numSamples) {
     return this.getViewHandler().getRandomSample(numSamples);
