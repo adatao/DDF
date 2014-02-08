@@ -17,6 +17,8 @@
 package com.adatao.ddf;
 
 import com.adatao.ddf.content.ColumnInfo;
+import com.adatao.ddf.content.IHandleMetaData;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -62,16 +64,20 @@ public class DDF implements ISupportPhantomReference {
     this.mHelper = aDDFHelper;
   }
 
-  public long nrows(){
-    return this.getHelper().getMetaDataHandler().getNumRows();
+  public IHandleMetaData getMetaDataHandler() {
+    return this.getHelper().getMetaDataHandler();
   }
   
-  public long ncols(){
-    return this.getHelper().getMetaDataHandler().getNumColumns();
+  public long getNumRows(){
+    return this.getMetaDataHandler().getNumRows();
+  }
+  
+  public long getNumColumns(){
+    return this.getMetaDataHandler().getNumColumns();
   }
     
-  public ColumnInfo[] getColumnMetadata(){
-    return this.getHelper().getMetaDataHandler().getColumnMetadata();
+  public Schema getMetaData(){
+    return this.getMetaDataHandler().getSchema();
   }
   public DDF getRandomSample(int numSamples) {
     return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
