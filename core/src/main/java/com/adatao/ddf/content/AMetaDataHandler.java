@@ -36,10 +36,13 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   private boolean bNumRowsIsValid = false;
   private long mNumColumns = 0L;
   private boolean bNumColumnsIsValid = false;
-
+  private ColumnInfo[] columnMetadata;
+  
   protected abstract long getNumRowsImpl();
 
-  protected abstract long getNumColumnsImpl();
+  protected long getNumColumnsImpl() {
+    return columnMetadata.length;
+  }
 
   /**
    * Called to assert that the row count needs to be recomputed at next access
@@ -71,5 +74,47 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
       bNumColumnsIsValid = true;
     }
     return mNumColumns;
+  }
+  public ColumnInfo[] getColumnMetadata() {
+    return columnMetadata;
+  }
+  
+  public void setColumnHeaders(String[] headers) {
+    int length = headers.length < columnMetadata.length ? headers.length : columnMetadata.length;
+    for (int i = 0; i < length; i++) {
+      columnMetadata[i].setColumnIndex(i).setHeader(headers[i]);
+    }
+  }
+  
+  public ColumnInfo getColumnInfoByIndex(int i) {
+    if (columnMetadata == null) {
+      return null;
+    }
+    if (i < 0 || i >= columnMetadata.length) {
+      return null;
+    }
+
+    return columnMetadata[i];
+  }
+
+  public ColumnInfo getColumnInfoByName(String name) {
+    Integer i = getColumnIndexByName(name);
+    if (i == null) {
+      return null;
+    }
+
+    return getColumnInfoByIndex(i);
+  }
+
+  public Integer getColumnIndexByName(String name) {
+    if (columnMetadata == null) {
+      return null;
+    }
+    for (int i = 0; i < columnMetadata.length; i++) {
+      if (columnMetadata[i].getHeader().equals(name)) {
+        return i;
+      }
+    }
+    return null;
   }
 }

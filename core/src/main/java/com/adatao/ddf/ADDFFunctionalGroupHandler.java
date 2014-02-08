@@ -5,9 +5,7 @@ package com.adatao.ddf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.content.IHandleMetadata;
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 

@@ -13,4 +13,6 @@ public interface IHandleMetadata {
   public long getNumRows();
 
   public long getNumColumns();
+  
+  public ColumnInfo[] getColumnMetadata();
 }
