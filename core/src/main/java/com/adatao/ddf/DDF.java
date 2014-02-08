@@ -16,8 +16,6 @@
  */
 package com.adatao.ddf;
 
-<<<<<<< HEAD
-
 
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
