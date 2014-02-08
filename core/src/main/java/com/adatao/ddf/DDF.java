@@ -16,7 +16,6 @@
  */
 package com.adatao.ddf;
 
-import com.adatao.ddf.content.ColumnInfo;
 import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.util.ISupportPhantomReference;
