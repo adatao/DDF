@@ -27,7 +27,7 @@ import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 public interface IHandleViews {
 
   /**
-   * Performs a SQL query on the system-standard data source, and returns a DDF
+   * Performs a SQL query against our owner DDF, and returns a new DDF
    * 
    * @param sqlCommand
    * @return the resulting DDF
@@ -35,7 +35,7 @@ public interface IHandleViews {
   public DDF sql2ddf(String sqlCommand);
 
   /**
-   * Performs a SQL query on the system-standard data source, and returns the result as rows of text
+   * * Performs a SQL query against our owner DDF, and returns the result as rows of text
    * 
    * @param sqlCommand
    * @return rows of text from the SQL result
@@ -44,7 +44,7 @@ public interface IHandleViews {
 
   /**
    * @param numSamples
-   * @return a new DDF containing `numSamples` rows selected randomly from this DDF.
+   * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
   public DDF getRandomSample(int numSamples);
 
