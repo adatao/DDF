@@ -12,7 +12,7 @@ import com.adatao.ddf.ADDFHelper;
  * @author ctn
  * 
  */
-public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetadata {
+public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
   public AMetaDataHandler(ADDFHelper theContainer) {
     super(theContainer);
@@ -36,12 +36,16 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   private boolean bNumRowsIsValid = false;
   private long mNumColumns = 0L;
   private boolean bNumColumnsIsValid = false;
-  private ColumnInfo[] columnMetadata;
+  private Schema mSchema;
   
+  /**
+   * Each implementation needs to come up with its own way to compute the row count.
+   * @return row count of a DDF
+   */
   protected abstract long getNumRowsImpl();
 
   protected long getNumColumnsImpl() {
-    return columnMetadata.length;
+    return mSchema.getmColumnMetaData().length;
   }
 
   /**
@@ -75,46 +79,8 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
     }
     return mNumColumns;
   }
-  public ColumnInfo[] getColumnMetadata() {
-    return columnMetadata;
-  }
   
-  public void setColumnHeaders(String[] headers) {
-    int length = headers.length < columnMetadata.length ? headers.length : columnMetadata.length;
-    for (int i = 0; i < length; i++) {
-      columnMetadata[i].setColumnIndex(i).setHeader(headers[i]);
-    }
-  }
-  
-  public ColumnInfo getColumnInfoByIndex(int i) {
-    if (columnMetadata == null) {
-      return null;
-    }
-    if (i < 0 || i >= columnMetadata.length) {
-      return null;
-    }
-
-    return columnMetadata[i];
-  }
-
-  public ColumnInfo getColumnInfoByName(String name) {
-    Integer i = getColumnIndexByName(name);
-    if (i == null) {
-      return null;
-    }
-
-    return getColumnInfoByIndex(i);
-  }
-
-  public Integer getColumnIndexByName(String name) {
-    if (columnMetadata == null) {
-      return null;
-    }
-    for (int i = 0; i < columnMetadata.length; i++) {
-      if (columnMetadata[i].getHeader().equals(name)) {
-        return i;
-      }
-    }
-    return null;
+  public Schema getSchema() {
+    return this.mSchema;
   }
 }

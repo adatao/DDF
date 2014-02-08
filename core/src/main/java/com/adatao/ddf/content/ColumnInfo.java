@@ -1,44 +1,44 @@
 package com.adatao.ddf.content;
 
 public class ColumnInfo {
-  String header = null;
-  String type;
-  int columnIndex = -1;
+  private String mName = null;
+  private String mType;
+  int mIndex = -1;
 
   public ColumnInfo(String header, String type) {
-    this.header = header;
-    this.type = type;
+    this.mName = header;
+    this.mType = type;
   }
 
-  public ColumnInfo(String header, String type, int columnIndex) {
-    this(header, type);
-    this.columnIndex = columnIndex;
+  public ColumnInfo(String name, String type, int index) {
+    this(name, type);
+    this.mIndex = index;
   }
 
-  public String getHeader() {
-    return header;
+  public String getName() {
+    return mName;
   }
 
-  public ColumnInfo setHeader(String header) {
-    this.header = header;
+  public ColumnInfo setName(String name) {
+    this.mName = name;
     return this;
   }
 
   public String getType() {
-    return type;
+    return mType;
   }
 
   public ColumnInfo setType(String type) {
-    this.type = type;
+    this.mType = type;
     return this;
   }
 
-  public int getColumnIndex() {
-    return this.columnIndex;
+  public int getIndex() {
+    return this.mIndex;
   }
 
-  public ColumnInfo setColumnIndex(int columnIndex) {
-    this.columnIndex = columnIndex;
+  public ColumnInfo setIndex(int index) {
+    this.mIndex = index;
     return this;
   }
 
