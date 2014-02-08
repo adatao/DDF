@@ -330,8 +330,11 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   protected abstract IRunAlgorithms createAlgorithmRunner();
 
 
+  /**
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was
+   * registered under {@link PhantomReference}.
+   */
   @Override
-  // ISupportPhantomReference
   public void cleanup() {
     // @formatter:off
     this
