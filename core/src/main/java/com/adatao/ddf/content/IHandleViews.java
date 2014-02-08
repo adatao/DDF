@@ -3,8 +3,8 @@
  */
 package com.adatao.ddf.content;
 
-import java.util.UUID;
 
+import com.adatao.ddf.ADDFHelper;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 
@@ -27,25 +27,25 @@ import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 public interface IHandleViews {
 
   /**
-   * Returns a DDF (new or cached) that has the given columns in the specified format. For example,
-   * it may be columns 1,2,7,3, with format LabeledPoint, in which case columns (1,2,7) are the
-   * x-values, and column 3 is the y-value, by convention.
+   * Performs a SQL query on the system-standard data source, and returns a DDF
    * 
-   * @param columns
-   * @param format
-   * @return
+   * @param sqlCommand
+   * @return the resulting DDF
    */
-  public DDF get(int[] columns, String format);
+  public DDF sql2ddf(String sqlCommand);
 
   /**
-   * Clears out all current views for this DDF.
+   * Performs a SQL query on the system-standard data source, and returns the result as rows of text
+   * 
+   * @param sqlCommand
+   * @return rows of text from the SQL result
    */
-  public void reset();
+  public String[] sql2text(String sqlCommand);
 
   /**
-   * Removes the specified view from this DDF.
-   * 
-   * @param ddfId
+   * @param numSamples
+   * @return a new DDF containing `numSamples` rows selected randomly from this DDF.
    */
-  public void remove(UUID ddfId);
+  public DDF getRandomSample(int numSamples);
+
 }

@@ -16,6 +16,19 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.content.IHandleIndexing;
+import com.adatao.ddf.content.IHandleMetadata;
+import com.adatao.ddf.content.IHandleMissingData;
+import com.adatao.ddf.content.IHandleMutability;
+import com.adatao.ddf.content.IHandleRepresentations;
+import com.adatao.ddf.content.IHandleSchema;
+import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.etl.IHandleFilteringAndProjections;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -32,9 +45,14 @@ import com.adatao.ddf.util.PhantomReference;
  */
 public class DDF implements ISupportPhantomReference {
 
-  public DDF(ADDFHelper helper) {
-    this.setHelper(helper);
-    if (helper != null) helper.setDDF(this);
+  /**
+   * Instantiates a new DDF with the given ADDFHelper
+   * 
+   * @param ADDFHelper
+   */
+  public DDF(ADDFHelper setHelper) {
+    this.setHelper(setHelper);
+    if (setHelper != null) setHelper.setDDF(this);
 
     PhantomReference.register(this);
   }
@@ -43,9 +61,7 @@ public class DDF implements ISupportPhantomReference {
   private ADDFHelper mHelper;
 
   /**
-   * Gets the underlying implementor of this DDF
-   * 
-   * @return
+   * @return the underlying ADDFHelper of this DDF
    */
   public ADDFHelper getHelper() {
     if (mHelper != null) return mHelper;
@@ -55,19 +71,91 @@ public class DDF implements ISupportPhantomReference {
   /**
    * Sets the underlying implementor for this DDF
    * 
-   * @param aDDFHelper
+   * @param aADDFHelper
    */
-  public void setHelper(ADDFHelper aDDFHelper) {
-    this.mHelper = aDDFHelper;
+  public void setHelper(ADDFHelper aHelper) {
+    this.mHelper = aHelper;
+  }
+
+  public IComputeBasicStatistics getBasicStatisticsComputer() {
+    return this.getHelper().getBasicStatisticsComputer();
+  }
+
+  public IHandleFilteringAndProjections getFilterAndProjectionHandler() {
+    return this.getHelper().getFilterAndProjectionHandler();
+  }
+
+  public IHandleIndexing getIndexingHandler() {
+    return this.getHelper().getIndexingHandler();
+  }
+
+  public IHandleJoins getJoinsHandler() {
+    return this.getHelper().getJoinsHandler();
+  }
+
+  public IHandleMetadata getMetaDataHandler() {
+    return this.getHelper().getMetaDataHandler();
+  }
+
+  public IHandleMiscellany getMiscellanyHandler() {
+    return this.getHelper().getMiscellanyHandler();
+  }
+
+  public IHandleMissingData getMissingDataHandler() {
+    return this.getHelper().getMissingDataHandler();
+  }
+
+  public IHandleMutability getMutabilityHandler() {
+    return this.getHelper().getMutabilityHandler();
+  }
+
+  public IHandlePersistence getPersistenceHandler() {
+    return this.getHelper().getPersistenceHandler();
+  }
+
+  public IHandleRepresentations getRepresentationHandler() {
+    return this.getHelper().getRepresentationHandler();
+  }
+
+  public IHandleReshaping getReshapingHandler() {
+    return this.getHelper().getReshapingHandler();
+  }
+
+  public IHandleSchema getSchemaHandler() {
+    return this.getHelper().getSchemaHandler();
+  }
+
+  public IHandleStreamingData getStreamingDataHandler() {
+    return this.getHelper().getStreamingDataHandler();
+  }
+
+  public IHandleTimeSeries getTimeSeriesHandler() {
+    return this.getHelper().getTimeSeriesHandler();
+  }
+
+  public IHandleViews getViewHandler() {
+    return this.getHelper().getViewHandler();
+  }
+
+  public IRunAlgorithms getAlgorithmRunner() {
+    return this.getHelper().getAlgorithmRunner();
   }
 
 
+
+  /**
+   * @param numSamples
+   * @return a new DDF containing `numSamples` rows selected randomly from this DDF.
+   */
   public DDF getRandomSample(int numSamples) {
-    return this.getHelper().getMiscellanyHandler().getRandomSample(this, numSamples);
+    return this.getViewHandler().getRandomSample(numSamples);
   }
 
+  /**
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was
+   * registered under {@link PhantomReference}.
+   */
   @Override
-  // ISupportPhantomReference
   public void cleanup() {
     this.setHelper(null);
   }
@@ -75,14 +163,14 @@ public class DDF implements ISupportPhantomReference {
   // /////////////////////////////////////
   // Content: Views & Representations
   // /////////////////////////////////////
-  
+
   /**
    * Override to implement, e.g., in-memory caching support
    */
   public void cache() {
     // Nothing
   }
-  
+
   /**
    * Override to implement, e.g., in-memory caching support
    */
