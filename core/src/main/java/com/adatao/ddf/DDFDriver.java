@@ -1,5 +1,7 @@
 package com.adatao.ddf;
 
+import java.util.Map;
+
 import com.adatao.ddf.exception.DDFException;
 
 /**
@@ -15,24 +17,6 @@ import com.adatao.ddf.exception.DDFException;
  */
 public interface DDFDriver {
     /**
-     * Create an empty DDF with a schema definition.
-     * 
-     * @param schemaString
-     * @return
-     * @throws DDFException
-     */
-    public DDF createSchema(String schemaString) throws DDFException;
-    
-    /**
-     * Create a DDF from an sql command.
-     * 
-     * @param sqlCommand
-     * @return
-     * @throws DDFException
-     */
-    public DDF fromSql(String sqlCommand) throws DDFException;
-    
-    /**
      * Checks if the driver can accepts the proposed URL.
      *  
      * @param connectionURL
@@ -40,4 +24,14 @@ public interface DDFDriver {
      * @throws DDFException if there is DDF error occurs.
      */
     public boolean acceptURL(String connectionURL) throws DDFException;
+    
+    /**
+     * Connect to the cluster and return a DDFFactory.
+     * 
+     * @param connectionURL
+     * @param connectionProps
+     * @return
+     * @throws DDFException
+     */
+    public DDFFactory connect(String connectionURL, Map<String, String> connectionProps) throws DDFException;
 }
