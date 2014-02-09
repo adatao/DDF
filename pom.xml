@@ -65,7 +65,6 @@
 	<modules>
 	  <module>core</module>
 	  <module>spark</module>
-	  <module>examples</module>
 	</modules>
 
 	<dependencies>
