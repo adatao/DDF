@@ -17,8 +17,8 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
   }
 
   protected void resetRepresentationsAndViews() {
-    this.getDDF().getHelper().getRepresentationHandler().reset();
-    this.getDDF().getHelper().getViewHandler().reset();
+    // this.getDDF().getHelper().getRepresentationHandler().reset();
+    // this.getDDF().getHelper().getViewHandler().reset();
   }
 
   /**
