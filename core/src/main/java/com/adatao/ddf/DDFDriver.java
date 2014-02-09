@@ -7,6 +7,8 @@ import com.adatao.ddf.exception.DDFException;
  * obtains from the DDFDriverManager.
  * This class helps the user obtain DDF in various ways.
  * 
+ * The DDFDriver is also a Factory of DDF.
+ * 
  * @author Cuong Kien Bui
  * @version 0.1
  *
@@ -19,7 +21,7 @@ public interface DDFDriver {
      * @return
      * @throws DDFException
      */
-    public DDF create_schema(String schemaString) throws DDFException;
+    public DDF createSchema(String schemaString) throws DDFException;
     
     /**
      * Create a DDF from an sql command.
@@ -29,4 +31,13 @@ public interface DDFDriver {
      * @throws DDFException
      */
     public DDF fromSql(String sqlCommand) throws DDFException;
+    
+    /**
+     * Checks if the driver can accepts the proposed URL.
+     *  
+     * @param connectionURL
+     * @return true if the driver accepts this connection URL.
+     * @throws DDFException if there is DDF error occurs.
+     */
+    public boolean acceptsURL(String connectionURL) throws DDFException;
 }
