@@ -20,7 +20,7 @@ public class DDFDriverManager {
     public static DDFDriver getDriver(String connectionURL) 
             throws DDFException {
         try {
-            Class.forName("com.adatao.ddf.spark.SparkDDFDriver");
+            Class.forName("com.adatao.ddf.spark.DDFDriver");
         } catch (ClassNotFoundException e) {
             System.out.println(e);
         }
@@ -67,6 +67,8 @@ public class DDFDriverManager {
             info.driverClassName = driver.getClass().getName();
                     
             driverList.add(info);
+            
+            System.out.println("Finished registering driver: " + info.driverClassName);
         }
     }
 }
