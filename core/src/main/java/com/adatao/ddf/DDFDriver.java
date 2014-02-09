@@ -39,5 +39,5 @@ public interface DDFDriver {
      * @return true if the driver accepts this connection URL.
      * @throws DDFException if there is DDF error occurs.
      */
-    public boolean acceptsURL(String connectionURL) throws DDFException;
+    public boolean acceptURL(String connectionURL) throws DDFException;
 }

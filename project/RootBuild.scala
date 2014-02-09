@@ -37,6 +37,11 @@ object RootBuild extends Build {
 	val sparkJarName = sparkProjectName + "-" + sparkVersion + ".jar"
 	val sparkTestJarName = sparkProjectName + "-" + sparkVersion + "-tests.jar"
 	
+	val examplesProjectName = projectName + "_examples"
+	val examplesVersion = rootVersion
+	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
+	val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
+
 	val extrasProjectName = projectName + "_extras"
 	val extrasVersion = rootVersion
 	val extrasJarName = extrasProjectName + "-" + extrasVersion + ".jar"
@@ -45,6 +50,7 @@ object RootBuild extends Build {
 	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, extras)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
+	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (core, spark)
 	lazy val extras = Project("extras", file("extras"), settings = extrasSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
@@ -398,6 +404,12 @@ object RootBuild extends Build {
     libraryDependencies ++= adatao_unmanaged
   ) ++ assemblySettings ++ extraAssemblySettings
 
+  def examplesSettings = commonSettings ++ Seq(
+    name := examplesProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
   def extrasSettings = commonSettings ++ Seq(
     name := extrasProjectName,

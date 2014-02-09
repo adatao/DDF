@@ -11,4 +11,8 @@ class DDFDriver extends com.adatao.ddf.DDFDriver {
   def fromSql(sqlCommand: java.lang.String): DDF = {
     return null
   }
+  
+  def acceptURL(connectionURL: java.lang.String): Boolean = {
+    return true
+  }
 }

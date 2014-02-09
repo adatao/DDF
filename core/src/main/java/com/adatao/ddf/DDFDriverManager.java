@@ -27,7 +27,7 @@ public class DDFDriverManager {
         
         for (DDFDriverInfo driverInfo: driverList) {
             try {
-                if (driverInfo.driver.acceptsURL(connectionURL)) {
+                if (driverInfo.driver.acceptURL(connectionURL)) {
                     return driverInfo.driver;
                 }
             } catch (DDFException e) {
