@@ -75,7 +75,8 @@ public class DDFDriverManager {
      * 
      * @param driver
      */
-    public static void registerDDFDriver(DDFDriver driver) {
+    public static void registerDDFDriver(DDFDriver driver) 
+            throws DDFException {
         synchronized (DDFDriverManager.class) {
             DDFDriverInfo info = new DDFDriverInfo();
             info.driver = driver;
