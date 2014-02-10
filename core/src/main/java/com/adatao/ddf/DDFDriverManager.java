@@ -1,6 +1,7 @@
 package com.adatao.ddf;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 import java.util.ServiceLoader;
 
@@ -38,6 +39,21 @@ public class DDFDriverManager {
         throw new DDFException("Cannot find any DDF drivers that can handle the connection string: "
                 + connectionURL);
     }
+    
+    /**
+     * Get DDFFactory directly from DDF Driver Manager.
+     * 
+     * @param connectionURL
+     * @param connectionProps
+     * @return
+     * @throws DDFException
+     */
+    public static DDFFactory getDDFFactory(String connectionURL, Map<String, String> connectionProps) 
+            throws DDFException {
+        DDFDriver driver = getDriver(connectionURL);
+        return driver.connect(connectionURL, connectionProps);
+    }
+    
     
     private static void loadDDFDrivers() {
         // use class loader to load all the available DDFDrivers into

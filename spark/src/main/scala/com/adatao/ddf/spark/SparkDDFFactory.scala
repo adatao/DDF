@@ -29,6 +29,9 @@ class SparkDDFFactory(val sc: SparkContext) extends com.adatao.ddf.DDFFactory {
    * select * from airline
    */
   def fromSql(sqlCommand: java.lang.String): DDF = {
+    // TODO: @bhan or @huan
+    // please add your implementation of creating a DDF from an SQL query here.
+    
     return new SparkDDFImpl
   }
 }
