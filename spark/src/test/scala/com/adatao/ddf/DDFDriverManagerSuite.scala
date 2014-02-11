@@ -7,27 +7,27 @@ import com.adatao.ddf.DDFContextManager
 class DDFContextManagerSuite extends ATestSuite {
   test("Test loading Spark Context Manager") {
     println("Test me")
-    new com.adatao.ddf.spark.DDFContext
-    val context = DDFContextManager.getContext("spark:")
-    println(context)
+    new com.adatao.ddf.spark.DDFContextFactory
+    val contextFactory = DDFContextManager.getContextFactory("spark:")
+    println(contextFactory)
   }
   
   test("Test connecting to a Spark Master") {
     println("Test me")
-    new com.adatao.ddf.spark.DDFContext
+    new com.adatao.ddf.spark.DDFContextFactory
     val connStr = "spark://ubuntu:7077"
-    val context = DDFContextManager.getContext(connStr)
+    val contextFactory = DDFContextManager.getContextFactory(connStr)
     val props = new java.util.HashMap[String, String]
     props.put("spark.home", System.getProperty("SPARK_HOME"))
     props.put("DDFSPARK_JAR", System.getenv.get("DDFSPARK_JAR"))
     println(props.get("DDFSPARK_JAR"))
-    println(context)
+    println(contextFactory)
     // two ways of getting DDFFactory
     // first, get it through ddf context
-    val ddfFactory = context.connect(connStr, props)
-    println(ddfFactory)
+    val context = contextFactory.connect(connStr, props)
+    println(context)
     
     // second, get it through Contextmanager directly.
-    val ddfFactory2 = DDFContextManager.getDDFFactory(connStr, props)
+    val context2 = DDFContextManager.getDDFContext(connStr, props)
   }
 }

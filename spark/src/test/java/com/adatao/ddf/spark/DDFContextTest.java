@@ -8,7 +8,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.adatao.ddf.DDFContextManager;
-import com.adatao.ddf.DDFFactory;
+import com.adatao.ddf.DDFContext;
+import com.adatao.ddf.DDFContextFactory;
 import com.adatao.ddf.exception.DDFException;
 
 public class DDFContextTest {
@@ -16,16 +17,16 @@ public class DDFContextTest {
     @Test
     public void test() throws DDFException {
         String connStr = "spark://ubuntu:7077";
-        com.adatao.ddf.DDFContext context = DDFContextManager.getContext(connStr);
+        com.adatao.ddf.DDFContextFactory contextFactory = DDFContextManager.getContextFactory(connStr);
         Map<String, String> env = System.getenv();
         Map<String, String> props = new HashMap<String, String>();
         props.put("spark.home", System.getProperty("SPARK_HOME"));
         props.put("DDFSPARK_JAR", env.get("DDFSPARK_JAR"));
         System.out.println(System.getProperty("spark.serializer"));
         System.out.println(props.get("DDFSPARK_JAR"));
+        System.out.println(contextFactory);
+        DDFContext context = contextFactory.connect(connStr, props);
         System.out.println(context);
-        DDFFactory factory = context.connect(connStr, props);
-        System.out.println(factory);
         
     }
 
