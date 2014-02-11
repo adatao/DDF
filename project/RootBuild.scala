@@ -34,8 +34,8 @@ object RootBuild extends Build {
 
 	val sparkProjectName = projectName + "_spark"
 	val sparkVersion = rootVersion
-	val sparkJarName = sparkProjectName + "-" + sparkVersion + ".jar"
-	val sparkTestJarName = sparkProjectName + "-" + sparkVersion + "-tests.jar"
+	val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+	val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 	
 	val examplesProjectName = projectName + "_examples"
 	val examplesVersion = rootVersion
@@ -50,7 +50,7 @@ object RootBuild extends Build {
 	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, extras)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
-	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (core, spark)
+	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
 	lazy val extras = Project("extras", file("extras"), settings = extrasSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
@@ -220,6 +220,7 @@ object RootBuild extends Build {
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 
+    
     pomExtra := (
       <!--
 			**************************************************************************************************
@@ -241,6 +242,9 @@ object RootBuild extends Build {
               <version>2.15</version>
               <configuration>
                 <reuseForks>false</reuseForks>
+                <environmentVariables>
+					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
+				</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
