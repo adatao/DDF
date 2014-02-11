@@ -4,16 +4,16 @@ import java.util.Map;
 
 import org.apache.spark.api.java.JavaSparkContext;
 
-import com.adatao.ddf.DDFDriverManager;
+import com.adatao.ddf.DDFContextManager;
 import com.adatao.ddf.DDFFactory;
 import com.adatao.ddf.exception.DDFException;
 
-public class DDFDriver implements com.adatao.ddf.DDFDriver {
+public class DDFContext implements com.adatao.ddf.DDFContext {
     static {
         try {
-            DDFDriverManager.registerDDFDriver(new DDFDriver());
+            DDFContextManager.registerDDFContext(new DDFContext());
         } catch (DDFException e) {
-            throw new RuntimeException("Cannot register the Spark DDF Driver.");
+            throw new RuntimeException("Cannot register the Spark DDF Context.");
         }
     }
     

@@ -5,17 +5,17 @@ import java.util.Map;
 import com.adatao.ddf.exception.DDFException;
 
 /**
- * A DDFDriver is the initial contact point to the cluster that the user
- * obtains from the DDFDriverManager.
+ * A DDFContext is the initial contact point to the cluster that the user
+ * obtains from the DDFContextManager.
  * This class helps the user obtain DDF in various ways.
  * 
- * The DDFDriver is also a Factory of DDF.
+ * The DDFContext is also a Factory of DDF.
  * 
  * @author Cuong Kien Bui
  * @version 0.1
  *
  */
-public interface DDFDriver {
+public interface DDFContext {
     /**
      * Checks if the driver can accepts the proposed URL.
      *  
