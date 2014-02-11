@@ -5,13 +5,13 @@ import java.util.Map;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.adatao.ddf.DDFContextManager;
-import com.adatao.ddf.DDFFactory;
+import com.adatao.ddf.DDFContext;
 import com.adatao.ddf.exception.DDFException;
 
-public class DDFContext implements com.adatao.ddf.DDFContext {
+public class DDFContextFactory implements com.adatao.ddf.DDFContextFactory {
     static {
         try {
-            DDFContextManager.registerDDFContext(new DDFContext());
+            DDFContextManager.registerDDFContextFactory(new DDFContextFactory());
         } catch (DDFException e) {
             throw new RuntimeException("Cannot register the Spark DDF Context.");
         }
@@ -23,11 +23,11 @@ public class DDFContext implements com.adatao.ddf.DDFContext {
     }
 
     @Override
-    public DDFFactory connect(String connectionURL,
+    public DDFContext connect(String connectionURL,
             Map<String, String> connectionProps) throws DDFException {
         String[] jobJars = connectionProps.get("DDFSPARK_JAR").split(",");
         JavaSparkContext sc = new JavaSparkContext(connectionURL, "DDFClient", connectionProps.get("SPARK_HOME"), jobJars, connectionProps);
-        return new SparkDDFFactory(sc);
+        return new SparkDDFContext(sc);
     }
 
 }

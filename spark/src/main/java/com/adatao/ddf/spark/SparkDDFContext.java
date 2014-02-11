@@ -3,13 +3,13 @@ package com.adatao.ddf.spark;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFFactory;
+import com.adatao.ddf.DDFContext;
 import com.adatao.ddf.exception.DDFException;
 
-public class SparkDDFFactory implements DDFFactory {
+public class SparkDDFContext implements DDFContext {
     private JavaSparkContext sc;
     
-    public SparkDDFFactory(JavaSparkContext sc) {
+    public SparkDDFContext(JavaSparkContext sc) {
         this.sc = sc;
     }
     

@@ -16,54 +16,54 @@ import com.adatao.ddf.exception.DDFException;
  *
  */
 public class DDFContextManager {
-    private static Vector<DDFContextInfo> contextList = new Vector<DDFContextInfo>();
+    private static Vector<DDFContextFactoryInfo> contextFactoryList = new Vector<DDFContextFactoryInfo>();
     
-    public static DDFContext getContext(String connectionURL) 
+    public static DDFContextFactory getContextFactory(String connectionURL) 
             throws DDFException {
         try {
-            Class.forName("com.adatao.ddf.spark.DDFContext");
+            Class.forName("com.adatao.ddf.spark.DDFContextFactory");
         } catch (ClassNotFoundException e) {
             System.out.println(e);
         }
         
-        for (DDFContextInfo contextInfo: contextList) {
+        for (DDFContextFactoryInfo contextFactoryInfo: contextFactoryList) {
             try {
-                if (contextInfo.context.acceptURL(connectionURL)) {
-                    return contextInfo.context;
+                if (contextFactoryInfo.contextFactory.acceptURL(connectionURL)) {
+                    return contextFactoryInfo.contextFactory;
                 }
             } catch (DDFException e) {
                 e.printStackTrace();
             }
         }
         
-        throw new DDFException("Cannot find any DDF contexts that can handle the connection string: "
+        throw new DDFException("Cannot find any DDF contextFactorys that can handle the connection string: "
                 + connectionURL);
     }
     
     /**
-     * Get DDFFactory directly from DDF Context Manager.
+     * Get DDFContextFactory directly from DDF ContextFactory Manager.
      * 
      * @param connectionURL
      * @param connectionProps
      * @return
      * @throws DDFException
      */
-    public static DDFFactory getDDFFactory(String connectionURL, Map<String, String> connectionProps) 
+    public static DDFContext getDDFFactory(String connectionURL, Map<String, String> connectionProps) 
             throws DDFException {
-        DDFContext context = getContext(connectionURL);
-        return context.connect(connectionURL, connectionProps);
+        DDFContextFactory contextFactory = getContextFactory(connectionURL);
+        return contextFactory.connect(connectionURL, connectionProps);
     }
     
     
-    private static void loadDDFContexts() {
-        // use class loader to load all the available DDFContexts into
+    private static void loadDDFContextFactorys() {
+        // use class loader to load all the available DDFContextFactorys into
         // memory.
-        ServiceLoader<DDFContext> loadedContexts = ServiceLoader.load(DDFContext.class);
-        Iterator<DDFContext> contextsIterator = loadedContexts.iterator();
+        ServiceLoader<DDFContextFactory> loadedContextFactories = ServiceLoader.load(DDFContextFactory.class);
+        Iterator<DDFContextFactory> contextFactoryIterator = loadedContextFactories.iterator();
 
         try{
-            while(contextsIterator.hasNext()) {
-                System.out.println(" Loading done by the java.util.ServiceLoader :  "+contextsIterator.next());
+            while(contextFactoryIterator.hasNext()) {
+                System.out.println(" Loading done by the java.util.ServiceLoader :  "+contextFactoryIterator.next());
             }
         } catch(Throwable t) {
         // Do nothing
@@ -71,27 +71,27 @@ public class DDFContextManager {
     }
     
     /**
-     * Register a DDF context with the ContextManager.
+     * Register a DDF contextFactory with the ContextFactoryManager.
      * 
-     * @param context
+     * @param contextFactory
      */
-    public static void registerDDFContext(DDFContext context) 
+    public static void registerDDFContextFactory(DDFContextFactory contextFactory) 
             throws DDFException {
         synchronized (DDFContextManager.class) {
-            DDFContextInfo info = new DDFContextInfo();
-            info.context = context;
-            info.contextClass = context.getClass();
-            info.contextClassName = context.getClass().getName();
+            DDFContextFactoryInfo info = new DDFContextFactoryInfo();
+            info.contextFactory = contextFactory;
+            info.contextFactoryClass = contextFactory.getClass();
+            info.contextFactoryClassName = contextFactory.getClass().getName();
                     
-            contextList.add(info);
+            contextFactoryList.add(info);
             
-            System.out.println("Finished registering context: " + info.contextClassName);
+            System.out.println("Finished registering contextFactory: " + info.contextFactoryClassName);
         }
     }
 }
 
-class DDFContextInfo {
-    DDFContext context;
-    Class contextClass;
-    String contextClassName;
+class DDFContextFactoryInfo {
+    DDFContextFactory contextFactory;
+    Class contextFactoryClass;
+    String contextFactoryClassName;
 }
