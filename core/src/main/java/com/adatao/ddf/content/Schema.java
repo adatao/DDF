@@ -1,6 +1,9 @@
 package com.adatao.ddf.content;
 
+import java.io.Serializable;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
@@ -8,17 +11,19 @@ import java.util.List;
  * @author bhan
  * 
  */
+
 enum ColumnType {
   STRING, DOUBLE, INT
 }
 
-public class Schema {
+@SuppressWarnings("serial")
+public class Schema implements Serializable{
   private String mTableName;
-  private List<ColumnInfo> mColumnMetaData;
+  private List<Column> mColumns = Lists.newArrayList();
 
-  public Schema(String tableName, List<ColumnInfo> columnMetaData) {
+  public Schema(String tableName, List<Column> Columns) {
     this.mTableName = tableName;
-    this.mColumnMetaData = columnMetaData;
+    this.mColumns = Columns;
   }
 
   public String getTableName() {
@@ -29,34 +34,34 @@ public class Schema {
     this.mTableName = mTableName;
   }
 
-  public List<ColumnInfo> getColumnMetaData() {
-    return mColumnMetaData;
+  public List<Column> getColumns() {
+    return mColumns;
   }
 
-  public void setColumnMetaData(List<ColumnInfo> columnMetaData) {
-    this.mColumnMetaData = columnMetaData;
+  public void setColumns(List<Column> Columns) {
+    this.mColumns = Columns;
   }
 
   public void setColumnNames(List<String> names) {
-    int length = names.size() < mColumnMetaData.size() ? names.size()
-        : mColumnMetaData.size();
+    int length = names.size() < mColumns.size() ? names.size() : mColumns
+        .size();
     for (int i = 0; i < length; i++) {
-      mColumnMetaData.get(i).setName(names.get(i));
+      mColumns.get(i).setName(names.get(i));
     }
   }
 
-  public ColumnInfo getColumn(int i) {
-    if (mColumnMetaData == null) {
+  public Column getColumn(int i) {
+    if (mColumns.isEmpty()) {
       return null;
     }
-    if (i < 0 || i >= mColumnMetaData.size()) {
+    if (i < 0 || i >= mColumns.size()) {
       return null;
     }
 
-    return mColumnMetaData.get(i);
+    return mColumns.get(i);
   }
 
-  public ColumnInfo getColumn(String name) {
+  public Column getColumn(String name) {
     Integer i = getColumnIndex(name);
     if (i == null) {
       return null;
@@ -66,26 +71,72 @@ public class Schema {
   }
 
   public Integer getColumnIndex(String name) {
-    if (mColumnMetaData == null) {
+    if (mColumns.isEmpty()) {
       return null;
     }
-    for (int i = 0; i < mColumnMetaData.size(); i++) {
-      if (mColumnMetaData.get(i).getName().equals(name)) {
+    for (int i = 0; i < mColumns.size(); i++) {
+      if (mColumns.get(i).getName().equals(name)) {
         return i;
       }
     }
     return null;
   }
 
+  /**
+   * 
+   * @return number of columns
+   */
   public long getNumColumns() {
-    return this.mColumnMetaData.size();
+    return this.mColumns.size();
   }
 
-  public static class ColumnInfo {
-    private String mName = null;
+  public void addColumn(Column col) {
+    this.mColumns.add(col);
+  }
+
+  /**
+   * Remove a column by its name
+   * 
+   * @param name
+   *          Column name
+   * @return true if succeed
+   */
+  public boolean removeColumn(String name) {
+    if (getColumnIndex(name) != null) {
+      this.mColumns.remove(getColumnIndex(name));
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  /**
+   * Remove a column by its index
+   * 
+   * @param i
+   *          Column index
+   * @return true if succeed
+   */
+  public boolean removeColumn(int i) {
+    if (getColumn(i) != null) {
+      this.mColumns.remove(i);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * This class represents the metadata of a column
+   * 
+   * 
+   */
+  public static class Column {
+    private String mName;
     private ColumnType mType;
 
-    public ColumnInfo(String header, ColumnType type) {
+    public Column(String header, ColumnType type) {
       this.mName = header;
       this.mType = type;
     }
@@ -94,7 +145,7 @@ public class Schema {
       return mName;
     }
 
-    public ColumnInfo setName(String name) {
+    public Column setName(String name) {
       this.mName = name;
       return this;
     }
@@ -103,7 +154,7 @@ public class Schema {
       return mType;
     }
 
-    public ColumnInfo setType(ColumnType type) {
+    public Column setType(ColumnType type) {
       this.mType = type;
       return this;
     }
