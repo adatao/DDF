@@ -45,7 +45,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   protected abstract long getNumRowsImpl();
 
   protected long getNumColumnsImpl() {
-    return mSchema.getmColumnMetaData().length;
+    return mSchema.getNumColumns();
   }
 
   /**

@@ -53,7 +53,7 @@ import com.adatao.ddf.util.PhantomReference;
  *                         |                   -------------------
  *                         |
  *                         |        ----------------------------------
- *                         |------->| IHandleFilteringAndProjections |
+ *                         |------->| IHandleRepresentations |
  *                                  ----------------------------------
  * </pre>
  * <p>

@@ -153,7 +153,7 @@ public class DDF implements ISupportPhantomReference {
     return this.getMetaDataHandler().getNumColumns();
   }
     
-  public Schema getMetaData(){
+  public Schema getSchema(){
     return this.getMetaDataHandler().getSchema();
   }
 
