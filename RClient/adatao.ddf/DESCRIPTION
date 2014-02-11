@@ -19,4 +19,6 @@ Suggests:
 VignetteBuilder: knitr
 Collate:
     'adatao.R'
-
+    'hello.R'
+    'zzz.R'
+    
