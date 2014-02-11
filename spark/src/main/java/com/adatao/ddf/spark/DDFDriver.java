@@ -25,7 +25,7 @@ public class DDFDriver implements com.adatao.ddf.DDFDriver {
     @Override
     public DDFFactory connect(String connectionURL,
             Map<String, String> connectionProps) throws DDFException {
-        String[] jobJars = connectionProps.get("RSERVER_JAR").split(",");
+        String[] jobJars = connectionProps.get("DDFSPARK_JAR").split(",");
         JavaSparkContext sc = new JavaSparkContext(connectionURL, "DDFClient", connectionProps.get("SPARK_HOME"), jobJars, connectionProps);
         return new SparkDDFFactory(sc);
     }

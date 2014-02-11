@@ -19,6 +19,8 @@ class DDFDriverManagerSuite extends ATestSuite {
     val driver = DDFDriverManager.getDriver(connStr)
     val props = new java.util.HashMap[String, String]
     props.put("spark.home", System.getProperty("SPARK_HOME"))
+    props.put("DDFSPARK_JAR", System.getenv.get("DDFSPARK_JAR"))
+    println(props.get("DDFSPARK_JAR"))
     println(driver)
     // two ways of getting DDFFactory
     // first, get it through ddf driver
