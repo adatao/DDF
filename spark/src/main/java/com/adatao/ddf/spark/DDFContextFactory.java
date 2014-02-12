@@ -8,6 +8,12 @@ import com.adatao.ddf.DDFContextManager;
 import com.adatao.ddf.DDFContext;
 import com.adatao.ddf.exception.DDFException;
 
+/**
+ * 
+ * @author Cuong Kien Bui
+ * @version 0.1
+ * 
+ */
 public class DDFContextFactory implements com.adatao.ddf.DDFContextFactory {
     static {
         try {

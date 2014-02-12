@@ -6,6 +6,12 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFContext;
 import com.adatao.ddf.exception.DDFException;
 
+/**
+ * 
+ * @author Cuong Kien Bui
+ * @version 0.1
+ * 
+ */
 public class SparkDDFContext implements DDFContext {
     private JavaSparkContext sc;
     
