@@ -287,7 +287,7 @@ object RootBuild extends Build {
               <version>2.6</version>
               <configuration>
                 <configLocation>${{basedir}}/../src/main/resources/sun_checks.xml</configLocation>
-                <propertyExpansion>checkstyle.conf.dir=${basedir}/../src/main/resources</propertyExpansion>
+                <propertyExpansion>checkstyle.conf.dir=${{basedir}}/../src/main/resources</propertyExpansion>
                 <outputFileFormat>xml</outputFileFormat>
               </configuration>
             </plugin>
