@@ -65,4 +65,10 @@ public class SparkDDFContext implements DDFContext {
         return new SparkDDFImpl();
     }
 
+    public void shutdown() {
+        if (sc != null) {
+            sc.stop();
+        }
+    }
+
 }

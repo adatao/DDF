@@ -11,6 +11,7 @@ import com.adatao.ddf.DDFContextManager;
 import com.adatao.ddf.DDFContext;
 import com.adatao.ddf.DDFContextFactory;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.DDF;
 
 public class DDFContextTest {
 
@@ -27,7 +28,7 @@ public class DDFContextTest {
         System.out.println(contextFactory);
         DDFContext context = contextFactory.connect(connStr, props);
         System.out.println(context);
-        
+        ((SparkDDFContext) context).shutdown();
     }
     
     @Test
@@ -38,6 +39,7 @@ public class DDFContextTest {
         // Now you can create DDF
         DDF ddf = context.fromSql("select * from airline");
         
+        ((SparkDDFContext) context).shutdown();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.adatao.ddf.spark;
 
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.spark.api.java.JavaSparkContext;
 
