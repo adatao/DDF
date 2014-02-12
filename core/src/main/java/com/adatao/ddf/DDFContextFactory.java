@@ -27,6 +27,18 @@ public interface DDFContextFactory {
     
     /**
      * Connect to the cluster and return a DDFContext.
+     * Populate the required connection properties from Envinronment variables.
+     * 
+     * @param connectionURL
+     * @param connectionProps
+     * @return
+     * @throws DDFException
+     */
+    public DDFContext connect(String connectionURL) throws DDFException;
+    
+    /**
+     * Connect to the cluster and return a DDFContext with additional connection 
+     * properties explicitly specified.
      * 
      * @param connectionURL
      * @param connectionProps

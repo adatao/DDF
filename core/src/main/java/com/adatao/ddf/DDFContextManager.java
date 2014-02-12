@@ -48,6 +48,20 @@ public class DDFContextManager {
      * @return
      * @throws DDFException
      */
+    public static DDFContext getDDFContext(String connectionURL) 
+            throws DDFException {
+        DDFContextFactory contextFactory = getContextFactory(connectionURL);
+        return contextFactory.connect(connectionURL);
+    }
+    
+    /**
+     * Get DDFContextFactory directly from DDF ContextFactory Manager.
+     * 
+     * @param connectionURL
+     * @param connectionProps
+     * @return
+     * @throws DDFException
+     */
     public static DDFContext getDDFContext(String connectionURL, Map<String, String> connectionProps) 
             throws DDFException {
         DDFContextFactory contextFactory = getContextFactory(connectionURL);

@@ -29,11 +29,31 @@ public class DDFContextFactory implements com.adatao.ddf.DDFContextFactory {
     }
 
     @Override
+    public DDFContext connect(String connectionURL) throws DDFException {
+        try {
+            Map<String, String> env = System.getenv();
+            Map<String, String> props = new HashMap<String, String>();
+            props.put("spark.home", env.get("SPARK_HOME"));
+            props.put("DDFSPARK_JAR", env.get("DDFSPARK_JAR"));
+            
+            String[] jobJars = props.get("DDFSPARK_JAR").split(",");
+            JavaSparkContext sc = new JavaSparkContext(connectionURL, "DDFClient", props.get("SPARK_HOME"), jobJars, props);
+            return new SparkDDFContext(sc);
+        } catch (Exception e) {
+            throw new DDFException(e);
+        }
+    }
+
+    @Override
     public DDFContext connect(String connectionURL,
             Map<String, String> connectionProps) throws DDFException {
-        String[] jobJars = connectionProps.get("DDFSPARK_JAR").split(",");
-        JavaSparkContext sc = new JavaSparkContext(connectionURL, "DDFClient", connectionProps.get("SPARK_HOME"), jobJars, connectionProps);
-        return new SparkDDFContext(sc);
+        try {
+            String[] jobJars = connectionProps.get("DDFSPARK_JAR").split(",");
+            JavaSparkContext sc = new JavaSparkContext(connectionURL, "DDFClient", connectionProps.get("SPARK_HOME"), jobJars, connectionProps);
+            return new SparkDDFContext(sc);
+        } catch (Exception e) {
+            throw new DDFException(e);
+        }
     }
 
 }
