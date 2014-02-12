@@ -47,7 +47,7 @@ object RootBuild extends Build {
 	val extrasJarName = extrasProjectName + "-" + extrasVersion + ".jar"
 	val extrasTestJarName = extrasProjectName + "-" + extrasVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, extras)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, extras)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
 	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
@@ -281,6 +281,39 @@ object RootBuild extends Build {
                 <recompileMode>incremental</recompileMode>
               </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <configLocation>${{basedir}}/../src/main/resources/sun_checks.xml</configLocation>
+                <outputFileFormat>xml</outputFileFormat>
+              </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <configuration>
+                  <verbose>false</verbose>
+                  <failOnViolation>true</failOnViolation>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                  <failOnWarning>false</failOnWarning>
+                  <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
+                  <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
+                  <configLocation>${{basedir}}/../src/main/resources/scalastyle-config.xml</configLocation>
+                  <outputFile>${{basedir}}/{targetDir}/scalastyle-output.xml</outputFile>
+                  <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>check</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
           </plugins>
         </build>
         <profiles>

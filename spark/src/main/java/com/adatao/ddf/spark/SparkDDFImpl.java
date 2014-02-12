@@ -14,7 +14,7 @@ public class SparkDDFImpl implements SparkDDF {
      * 
      */
     @Override
-    public DDF loadData(String source) {
+    public DDF load(String source) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -55,7 +55,7 @@ public interface DDF {
      * @param source
      * @return the DDF with loaded data content
      */
-    public DDF loadData(String source);
+    public DDF load(String source);
     
     
 }
