@@ -15,7 +15,7 @@ import com.adatao.ddf.exception.DDFException;
 public class DDFContextTest {
 
     @Test
-    public void test() throws DDFException {
+    public void testLongDDFContextRetrieval() throws DDFException {
         String connStr = "spark://ubuntu:7077";
         com.adatao.ddf.DDFContextFactory contextFactory = DDFContextManager.getContextFactory(connStr);
         Map<String, String> env = System.getenv();
@@ -27,6 +27,16 @@ public class DDFContextTest {
         System.out.println(contextFactory);
         DDFContext context = contextFactory.connect(connStr, props);
         System.out.println(context);
+        
+    }
+    
+    @Test
+    public void testSimpleDDFContext() throws DDFException {
+        String connStr = "spark://ubuntu:7077";
+        DDFContext context = DDFContextManager.getDDFContext(connStr);
+        System.out.println(context);
+        // Now you can create DDF
+        DDF ddf = context.fromSql("select * from airline");
         
     }
 
