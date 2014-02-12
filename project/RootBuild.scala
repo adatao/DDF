@@ -287,6 +287,7 @@ object RootBuild extends Build {
               <version>2.6</version>
               <configuration>
                 <configLocation>${{basedir}}/../src/main/resources/sun_checks.xml</configLocation>
+                <propertyExpansion>checkstyle.conf.dir=${basedir}/../src/main/resources</propertyExpansion>
                 <outputFileFormat>xml</outputFileFormat>
               </configuration>
             </plugin>
@@ -300,8 +301,8 @@ object RootBuild extends Build {
                   <failOnViolation>true</failOnViolation>
                   <includeTestSourceDirectory>true</includeTestSourceDirectory>
                   <failOnWarning>false</failOnWarning>
-                  <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
-                  <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
+                  <sourceDirectory>${{basedir}}/src/main/scala</sourceDirectory>
+                  <testSourceDirectory>${{basedir}}/src/test/scala</testSourceDirectory>
                   <configLocation>${{basedir}}/../src/main/resources/scalastyle-config.xml</configLocation>
                   <outputFile>${{basedir}}/{targetDir}/scalastyle-output.xml</outputFile>
                   <outputEncoding>UTF-8</outputEncoding>
