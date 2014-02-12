@@ -45,5 +45,18 @@ public class SparkDDFContext implements DDFContext {
 
         return new SparkDDFImpl();
     }
+    
+    /**
+     * read a CSV file from HDFS file system or local file system and return
+     * a DDF which represent it.
+     * 
+     * This method will read the CSV and try to guess the table schema out of it.
+     * 
+     * @return the DDF represents the CSV data.
+     */
+    @Override
+    public DDF readCSV(String csvFile) throws DDFException {
+        return new SparkDDFImpl();
+    }
 
 }

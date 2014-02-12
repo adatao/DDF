@@ -9,4 +9,12 @@ public class DDFException extends Exception {
     public DDFException(String msg) {
         super(msg);
     }
+    
+    public DDFException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+    
+    public DDFException(Throwable cause) {
+        super(cause);
+    }
 }

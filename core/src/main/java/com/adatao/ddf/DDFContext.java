@@ -20,4 +20,15 @@ public interface DDFContext {
      * @throws DDFException
      */
     public DDF fromSql(String sqlCommand) throws DDFException;
+    
+    /**
+     * read a CSV file from HDFS file system or local file system and return
+     * a DDF which represent it.
+     * 
+     * This method will read the CSV and try to guess the table schema out of it.
+     * 
+     * @return the DDF represents the CSV data.
+     */
+    public DDF readCSV(String csvFile) throws DDFException;
+
 }
