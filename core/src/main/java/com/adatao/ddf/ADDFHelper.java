@@ -19,13 +19,12 @@ package com.adatao.ddf;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleIndexing;
-import com.adatao.ddf.content.IHandleMetadata;
+import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.IHandleMissingData;
 import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
@@ -54,7 +53,7 @@ import com.adatao.ddf.util.PhantomReference;
  *                         |                   -------------------
  *                         |
  *                         |        ----------------------------------
- *                         |------->| IHandleFilteringAndProjections |
+ *                         |------->| IHandleRepresentations |
  *                                  ----------------------------------
  * </pre>
  * <p>
@@ -89,10 +88,9 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
 
 
   private IComputeBasicStatistics mBasicStatisticsComputer;
-  private IHandleFilteringAndProjections mFilterAndProjectionHandler;
   private IHandleIndexing mIndexingHandler;
   private IHandleJoins mJoinsHandler;
-  private IHandleMetadata mMetaDataHandler;
+  private IHandleMetaData mMetaDataHandler;
   private IHandleMiscellany mMiscellanyHandler;
   private IHandleMissingData mMissingDataHandler;
   private IHandleMutability mMutabilityHandler;
@@ -118,20 +116,6 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   }
 
   protected abstract IComputeBasicStatistics createBasicStatisticsComputer();
-
-
-  public IHandleFilteringAndProjections getFilterAndProjectionHandler() {
-    if (mFilterAndProjectionHandler == null) mFilterAndProjectionHandler = this.createFilteringAndProjectionsHandler();
-    if (mFilterAndProjectionHandler == null) throw new UnsupportedOperationException();
-    else return mFilterAndProjectionHandler;
-  }
-
-  public ADDFHelper setFilterAndProjectionHandler(IHandleFilteringAndProjections aFilterAndProjectionHandler) {
-    this.mFilterAndProjectionHandler = aFilterAndProjectionHandler;
-    return this;
-  }
-
-  protected abstract IHandleFilteringAndProjections createFilteringAndProjectionsHandler();
 
 
   public IHandleIndexing getIndexingHandler() {
@@ -162,18 +146,18 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
   protected abstract IHandleJoins createJoinsHandler();
 
 
-  public IHandleMetadata getMetaDataHandler() {
-    if (mMetaDataHandler == null) mMetaDataHandler = this.createMetadataHandler();
+  public IHandleMetaData getMetaDataHandler() {
+    if (mMetaDataHandler == null) mMetaDataHandler = this.createMetaDataHandler();
     if (mMetaDataHandler == null) throw new UnsupportedOperationException();
     else return mMetaDataHandler;
   }
 
-  public ADDFHelper setMetaDataHandler(IHandleMetadata aMetaDataHandler) {
+  public ADDFHelper setMetaDataHandler(IHandleMetaData aMetaDataHandler) {
     this.mMetaDataHandler = aMetaDataHandler;
     return this;
   }
 
-  protected abstract IHandleMetadata createMetadataHandler();
+  protected abstract IHandleMetaData createMetaDataHandler();
 
 
   public IHandleMiscellany getMiscellanyHandler() {
@@ -341,7 +325,6 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     .setDDF(null)
     .setAlgorithmRunner(null)
     .setBasicStatisticsComputer(null)
-    .setFilterAndProjectionHandler(null)
     .setIndexingHandler(null)
     .setJoinsHandler(null)
     .setMetaDataHandler(null)

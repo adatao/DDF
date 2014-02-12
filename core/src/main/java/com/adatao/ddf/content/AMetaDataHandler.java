@@ -12,7 +12,7 @@ import com.adatao.ddf.ADDFHelper;
  * @author ctn
  * 
  */
-public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetadata {
+public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
   public AMetaDataHandler(ADDFHelper theContainer) {
     super(theContainer);
@@ -36,10 +36,17 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   private boolean bNumRowsIsValid = false;
   private long mNumColumns = 0L;
   private boolean bNumColumnsIsValid = false;
-
+  private Schema mSchema;
+  
+  /**
+   * Each implementation needs to come up with its own way to compute the row count.
+   * @return row count of a DDF
+   */
   protected abstract long getNumRowsImpl();
 
-  protected abstract long getNumColumnsImpl();
+  protected long getNumColumnsImpl() {
+    return mSchema.getNumColumns();
+  }
 
   /**
    * Called to assert that the row count needs to be recomputed at next access
@@ -71,5 +78,9 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
       bNumColumnsIsValid = true;
     }
     return mNumColumns;
+  }
+  
+  public Schema getSchema() {
+    return this.mSchema;
   }
 }

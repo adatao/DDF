@@ -2,7 +2,7 @@ package com.adatao.ddf.content;
 
 import java.util.UUID;
 
-public interface IHandleMetadata {
+public interface IHandleMetaData {
 
   public UUID getId();
 
@@ -13,4 +13,6 @@ public interface IHandleMetadata {
   public long getNumRows();
 
   public long getNumColumns();
+
+  public Schema getSchema();
 }

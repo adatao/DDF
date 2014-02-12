@@ -15,9 +15,6 @@ import com.adatao.ddf.IHandleStreamingData;
 import com.adatao.ddf.IHandleTimeSeries;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
-import com.adatao.ddf.content.ARepresentationHandler;
-import com.adatao.ddf.content.IHandleRepresentations;
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
@@ -40,12 +37,6 @@ public class ARepresentationHandlerTests {
     }
 
     @Override
-    protected IHandleFilteringAndProjections createFilteringAndProjectionsHandler() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
     protected IHandleIndexing createIndexingHandler() {
       // TODO Auto-generated method stub
       return null;
@@ -58,7 +49,7 @@ public class ARepresentationHandlerTests {
     }
 
     @Override
-    protected IHandleMetadata createMetadataHandler() {
+    protected IHandleMetaData createMetaDataHandler() {
       // TODO Auto-generated method stub
       return null;
     }
