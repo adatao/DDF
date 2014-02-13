@@ -19,11 +19,12 @@ else
   fi
 fi
 
-CLASSPATH=`ls $DDF_HOME/spark/target/scala-$SCALA_VERSION/ddf*.jar`
-CORE_CLASSPATH=`ls $DDF_HOME/core/target/scala-$SCALA_VERSION/ddf*.jar`
+CLASSPATH=`ls -sep ":" $DDF_HOME/spark/target/scala-$SCALA_VERSION/ddf*.jar`
+CORE_CLASSPATH=`ls -sep ":" $DDF_HOME/core/target/scala-$SCALA_VERSION/ddf*.jar`
 PY4J_CLASSPATH=`ls $DDF_HOME/clients/python/lib/py4j*.jar`
 CLASSPATH="$CLASSPATH:$CORE_CLASSPATH:$PY4J_CLASSPATH"
-#echo $CLASSPATH
+CLASSPATH=${CLASSPATH//[\\n]/:}
+echo $CLASSPATH
 
 export CLASSPATH
 
