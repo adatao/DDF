@@ -19,7 +19,7 @@ import com.adatao.ddf.util.PhantomReference;
 public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
   protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-  public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
+  public ADDFFunctionalGroupHandler(ADDFManager theContainer) {
     this.setContainer(theContainer);
 
     PhantomReference.register(this);
@@ -33,22 +33,22 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
     return this.getContainer().getDDF();
   }
 
-  private ADDFHelper mContainer;
+  private ADDFManager mContainer;
 
   /**
-   * @return the {@link ADDFHelper} that contains this handler
+   * @return the {@link ADDFManager} that contains this handler
    */
-  public ADDFHelper getContainer() {
+  public ADDFManager getContainer() {
     return mContainer;
   }
 
   /**
    * @param aContainer
-   *          the containing {@link ADDFHelper} to set
+   *          the containing {@link ADDFManager} to set
    * 
    * @return this instance, for call-chaining style
    */
-  public ADDFFunctionalGroupHandler setContainer(ADDFHelper aContainer) {
+  public ADDFFunctionalGroupHandler setContainer(ADDFManager aContainer) {
     this.mContainer = aContainer;
     return this;
   }

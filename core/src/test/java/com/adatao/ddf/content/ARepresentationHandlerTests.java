@@ -1,30 +1,12 @@
 package com.adatao.ddf.content;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.adatao.ddf.ADDFHelper;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.IHandleMiscellany;
-import com.adatao.ddf.IHandleStreamingData;
-import com.adatao.ddf.IHandleTimeSeries;
-import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IRunAlgorithms;
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandlePersistence;
-import com.adatao.ddf.etl.IHandleReshaping;
 
 /**
  * Unit tests for generic DDF.
  */
 /*
 public class ARepresentationHandlerTests {
-  public static class Helper extends ADDFHelper {
+  public static class Helper extends ADDFManager {
     public Helper(DDF ddf) {
       super(ddf);
       this.setRepresentationHandler(new Handler(this));
@@ -122,7 +104,7 @@ public class ARepresentationHandlerTests {
   }
 
   public static class Handler extends ARepresentationHandler {
-    public Handler(ADDFHelper container) {
+    public Handler(ADDFManager container) {
       super(container);
     }
 
@@ -140,7 +122,7 @@ public class ARepresentationHandlerTests {
   }
 
   private static DDF ddf = new DDF(new Helper(null));
-  private static ADDFHelper helper = ddf.getHelper();
+  private static ADDFManager helper = ddf.getHelper();
   private static IHandleRepresentations handler = helper.getRepresentationHandler();
 
   private static List<String> list = new ArrayList<String>();
