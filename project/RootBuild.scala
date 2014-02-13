@@ -34,17 +34,23 @@ object RootBuild extends Build {
 
 	val sparkProjectName = projectName + "_spark"
 	val sparkVersion = rootVersion
-	val sparkJarName = sparkProjectName + "-" + sparkVersion + ".jar"
-	val sparkTestJarName = sparkProjectName + "-" + sparkVersion + "-tests.jar"
+	val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+	val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 	
+	val examplesProjectName = projectName + "_examples"
+	val examplesVersion = rootVersion
+	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
+	val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
+
 	val extrasProjectName = projectName + "_extras"
 	val extrasVersion = rootVersion
 	val extrasJarName = extrasProjectName + "-" + extrasVersion + ".jar"
 	val extrasTestJarName = extrasProjectName + "-" + extrasVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, extras)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, extras)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
+	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
 	lazy val extras = Project("extras", file("extras"), settings = extrasSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
@@ -214,6 +220,7 @@ object RootBuild extends Build {
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 
+    
     pomExtra := (
       <!--
 			**************************************************************************************************
@@ -235,6 +242,9 @@ object RootBuild extends Build {
               <version>2.15</version>
               <configuration>
                 <reuseForks>false</reuseForks>
+                <environmentVariables>
+					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
+				</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
@@ -271,6 +281,40 @@ object RootBuild extends Build {
                 <recompileMode>incremental</recompileMode>
               </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <configLocation>${{basedir}}/../src/main/resources/sun_checks.xml</configLocation>
+                <propertyExpansion>checkstyle.conf.dir=${{basedir}}/../src/main/resources</propertyExpansion>
+                <outputFileFormat>xml</outputFileFormat>
+              </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <configuration>
+                  <verbose>false</verbose>
+                  <failOnViolation>true</failOnViolation>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                  <failOnWarning>false</failOnWarning>
+                  <sourceDirectory>${{basedir}}/src/main/scala</sourceDirectory>
+                  <testSourceDirectory>${{basedir}}/src/test/scala</testSourceDirectory>
+                  <configLocation>${{basedir}}/../src/main/resources/scalastyle-config.xml</configLocation>
+                  <outputFile>${{basedir}}/{targetDir}/scalastyle-output.xml</outputFile>
+                  <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>check</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
           </plugins>
         </build>
         <profiles>
@@ -398,6 +442,12 @@ object RootBuild extends Build {
     libraryDependencies ++= adatao_unmanaged
   ) ++ assemblySettings ++ extraAssemblySettings
 
+  def examplesSettings = commonSettings ++ Seq(
+    name := examplesProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
   def extrasSettings = commonSettings ++ Seq(
     name := extrasProjectName,

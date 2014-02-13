@@ -64,6 +64,7 @@
 	
 	<modules>
 	  <module>core</module>
+	  <module>spark</module>
 	</modules>
 
 	<dependencies>
@@ -139,8 +140,8 @@
                   <failOnWarning>false</failOnWarning>
                   <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
                   <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
-                  <configLocation>${basedir}/src/main/resources/scalastyle-config.xml</configLocation>
-                  <outputFile>${project.basedir}/target/scalastyle-output.xml</outputFile>
+                  <configLocation>src/main/resources/scalastyle-config.xml</configLocation>
+                  <outputFile>target/scalastyle-output.xml</outputFile>
                   <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
                 <executions>
@@ -161,7 +162,21 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
-
+            
+            <plugin>
+	            <artifactId>maven-dependency-plugin</artifactId>
+	            <executions>
+	              <execution>
+	                <phase>install</phase>
+	                <goals>
+	                  <goal>copy-dependencies</goal>
+	                </goals>
+	                <configuration>
+	                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+	                </configuration>
+	              </execution>
+	            </executions>
+	          </plugin>
 		</plugins>
 	</build>
 

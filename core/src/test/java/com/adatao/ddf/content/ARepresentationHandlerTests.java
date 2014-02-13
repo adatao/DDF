@@ -19,10 +19,10 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
 
-
 /**
  * Unit tests for generic DDF.
  */
+/*
 public class ARepresentationHandlerTests {
   public static class Helper extends ADDFHelper {
     public Helper(DDF ddf) {
@@ -178,3 +178,4 @@ public class ARepresentationHandlerTests {
         handler.get(list.get(0).getClass()));
   }
 }
+*/
