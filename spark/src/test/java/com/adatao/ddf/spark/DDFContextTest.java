@@ -17,12 +17,13 @@ public class DDFContextTest {
 
     @Test
     public void testLongDDFContextRetrieval() throws DDFException {
-        String connStr = "spark://ubuntu:7077";
-        com.adatao.ddf.DDFContextFactory contextFactory = DDFContextManager.getContextFactory(connStr);
         Map<String, String> env = System.getenv();
+        String connStr = env.get("SPARK_MASTER");
+        com.adatao.ddf.DDFContextFactory contextFactory = DDFContextManager.getContextFactory(connStr);
         Map<String, String> props = new HashMap<String, String>();
         props.put("spark.home", System.getProperty("SPARK_HOME"));
         props.put("DDFSPARK_JAR", env.get("DDFSPARK_JAR"));
+        props.put("SPARK_MASTER", env.get("SPARK_MASTER"));
         System.out.println(System.getProperty("spark.serializer"));
         System.out.println(props.get("DDFSPARK_JAR"));
         System.out.println(contextFactory);
@@ -33,7 +34,8 @@ public class DDFContextTest {
     
     @Test
     public void testSimpleDDFContext() throws DDFException {
-        String connStr = "spark://ubuntu:7077";
+        Map<String, String> env = System.getenv();
+        String connStr = env.get("SPARK_MASTER");
         DDFContext context = DDFContextManager.getDDFContext(connStr);
         System.out.println(context);
         // Now you can create DDF
