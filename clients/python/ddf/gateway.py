@@ -12,7 +12,10 @@ def preexec_func():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 def start_gateway_server():
-    command = [DDF_HOME, "py4j.GatewayServer", "--die-on-broken-pipe", "0"]
+    ddfScript = os.path.join(DDF_HOME, "exe", "ddf_class.sh")
+    print ddfScript
+    command = [ddfScript, "py4j.GatewayServer", "--die-on-broken-pipe", "0"]
+    print command
     proc = Popen(command, stdout = PIPE, stdin = PIPE, preexec_fn = preexec_func)
     # get the port of the GatewayServer
     port = int(proc.stdout.readline())

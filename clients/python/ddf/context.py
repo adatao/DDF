@@ -1,4 +1,6 @@
 
+from ddf.gateway import start_gateway_server
+
 class DDFContext(object):
     """
     Main entry point for DDF functionality. A DDFContext can be used
