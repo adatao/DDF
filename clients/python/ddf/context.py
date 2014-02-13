@@ -1,5 +1,5 @@
 
-from ddf.gateway import start_gateway_server
+from gateway import start_gateway_server
 
 class DDFContext(object):
     """

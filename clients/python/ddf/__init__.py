@@ -2,5 +2,8 @@
 
 """
 
-from ddf.context import DDFContext
+from context import DDFContext
+
+__all__ = ["DDFContext"]
+
 
