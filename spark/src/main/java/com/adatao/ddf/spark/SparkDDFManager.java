@@ -1,16 +1,13 @@
 package com.adatao.ddf.spark;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import com.adatao.ddf.spark.etl.SparkPersistenceHandler;
 import org.apache.spark.api.java.function.Function;
-
 import shark.api.JavaSharkContext;
-import shark.api.JavaTableRDD;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
-import shark.api.ColumnDesc;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
@@ -27,14 +24,12 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.spark.content.MetaDataHandler;
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -199,7 +194,7 @@ public class SparkDDFManager extends ADDFManager {
   @Override
   protected IHandlePersistence createPersistenceHandler() {
     // TODO Auto-generated method stub
-    return null;
+    return new SparkPersistenceHandler(this, this.mSharkContext.sharkCtx());
   }
 
   @Override
@@ -246,16 +241,18 @@ public class SparkDDFManager extends ADDFManager {
 
 
   @Override
-  public DDF load(String tableName) {
+  public DDF load(String tableName) throws DDFException{
+
+    SparkDDFManager ddfManager= new SparkDDFManager();
+    SparkPersistenceHandler persHandler= (SparkPersistenceHandler) ddfManager.getPersistenceHandler();
+
     String cmd = String.format("SELECT * FROM %s", tableName);
-    JavaTableRDD tableRdd = mSharkContext.sql2rdd(cmd);
-    ColumnDesc[] fs = tableRdd.schema();
-    
-    List<Column> cols = Lists.newArrayList();
-    for (int i = 0; i < fs.length; i++) {
-      cols.add(new Column(fs[i].columnName(), fs[i].typeName());
-    }
-    return new SparkDDF(tableRdd.map(new TablePartitionMapper()).rdd(), new Schema(tableName, cols));
+
+    persHandler.sqlLoad(cmd);
+
+    SparkDDF newDDF= new SparkDDF(ddfManager);
+
+    return newDDF;
   }
 
   @Override

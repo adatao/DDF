@@ -42,7 +42,10 @@ public interface IHandleRepresentations {
    * Clears out all current representations.
    */
   public void reset();
-
+  /**
+   *
+   */
+  public void getRepresentation(Class<?> elementType);
   /**
    * Clears all current representations and set it to the supplied one.
    * 

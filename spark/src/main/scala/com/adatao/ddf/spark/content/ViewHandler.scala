@@ -75,68 +75,33 @@ class ViewHandler(container: SparkDDFManager) extends AViewHandler(container) wi
 
 object ViewHandler {
   def getDefault(cols: Array[Int], container: SparkDDFManager): DDF = {
-    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
 
     null
   }
 
-  def getArrayObject(cols: Array[Int], container: DDFHelper): DDF = {
-    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
-    val obj= helper.get(classOf[TablePartition])
-
-    if(obj != null){
-      val rdd= obj.asInstanceOf[RDD[TablePartition]]
-      val newRDD= TablePartitionHelper.getArrayObject(cols, rdd)
-      DDFHelper.newDDF(newRDD)
-    }else{
-      throw new Exception("TablePartition representation not found")
-    }
-  }
-
-  def getArrayDouble(cols: Array[Int], container: DDFHelper): DDF = {
-    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
-    val obj= helper.get(classOf[TablePartition])
-
-    if(obj != null){
-      val rdd= obj.asInstanceOf[RDD[TablePartition]]
-      val newRDD= TablePartitionHelper.getArrayDouble(cols, rdd)
-      DDFHelper.newDDF(newRDD)
-    }else{
-      throw new Exception("TablePartition representation not found")
-    }
-  }
-
-  def getTablePartition(cols: Array[Int], container: DDFHelper): DDF = {
+  def getArrayObject(cols: Array[Int], container: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getLabeledPoint(cols: Array[Int], container: DDFHelper): DDF = {
-    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
-    val obj= helper.get(classOf[TablePartition])
+  def getArrayDouble(cols: Array[Int], container: SparkDDFManager): DDF = {
 
-    if(obj != null){
-      val rdd= obj.asInstanceOf[RDD[TablePartition]]
-      val newRDD= TablePartitionHelper.getLabeledPoint(cols, rdd)
-      DDFHelper.newDDF(newRDD)
-    }else{
-      throw new Exception("TablePartition representation not found")
-    }
-
+    null
   }
 
-  def getLabeledPoints(cols: Array[Int], container: DDFHelper): DDF = {
+  def getTablePartition(cols: Array[Int], container: SparkDDFManager): DDF = {
 
-    val helper= container.getDDF.getHelper.asInstanceOf[RepresentationHandler]
-    val obj= helper.get(classOf[TablePartition])
+    null
+  }
 
-    if(obj != null){
-      val rdd= obj.asInstanceOf[RDD[TablePartition]]
-      val newRDD= TablePartitionHelper.getLabeledPoints(cols, rdd)
-      DDFHelper.newDDF(newRDD)
-    }else{
-      throw new Exception("TablePartition representation not found")
-    }
+  def getLabeledPoint(cols: Array[Int], container: SparkDDFManager): DDF = {
 
+    null
+  }
+
+  def getLabeledPoints(cols: Array[Int], container: SparkDDFManager): DDF = {
+
+
+   null
   }
 }

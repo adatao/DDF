@@ -22,17 +22,8 @@ public class SparkDDF extends DDF {
    * used within the spark module. They should not be used outside of this module.
    */
 
-  private RDD<TablePartition> mDataTable;
-  private Schema mSchema;
-  public SparkDDF (RDD<TablePartition> data) {
-    this.mDataTable = data;
-  }
-  public SparkDDF(RDD<TablePartition> data, Schema theSchema) {
-    this.mDataTable = data;
-    this.mSchema = theSchema;
-  }
-  public RDD<TablePartition> getRDD() {
-    return mDataTable;
+  public SparkDDF(SparkDDFManager aDDFManager) {
+    super(aDDFManager);
   }
 
 }

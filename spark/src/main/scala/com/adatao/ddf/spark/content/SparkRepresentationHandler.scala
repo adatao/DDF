@@ -3,24 +3,25 @@
  */
 package com.adatao.ddf.spark.content
 
-import com.adatao.ddf.content.{ColumnType, IHandleRepresentations, ARepresentationHandler}
-import com.adatao.ddf.spark.etl.PersistenceHandler
+import com.adatao.ddf.content.{IHandleRepresentations, ARepresentationHandler}
+import com.adatao.ddf.content.Schema.ColumnType
+import com.adatao.ddf.spark.etl.SparkPersistenceHandler
 import java.lang.Class
 import scala.collection.mutable.HashMap
 import org.apache.spark.rdd.RDD
 import scala.reflect.Manifest
-import com.adatao.ddf.spark.DDFHelper
+import com.adatao.ddf.spark.{SparkDDFManager}
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.memstore2.TablePartition
 import shark.api.{Row, TableRDD}
 /**
- * RDD-based RepresentationHandler
+ * RDD-based SparkRepresentationHandler
  *
  * @author ctn
  *
  */
-class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler(container) with IHandleRepresentations {
+class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresentationHandler(container) with IHandleRepresentations {
 
   /**
    *
@@ -41,17 +42,17 @@ class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler
 
     val cmd = "select " + columnNames.mkString(", ") + " from " + schema.getTableName()
 
-    val tableRDD: TableRDD= container.getPersistenceHandler.asInstanceOf[PersistenceHandler].sql2rdd(cmd)
+    val tableRDD: TableRDD= container.getPersistenceHandler.asInstanceOf[SparkPersistenceHandler].sql2rdd(cmd)
 
     elementType match {
 
-      case arrayObject if arrayObject == classOf[Array[Object]] => RepresentationHandler.getRDDArrayObject(tableRDD)
+      case arrayObject if arrayObject == classOf[Array[Object]] => SparkRepresentationHandler.getRDDArrayObject(tableRDD)
 
       case arrayDouble if arrayDouble == classOf[Array[Double]] => {
 
-        val extractors= cols.map(colInfo => RepresentationHandler.doubleExtractor(colInfo.getType)).toArray
+        val extractors= cols.map(colInfo => SparkRepresentationHandler.doubleExtractor(colInfo.getType)).toArray
 
-        RepresentationHandler.getRDDArrayDouble(tableRDD, extractors)
+        SparkRepresentationHandler.getRDDArrayDouble(tableRDD, extractors)
       }
 
       case _ => throw new Exception("elementType not supported")
@@ -100,7 +101,7 @@ class RepresentationHandler(container: DDFHelper) extends ARepresentationHandler
 		})
 	}
 }
-object RepresentationHandler {
+object SparkRepresentationHandler {
   /**
    *
    */
@@ -149,7 +150,7 @@ object RepresentationHandler {
       case obj => obj.asInstanceOf[Double]
     }
 
-    case ColumnType.INT => {
+    case ColumnType.INTEGER => {
       case obj => obj.asInstanceOf[Int].toDouble
     }
 

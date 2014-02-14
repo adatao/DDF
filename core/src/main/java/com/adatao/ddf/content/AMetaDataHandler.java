@@ -14,8 +14,8 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public AMetaDataHandler(ADDFManager ddfManager) {
+    super(ddfManager);
   }
 
 
@@ -79,7 +79,12 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
     }
     return mNumColumns;
   }
-  
+
+  public void setSchema(Schema schema) {
+
+    mSchema= schema;
+  }
+
   public Schema getSchema() {
     return this.mSchema;
   }

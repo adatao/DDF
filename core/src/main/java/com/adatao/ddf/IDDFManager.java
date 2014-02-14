@@ -2,6 +2,7 @@ package com.adatao.ddf;
 
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
+import com.adatao.ddf.exception.DDFException;
 
 
 /**
@@ -16,7 +17,7 @@ public interface IDDFManager {
    * 
    * @return the DDF with loaded data content
    */
-  public DDF load(String command);
+  public DDF load(String command) throws DDFException;
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the system default data
@@ -26,7 +27,7 @@ public interface IDDFManager {
    * @param schema
    * @return
    */
-  public DDF load(String command, Schema schema);
+  public DDF load(String command, Schema schema) throws DDFException;
 
   /**
    * Loads data content into a DDF, using the specified {@link DataFormat}, from the system default
@@ -36,7 +37,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, DataFormat dataFormat);
+  public DDF load(String command, DataFormat dataFormat) throws DDFException;
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified source. The
@@ -50,7 +51,7 @@ public interface IDDFManager {
    *          The dataSource (URI) of the data, e.g., jdbc://xxx
    * @return
    */
-  public DDF load(String command, Schema schema, String dataSource);
+  public DDF load(String command, Schema schema, String dataSource) throws DDFException;
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified dataSource.
@@ -61,7 +62,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, Schema schema, DataFormat dataFormat);
+  public DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException;
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified dataSource.
@@ -75,7 +76,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat);
+  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
 
   public void shutdown();
 

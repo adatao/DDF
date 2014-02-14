@@ -198,7 +198,7 @@ public class Schema implements Serializable {
   }
 
   public enum ColumnType {
-    STRING, INTEGER, FLOAT, TIMESTAMP, BLOB
+    STRING, INTEGER, DOUBLE, FLOAT, TIMESTAMP, BLOB
   }
 
   public enum DataFormat {

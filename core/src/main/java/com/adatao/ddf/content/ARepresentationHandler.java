@@ -48,7 +48,22 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void reset() {
     mReps.clear();
   }
+  /**
+   *
+   */
+  protected abstract Object getRepresentationImpl(Class<?> elementType);
+  /**
+   *
+   */
+  @Override
+  public void getRepresentation(Class<?> elementType){
+    Object obj= this.get(elementType);
 
+    if(obj == null){
+      obj= this.getRepresentationImpl(elementType);
+      this.add(obj, elementType);
+    }
+  }
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 

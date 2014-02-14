@@ -43,6 +43,9 @@ public class DDF {
 
   private ADDFManager mDDFManager;
 
+  public DDF(ADDFManager addfManager) {
+    mDDFManager= addfManager;
+  }
   public ADDFManager getDDFManager() {
 
     return mDDFManager;
