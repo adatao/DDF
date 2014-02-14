@@ -172,9 +172,13 @@ public class Schema implements Serializable {
     private String mName;
     private ColumnType mType;
 
-    public Column(String header, ColumnType type) {
-      this.mName = header;
+    public Column(String name, ColumnType type) {
+      this.mName = name;
       this.mType = type;
+    }
+
+    public Column(String name, String type) {
+      this(name, ColumnType.fromString(type));
     }
 
     public String getName() {
@@ -198,7 +202,19 @@ public class Schema implements Serializable {
   }
 
   public enum ColumnType {
-    STRING, INTEGER, FLOAT, TIMESTAMP, BLOB
+    STRING, INTEGER, FLOAT, TIMESTAMP, BLOB;
+
+    public static ColumnType fromString(String s) {
+      if (s == null || s.length() == 0) return null;
+
+      s = s.toUpperCase().trim();
+
+      for (ColumnType t : values()) {
+        if (s.equals(t.name())) return t;
+      }
+
+      return null;
+    }
   }
 
   public enum DataFormat {
