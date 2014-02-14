@@ -16,6 +16,12 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.content.*;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleReshaping;
+
 import java.util.List;
 
 
@@ -34,6 +40,18 @@ import java.util.List;
  * 
  */
 public class DDF {
+
+  private ADDFManager mDDFManager;
+
+  public ADDFManager getDDFManager() {
+
+    return mDDFManager;
+  }
+
+  public void setDDFManager(ADDFManager aDDFManager) {
+
+    mDDFManager= aDDFManager;
+  }
   /**
    * Executes the given sqlCommand against this DDF, and returns the resulting DDF
    * 
@@ -53,4 +71,75 @@ public class DDF {
   public List<String> sql2txt(String sqlCommand) {
     return null;
   }
+
+  public IComputeBasicStatistics getBasicStatisticsComputer() {
+
+    return mDDFManager.getBasicStatisticsComputer();
+  }
+
+  public IHandleIndexing getIndexingHandler() {
+
+    return mDDFManager.getIndexingHandler();
+  }
+
+  public IHandleJoins getJoinsHandler() {
+
+    return mDDFManager.getJoinsHandler();
+  }
+
+  public IHandleMetaData getMetadataHandler() {
+
+    return mDDFManager.getMetaDataHandler();
+  }
+
+  public IHandleMiscellany getMiscellanyHandler() {
+
+    return mDDFManager.getMiscellanyHandler();
+  }
+
+  public IHandleMissingData getMissingDataHandler() {
+
+    return mDDFManager.getMissingDataHandler();
+  }
+
+  public IHandleMutability getMutabilityHandler() {
+
+    return mDDFManager.getMutabilityHandler();
+  }
+
+  public IHandlePersistence getPersistenceHandler() {
+
+    return mDDFManager.getPersistenceHandler();
+  }
+
+  public IHandleRepresentations getRepresentationHandler() {
+
+    return mDDFManager.getRepresentationHandler();
+  }
+
+  public IHandleReshaping getReshapingHandler() {
+
+    return mDDFManager.getReshapingHandler();
+  }
+
+  public IHandleSchema getSchemaHandler() {
+
+    return mDDFManager.getSchemaHandler();
+  }
+
+  public IHandleStreamingData getStreamingDataHandler() {
+
+    return mDDFManager.getStreamingDataHandler();
+  }
+
+  public IHandleTimeSeries getTimeSeriesHandler() {
+
+    return mDDFManager.getTimeSeriesHandler();
+  }
+
+  public IHandleViews getViewHandler() {
+
+    return mDDFManager.getViewHandler();
+  }
+
 }

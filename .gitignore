@@ -56,5 +56,9 @@ __pycache__/
 # C extensions
 *.so
 
-inst/java/
-*~
+*.dat
+.idea/*
+.idea_modules/*
+*.iml
+core/metastore_db/*
+
