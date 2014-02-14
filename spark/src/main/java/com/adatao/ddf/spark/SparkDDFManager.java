@@ -250,7 +250,7 @@ public class SparkDDFManager extends ADDFManager {
     String cmd = String.format("SELECT * FROM %s", tableName);
     JavaTableRDD tableRdd = mSharkContext.sql2rdd(cmd);
     ColumnDesc[] fs = tableRdd.schema();
-    Schema theSchema = this.createMetaDataHandler().getSchema();
+    
     List<Column> cols = Lists.newArrayList();
     for (int i = 0; i < fs.length; i++) {
       cols.add(new Column(fs[i].columnName(), fs[i].typeName());
