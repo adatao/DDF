@@ -6,7 +6,7 @@ package com.adatao.ddf.content;
 import java.util.UUID;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.ADDFManager;
 
 /**
  * @author ctn
@@ -14,7 +14,7 @@ import com.adatao.ddf.ADDFHelper;
  */
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFHelper theContainer) {
+  public AMetaDataHandler(ADDFManager theContainer) {
     super(theContainer);
   }
 

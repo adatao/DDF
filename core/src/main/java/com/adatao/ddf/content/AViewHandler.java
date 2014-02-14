@@ -5,7 +5,7 @@ package com.adatao.ddf.content;
 
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.ADDFManager;
 
 /**
  * @author ctn
@@ -13,7 +13,7 @@ import com.adatao.ddf.ADDFHelper;
  */
 public abstract class AViewHandler extends ADDFFunctionalGroupHandler implements IHandleViews {
 
-  public AViewHandler(ADDFHelper theContainer) {
+  public AViewHandler(ADDFManager theContainer) {
     super(theContainer);
   }
 }

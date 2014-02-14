@@ -4,7 +4,7 @@
 package com.adatao.ddf.etl;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.ADDFManager;
 
 /**
  * @author ctn
@@ -12,7 +12,7 @@ import com.adatao.ddf.ADDFHelper;
  */
 public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler implements IHandlePersistence {
 
-  public APersistenceHandler(ADDFHelper theContainer) {
+  public APersistenceHandler(ADDFManager theContainer) {
     super(theContainer);
   }
 

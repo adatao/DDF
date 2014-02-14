@@ -16,19 +16,8 @@
  */
 package com.adatao.ddf;
 
-import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IRunAlgorithms;
-import com.adatao.ddf.content.IHandleIndexing;
-import com.adatao.ddf.content.IHandleMissingData;
-import com.adatao.ddf.content.IHandleMutability;
-import com.adatao.ddf.content.IHandleRepresentations;
-import com.adatao.ddf.content.IHandleSchema;
-import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandlePersistence;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.util.ISupportPhantomReference;
-import com.adatao.ddf.util.PhantomReference;
+import java.util.List;
+
 
 /**
  * <p>
@@ -36,24 +25,32 @@ import com.adatao.ddf.util.PhantomReference;
  * capabilities (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
- * This class was designed using the Bridge Pattern to provide clean seperation
- * between the abstract concepts and the implementation so that the API
- * can support multiple big data platforms under the same set of abstract
- * concepts.
+ * This class was designed using the Bridge Pattern to provide clean separation between the abstract
+ * concepts and the implementation so that the API can support multiple big data platforms under the
+ * same set of abstract concepts.
  * </p>
  * 
  * @author ctn
  * 
  */
-public interface DDF {
-    /**
-     * load data content into a DDF which already has a schema to govern the data
-     * loading.
-     * 
-     * @param source
-     * @return the DDF with loaded data content
-     */
-    public DDF load(String source);
-    
-    
+public class DDF {
+  /**
+   * Executes the given sqlCommand against this DDF, and returns the resulting DDF
+   * 
+   * @param sqlCommand
+   * @return
+   */
+  public DDF sql2ddf(String sqlCommand) {
+    return null;
+  }
+
+  /**
+   * Executes the given sqlCommand against this DDF, and returns the resulting text result
+   * 
+   * @param sqlCommand
+   * @return
+   */
+  public List<String> sql2txt(String sqlCommand) {
+    return null;
+  }
 }

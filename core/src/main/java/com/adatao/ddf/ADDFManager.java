@@ -45,7 +45,7 @@ import com.adatao.ddf.util.PhantomReference;
  * 
  * <pre>
  * -------------    -------------------------
- * |    DDF    |<-->|       ADDFHelper      |
+ * |    DDF    |<-->|       ADDFManager      |
  * -------------    -------------------------
  *                         ^          ^
  *                         |   ...    |        -------------------
@@ -66,9 +66,12 @@ import com.adatao.ddf.util.PhantomReference;
  * @author ctn
  * 
  */
-public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference {
+public abstract class ADDFManager implements IDDFManager, ISupportPhantomReference {
 
-  public ADDFHelper(DDF theDDF) {
+  public ADDFManager() {
+  }
+
+  public ADDFManager(DDF theDDF) {
     this.setDDF(theDDF);
 
     PhantomReference.register(this);
@@ -77,11 +80,21 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
 
   private DDF mDDF;
 
+  /**
+   * 
+   * @return the DDF that I directly manage, if any
+   */
   public DDF getDDF() {
     return mDDF;
   }
 
-  public ADDFHelper setDDF(DDF aDDF) {
+  /**
+   * Sets the DDF that I should directly manage
+   * 
+   * @param aDDF
+   * @return
+   */
+  public ADDFManager setDDF(DDF aDDF) {
     this.mDDF = aDDF;
     return this;
   }
@@ -110,7 +123,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mBasicStatisticsComputer;
   }
 
-  public ADDFHelper setBasicStatisticsComputer(IComputeBasicStatistics aBasicStatisticsComputer) {
+  public ADDFManager setBasicStatisticsComputer(IComputeBasicStatistics aBasicStatisticsComputer) {
     this.mBasicStatisticsComputer = aBasicStatisticsComputer;
     return this;
   }
@@ -124,7 +137,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mIndexingHandler;
   }
 
-  public ADDFHelper setIndexingHandler(IHandleIndexing anIndexingHandler) {
+  public ADDFManager setIndexingHandler(IHandleIndexing anIndexingHandler) {
     this.mIndexingHandler = anIndexingHandler;
     return this;
   }
@@ -138,7 +151,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mJoinsHandler;
   }
 
-  public ADDFHelper setJoinsHandler(IHandleJoins aJoinsHandler) {
+  public ADDFManager setJoinsHandler(IHandleJoins aJoinsHandler) {
     this.mJoinsHandler = aJoinsHandler;
     return this;
   }
@@ -152,7 +165,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mMetaDataHandler;
   }
 
-  public ADDFHelper setMetaDataHandler(IHandleMetaData aMetaDataHandler) {
+  public ADDFManager setMetaDataHandler(IHandleMetaData aMetaDataHandler) {
     this.mMetaDataHandler = aMetaDataHandler;
     return this;
   }
@@ -166,7 +179,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mMiscellanyHandler;
   }
 
-  public ADDFHelper setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
+  public ADDFManager setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
     this.mMiscellanyHandler = aMiscellanyHandler;
     return this;
   }
@@ -180,7 +193,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mMissingDataHandler;
   }
 
-  public ADDFHelper setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
+  public ADDFManager setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
     this.mMissingDataHandler = aMissingDataHandler;
     return this;
   }
@@ -194,7 +207,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mMutabilityHandler;
   }
 
-  public ADDFHelper setMutabilityHandler(IHandleMutability aMutabilityHandler) {
+  public ADDFManager setMutabilityHandler(IHandleMutability aMutabilityHandler) {
     this.mMutabilityHandler = aMutabilityHandler;
     return this;
   }
@@ -208,7 +221,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mPersistenceHandler;
   }
 
-  public ADDFHelper setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
+  public ADDFManager setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
     this.mPersistenceHandler = aPersistenceHandler;
     return this;
   }
@@ -222,7 +235,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mRepresentationHandler;
   }
 
-  public ADDFHelper setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
+  public ADDFManager setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
     this.mRepresentationHandler = aRepresentationHandler;
     return this;
   }
@@ -236,7 +249,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mReshapingHandler;
   }
 
-  public ADDFHelper setReshapingHandler(IHandleReshaping aReshapingHandler) {
+  public ADDFManager setReshapingHandler(IHandleReshaping aReshapingHandler) {
     this.mReshapingHandler = aReshapingHandler;
     return this;
   }
@@ -250,7 +263,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mSchemaHandler;
   }
 
-  public ADDFHelper setSchemaHandler(IHandleSchema aSchemaHandler) {
+  public ADDFManager setSchemaHandler(IHandleSchema aSchemaHandler) {
     this.mSchemaHandler = aSchemaHandler;
     return this;
   }
@@ -264,7 +277,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mStreamingDataHandler;
   }
 
-  public ADDFHelper setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
+  public ADDFManager setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
     this.mStreamingDataHandler = aStreamingDataHandler;
     return this;
   }
@@ -278,7 +291,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mTimeSeriesHandler;
   }
 
-  public ADDFHelper setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
+  public ADDFManager setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
     this.mTimeSeriesHandler = aTimeSeriesHandler;
     return this;
   }
@@ -292,7 +305,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mViewHandler;
   }
 
-  public ADDFHelper setViewHandler(IHandleViews aViewHandler) {
+  public ADDFManager setViewHandler(IHandleViews aViewHandler) {
     this.mViewHandler = aViewHandler;
     return this;
   }
@@ -306,7 +319,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     else return mAlgorithmRunner;
   }
 
-  public ADDFHelper setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
+  public ADDFManager setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
     this.mAlgorithmRunner = aAlgorithmRunner;
     return this;
   }
@@ -337,6 +350,7 @@ public abstract class ADDFHelper implements IDDFHelper, ISupportPhantomReference
     .setSchemaHandler(null)
     .setStreamingDataHandler(null)
     .setTimeSeriesHandler(null)
+    .shutdown()
     ;
     // @formatter:on
   }
