@@ -19,6 +19,8 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
@@ -71,26 +73,6 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   public DDF load(String command) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-
-
-  @Override
-  public DDF load(String command, String schema) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public DDF load(String command, String schema, String source) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public DDF load(String command, String schema, String source, DataFormat format) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -183,6 +165,38 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IRunAlgorithms createAlgorithmRunner() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+
+  @Override
+  public DDF load(String command, Schema schema) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public DDF load(String command, DataFormat dataFormat) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public DDF load(String command, Schema schema, String dataSource) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public DDF load(String command, Schema schema, DataFormat dataFormat) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) {
     // TODO Auto-generated method stub
     return null;
   }

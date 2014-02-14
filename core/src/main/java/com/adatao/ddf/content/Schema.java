@@ -2,6 +2,7 @@ package com.adatao.ddf.content;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
@@ -11,19 +12,55 @@ import com.google.common.collect.Lists;
  * @author bhan
  * 
  */
-
-enum ColumnType {
-  STRING, DOUBLE, INT
-}
-
 @SuppressWarnings("serial")
-public class Schema implements Serializable{
+public class Schema implements Serializable {
   private String mTableName;
   private List<Column> mColumns = Lists.newArrayList();
 
-  public Schema(String tableName, List<Column> Columns) {
+  /**
+   * Constructor that can take a list of columns in the following format:
+   * "<name> <type>, <name> <type>". For example,
+   * "id string, description string, units integer, unit_price float, total float". This string will
+   * be parsed into a {@link List} of {@link Column}s.
+   * 
+   * Since the table name is not specified, it is initially set to a random UUID.
+   * 
+   * @param columns
+   */
+  public Schema(String columns) {
+    this.initialize(null, this.parseColumnList(columns));
+  }
+
+  /**
+   * Constructor that can take a list of columns in the following format:
+   * "<name> <type>, <name> <type>". For example,
+   * "id string, description string, units integer, unit_price float, total float".
+   * 
+   * @param tableName
+   * @param columns
+   */
+  public Schema(String tableName, String columns) {
+    this.initialize(tableName, this.parseColumnList(columns));
+  }
+
+  public Schema(List<Column> columns) {
+    this.initialize(null, columns);
+  }
+
+  public Schema(String tableName, List<Column> columns) {
+    this.initialize(tableName, columns);
+  }
+
+  private void initialize(String tableName, List<Column> columns) {
+    if (tableName == null) tableName = UUID.randomUUID().toString();
     this.mTableName = tableName;
-    this.mColumns = Columns;
+    this.mColumns = columns;
+
+  }
+
+  private List<Column> parseColumnList(String columnList) {
+    /* TODO */
+    return null;
   }
 
   public String getTableName() {
@@ -43,8 +80,7 @@ public class Schema implements Serializable{
   }
 
   public void setColumnNames(List<String> names) {
-    int length = names.size() < mColumns.size() ? names.size() : mColumns
-        .size();
+    int length = names.size() < mColumns.size() ? names.size() : mColumns.size();
     for (int i = 0; i < length; i++) {
       mColumns.get(i).setName(names.get(i));
     }
@@ -161,4 +197,11 @@ public class Schema implements Serializable{
 
   }
 
+  public enum ColumnType {
+    STRING, INTEGER, FLOAT, TIMESTAMP, BLOB
+  }
+
+  public enum DataFormat {
+    SQL, CSV, TSV
+  }
 }
