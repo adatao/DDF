@@ -33,17 +33,47 @@ import com.adatao.ddf.exception.DDFException;
  * 
  */
 public class SparkDDFManager extends ADDFManager {
+  private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
+
+
   private JavaSparkContext mSparkContext;
 
-  public SparkDDFManager(String masterUri) throws DDFException {
-    this(masterUri, null);
+  public JavaSparkContext getSparkContext() {
+    return mSparkContext;
   }
 
-  public SparkDDFManager(String masterUri, Map<String, String> params) throws DDFException {
-    this.mSparkContext = this.getSparkContext(masterUri, params);
+  private void setSparkContext(JavaSparkContext sparkContext) {
+    this.mSparkContext = sparkContext;
   }
 
 
+  private Map<String, String> mSparkContextParams;
+
+  public Map<String, String> getSparkContextParams() {
+    return mSparkContextParams;
+  }
+
+  private void setSparkContextParams(Map<String, String> mSparkContextParams) {
+    this.mSparkContextParams = mSparkContextParams;
+  }
+
+
+
+  public SparkDDFManager(JavaSparkContext sparkContext) throws DDFException {
+    this.initialize(sparkContext, null);
+  }
+
+  public SparkDDFManager() throws DDFException {
+    this.initialize(null, null);
+  }
+
+  public SparkDDFManager(Map<String, String> params) throws DDFException {
+    this.initialize(null, params);
+  }
+
+  private void initialize(JavaSparkContext sparkContext, Map<String, String> params) throws DDFException {
+    this.mSparkContext = (sparkContext == null ? this.createSparkContext(params) : sparkContext);
+  }
 
   public void shutdown() {
     if (mSparkContext != null) {
@@ -51,30 +81,66 @@ public class SparkDDFManager extends ADDFManager {
     }
   }
 
-  private JavaSparkContext getSparkContext(String masterUri) throws DDFException {
-    Map<String, String> env = System.getenv();
-    Map<String, String> params = new HashMap<String, String>();
-    params.put("spark.home", env.get("SPARK_HOME"));
-    params.put("DDFSPARK_JAR", env.get("DDFSPARK_JAR"));
 
-    return this.getSparkContext(masterUri, params);
+  private static final String[][] SPARK_ENV_VARS = new String[][] { 
+    // @formatter:off
+    { "SPARK_APPNAME", "spark.appname" },
+    { "SPARK_MASTER", "spark.master" }, 
+    { "SPARK_HOME", "spark.home" }, 
+    { "SPARK_SERIALIZER", "spark.serializer" }, 
+    { "DDFSPARK_JAR", "ddfspark.jar" } 
+    // @formatter:on
+  };
+
+  /**
+   * Takes an existing params map, and reads both environment as well as system property settings to
+   * merge into it. The merge priority is as follows: (1) already set in params, (2) in system
+   * properties (e.g., -Dspark.home=xxx), (3) in environment variables (e.g., export SPARK_HOME=xxx)
+   * 
+   * @param params
+   * @return
+   */
+  private Map<String, String> mergeSparkParamsFromSettings(Map<String, String> params) {
+    if (params == null) params = new HashMap<String, String>();
+
+    Map<String, String> env = System.getenv();
+
+    for (String[] varPair : SPARK_ENV_VARS) {
+      if (params.containsKey(varPair[0])) continue; // already set in params
+
+      // Read setting either from System Properties, or environment variable.
+      // Env variable has lower priority if both are set.
+      String value = System.getProperty(varPair[1], env.get(varPair[0]));
+      if (value != null && value.length() > 0) params.put(varPair[0], value);
+    }
+
+    // Some miscellaneous stuff specific to us
+    if (!params.containsKey("SPARK_APPNAME")) params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
+
+    return params;
   }
 
-  private JavaSparkContext getSparkContext(String masterUri, Map<String, String> params) throws DDFException {
+  /**
+   * Side effect: also sets SparkContext and SparkContextParams in case the client wants to examine
+   * or use those.
+   * 
+   * @param params
+   * @return
+   * @throws DDFException
+   */
+  private JavaSparkContext createSparkContext(Map<String, String> params) throws DDFException {
     try {
-      if (params == null) return this.getSparkContext(masterUri);
-
+      this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String[] jobJars = params.get("DDFSPARK_JAR").split(",");
-      return new JavaSparkContext(masterUri, "DDFClient", params.get("SPARK_HOME"), jobJars, params);
+
+      this.setSparkContext(new JavaSparkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
+          .get("SPARK_HOME"), jobJars, params));
+
     } catch (Exception e) {
       throw new DDFException(e);
     }
-  }
 
-  @Override
-  public DDF load(String command) {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getSparkContext();
   }
 
 
@@ -170,6 +236,12 @@ public class SparkDDFManager extends ADDFManager {
   }
 
 
+
+  @Override
+  public DDF load(String command) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
   @Override
   public DDF load(String command, Schema schema) {
