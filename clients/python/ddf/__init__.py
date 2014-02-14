@@ -2,8 +2,8 @@
 
 """
 
-from context import DDFContext
+from manager import DDFManager
 
-__all__ = ["DDFContext"]
+__all__ = ["DDFManager"]
 
 
