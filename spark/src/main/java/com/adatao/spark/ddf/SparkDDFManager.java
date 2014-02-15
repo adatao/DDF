@@ -87,8 +87,13 @@ public class SparkDDFManager extends ADDFManager {
     this.initialize(sparkContext, null);
   }
 
+  /**
+   * Use system environment variables to configure the SparkContext creation.
+   * 
+   * @throws DDFException
+   */
   public SparkDDFManager() throws DDFException {
-    this.initialize(null, null);
+    this.initialize(null, new HashMap<String, String>());
   }
 
   public SparkDDFManager(Map<String, String> params) throws DDFException {

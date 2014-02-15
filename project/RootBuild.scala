@@ -172,6 +172,9 @@ object RootBuild extends Build {
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
+      "org.apache.thrift" % "libthrift" % "0.9.0",
+      "org.apache.thrift" % "libfb303" % "0.9.0",
+      "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
       "org.easymock" % "easymock" % "3.1" % "test"
     ),
 
@@ -204,7 +207,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.slf4j" % "slf4j-api" % slf4jVersion,
     dependencyOverrides += "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
-    // dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
+    dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
@@ -251,6 +254,9 @@ object RootBuild extends Build {
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>pa-log4j.properties</log4j.configuration>
                 </systemPropertyVariables>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
               </configuration>
             </plugin>
             <plugin>
