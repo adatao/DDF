@@ -122,7 +122,7 @@ public class Schema implements Serializable {
    * 
    * @return number of columns
    */
-  public long getNumColumns() {
+  public int getNumColumns() {
     return this.mColumns.size();
   }
 

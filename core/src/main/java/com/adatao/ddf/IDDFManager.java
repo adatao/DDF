@@ -17,7 +17,7 @@ public interface IDDFManager {
    * 
    * @return the DDF with loaded data content
    */
-  public DDF load(String command) throws DDFException;
+  public DDF load(String command);
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the system default data
@@ -37,7 +37,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, DataFormat dataFormat) throws DDFException;
+  public DDF load(String command, DataFormat dataFormat);
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified source. The
@@ -51,7 +51,7 @@ public interface IDDFManager {
    *          The dataSource (URI) of the data, e.g., jdbc://xxx
    * @return
    */
-  public DDF load(String command, Schema schema, String dataSource) throws DDFException;
+  public DDF load(String command, Schema schema, String dataSource);
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified dataSource.
@@ -62,7 +62,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException;
+  public DDF load(String command, Schema schema, DataFormat dataFormat);
 
   /**
    * Loads data content into a DDF using the given {@link Schema}, from the specified dataSource.
@@ -76,7 +76,7 @@ public interface IDDFManager {
    * @param dataFormat
    * @return
    */
-  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
+  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat);
 
   public void shutdown();
 

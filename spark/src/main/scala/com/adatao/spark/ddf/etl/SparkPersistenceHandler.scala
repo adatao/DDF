@@ -41,7 +41,7 @@ class SparkPersistenceHandler(container: SparkDDFManager, var sharkContext: Shar
       }
     }
 
-		this.getDDF().getDDFManager().getRepresentationHandler().asInstanceOf[SparkRepresentationHandler].set(rdd)
+    this.getDDF().getDDFManager().getRepresentationHandler().asInstanceOf[SparkRepresentationHandler].set(rdd)
 	}
 
   def sql(command: String): Array[String]= {

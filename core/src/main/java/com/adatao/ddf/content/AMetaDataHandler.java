@@ -34,7 +34,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
 
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
-  private long mNumColumns = 0L;
+  private int mNumColumns = 0;
   private boolean bNumColumnsIsValid = false;
   private Schema mSchema;
   
@@ -44,7 +44,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
    */
   protected abstract long getNumRowsImpl();
 
-  protected long getNumColumnsImpl() {
+  protected int getNumColumnsImpl() {
     return mSchema.getNumColumns();
   }
 
@@ -74,7 +74,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   @Override
   public long getNumColumns() {
     if (!bNumColumnsIsValid) {
-      mNumColumns = this.getNumRowsImpl();
+      mNumColumns = this.getNumColumnsImpl();
       bNumColumnsIsValid = true;
     }
     return mNumColumns;

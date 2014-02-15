@@ -32,7 +32,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
     val schema= container.getMetaDataHandler.getSchema
 
     val cols= schema.getColumns()
-    val numCols= cols.size
+    val numCols= schema.getNumColumns
     val reprHandler= container.getRepresentationHandler
 
     if(reprHandler.get(classOf[Row]) == null){
@@ -115,24 +115,24 @@ object SparkRepresentationHandler {
     rdd.map(row => rowToArrayDouble(row, numCols, extractors)).filter(row => row != null)
   }
 
-  def rowToArrayObject(row: Row, length: Int): Array[Object] = {
+  def rowToArrayObject(row: Row, numCols: Int): Array[Object] = {
 
-    val array= new Array[Object](length)
+    val array= new Array[Object](numCols)
     var i = 0
-    while(i < length){
+    while(i < numCols){
       array(i)= row.getPrimitive(i)
       i += 1
     }
     array
   }
 
-  def rowToArrayDouble(row: Row, length: Int, extractors: Array[Object => Double]): Array[Double] = {
+  def rowToArrayDouble(row: Row, numCols: Int, extractors: Array[Object => Double]): Array[Double] = {
 
-    val array= new Array[Double](length)
+    val array= new Array[Double](numCols)
     var i = 0
     var isNull= false
 
-    while(i < length){
+    while(i < numCols){
       val obj= row.getPrimitive(i)
       if(obj == null){
         isNull = true
