@@ -1,7 +1,7 @@
 
 from gateway import start_gateway_server
 
-class DDFManager(object):
+class SparkDDFManager(object):
     """
     Main entry point for DDF functionality. A DDFManager can be used
     to create DDFs.
