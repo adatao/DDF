@@ -13,7 +13,7 @@ import com.adatao.ddf.DDF;
  * @author ctn
  * 
  */
-public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
+public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
   public ARepresentationHandler(ADDFManager container) {
     super(container);
@@ -102,5 +102,19 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void cleanup() {
     mReps.clear();
     super.cleanup();
+  }
+
+
+  @Override
+  public void cacheAll() {
+    // TODO Auto-generated method stub
+    
+  }
+
+
+  @Override
+  public void uncacheAll() {
+    // TODO Auto-generated method stub
+    
   }
 }

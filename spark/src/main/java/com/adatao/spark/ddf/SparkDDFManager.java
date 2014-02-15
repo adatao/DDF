@@ -1,9 +1,14 @@
-package com.adatao.ddf.spark;
+package com.adatao.spark.ddf;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.rdd.RDD;
+
+import shark.api.JavaSharkContext;
+import shark.api.JavaTableRDD;
+import shark.api.Row;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
@@ -25,6 +30,8 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.spark.ddf.content.SparkRepresentationHandler;
+import com.adatao.spark.ddf.content.SparkSchemaHandler;
 
 /**
  * 
@@ -46,6 +53,22 @@ public class SparkDDFManager extends ADDFManager {
     this.mSparkContext = sparkContext;
   }
 
+
+  private JavaSharkContext mSharkContext;
+
+  private JavaSharkContext getSharkContext() {
+    return mSharkContext;
+  }
+
+  /**
+   * Also calls setSparkContext() to the same sharkContext
+   * 
+   * @param sharkContext
+   */
+  private void setSharkContext(JavaSharkContext sharkContext) {
+    this.mSharkContext = sharkContext;
+    this.setSparkContext(sharkContext);
+  }
 
   private Map<String, String> mSparkContextParams;
 
@@ -72,12 +95,16 @@ public class SparkDDFManager extends ADDFManager {
   }
 
   private void initialize(JavaSparkContext sparkContext, Map<String, String> params) throws DDFException {
-    this.mSparkContext = (sparkContext == null ? this.createSparkContext(params) : sparkContext);
+    this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+
+    if (sparkContext instanceof JavaSharkContext) this.setSharkContext((JavaSharkContext) sparkContext);
   }
 
   public void shutdown() {
-    if (mSparkContext != null) {
-      mSparkContext.stop();
+    if (this.getSharkContext() != null) {
+      this.getSharkContext().stop();
+    } else if (this.getSparkContext() != null) {
+      this.getSparkContext().stop();
     }
   }
 
@@ -121,7 +148,7 @@ public class SparkDDFManager extends ADDFManager {
   }
 
   /**
-   * Side effect: also sets SparkContext and SparkContextParams in case the client wants to examine
+   * Side effect: also sets SharkContext and SparkContextParams in case the client wants to examine
    * or use those.
    * 
    * @param params
@@ -133,7 +160,7 @@ public class SparkDDFManager extends ADDFManager {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String[] jobJars = params.get("DDFSPARK_JAR").split(",");
 
-      this.setSparkContext(new JavaSparkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
+      this.setSharkContext(new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
           .get("SPARK_HOME"), jobJars, params));
 
     } catch (Exception e) {
@@ -165,7 +192,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleMetaData createMetaDataHandler() {
-    // TODO Auto-generated method stub
+    // return new MetaDataHandler(this);
     return null;
   }
 
@@ -195,8 +222,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleRepresentations createRepresentationHandler() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkRepresentationHandler(this);
   }
 
   @Override
@@ -207,8 +233,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleSchema createSchemaHandler() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkSchemaHandler(this);
   }
 
   @Override
@@ -236,11 +261,13 @@ public class SparkDDFManager extends ADDFManager {
   }
 
 
-
   @Override
   public DDF load(String command) {
-    // TODO Auto-generated method stub
-    return null;
+    JavaTableRDD tableRdd = this.getSharkContext().sql2rdd(command);
+    RDD<Row> rdd = tableRdd.rdd();
+    Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
+
+    return new SparkDDF(rdd, Row.class, schema);
   }
 
   @Override
