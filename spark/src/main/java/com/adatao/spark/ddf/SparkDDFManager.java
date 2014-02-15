@@ -1,11 +1,14 @@
 package com.adatao.spark.ddf;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 
+import scala.collection.Seq;
 import shark.SharkContext;
 import shark.api.JavaSharkContext;
 import shark.api.Row;
@@ -305,6 +308,14 @@ public class SparkDDFManager extends ADDFManager {
   public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
     // TODO Auto-generated method stub
     return null;
+  }
+  
+  @Override
+  public void runSqlCommand(String sqlCmd) throws DDFException {
+    scala.collection.Iterator<String> results = mSharkContext.sql(sqlCmd, 1000).iterator();
+    while (results.hasNext()) {
+        System.out.println(results.next());
+    }
   }
 
 }

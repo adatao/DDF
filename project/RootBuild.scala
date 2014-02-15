@@ -175,6 +175,13 @@ object RootBuild extends Build {
       "org.apache.thrift" % "libthrift" % "0.9.0",
       "org.apache.thrift" % "libfb303" % "0.9.0",
       "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+      // needed by Hive
+      "commons-dbcp" % "commons-dbcp" % "1.4",
+      "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
+      "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+      "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
+      "org.datanucleus" % "datanucleus-core" % "2.0.3",
+      "org.apache.derby" % "derby" % "10.4.2.0",
       "org.easymock" % "easymock" % "3.1" % "test"
     ),
 
@@ -254,6 +261,9 @@ object RootBuild extends Build {
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>pa-log4j.properties</log4j.configuration>
                 </systemPropertyVariables>
+                <additionalClasspathElements>
+                  <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  </additionalClasspathElements>
                 <includes>
                   <include>**/*.java</include>
                 </includes>

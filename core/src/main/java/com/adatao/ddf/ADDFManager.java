@@ -367,4 +367,6 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   public abstract DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException;
   
   public abstract DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
+  
+  public abstract void runSqlCommand(String command) throws DDFException;
 }
