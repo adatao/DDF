@@ -141,11 +141,15 @@ object SparkRepresentationHandler {
     var i = 0
     var isNull= false
 
-    while(i < numCols){
+    while(i < numCols && isNull == false){
+
       val obj= row.getPrimitive(i)
+
       if(obj == null){
         isNull = true
-      } else {
+      }
+
+      else {
         array(i)= extractors(i)(obj)
       }
       i += 1
@@ -160,11 +164,14 @@ object SparkRepresentationHandler {
     var isNull= false
     var i= 0
 
-    while(i < numCols) {
+    while(i < numCols && isNull == false) {
+
       val obj= row.getPrimitive(i)
+
       if(obj == null) {
         isNull = true
-      } else {
+      }
+      else {
 
         if(i < numCols -1){
           features(i)= extractors(i)(obj)

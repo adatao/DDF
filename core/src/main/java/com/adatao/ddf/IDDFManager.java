@@ -27,7 +27,7 @@ public interface IDDFManager {
    * @param schema
    * @return
    */
-  public DDF load(String command, Schema schema) throws DDFException;
+  public DDF load(String command, Schema schema);
 
   /**
    * Loads data content into a DDF, using the specified {@link DataFormat}, from the system default
