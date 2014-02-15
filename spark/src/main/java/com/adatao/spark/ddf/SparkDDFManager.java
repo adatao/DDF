@@ -312,9 +312,10 @@ public class SparkDDFManager extends ADDFManager {
   
   @Override
   public void runSqlCommand(String sqlCmd) throws DDFException {
-    scala.collection.Iterator<String> results = mSharkContext.sql(sqlCmd, 1000).iterator();
-    while (results.hasNext()) {
-        System.out.println(results.next());
+    try {
+        getSharkContext().sql(sqlCmd, 1000).iterator();
+    } catch (Exception e) {
+        throw new DDFException(e);
     }
   }
 
