@@ -16,10 +16,15 @@ class SparkDDFManager(object):
         
         """
         SparkDDFManager._initialized(self)
-        self._jdc = self._jvm.com.adatao.ddf.spark.SparkDDFManager()
+        self._jsdm = self._jvm.com.adatao.ddf.spark.SparkDDFManager()
         
     @classmethod
     def _initialized(cls, instance = None):
         if not SparkDDFManager._gateway:
             SparkDDFManager._gateway = start_gateway_server()
             SparkDDFManager._jvm = SparkDDFManager._gateway.jvm
+    """
+    Create a DDF from an sql command.
+    """
+    def load(self, command):
+        return self._jsdm.load(command)
