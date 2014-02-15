@@ -1,11 +1,11 @@
-package com.adatao.ddf.spark;
+package com.adatao.spark.ddf;
 
 
 import java.util.Map;
 
 import org.junit.Test;
 
-import com.adatao.ddf.spark.SparkDDFManager;
+import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.DDF;
 

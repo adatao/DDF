@@ -1,13 +1,16 @@
-package com.adatao.ddf.spark;
+package com.adatao.spark.ddf;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.adatao.ddf.spark.etl.SparkPersistenceHandler;
-import org.apache.spark.api.java.function.Function;
+
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.rdd.RDD;
+
 import shark.api.JavaSharkContext;
+import shark.api.JavaTableRDD;
 import shark.api.Row;
-import shark.memstore2.TablePartition;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
@@ -29,7 +32,8 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.spark.content.MetaDataHandler;
+import com.adatao.spark.ddf.content.SparkSchemaHandler;
+import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 
 /**
  * 
@@ -41,30 +45,46 @@ public class SparkDDFManager extends ADDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
 
 
+  private JavaSparkContext mSparkContext;
+
+  public JavaSparkContext getSparkContext() {
+    return mSparkContext;
+  }
+
+  private void setSparkContext(JavaSparkContext sparkContext) {
+    this.mSparkContext = sparkContext;
+  }
+
+
   private JavaSharkContext mSharkContext;
 
-  public JavaSharkContext getSparkContext() {
+  private JavaSharkContext getSharkContext() {
     return mSharkContext;
   }
 
-  private void setSparkContext(JavaSharkContext sparkContext) {
-    this.mSharkContext = sparkContext;
+  /**
+   * Also calls setSparkContext() to the same sharkContext
+   * 
+   * @param sharkContext
+   */
+  private void setSharkContext(JavaSharkContext sharkContext) {
+    this.mSharkContext = sharkContext;
+    this.setSparkContext(sharkContext);
   }
 
-
-  private Map<String, String> mSharkContextParams;
+  private Map<String, String> mSparkContextParams;
 
   public Map<String, String> getSparkContextParams() {
-    return mSharkContextParams;
+    return mSparkContextParams;
   }
 
-  private void setSparkContextParams(Map<String, String> mSharkContextParams) {
-    this.mSharkContextParams = mSharkContextParams;
+  private void setSparkContextParams(Map<String, String> mSparkContextParams) {
+    this.mSparkContextParams = mSparkContextParams;
   }
 
 
 
-  public SparkDDFManager(JavaSharkContext sparkContext) throws DDFException {
+  public SparkDDFManager(JavaSparkContext sparkContext) throws DDFException {
     this.initialize(sparkContext, null);
   }
 
@@ -76,13 +96,17 @@ public class SparkDDFManager extends ADDFManager {
     this.initialize(null, params);
   }
 
-  private void initialize(JavaSharkContext sparkContext, Map<String, String> params) throws DDFException {
-    this.mSharkContext = (sparkContext == null ? this.createSparkContext(params) : sparkContext);
+  private void initialize(JavaSparkContext sparkContext, Map<String, String> params) throws DDFException {
+    this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+
+    if (sparkContext instanceof JavaSharkContext) this.setSharkContext((JavaSharkContext) sparkContext);
   }
 
   public void shutdown() {
-    if (mSharkContext != null) {
-      mSharkContext.stop();
+    if (this.getSharkContext() != null) {
+      this.getSharkContext().stop();
+    } else if (this.getSparkContext() != null) {
+      this.getSparkContext().stop();
     }
   }
 
@@ -126,19 +150,19 @@ public class SparkDDFManager extends ADDFManager {
   }
 
   /**
-   * Side effect: also sets SparkContext and SparkContextParams in case the client wants to examine
+   * Side effect: also sets SharkContext and SparkContextParams in case the client wants to examine
    * or use those.
    * 
    * @param params
    * @return
    * @throws DDFException
    */
-  private JavaSharkContext createSparkContext(Map<String, String> params) throws DDFException {
+  private JavaSparkContext createSparkContext(Map<String, String> params) throws DDFException {
     try {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String[] jobJars = params.get("DDFSPARK_JAR").split(",");
 
-      this.setSparkContext(new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
+      this.setSharkContext(new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
           .get("SPARK_HOME"), jobJars, params));
 
     } catch (Exception e) {
@@ -170,7 +194,8 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleMetaData createMetaDataHandler() {
-    return new MetaDataHandler(this);
+    // return new MetaDataHandler(this);
+    return null;
   }
 
   @Override
@@ -199,8 +224,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleRepresentations createRepresentationHandler() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkRepresentationHandler(this);
   }
 
   @Override
@@ -211,8 +235,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleSchema createSchemaHandler() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkSchemaHandler(this);
   }
 
   @Override
@@ -241,18 +264,12 @@ public class SparkDDFManager extends ADDFManager {
 
 
   @Override
-  public DDF load(String tableName) throws DDFException{
+  public DDF load(String command) {
+    JavaTableRDD tableRdd = this.getSharkContext().sql2rdd(command);
+    RDD<Row> rdd = tableRdd.rdd();
+    Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
 
-    SparkDDFManager ddfManager= new SparkDDFManager();
-    SparkPersistenceHandler persHandler= (SparkPersistenceHandler) ddfManager.getPersistenceHandler();
-
-    String cmd = String.format("SELECT * FROM %s", tableName);
-
-    persHandler.sqlLoad(cmd);
-
-    SparkDDF newDDF= new SparkDDF(ddfManager);
-
-    return newDDF;
+    return new SparkDDF(rdd, Row.class, schema);
   }
 
   @Override
@@ -285,15 +302,4 @@ public class SparkDDFManager extends ADDFManager {
     return null;
   }
 
-  static public class TablePartitionMapper extends Function<Row, TablePartition> {
-
-    public TablePartitionMapper() {
-      super();
-    }
-
-    @Override
-    public TablePartition call(Row t) throws Exception {
-      return  (TablePartition) t.rawdata();
-    }
-  }
 }

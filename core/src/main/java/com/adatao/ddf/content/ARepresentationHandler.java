@@ -118,4 +118,18 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
     mReps.clear();
     super.cleanup();
   }
+
+
+  @Override
+  public void cacheAll() {
+    // TODO Auto-generated method stub
+    
+  }
+
+
+  @Override
+  public void uncacheAll() {
+    // TODO Auto-generated method stub
+    
+  }
 }

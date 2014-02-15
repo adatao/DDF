@@ -7,7 +7,9 @@ import com.adatao.ddf.DDF;
  */
 public interface IAlgorihtm {
 
-  public IAlgorithmOutputModel run(DDF theDDF);
+  public void preprocess(DDF ddf);
+
+  public IAlgorithmOutputModel run(DDF ddf);
 
   public IParameters getParameters();
 

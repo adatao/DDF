@@ -13,7 +13,7 @@ import org.slf4j.{LoggerFactory, Logger}
 import shark.{SharkEnv, SharkContext}
 import com.adatao.ddf.spark.etl.SparkPersistenceHandler
 import com.adatao.ddf.content.Schema
-import com.adatao.ddf.spark.analytics.{KmeansModel, KmeansParameters, KmeansRunner}
+import com.adatao.ddf.spark.analytics.{KmeansRunner}
 
 /**
  * Spark-specific SparkRepresentationHandler tests

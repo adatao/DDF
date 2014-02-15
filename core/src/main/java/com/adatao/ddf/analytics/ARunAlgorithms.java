@@ -8,7 +8,8 @@ import com.adatao.ddf.DDF;
 public abstract class ARunAlgorithms implements IRunAlgorithms {
 
   private void preprocess(IAlgorihtm algorihtm, DDF ddf) {
-    ddf.getRepresentationHandler().getRepresentation(algorihtm.getElementType());
+
+    algorihtm.preprocess(ddf);
   }
 
   @Override

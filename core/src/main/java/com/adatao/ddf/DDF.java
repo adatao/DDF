@@ -24,6 +24,19 @@ import com.adatao.ddf.etl.IHandleReshaping;
 
 import java.util.List;
 
+import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.content.IHandleIndexing;
+import com.adatao.ddf.content.IHandleMetaData;
+import com.adatao.ddf.content.IHandleMissingData;
+import com.adatao.ddf.content.IHandleMutability;
+import com.adatao.ddf.content.IHandleRepresentations;
+import com.adatao.ddf.content.IHandleSchema;
+import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleReshaping;
+
 
 /**
  * <p>
@@ -75,74 +88,70 @@ public class DDF {
     return null;
   }
 
-  public IComputeBasicStatistics getBasicStatisticsComputer() {
+  private ADDFManager mManager;
 
-    return mDDFManager.getBasicStatisticsComputer();
+  public ADDFManager getManager() {
+    return this.mManager;
+  }
+
+  public IComputeBasicStatistics getBasicStatisticsComputer() {
+    return this.getManager().getBasicStatisticsComputer();
   }
 
   public IHandleIndexing getIndexingHandler() {
-
-    return mDDFManager.getIndexingHandler();
+    return this.getManager().getIndexingHandler();
   }
 
   public IHandleJoins getJoinsHandler() {
-
-    return mDDFManager.getJoinsHandler();
+    return this.getManager().getJoinsHandler();
   }
 
-  public IHandleMetaData getMetadataHandler() {
-
-    return mDDFManager.getMetaDataHandler();
+  public IHandleMetaData getMetaDataHandler() {
+    return this.getManager().getMetaDataHandler();
   }
 
   public IHandleMiscellany getMiscellanyHandler() {
-
-    return mDDFManager.getMiscellanyHandler();
+    return this.getManager().getMiscellanyHandler();
   }
 
   public IHandleMissingData getMissingDataHandler() {
-
-    return mDDFManager.getMissingDataHandler();
+    return this.getManager().getMissingDataHandler();
   }
 
   public IHandleMutability getMutabilityHandler() {
-
-    return mDDFManager.getMutabilityHandler();
+    return this.getManager().getMutabilityHandler();
   }
 
   public IHandlePersistence getPersistenceHandler() {
-
-    return mDDFManager.getPersistenceHandler();
+    return this.getManager().getPersistenceHandler();
   }
 
   public IHandleRepresentations getRepresentationHandler() {
-
-    return mDDFManager.getRepresentationHandler();
+    return this.getManager().getRepresentationHandler();
   }
 
   public IHandleReshaping getReshapingHandler() {
-
-    return mDDFManager.getReshapingHandler();
+    return this.getManager().getReshapingHandler();
   }
 
   public IHandleSchema getSchemaHandler() {
-
-    return mDDFManager.getSchemaHandler();
+    return this.getManager().getSchemaHandler();
   }
 
   public IHandleStreamingData getStreamingDataHandler() {
-
-    return mDDFManager.getStreamingDataHandler();
+    return this.getManager().getStreamingDataHandler();
   }
 
   public IHandleTimeSeries getTimeSeriesHandler() {
-
-    return mDDFManager.getTimeSeriesHandler();
+    return this.getManager().getTimeSeriesHandler();
   }
 
   public IHandleViews getViewHandler() {
+    return this.getManager().getViewHandler();
+  }
 
-    return mDDFManager.getViewHandler();
+  public IRunAlgorithms getAlgorithmRunner() {
+    return this.getManager().getAlgorithmRunner();
   }
 
 }
