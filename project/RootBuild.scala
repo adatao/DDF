@@ -29,7 +29,7 @@ object RootBuild extends Build {
 
 	val coreProjectName = projectName + "_core"
 	val coreVersion = rootVersion
-	val coreJarName = coreProjectName + "-" + coreVersion + ".jar"
+	val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
 	val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
 
 	val sparkProjectName = projectName + "_spark"
@@ -253,13 +253,13 @@ object RootBuild extends Build {
               <configuration>
                 <reuseForks>false</reuseForks>
                 <environmentVariables>
-					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
+					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
 				</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
-                  <log4j.configuration>pa-log4j.properties</log4j.configuration>
+                  <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                 </systemPropertyVariables>
                 <additionalClasspathElements>
                   <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
