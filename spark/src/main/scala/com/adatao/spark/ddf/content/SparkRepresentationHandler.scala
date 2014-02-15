@@ -36,10 +36,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
       throw new Exception("Please load container representation with sqlLoad")
     }
 
-    //val cmd = "select " + columnNames.mkString(", ") + " from " + schema.getTableName()
-
     val rdd= container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
-    //val tableRDD: TableRDD= container.getPersistenceHandler.asInstanceOf[SparkPersistenceHandler].sql2rdd(cmd)
 
     elementType match {
 
