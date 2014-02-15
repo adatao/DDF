@@ -292,6 +292,7 @@ object RootBuild extends Build {
               </configuration>
             </plugin>
             
+            <!--
             <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
@@ -315,6 +316,7 @@ object RootBuild extends Build {
                   </execution>
                 </executions>
               </plugin>
+              -->
           </plugins>
         </build>
         <profiles>

@@ -25,9 +25,12 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandlePersistence;
 import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -354,4 +357,14 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     ;
     // @formatter:on
   }
+  
+  public abstract DDF load(String command, Schema schema) throws DDFException;
+  
+  public abstract DDF load(String command, DataFormat dataFormat) throws DDFException;
+  
+  public abstract DDF load(String command, Schema schema, String dataSource) throws DDFException;
+  
+  public abstract DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException;
+  
+  public abstract DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
 }
