@@ -3,12 +3,13 @@ package com.adatao.spark.ddf;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 
+import shark.SharkContext;
 import shark.api.JavaSharkContext;
-import shark.api.JavaTableRDD;
 import shark.api.Row;
+import shark.api.TableRDD;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
@@ -43,20 +44,20 @@ public class SparkDDFManager extends ADDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
 
 
-  private JavaSparkContext mSparkContext;
+  private SparkContext mSparkContext;
 
-  public JavaSparkContext getSparkContext() {
+  public SparkContext getSparkContext() {
     return mSparkContext;
   }
 
-  private void setSparkContext(JavaSparkContext sparkContext) {
+  private void setSparkContext(SparkContext sparkContext) {
     this.mSparkContext = sparkContext;
   }
 
 
-  private JavaSharkContext mSharkContext;
+  private SharkContext mSharkContext;
 
-  private JavaSharkContext getSharkContext() {
+  private SharkContext getSharkContext() {
     return mSharkContext;
   }
 
@@ -65,7 +66,7 @@ public class SparkDDFManager extends ADDFManager {
    * 
    * @param sharkContext
    */
-  private void setSharkContext(JavaSharkContext sharkContext) {
+  private void setSharkContext(SharkContext sharkContext) {
     this.mSharkContext = sharkContext;
     this.setSparkContext(sharkContext);
   }
@@ -82,7 +83,7 @@ public class SparkDDFManager extends ADDFManager {
 
 
 
-  public SparkDDFManager(JavaSparkContext sparkContext) throws DDFException {
+  public SparkDDFManager(SparkContext sparkContext) throws DDFException {
     this.initialize(sparkContext, null);
   }
 
@@ -94,10 +95,10 @@ public class SparkDDFManager extends ADDFManager {
     this.initialize(null, params);
   }
 
-  private void initialize(JavaSparkContext sparkContext, Map<String, String> params) throws DDFException {
+  private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
     this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
 
-    if (sparkContext instanceof JavaSharkContext) this.setSharkContext((JavaSharkContext) sparkContext);
+    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
   }
 
   public void shutdown() {
@@ -155,13 +156,14 @@ public class SparkDDFManager extends ADDFManager {
    * @return
    * @throws DDFException
    */
-  private JavaSparkContext createSparkContext(Map<String, String> params) throws DDFException {
+  private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
     try {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String[] jobJars = params.get("DDFSPARK_JAR").split(",");
 
-      this.setSharkContext(new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"), params
-          .get("SPARK_HOME"), jobJars, params));
+      JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+          params.get("SPARK_HOME"), jobJars, params);
+      this.setSharkContext(jsc.sharkCtx());
 
     } catch (Exception e) {
       throw new DDFException(e);
@@ -262,40 +264,40 @@ public class SparkDDFManager extends ADDFManager {
 
 
   @Override
-  public DDF load(String command) {
-    JavaTableRDD tableRdd = this.getSharkContext().sql2rdd(command);
-    RDD<Row> rdd = tableRdd.rdd();
+  public DDF load(String command) throws DDFException {
+    TableRDD tableRdd = this.getSharkContext().sql2rdd(command);
+    RDD<Row> rdd = (RDD<Row>) tableRdd;
     Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
 
     return new SparkDDF(rdd, Row.class, schema);
   }
 
   @Override
-  public DDF load(String command, Schema schema) {
+  public DDF load(String command, Schema schema) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF load(String command, DataFormat dataFormat) {
+  public DDF load(String command, DataFormat dataFormat) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF load(String command, Schema schema, String dataSource) {
+  public DDF load(String command, Schema schema, String dataSource) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF load(String command, Schema schema, DataFormat dataFormat) {
+  public DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) {
+  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }

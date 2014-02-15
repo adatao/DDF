@@ -15,17 +15,21 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class SparkDDF extends DDF {
 
-  public <T> SparkDDF(RDD<T> rdd, Class<T> elementType) {
+  public <T> SparkDDF(RDD<T> rdd, Class<T> elementType) throws DDFException {
     this.initialize(rdd, elementType, null);
   }
 
-  public <T> SparkDDF(RDD<T> rdd, Class<T> elementType, Schema schema) {
+  public <T> SparkDDF(RDD<T> rdd, Class<T> elementType, Schema schema) throws DDFException {
     this.initialize(rdd, elementType, schema);
   }
 
 
-  private <T> void initialize(RDD<T> data, Class<T> elementType, Schema schema) {
-    this.getRepresentationHandler().set(data, elementType);
+  private <T> void initialize(RDD<T> rdd, Class<T> elementType, Schema schema) throws DDFException {
+    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new SparkDDF");
+    if (rdd.sparkContext() == null) throw new DDFException("SparkContext is required to instantiate a new SparkDDF");
+
+    this.setManager(new SparkDDFManager(rdd.sparkContext()));
+    this.getRepresentationHandler().set(rdd, elementType);
     this.getSchemaHandler().setSchema(schema);
   }
 
