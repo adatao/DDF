@@ -98,6 +98,11 @@ public class DDF {
     return this.mManager;
   }
 
+  protected void setManager(ADDFManager aDDFManager) {
+    this.mManager = aDDFManager;
+  }
+
+
   public IComputeBasicStatistics getBasicStatisticsComputer() {
     return this.getManager().getBasicStatisticsComputer();
   }
