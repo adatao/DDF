@@ -27,13 +27,13 @@ class SparkViewHandler(container: SparkDDFManager) extends AViewHandler(containe
    * Same as {@link #get(int[], int)}, but accepts a scala.Enumeration for format instead.
    *
    * @param columns
-   * @param formatEnum
+   * @param format
 	 * A scala.Enumeration that will be converted to an integer by calling
    * formatEnum.toString()
    * @return
    */
-  def get(columns: Array[Int], formatEnum: ViewFormat): DDF = {
-    formatEnum match {
+  def get(columns: Array[Int], format: ViewFormat): DDF = {
+    format match {
       case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, container)
       case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, container)
       case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, container)

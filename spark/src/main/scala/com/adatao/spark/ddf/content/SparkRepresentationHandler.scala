@@ -26,33 +26,23 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
    *
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-
-    def schema = container.getMetaDataHandler.getSchema
-
-    val cols = schema.getColumns()
+    val schema = container.getMetaDataHandler.getSchema
     val numCols = schema.getNumColumns
-    val reprHandler = container.getRepresentationHandler
 
-    if (reprHandler.get(classOf[Row]) == null) {
+    if (container.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load container representation with sqlLoad")
     }
 
     val rdd = container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
-    val extractors = cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
+    val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
 
       case arrayObject if arrayObject == classOf[Array[Object]] => getRDDArrayObject(rdd, numCols)
 
-      case arrayDouble if arrayDouble == classOf[Array[Double]] => {
+      case arrayDouble if arrayDouble == classOf[Array[Double]] => getRDDArrayDouble(rdd, numCols, extractors)
 
-        getRDDArrayDouble(rdd, numCols, extractors)
-      }
-
-      case labeledPoint if labeledPoint == classOf[LabeledPoint] => {
-
-        getRDDLabeledPoint(rdd, numCols, extractors)
-      }
+      case labeledPoint if labeledPoint == classOf[LabeledPoint] => getRDDLabeledPoint(rdd, numCols, extractors)
 
       case _ => throw new Exception("elementType not supported")
     }
@@ -103,24 +93,20 @@ object SparkRepresentationHandler {
    *
    */
   def getRDDArrayObject(rdd: RDD[Row], numCols: Int): RDD[Array[Object]] = {
-
     rdd.map {
       row => rowToArrayObject(row, numCols)
     }
   }
 
   def getRDDArrayDouble(rdd: RDD[Row], numCols: Int, extractors: Array[Object => Double]): RDD[Array[Double]] = {
-
     rdd.map(row => rowToArrayDouble(row, numCols, extractors)).filter(row => row != null)
   }
 
   def getRDDLabeledPoint(rdd: RDD[Row], numCols: Int, extractors: Array[Object => Double]): RDD[LabeledPoint] = {
-
     rdd.map(row => rowToLabeledPoint(row, numCols, extractors)).filter(point => point != null)
   }
 
   def rowToArrayObject(row: Row, numCols: Int): Array[Object] = {
-
     val array = new Array[Object](numCols)
     var i = 0
     while (i < numCols) {
@@ -131,19 +117,15 @@ object SparkRepresentationHandler {
   }
 
   def rowToArrayDouble(row: Row, numCols: Int, extractors: Array[Object => Double]): Array[Double] = {
-
     val array = new Array[Double](numCols)
     var i = 0
     var isNull = false
 
     while (i < numCols && isNull == false) {
-
       val obj = row.getPrimitive(i)
-
       if (obj == null) {
         isNull = true
       }
-
       else {
         array(i) = extractors(i)(obj)
       }
@@ -153,7 +135,6 @@ object SparkRepresentationHandler {
   }
 
   def rowToLabeledPoint(row: Row, numCols: Int, extractors: Array[Object => Double]): LabeledPoint = {
-
     val features = new Array[Double](numCols - 1)
     var label = 0.0
     var isNull = false
@@ -167,11 +148,9 @@ object SparkRepresentationHandler {
         isNull = true
       }
       else {
-
         if (i < numCols - 1) {
           features(i) = extractors(i)(obj)
         }
-
         else {
           label = extractors(i)(obj)
         }
@@ -182,7 +161,6 @@ object SparkRepresentationHandler {
   }
 
   def doubleExtractor(colType: ColumnType): Object => Double = colType match {
-
     case ColumnType.DOUBLE => {
       case obj => obj.asInstanceOf[Double]
     }

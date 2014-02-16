@@ -203,7 +203,7 @@ public class Schema implements Serializable {
 
   public enum ColumnType {
 
-    STRING, INTEGER, DOUBLE, FLOAT, TIMESTAMP, BLOB;
+    STRING, INTEGER, DOUBLE, TIMESTAMP, BLOB;
 
     public static ColumnType fromString(String s) {
       if (s == null || s.length() == 0) return null;
