@@ -33,7 +33,7 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
   }
 
   private SharkContext getSharkContext() {
-    return ((SparkDDFManager) this.getContainer()).getSharkContext();
+    return ((SparkDDFManager) this.getDDFManager()).getSharkContext();
   }
 
 

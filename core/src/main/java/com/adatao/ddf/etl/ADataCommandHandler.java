@@ -12,8 +12,8 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class ADataCommandHandler extends ADDFFunctionalGroupHandler implements IHandleDataCommands {
 
-  public ADataCommandHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public ADataCommandHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
   protected void resetRepresentationsAndViews() {

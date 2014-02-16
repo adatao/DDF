@@ -6,9 +6,8 @@ import com.adatao.ddf.content.ARepresentationHandler;
 
 public class SparkRepresentationHandler extends ARepresentationHandler {
 
-  public SparkRepresentationHandler(ADDFManager container) {
-    super(container);
-    // TODO Auto-generated constructor stub
+  public SparkRepresentationHandler(ADDFManager DDFManager) {
+    super(DDFManager);
   }
 
   @Override
