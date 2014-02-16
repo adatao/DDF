@@ -122,7 +122,7 @@ public class Schema implements Serializable {
    * 
    * @return number of columns
    */
-  public long getNumColumns() {
+  public int getNumColumns() {
     return this.mColumns.size();
   }
 
@@ -202,7 +202,8 @@ public class Schema implements Serializable {
   }
 
   public enum ColumnType {
-    STRING, INTEGER, FLOAT, TIMESTAMP, BLOB;
+
+    STRING, INTEGER, DOUBLE, TIMESTAMP, BLOB;
 
     public static ColumnType fromString(String s) {
       if (s == null || s.length() == 0) return null;

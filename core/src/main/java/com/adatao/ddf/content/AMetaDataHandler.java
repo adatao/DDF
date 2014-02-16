@@ -15,8 +15,13 @@ import com.adatao.ddf.ADDFManager;
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     implements IHandleMetaData {
 
+<<<<<<< HEAD
   public AMetaDataHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
+=======
+  public AMetaDataHandler(ADDFManager ddfManager) {
+    super(ddfManager);
+>>>>>>> origin/master
   }
 
   private UUID mId = UUID.randomUUID();
@@ -33,7 +38,14 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
 
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
+<<<<<<< HEAD
 
+=======
+  private long mNumColumns = 0;
+  private boolean bNumColumnsIsValid = false;
+  private Schema mSchema;
+  
+>>>>>>> origin/master
   /**
    * Each implementation needs to come up with its own way to compute the row
    * count.
@@ -58,4 +70,23 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     return mNumRows;
   }
 
+<<<<<<< HEAD
+=======
+  @Override
+  public long getNumColumns() {
+    if (!bNumColumnsIsValid) {
+      mNumColumns = this.getNumColumnsImpl();
+      bNumColumnsIsValid = true;
+    }
+    return mNumColumns;
+  }
+
+  public void setSchema(Schema schema) {
+    mSchema= schema;
+  }
+
+  public Schema getSchema() {
+    return this.mSchema;
+  }
+>>>>>>> origin/master
 }

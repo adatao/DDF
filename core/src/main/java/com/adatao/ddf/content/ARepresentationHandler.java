@@ -13,7 +13,7 @@ import com.adatao.ddf.DDF;
  * @author ctn
  * 
  */
-public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
+public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
   public ARepresentationHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
@@ -48,7 +48,22 @@ public class ARepresentationHandler extends ADDFFunctionalGroupHandler implement
   public void reset() {
     mReps.clear();
   }
+  /**
+   *
+   */
+  protected abstract Object getRepresentationImpl(Class<?> elementType);
+  /**
+   *
+   */
+  @Override
+  public void getRepresentation(Class<?> elementType){
+    Object obj= this.get(elementType);
 
+    if(obj == null){
+      obj= this.getRepresentationImpl(elementType);
+      this.add(obj, elementType);
+    }
+  }
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
@@ -102,6 +117,7 @@ public class ARepresentationHandler extends ADDFFunctionalGroupHandler implement
   public void cleanup() {
     mReps.clear();
     super.cleanup();
+    uncacheAll();
   }
 
 

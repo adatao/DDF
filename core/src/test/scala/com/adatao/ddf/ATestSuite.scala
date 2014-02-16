@@ -1,9 +1,7 @@
 // scalastyle:off
 package com.adatao.ddf
 
-import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.scalatest.BeforeAndAfterEach
@@ -26,6 +24,7 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
 abstract class ATimedTestSuite extends ATestSuite {
   private lazy val testNameArray: Array[String] = testNames.toArray
   private var testNumber: Int = 0
+
   def getCurrentTestName = "Test #%d: %s".format(testNumber + 1, testNameArray(testNumber))
 
   override def beforeEach = {
