@@ -194,6 +194,6 @@ public class DDF implements IHandleDataCommands {
   }
 
   public long getNumColumns() {
-    return this.getMetaDataHandler().getNumColumns();
+    return this.getSchemaHandler().getNumColumns();
   }
 }

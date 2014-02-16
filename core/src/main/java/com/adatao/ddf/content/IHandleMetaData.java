@@ -8,11 +8,5 @@ public interface IHandleMetaData {
 
   public void setId(UUID id);
 
-  // Schema
-
   public long getNumRows();
-
-  public long getNumColumns();
-
-  public Schema getSchema();
 }

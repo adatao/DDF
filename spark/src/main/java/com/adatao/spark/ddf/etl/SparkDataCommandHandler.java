@@ -21,6 +21,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
+import com.google.common.base.Strings;
 
 /**
  * @author ctn
@@ -36,8 +37,6 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
     return ((SparkDDFManager) this.getDDFManager()).getSharkContext();
   }
 
-
-
   // ////// IHandleDataCommands ////////
 
   @Override
@@ -46,6 +45,10 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
     RDD<Row> rdd = (RDD<Row>) tableRdd;
     Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
 
+    if (Strings.isNullOrEmpty(schema.getTableName())) {
+      schema.setTableName(this.getDDFManager().getSchemaHandler()
+          .createTablename());
+    }
     return new SparkDDF(rdd, Row.class, schema);
   }
 
@@ -62,23 +65,25 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, String dataSource) throws DDFException {
+  public DDF cmd2ddf(String command, Schema schema, String dataSource)
+      throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat)
+      throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
+  public DDF cmd2ddf(String command, Schema schema, String dataSource,
+      DataFormat dataFormat) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }
-
 
   private <T> List<T> toList(Seq<T> sequence) {
     return scala.collection.JavaConversions.seqAsJavaList(sequence);
@@ -89,14 +94,16 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
   @Override
   public List<String> cmd2txt(String command) throws DDFException {
     try {
-      return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+      return this.toList(getSharkContext()
+          .sql(command, MAX_COMMAND_RESULT_ROWS));
     } catch (Exception e) {
       throw new DDFException(e);
     }
   }
 
   @Override
-  public List<String> cmd2txt(String command, String dataSource) throws DDFException {
+  public List<String> cmd2txt(String command, String dataSource)
+      throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }

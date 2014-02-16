@@ -37,4 +37,12 @@ public class ASchemaHandler extends ADDFFunctionalGroupHandler implements IHandl
   public List<Column> getColumns() {
     return this.mSchema.getColumns();
   }
+  
+  public String createTablename() {
+    return "ddf" + this.getDDFManager().getMetaDataHandler().getId();
+  }
+  
+  public long getNumColumns() {
+    return getColumns().size();
+  }
 }

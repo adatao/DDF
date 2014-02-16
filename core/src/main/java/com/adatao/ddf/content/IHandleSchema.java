@@ -15,4 +15,8 @@ public interface IHandleSchema {
   
   public List<Column> getColumns();
 
+  public long getNumColumns();
+
+  public String createTablename();
+
 }

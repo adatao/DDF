@@ -25,11 +25,11 @@ public class SparkSchemaHandler extends ASchemaHandler {
   }
 
   public static Schema getSchemaFrom(ColumnDesc[] sharkColumns) {
-    List<Column> cols = Lists.newArrayList();  
+    List<Column> cols = Lists.newArrayList();
     for (ColumnDesc sharkColumn : sharkColumns) {
       cols.add(new Column(sharkColumn.columnName(), sharkColumn.typeName()));
     }
-    
+
     return new Schema(null, cols);
   }
 }
