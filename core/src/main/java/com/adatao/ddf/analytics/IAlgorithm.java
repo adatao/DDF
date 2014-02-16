@@ -5,7 +5,7 @@ import com.adatao.ddf.DDF;
 /**
  * author: daoduchuan
  */
-public interface IAlgorihtm {
+public interface IAlgorithm {
 
   public void preprocess(DDF ddf);
 

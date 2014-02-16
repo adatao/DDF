@@ -26,7 +26,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
 
-    val schema= container.getMetaDataHandler.getSchema
+    def schema= container.getMetaDataHandler.getSchema
 
     val cols= schema.getColumns()
     val numCols= schema.getNumColumns

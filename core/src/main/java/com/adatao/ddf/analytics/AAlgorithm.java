@@ -3,7 +3,7 @@ package com.adatao.ddf.analytics;
 /**
  * author: daoduchuan
  */
-public abstract class AAlgorithm implements IAlgorihtm{
+public abstract class AAlgorithm implements IAlgorithm {
 
   private Class<?> mElementType;
   private IParameters mParameters;
