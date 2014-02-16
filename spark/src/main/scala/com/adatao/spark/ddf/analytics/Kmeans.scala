@@ -10,6 +10,8 @@ import org.apache.spark.rdd.RDD
  */
 class Kmeans(params: KmeansParameters) extends AAlgorithm(classOf[Array[Double]], params){
 
+  def this()= this(new KmeansParameters())
+
   override def preprocess(ddf: DDF) = {
 
     ddf.getRepresentationHandler.getRepresentation(this.getElementType)
