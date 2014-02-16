@@ -33,7 +33,7 @@ class KmeansParameters(val numCentroids: Int= 10,
                        val initMode: String="random",
                        val epsilon: Double= 1e-3) extends IParameters
 
-class KmeansModel(val data: DDF, val params: KmeansParameters, val model: KMeansModel) extends IAlgorithmOutputModel {
+class KmeansModel(val data: DDF, val params: KmeansParameters, val mllibKmeansModel: KMeansModel) extends IAlgorithmOutputModel {
 
   override def persist(): Unit = {
 

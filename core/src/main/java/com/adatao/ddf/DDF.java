@@ -16,6 +16,7 @@
  */
 package com.adatao.ddf;
 
+import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.content.*;
 import com.adatao.ddf.etl.IHandleJoins;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.analytics.IAlgorihtm;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.IHandleMissingData;
@@ -200,5 +202,10 @@ public class DDF implements IHandleDataCommands {
 
   public long getNumColumns() {
     return this.getMetaDataHandler().getNumColumns();
+  }
+
+  //Run Algorithms
+  public IAlgorithmOutputModel runAlgorithm(IAlgorihtm algorihtm) {
+    return this.getAlgorithmRunner().run(algorihtm, this);
   }
 }

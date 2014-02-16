@@ -4,11 +4,11 @@
 package com.adatao.spark.ddf.content
 
 import com.adatao.ddf.content.IHandleViews
-import com.adatao.ddf.spark.{SparkDDFManager, DDFHelper}
 import com.adatao.ddf.content.AViewHandler
 import com.adatao.ddf.DDF
 import shark.memstore2.TablePartition
 import org.apache.spark.rdd.RDD
+import com.adatao.spark.ddf.SparkDDFManager
 
 /**
  * RDD-based ViewHandler
