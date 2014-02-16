@@ -1,6 +1,7 @@
 package com.adatao.spark.ddf;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.SparkContext;
@@ -25,12 +26,12 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
-import com.adatao.spark.ddf.etl.SparkPersistenceHandler;
+import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
 
 /**
  * 
@@ -85,8 +86,13 @@ public class SparkDDFManager extends ADDFManager {
     this.initialize(sparkContext, null);
   }
 
+  /**
+   * Use system environment variables to configure the SparkContext creation.
+   * 
+   * @throws DDFException
+   */
   public SparkDDFManager() throws DDFException {
-    this.initialize(null, null);
+    this.initialize(null, new HashMap<String, String>());
   }
 
   public SparkDDFManager(Map<String, String> params) throws DDFException {
@@ -215,8 +221,8 @@ public class SparkDDFManager extends ADDFManager {
   }
 
   @Override
-  protected IHandlePersistence createPersistenceHandler() {
-    return new SparkPersistenceHandler(this);
+  protected IHandleDataCommands createDataCommandHandler() {
+    return new SparkDataCommandHandler(this);
   }
 
   @Override
@@ -260,34 +266,47 @@ public class SparkDDFManager extends ADDFManager {
   }
 
 
+
+  // ////// IHandleDataCommands ////////
+
   @Override
-  public DDF load(String command) throws DDFException {
-    return this.getPersistenceHandler().load(command);
+  public DDF cmd2ddf(String command) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command);
   }
 
   @Override
-  public DDF load(String command, Schema schema) throws DDFException {
-    return this.getPersistenceHandler().load(command, schema);
+  public DDF cmd2ddf(String command, Schema schema) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command, schema);
   }
 
   @Override
-  public DDF load(String command, DataFormat dataFormat) throws DDFException {
-    return this.getPersistenceHandler().load(command, dataFormat);
+  public DDF cmd2ddf(String command, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command, dataFormat);
   }
 
   @Override
-  public DDF load(String command, Schema schema, String dataSource) throws DDFException {
-    return this.getPersistenceHandler().load(command, schema, dataSource);
+  public DDF cmd2ddf(String command, Schema schema, String dataSource) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command, schema, dataSource);
   }
 
   @Override
-  public DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException {
-    return this.getPersistenceHandler().load(command, schema, dataFormat);
+  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command, schema, dataFormat);
   }
 
   @Override
-  public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
-    return this.getPersistenceHandler().load(command, schema, dataSource, dataFormat);
+  public DDF cmd2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(command, schema, dataSource, dataFormat);
   }
 
+
+  @Override
+  public List<String> cmd2txt(String command) throws DDFException {
+    return this.getDataCommandHandler().cmd2txt(command);
+  }
+
+  @Override
+  public List<String> cmd2txt(String command, String dataSource) throws DDFException {
+    return this.getDataCommandHandler().cmd2txt(command, dataSource);
+  }
 }

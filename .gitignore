@@ -58,3 +58,4 @@ __pycache__/
 
 inst/java/
 *~
+metastore_db/
