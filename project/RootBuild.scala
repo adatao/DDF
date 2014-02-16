@@ -182,6 +182,7 @@ object RootBuild extends Build {
       "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
       "org.datanucleus" % "datanucleus-core" % "2.0.3",
       "org.apache.derby" % "derby" % "10.4.2.0",
+      "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
       "org.easymock" % "easymock" % "3.1" % "test"
     ),
 
@@ -210,7 +211,7 @@ object RootBuild extends Build {
     // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
-    // dependencyOverrides += "log4j" % "log4j" % "1.2.17",
+    dependencyOverrides += "log4j" % "log4j" % "1.2.17",
     dependencyOverrides += "org.slf4j" % "slf4j-api" % slf4jVersion,
     dependencyOverrides += "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
@@ -263,9 +264,13 @@ object RootBuild extends Build {
                 </systemPropertyVariables>
                 <additionalClasspathElements>
                   <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/../lib_managed/jars/*</additionalClasspathElement>
+                  <additionalClasspathElement>${{HADOOP_HOME}}/conf/</additionalClasspathElement>
+                  <additionalClasspathElement>${{HIVE_HOME}}/conf/</additionalClasspathElement>
                   </additionalClasspathElements>
                 <includes>
                   <include>**/*.java</include>
+                  <include>**/*.scala</include>
                 </includes>
               </configuration>
             </plugin>

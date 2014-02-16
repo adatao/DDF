@@ -7,15 +7,15 @@ import com.adatao.ddf.DDF;
  */
 public abstract class AAlgorithmRunner implements IRunAlgorithms {
 
-  private void preprocess(IAlgorithm algorihtm, DDF ddf) {
-    ddf.getRepresentationHandler().getRepresentation(algorihtm.getExpectedDataType());
-    algorihtm.preprocess(ddf);
+  private void preprocess(IAlgorithm algorithm, DDF ddf) {
+    ddf.getRepresentationHandler().getRepresentation(algorithm.getExpectedDataType());
+    algorithm.preprocess(ddf);
   }
 
   @Override
-  public IAlgorithmOutputModel run(IAlgorithm algorihtm, DDF ddf) {
-    preprocess(algorihtm, ddf);
+  public IAlgorithmOutputModel run(IAlgorithm algorithm, DDF ddf) {
+    preprocess(algorithm, ddf);
 
-    return algorihtm.run(ddf);
+    return algorithm.run(ddf);
   }
 }

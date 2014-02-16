@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.spark.SparkContext;
 
 import shark.SharkContext;
+import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 
 import com.adatao.ddf.ADDFManager;
@@ -29,6 +30,8 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.spark.ddf.analytics.SparkAlgorithmRunner;
+import com.adatao.spark.ddf.content.SparkMetaDataHandler;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
 import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
@@ -119,7 +122,10 @@ public class SparkDDFManager extends ADDFManager {
     { "SPARK_APPNAME", "spark.appname" },
     { "SPARK_MASTER", "spark.master" }, 
     { "SPARK_HOME", "spark.home" }, 
-    { "SPARK_SERIALIZER", "spark.serializer" }, 
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "HIVE_HOME", "hive.home" },
+    { "HADOOP_HOME", "hadoop.home" },
     { "DDFSPARK_JAR", "ddfspark.jar" } 
     // @formatter:on
   };
@@ -167,7 +173,7 @@ public class SparkDDFManager extends ADDFManager {
 
       JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
           params.get("SPARK_HOME"), jobJars, params);
-      this.setSharkContext(jsc.sharkCtx());
+      this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
 
     } catch (Exception e) {
       throw new DDFException(e);
@@ -198,8 +204,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleMetaData createMetaDataHandler() {
-    // return new MetaDataHandler(this);
-    return null;
+    return new SparkMetaDataHandler(this);
   }
 
   @Override
@@ -261,8 +266,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IRunAlgorithms createAlgorithmRunner() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkAlgorithmRunner();
   }
 
 
@@ -309,4 +313,5 @@ public class SparkDDFManager extends ADDFManager {
   public List<String> cmd2txt(String command, String dataSource) throws DDFException {
     return this.getDataCommandHandler().cmd2txt(command, dataSource);
   }
+  
 }
