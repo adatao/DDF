@@ -15,8 +15,8 @@ import com.adatao.ddf.content.Schema.Column;
  */
 public class ASchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
 
-  public ASchemaHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public ASchemaHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
 
@@ -30,11 +30,11 @@ public class ASchemaHandler extends ADDFFunctionalGroupHandler implements IHandl
     this.mSchema = theSchema;
   }
 
-  public String getTableName () {
+  public String getTableName() {
     return this.mSchema.getTableName();
   }
   
-  public List<Column> getColumns () {
+  public List<Column> getColumns() {
     return this.mSchema.getColumns();
   }
 }

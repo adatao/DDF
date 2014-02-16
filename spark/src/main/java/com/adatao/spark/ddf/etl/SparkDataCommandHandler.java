@@ -28,8 +28,8 @@ import com.adatao.spark.ddf.content.SparkSchemaHandler;
  */
 public class SparkDataCommandHandler extends ADataCommandHandler {
 
-  public SparkDataCommandHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public SparkDataCommandHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
   private SharkContext getSharkContext() {

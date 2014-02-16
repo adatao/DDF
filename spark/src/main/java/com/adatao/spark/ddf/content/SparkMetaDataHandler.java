@@ -7,12 +7,16 @@ import org.apache.log4j.Logger;
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.content.AMetaDataHandler;
 import com.adatao.ddf.exception.DDFException;
-
+/**
+ * 
+ * @author bhan
+ *
+ */
 public class SparkMetaDataHandler extends AMetaDataHandler {
   private static Logger logger = Logger.getLogger(SparkMetaDataHandler.class);
 
-  public SparkMetaDataHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public SparkMetaDataHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
   @Override

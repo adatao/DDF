@@ -15,8 +15,8 @@ import com.adatao.ddf.DDF;
  */
 public class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADDFManager container) {
-    super(container);
+  public ARepresentationHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
 

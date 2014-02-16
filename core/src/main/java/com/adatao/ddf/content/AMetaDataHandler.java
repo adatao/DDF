@@ -14,8 +14,8 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public AMetaDataHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
 

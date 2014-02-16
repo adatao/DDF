@@ -19,8 +19,8 @@ import com.adatao.ddf.util.PhantomReference;
 public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
   protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-  public ADDFFunctionalGroupHandler(ADDFManager theContainer) {
-    this.setContainer(theContainer);
+  public ADDFFunctionalGroupHandler(ADDFManager theDDFManager) {
+    this.setContainer(theDDFManager);
 
     PhantomReference.register(this);
   }
