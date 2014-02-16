@@ -9,13 +9,4 @@ public interface IHandleMetaData {
   public void setId(UUID id);
 
   public long getNumRows();
-<<<<<<< HEAD
-=======
-
-  public long getNumColumns();
-
-  public Schema getSchema();
-
-  public void setSchema(Schema shema);
->>>>>>> origin/master
 }
