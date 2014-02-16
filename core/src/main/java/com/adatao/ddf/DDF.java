@@ -27,9 +27,12 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.exception.DDFException;
 
 
 /**
@@ -46,26 +49,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
  * @author ctn
  * 
  */
-public class DDF {
-  /**
-   * Executes the given sqlCommand against this DDF, and returns the resulting DDF
-   * 
-   * @param sqlCommand
-   * @return
-   */
-  public DDF sql2ddf(String sqlCommand) {
-    return null;
-  }
-
-  /**
-   * Executes the given sqlCommand against this DDF, and returns the resulting text result
-   * 
-   * @param sqlCommand
-   * @return
-   */
-  public List<String> sql2txt(String sqlCommand) {
-    return null;
-  }
+public class DDF implements IHandleDataCommands {
 
   private ADDFManager mManager;
 
@@ -106,8 +90,8 @@ public class DDF {
     return this.getManager().getMutabilityHandler();
   }
 
-  public IHandlePersistence getPersistenceHandler() {
-    return this.getManager().getPersistenceHandler();
+  public IHandleDataCommands getDataCommandHandler() {
+    return this.getManager().getDataCommandHandler();
   }
 
   public IHandleRepresentations getRepresentationHandler() {
@@ -138,4 +122,78 @@ public class DDF {
     return this.getManager().getAlgorithmRunner();
   }
 
+
+
+  // ////// IHandleDataCommands ////////
+
+  protected final String TABLE_NAME_PATTERN = "(?i)<table>";
+
+  protected String regexTableName(String command) {
+    if (command != null && command.length() > 0) {
+      command = command.replaceAll(TABLE_NAME_PATTERN, this.getTableName());
+    }
+
+    return command;
+  }
+
+  @Override
+  public DDF cmd2ddf(String command) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command));
+  }
+
+  @Override
+  public DDF cmd2ddf(String command, Schema schema) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command), schema);
+  }
+
+  @Override
+  public DDF cmd2ddf(String command, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command), dataFormat);
+  }
+
+  @Override
+  public DDF cmd2ddf(String command, Schema schema, String dataSource) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command), schema, dataSource);
+  }
+
+  @Override
+  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command), schema, dataFormat);
+  }
+
+  @Override
+  public DDF cmd2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
+    return this.getDataCommandHandler().cmd2ddf(this.regexTableName(command), schema, dataSource, dataFormat);
+  }
+
+
+  @Override
+  public List<String> cmd2txt(String command) throws DDFException {
+    return this.getDataCommandHandler().cmd2txt(this.regexTableName(command));
+  }
+
+  @Override
+  public List<String> cmd2txt(String command, String dataSource) throws DDFException {
+    return this.getDataCommandHandler().cmd2txt(this.regexTableName(command), dataSource);
+  }
+
+
+
+  // ////// MetaData that deserves to be right here at the top level ////////
+
+  public Schema getSchema() {
+    return this.getSchemaHandler().getSchema();
+  }
+
+  public String getTableName() {
+    return this.getSchema().getTableName();
+  }
+
+  public long getNumRows() {
+    return this.getMetaDataHandler().getNumRows();
+  }
+
+  public long getNumColumns() {
+    return this.getMetaDataHandler().getNumColumns();
+  }
 }

@@ -1,6 +1,6 @@
 package com.adatao.ddf;
 
-import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleDataCommands;
 
 
 /**
@@ -8,6 +8,6 @@ import com.adatao.ddf.etl.IHandlePersistence;
  * @author ctn
  * 
  */
-public interface IDDFManager extends IHandlePersistence {
+public interface IDDFManager extends IHandleDataCommands {
   public void shutdown();
 }

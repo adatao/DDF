@@ -55,7 +55,7 @@ public class ARepresentationHandlerTests {
     }
 
     @Override
-    protected IHandlePersistence createPersistenceHandler() {
+    protected IHandleDataCommands createDataCommandHandler() {
       // TODO Auto-generated method stub
       return null;
     }

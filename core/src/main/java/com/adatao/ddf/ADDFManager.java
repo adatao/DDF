@@ -25,12 +25,9 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandlePersistence;
+import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -110,7 +107,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   private IHandleMiscellany mMiscellanyHandler;
   private IHandleMissingData mMissingDataHandler;
   private IHandleMutability mMutabilityHandler;
-  private IHandlePersistence mPersistenceHandler;
+  private IHandleDataCommands mDataCommandHandler;
   private IHandleRepresentations mRepresentationHandler;
   private IHandleReshaping mReshapingHandler;
   private IHandleSchema mSchemaHandler;
@@ -218,18 +215,18 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   protected abstract IHandleMutability createMutabilityHandler();
 
 
-  public IHandlePersistence getPersistenceHandler() {
-    if (mPersistenceHandler == null) mPersistenceHandler = this.createPersistenceHandler();
-    if (mPersistenceHandler == null) throw new UnsupportedOperationException();
-    else return mPersistenceHandler;
+  public IHandleDataCommands getDataCommandHandler() {
+    if (mDataCommandHandler == null) mDataCommandHandler = this.createDataCommandHandler();
+    if (mDataCommandHandler == null) throw new UnsupportedOperationException();
+    else return mDataCommandHandler;
   }
 
-  public ADDFManager setPersistenceHandler(IHandlePersistence aPersistenceHandler) {
-    this.mPersistenceHandler = aPersistenceHandler;
+  public ADDFManager setDataCommandHandler(IHandleDataCommands ADataCommandHandler) {
+    this.mDataCommandHandler = ADataCommandHandler;
     return this;
   }
 
-  protected abstract IHandlePersistence createPersistenceHandler();
+  protected abstract IHandleDataCommands createDataCommandHandler();
 
 
   public IHandleRepresentations getRepresentationHandler() {
@@ -347,7 +344,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     .setMiscellanyHandler(null)
     .setMissingDataHandler(null)
     .setMutabilityHandler(null)
-    .setPersistenceHandler(null)
+    .setDataCommandHandler(null)
     .setRepresentationHandler(null)
     .setReshapingHandler(null)
     .setSchemaHandler(null)
@@ -357,16 +354,4 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     ;
     // @formatter:on
   }
-  
-  public abstract DDF load(String command, Schema schema) throws DDFException;
-  
-  public abstract DDF load(String command, DataFormat dataFormat) throws DDFException;
-  
-  public abstract DDF load(String command, Schema schema, String dataSource) throws DDFException;
-  
-  public abstract DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException;
-  
-  public abstract DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
-  
-  public abstract void runSqlCommand(String command) throws DDFException;
 }

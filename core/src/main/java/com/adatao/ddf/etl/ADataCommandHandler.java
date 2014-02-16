@@ -10,9 +10,9 @@ import com.adatao.ddf.ADDFManager;
  * @author ctn
  * 
  */
-public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler implements IHandlePersistence {
+public abstract class ADataCommandHandler extends ADDFFunctionalGroupHandler implements IHandleDataCommands {
 
-  public APersistenceHandler(ADDFManager theContainer) {
+  public ADataCommandHandler(ADDFManager theContainer) {
     super(theContainer);
   }
 
