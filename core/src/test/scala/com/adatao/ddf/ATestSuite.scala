@@ -1,3 +1,4 @@
+// scalastyle:off
 package com.adatao.ddf
 
 import org.junit.runner.RunWith

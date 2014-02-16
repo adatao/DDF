@@ -29,7 +29,7 @@ object RootBuild extends Build {
 
 	val coreProjectName = projectName + "_core"
 	val coreVersion = rootVersion
-	val coreJarName = coreProjectName + "-" + coreVersion + ".jar"
+	val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
 	val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
 
 	val sparkProjectName = projectName + "_spark"
@@ -172,6 +172,16 @@ object RootBuild extends Build {
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
+      "org.apache.thrift" % "libthrift" % "0.9.0",
+      "org.apache.thrift" % "libfb303" % "0.9.0",
+      "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+      // needed by Hive
+      "commons-dbcp" % "commons-dbcp" % "1.4",
+      "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
+      "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+      "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
+      "org.datanucleus" % "datanucleus-core" % "2.0.3",
+      "org.apache.derby" % "derby" % "10.4.2.0",
       "org.easymock" % "easymock" % "3.1" % "test"
     ),
 
@@ -204,7 +214,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.slf4j" % "slf4j-api" % slf4jVersion,
     dependencyOverrides += "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
-    // dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
+    dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
@@ -243,14 +253,20 @@ object RootBuild extends Build {
               <configuration>
                 <reuseForks>false</reuseForks>
                 <environmentVariables>
-					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
+					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
 				</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
-                  <log4j.configuration>pa-log4j.properties</log4j.configuration>
+                  <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                 </systemPropertyVariables>
+                <additionalClasspathElements>
+                  <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  </additionalClasspathElements>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
               </configuration>
             </plugin>
             <plugin>
@@ -292,6 +308,7 @@ object RootBuild extends Build {
               </configuration>
             </plugin>
             
+            <!--
             <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
@@ -315,6 +332,7 @@ object RootBuild extends Build {
                   </execution>
                 </executions>
               </plugin>
+              -->
           </plugins>
         </build>
         <profiles>

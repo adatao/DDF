@@ -1,8 +1,10 @@
 package com.adatao.spark.ddf.content
 
 import com.adatao.ddf.content.AMetaDataHandler
-import com.adatao.ddf.spark.SparkDDFManager
-import com.adatao.ddf.spark.etl.SparkPersistenceHandler
+import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.spark.ddf.etl.SparkDataCommandHandler
+
+//import com.adatao.ddf.spark.etl.SparkPersistenceHandler
 
 /**
  * author: daoduchuan
@@ -14,7 +16,7 @@ class SparkMetaDataHandler(ddfManager: SparkDDFManager) extends AMetaDataHandler
     val tablename= ddfManager.getMetaDataHandler.getSchema.getTableName
     val cmd= "select count(*) from " + tablename
     try{
-      ddfManager.getPersistenceHandler.asInstanceOf[SparkPersistenceHandler].sql(tablename)(0).toLong
+      ddfManager.getDataCommandHandler.asInstanceOf[SparkDataCommandHandler].cmd2txt(cmd).get(0).toLong
     }
     catch {
       case e => throw new Exception("Cannot get number of rows")
