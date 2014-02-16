@@ -200,7 +200,7 @@ public class DDF implements IHandleDataCommands {
   }
 
   //Run Algorithms
-  public IAlgorithmOutputModel runAlgorithm(IAlgorithm algorihtm) {
+  public IAlgorithmOutputModel train(IAlgorithm algorihtm) {
     return this.getAlgorithmRunner().run(algorihtm, this);
   }
 }

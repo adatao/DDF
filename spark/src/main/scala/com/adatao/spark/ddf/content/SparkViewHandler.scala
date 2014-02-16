@@ -16,7 +16,7 @@ import com.adatao.spark.ddf.SparkDDFManager
  * @author ctn
  *
  */
-class ViewHandler(container: SparkDDFManager) extends AViewHandler(container) with IHandleViews {
+class SparkViewHandler(container: SparkDDFManager) extends AViewHandler(container) with IHandleViews {
 	object ViewFormat extends Enumeration {
 		type ViewFormat = Value
 		val DEFAULT, ARRAY_OBJECT, ARRAY_DOUBLE, TABLE_PARTITION, LABELED_POINT, LABELED_POINTS = Value
@@ -33,14 +33,14 @@ class ViewHandler(container: SparkDDFManager) extends AViewHandler(container) wi
 	 * @return
 	 */
 	def get(columns: Array[Int], formatEnum: ViewFormat): DDF = {
-		formatEnum match {
-			case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, container)
-			case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, container)
-			case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, container)
-			case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, container)
+    formatEnum match {
+      case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, container)
+      case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, container)
+      case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, container)
+      case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, container)
       case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, container)
       case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, container)
-			case _ ⇒ {}
+      case _ ⇒ {}
 		}
 		null
 	}

@@ -5,33 +5,31 @@ package com.adatao.ddf.analytics;
  */
 public abstract class AAlgorithm implements IAlgorithm {
 
-  private Class<?> mElementType;
+  private Class<?> mExpectedDataType;
   private IParameters mParameters;
 
-  public AAlgorithm(Class<?> elementType, IParameters params) {
-
-    mElementType= elementType;
+  public AAlgorithm(Class<?> expectedDataType, IParameters params) {
+    mExpectedDataType= expectedDataType;
     mParameters= params;
-
   }
-  public IParameters getParameters() {
 
+  @Override
+  public void setParameters(IParameters params) {
+    mParameters= params;
+  }
+
+  @Override
+  public IParameters getParameters() {
     return mParameters;
   }
 
-  public void setParameters(IParameters params) {
-
-    mParameters= params;
+  @Override
+  public void setExpectedDataType(Class<?> expectedDataType) {
+    mExpectedDataType= expectedDataType;
   }
 
-  public Class<?> getElementType() {
-
-    return mElementType;
+  @Override
+  public Class<?> getExpectedDataType() {
+    return mExpectedDataType;
   }
-
-  public void setElementType(Class<?> elementType) {
-
-    mElementType= elementType;
-  }
-
 }

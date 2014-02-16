@@ -13,12 +13,10 @@ class Kmeans(params: KmeansParameters) extends AAlgorithm(classOf[Array[Double]]
   def this()= this(new KmeansParameters())
 
   override def preprocess(ddf: DDF) = {
-
-    ddf.getRepresentationHandler.getRepresentation(this.getElementType)
+    //Additional implementation here
   }
 
   override def run(ddf: DDF): KmeansModel = {
-
     val data= ddf.getRepresentationHandler.get(this.getElementType).asInstanceOf[RDD[Array[Double]]]
 
     val model= KMeans.train(data, params.numCentroids, params.maxIter, params.runs, params.initMode)

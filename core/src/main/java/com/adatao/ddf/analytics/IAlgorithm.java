@@ -11,7 +11,11 @@ public interface IAlgorithm {
 
   public IAlgorithmOutputModel run(DDF ddf);
 
+  public void setParameters(IParameters params);
+
   public IParameters getParameters();
 
-  public Class<?> getElementType();
+  public void setExpectedDataType(Class<?> expectedDataType);
+
+  public Class<?> getExpectedDataType();
 }

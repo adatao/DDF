@@ -117,6 +117,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void cleanup() {
     mReps.clear();
     super.cleanup();
+    uncacheAll();
   }
 
 

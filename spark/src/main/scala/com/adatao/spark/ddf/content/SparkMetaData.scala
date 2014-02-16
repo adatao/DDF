@@ -26,5 +26,4 @@ class SparkMetaDataHandler(ddfManager: SparkDDFManager) extends AMetaDataHandler
       case e => throw new DDFException("Cannot get number of rows")
     }
   }
-
 }

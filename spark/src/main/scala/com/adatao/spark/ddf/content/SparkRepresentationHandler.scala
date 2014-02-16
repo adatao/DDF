@@ -37,6 +37,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
     }
 
     val rdd= container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val extractors= cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
 
@@ -44,14 +45,10 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
 
       case arrayDouble if arrayDouble == classOf[Array[Double]] => {
 
-        val extractors= cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
-
-        getRDDArrayDouble(rdd, extractors, numCols)
+        getRDDArrayDouble(rdd, numCols, extractors)
       }
 
       case labeledPoint if labeledPoint == classOf[LabeledPoint] => {
-
-        val extractors= cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
         getRDDLabeledPoint(rdd, numCols, extractors)
       }
@@ -71,12 +68,6 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
 	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
 	 */
 	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, m.erasure)
-
-	override def cleanup = {
-		// Make sure we unpersist all RDDs we own
-		uncacheAll()
-		super.cleanup()
-	}
 
 	private def forAllReps[T](f: RDD[_] ⇒ Any) {
 		mReps.foreach {
@@ -111,7 +102,7 @@ object SparkRepresentationHandler {
     rdd.map{row => rowToArrayObject(row, numCols)}
   }
 
-  def getRDDArrayDouble(rdd: RDD[Row], extractors: Array[Object => Double], numCols: Int): RDD[Array[Double]] = {
+  def getRDDArrayDouble(rdd: RDD[Row], numCols: Int, extractors: Array[Object => Double]): RDD[Array[Double]] = {
 
     rdd.map(row => rowToArrayDouble(row, numCols, extractors)).filter(row => row != null)
   }

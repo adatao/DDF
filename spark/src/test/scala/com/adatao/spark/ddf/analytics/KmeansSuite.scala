@@ -10,7 +10,7 @@ class KmeansSuite extends ATestSuite{
   test("Test Kmeans integation with mllib") {
     val ddfManager= new SparkDDFManager()
     val ddf= ddfManager.cmd2ddf("Select * from airline")
-    val model= ddf.runAlgorithm(new Kmeans()).asInstanceOf[KmeansModel]
+    val model= ddf.train(new Kmeans()).asInstanceOf[KmeansModel]
     ddfManager.shutdown()
 
   }
