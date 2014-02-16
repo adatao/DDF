@@ -14,8 +14,8 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public AMetaDataHandler(ADDFManager ddfManager) {
+    super(ddfManager);
   }
 
 
@@ -34,7 +34,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
 
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
-  private long mNumColumns = 0L;
+  private long mNumColumns = 0;
   private boolean bNumColumnsIsValid = false;
   private Schema mSchema;
   
@@ -74,12 +74,16 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   @Override
   public long getNumColumns() {
     if (!bNumColumnsIsValid) {
-      mNumColumns = this.getNumRowsImpl();
+      mNumColumns = this.getNumColumnsImpl();
       bNumColumnsIsValid = true;
     }
     return mNumColumns;
   }
-  
+
+  public void setSchema(Schema schema) {
+    mSchema= schema;
+  }
+
   public Schema getSchema() {
     return this.mSchema;
   }

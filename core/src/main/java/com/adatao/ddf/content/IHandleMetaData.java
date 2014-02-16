@@ -15,4 +15,6 @@ public interface IHandleMetaData {
   public long getNumColumns();
 
   public Schema getSchema();
+
+  public void setSchema(Schema shema);
 }

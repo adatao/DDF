@@ -29,8 +29,8 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
+import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
 
 /**
