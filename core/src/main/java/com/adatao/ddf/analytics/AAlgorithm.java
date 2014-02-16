@@ -9,13 +9,13 @@ public abstract class AAlgorithm implements IAlgorithm {
   private IParameters mParameters;
 
   public AAlgorithm(Class<?> expectedDataType, IParameters params) {
-    mExpectedDataType= expectedDataType;
-    mParameters= params;
+    mExpectedDataType = expectedDataType;
+    mParameters = params;
   }
 
   @Override
   public void setParameters(IParameters params) {
-    mParameters= params;
+    mParameters = params;
   }
 
   @Override
@@ -25,7 +25,7 @@ public abstract class AAlgorithm implements IAlgorithm {
 
   @Override
   public void setExpectedDataType(Class<?> expectedDataType) {
-    mExpectedDataType= expectedDataType;
+    mExpectedDataType = expectedDataType;
   }
 
   @Override

@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public interface IAlgorithmOutputModel extends Serializable {
   /**
-   * Export output model to disk 
+   * Export output model to disk
    */
   void persist();
 

@@ -13,7 +13,7 @@ public interface IRunAlgorithms {
   /**
    * Set up parameters and data transformation for the algorithm execution
    */
-  //public void preprocess();
+  // public void preprocess();
 
   /**
    * @param theDDF
@@ -21,6 +21,4 @@ public interface IRunAlgorithms {
    * @return the {@link IAlgorithmModel}
    */
   public IAlgorithmOutputModel run(IAlgorithm algorithm, DDF theDDF);
-
-
 }

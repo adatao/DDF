@@ -9,10 +9,11 @@ import java.lang.Class
 import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
-import shark.api.{Row}
+import shark.api.Row
 import com.adatao.spark.ddf.SparkDDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.SparkRepresentationHandler._
+
 /**
  * RDD-based SparkRepresentationHandler
  *
@@ -26,18 +27,18 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
 
-    def schema= container.getMetaDataHandler.getSchema
+    def schema = container.getMetaDataHandler.getSchema
 
-    val cols= schema.getColumns()
-    val numCols= schema.getNumColumns
-    val reprHandler= container.getRepresentationHandler
+    val cols = schema.getColumns()
+    val numCols = schema.getNumColumns
+    val reprHandler = container.getRepresentationHandler
 
-    if(reprHandler.get(classOf[Row]) == null){
+    if (reprHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load container representation with sqlLoad")
     }
 
-    val rdd= container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
-    val extractors= cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
+    val rdd = container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val extractors = cols.map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
 
@@ -56,50 +57,56 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
       case _ => throw new Exception("elementType not supported")
     }
   }
-	/**
-	 * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
-	 */
-	def set[T](data: RDD[T])(implicit m: Manifest[T]) = {
-		this.reset
-		this.add(data)
-	}
 
-	/**
-	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
-	 */
-	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, m.erasure)
+  /**
+   * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
+   */
+  def set[T](data: RDD[T])(implicit m: Manifest[T]) = {
+    this.reset
+    this.add(data)
+  }
 
-	private def forAllReps[T](f: RDD[_] ⇒ Any) {
-		mReps.foreach {
-			kv ⇒ if (kv._2 != null) f(kv._2.asInstanceOf[RDD[_]])
-		}
-	}
+  /**
+   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
+   */
+  def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, m.erasure)
 
-	override def cacheAll = {
-		forAllReps({ rdd: RDD[_] ⇒
-			if (rdd != null) {
-				LOG.info(this.getClass() + ": Persisting " + rdd)
-				rdd.persist
-			}
-		})
-	}
+  private def forAllReps[T](f: RDD[_] ⇒ Any) {
+    mReps.foreach {
+      kv ⇒ if (kv._2 != null) f(kv._2.asInstanceOf[RDD[_]])
+    }
+  }
 
-	override def uncacheAll = {
-		forAllReps({ rdd: RDD[_] ⇒
-			if (rdd != null) {
-				LOG.info(this.getClass() + ": Unpersisting " + rdd)
-				rdd.unpersist(false)
-			}
-		})
-	}
+  override def cacheAll = {
+    forAllReps({
+      rdd: RDD[_] ⇒
+        if (rdd != null) {
+          LOG.info(this.getClass() + ": Persisting " + rdd)
+          rdd.persist
+        }
+    })
+  }
+
+  override def uncacheAll = {
+    forAllReps({
+      rdd: RDD[_] ⇒
+        if (rdd != null) {
+          LOG.info(this.getClass() + ": Unpersisting " + rdd)
+          rdd.unpersist(false)
+        }
+    })
+  }
 }
+
 object SparkRepresentationHandler {
   /**
    *
    */
   def getRDDArrayObject(rdd: RDD[Row], numCols: Int): RDD[Array[Object]] = {
 
-    rdd.map{row => rowToArrayObject(row, numCols)}
+    rdd.map {
+      row => rowToArrayObject(row, numCols)
+    }
   }
 
   def getRDDArrayDouble(rdd: RDD[Row], numCols: Int, extractors: Array[Object => Double]): RDD[Array[Double]] = {
@@ -114,10 +121,10 @@ object SparkRepresentationHandler {
 
   def rowToArrayObject(row: Row, numCols: Int): Array[Object] = {
 
-    val array= new Array[Object](numCols)
+    val array = new Array[Object](numCols)
     var i = 0
-    while(i < numCols){
-      array(i)= row.getPrimitive(i)
+    while (i < numCols) {
+      array(i) = row.getPrimitive(i)
       i += 1
     }
     array
@@ -125,53 +132,53 @@ object SparkRepresentationHandler {
 
   def rowToArrayDouble(row: Row, numCols: Int, extractors: Array[Object => Double]): Array[Double] = {
 
-    val array= new Array[Double](numCols)
+    val array = new Array[Double](numCols)
     var i = 0
-    var isNull= false
+    var isNull = false
 
-    while(i < numCols && isNull == false){
+    while (i < numCols && isNull == false) {
 
-      val obj= row.getPrimitive(i)
+      val obj = row.getPrimitive(i)
 
-      if(obj == null){
+      if (obj == null) {
         isNull = true
       }
 
       else {
-        array(i)= extractors(i)(obj)
+        array(i) = extractors(i)(obj)
       }
       i += 1
     }
-    if(isNull) null else array
+    if (isNull) null else array
   }
 
   def rowToLabeledPoint(row: Row, numCols: Int, extractors: Array[Object => Double]): LabeledPoint = {
 
-    val features= new Array[Double](numCols - 1)
-    var label= 0.0
-    var isNull= false
-    var i= 0
+    val features = new Array[Double](numCols - 1)
+    var label = 0.0
+    var isNull = false
+    var i = 0
 
-    while(i < numCols && isNull == false) {
+    while (i < numCols && isNull == false) {
 
-      val obj= row.getPrimitive(i)
+      val obj = row.getPrimitive(i)
 
-      if(obj == null) {
+      if (obj == null) {
         isNull = true
       }
       else {
 
-        if(i < numCols -1){
-          features(i)= extractors(i)(obj)
+        if (i < numCols - 1) {
+          features(i) = extractors(i)(obj)
         }
 
         else {
-          label= extractors(i)(obj)
+          label = extractors(i)(obj)
         }
       }
       i += 1
     }
-    if(isNull) null else new LabeledPoint(label, features)
+    if (isNull) null else new LabeledPoint(label, features)
   }
 
   def doubleExtractor(colType: ColumnType): Object => Double = colType match {
