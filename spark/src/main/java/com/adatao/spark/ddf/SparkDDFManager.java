@@ -6,13 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.SparkContext;
-import org.apache.spark.rdd.RDD;
 
 import scala.collection.Seq;
 import shark.SharkContext;
 import shark.api.JavaSharkContext;
-import shark.api.Row;
-import shark.api.TableRDD;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
@@ -36,6 +33,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
+import com.adatao.spark.ddf.etl.SparkPersistenceHandler;
 
 /**
  * 
@@ -60,7 +58,7 @@ public class SparkDDFManager extends ADDFManager {
 
   private SharkContext mSharkContext;
 
-  private SharkContext getSharkContext() {
+  public SharkContext getSharkContext() {
     return mSharkContext;
   }
 
@@ -226,8 +224,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandlePersistence createPersistenceHandler() {
-    // TODO Auto-generated method stub
-    return null;
+    return new SparkPersistenceHandler(this);
   }
 
   @Override
@@ -273,41 +270,32 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   public DDF load(String command) throws DDFException {
-    TableRDD tableRdd = this.getSharkContext().sql2rdd(command);
-    RDD<Row> rdd = (RDD<Row>) tableRdd;
-    Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
-
-    return new SparkDDF(rdd, Row.class, schema);
+    return this.getPersistenceHandler().load(command);
   }
 
   @Override
   public DDF load(String command, Schema schema) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getPersistenceHandler().load(command, schema);
   }
 
   @Override
   public DDF load(String command, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getPersistenceHandler().load(command, dataFormat);
   }
 
   @Override
   public DDF load(String command, Schema schema, String dataSource) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getPersistenceHandler().load(command, schema, dataSource);
   }
 
   @Override
   public DDF load(String command, Schema schema, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getPersistenceHandler().load(command, schema, dataFormat);
   }
 
   @Override
   public DDF load(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getPersistenceHandler().load(command, schema, dataSource, dataFormat);
   }
   
   @Override
