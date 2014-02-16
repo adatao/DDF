@@ -13,6 +13,7 @@ import shark.api.Row
 import com.adatao.spark.ddf.SparkDDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.SparkRepresentationHandler._
+import com.adatao.ddf.exception.DDFException
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -44,7 +45,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
 
       case labeledPoint if labeledPoint == classOf[LabeledPoint] => getRDDLabeledPoint(rdd, numCols, extractors)
 
-      case _ => throw new Exception("elementType not supported")
+      case _ => throw new DDFException("elementType not supported")
     }
   }
 
