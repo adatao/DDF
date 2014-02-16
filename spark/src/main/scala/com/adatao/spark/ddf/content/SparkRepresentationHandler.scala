@@ -30,7 +30,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
     val numCols = schema.getNumColumns
 
     if (container.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load container representation with sqlLoad")
+      throw new Exception("Please load container representation")
     }
 
     val rdd = container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
@@ -141,9 +141,7 @@ object SparkRepresentationHandler {
     var i = 0
 
     while (i < numCols && isNull == false) {
-
       val obj = row.getPrimitive(i)
-
       if (obj == null) {
         isNull = true
       }
