@@ -12,12 +12,13 @@ import com.adatao.ddf.ADDFManager;
  * @author ctn
  * 
  */
-public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
+public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
+    implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFManager ddfManager) {
-    super(ddfManager);
+
+  public AMetaDataHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
-
 
   private UUID mId = UUID.randomUUID();
 
@@ -31,35 +32,22 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
     mId = id;
   }
 
-
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
-  private long mNumColumns = 0;
-  private boolean bNumColumnsIsValid = false;
-  private Schema mSchema;
-  
+
   /**
-   * Each implementation needs to come up with its own way to compute the row count.
+   * Each implementation needs to come up with its own way to compute the row
+   * count.
+   * 
    * @return row count of a DDF
    */
   protected abstract long getNumRowsImpl();
-
-  protected long getNumColumnsImpl() {
-    return mSchema.getNumColumns();
-  }
 
   /**
    * Called to assert that the row count needs to be recomputed at next access
    */
   protected void invalidateNumRows() {
     bNumRowsIsValid = false;
-  }
-
-  /**
-   * Called to assert that the row count needs to be recomputed at next access
-   */
-  protected void invalidateNumColumns() {
-    bNumColumnsIsValid = false;
   }
 
   @Override
@@ -69,22 +57,5 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
       bNumRowsIsValid = true;
     }
     return mNumRows;
-  }
-
-  @Override
-  public long getNumColumns() {
-    if (!bNumColumnsIsValid) {
-      mNumColumns = this.getNumColumnsImpl();
-      bNumColumnsIsValid = true;
-    }
-    return mNumColumns;
-  }
-
-  public void setSchema(Schema schema) {
-    mSchema= schema;
-  }
-
-  public Schema getSchema() {
-    return this.mSchema;
   }
 }

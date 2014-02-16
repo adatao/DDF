@@ -1,17 +1,35 @@
 package com.adatao.spark.ddf.content;
 
-import com.adatao.ddf.content.AMetaDataHandler;
-import com.adatao.spark.ddf.SparkDDFManager;
+import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.content.AMetaDataHandler;
+import com.adatao.ddf.exception.DDFException;
+/**
+ * 
+ * @author bhan
+ *
+ */
 public class SparkMetaDataHandler extends AMetaDataHandler {
-  
-  public SparkMetaDataHandler(SparkDDFManager ddfManager) {
-    super(ddfManager);
+  private static Logger logger = Logger.getLogger(SparkMetaDataHandler.class);
+
+  public SparkMetaDataHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
   @Override
   protected long getNumRowsImpl() {
-    // TODO Auto-generated method stub
+    String tableName = this.getDDFManager().getSchemaHandler().getTableName();
+    try {
+      List<String> rs = this.getDDFManager().getDataCommandHandler()
+          .cmd2txt("select count(*) from " + tableName);
+      return Long.parseLong(rs.get(0));
+    } catch (DDFException e) {
+      logger.error("Unable to query from " + tableName, e);
+    }
     return 0;
   }
+
 }
