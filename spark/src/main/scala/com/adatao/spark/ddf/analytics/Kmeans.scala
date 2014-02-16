@@ -10,14 +10,14 @@ import org.apache.spark.rdd.RDD
  */
 class Kmeans(params: KmeansParameters) extends AAlgorithm(classOf[Array[Double]], params){
 
-  def this()= this(new KmeansParameters())
+  def this() = this(new KmeansParameters())
 
   override def preprocess(ddf: DDF) = {
     //Additional implementation here
   }
 
   override def run(ddf: DDF): KmeansModel = {
-    val data= ddf.getRepresentationHandler.get(this.getElementType).asInstanceOf[RDD[Array[Double]]]
+    val data= ddf.getRepresentationHandler.get(this.getExpectedDataType).asInstanceOf[RDD[Array[Double]]]
 
     val model= KMeans.train(data, params.numCentroids, params.maxIter, params.runs, params.initMode)
 
@@ -34,7 +34,6 @@ class KmeansParameters(val numCentroids: Int = 10,
 class KmeansModel(val data: DDF, val params: KmeansParameters, val mllibKmeansModel: KMeansModel) extends IAlgorithmOutputModel {
 
   override def persist(): Unit = {
-
     //IMPLEMENTATION HERE
   }
 }

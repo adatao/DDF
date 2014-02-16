@@ -5,10 +5,10 @@ import com.adatao.ddf.DDF;
 /**
  * author: daoduchuan
  */
-public abstract class ARunAlgorithms implements IRunAlgorithms {
+public abstract class AAlgorithmRunner implements IRunAlgorithms {
 
   private void preprocess(IAlgorithm algorihtm, DDF ddf) {
-    ddf.getRepresentationHandler().getRepresentation(algorihtm.getElementType());
+    ddf.getRepresentationHandler().getRepresentation(algorihtm.getExpectedDataType());
     algorihtm.preprocess(ddf);
   }
 
