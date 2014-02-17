@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import org.apache.spark.SparkContext;
 
 import shark.SharkContext;
@@ -30,7 +31,6 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.content.SparkMetaDataHandler;
-import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
 import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
 
