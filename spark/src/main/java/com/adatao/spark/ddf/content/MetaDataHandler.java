@@ -12,10 +12,10 @@ import com.adatao.ddf.exception.DDFException;
  * @author bhan
  *
  */
-public class SparkMetaDataHandler extends AMetaDataHandler {
-  private static Logger logger = Logger.getLogger(SparkMetaDataHandler.class);
+public class MetaDataHandler extends AMetaDataHandler {
+  private static Logger logger = Logger.getLogger(MetaDataHandler.class);
 
-  public SparkMetaDataHandler(ADDFManager theDDFManager) {
+  public MetaDataHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
   }
 

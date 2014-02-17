@@ -17,9 +17,9 @@ import com.google.common.collect.Lists;
  * @author ctn
  * 
  */
-public class SparkSchemaHandler extends ASchemaHandler {
+public class SchemaHandler extends ASchemaHandler {
 
-  public SparkSchemaHandler(ADDFManager theDDFManager) {
+  public SchemaHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
     // TODO Auto-generated constructor stub
   }
