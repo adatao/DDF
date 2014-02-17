@@ -15,8 +15,8 @@ import com.adatao.ddf.DDF;
  */
 public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADDFManager container) {
-    super(container);
+  public ARepresentationHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
 
@@ -32,7 +32,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    * Gets an existing representation for our {@link DDF} matching the given elementType, if any.
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    * 
    * @return null if no matching representation available
    */
@@ -68,7 +68,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    */
   @Override
   public void set(Object data, Class<?> elementType) {
@@ -78,10 +78,10 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
-   * replacing the one that matches the given containerType, elementType tuple.
+   * replacing the one that matches the given DDFManagerType, elementType tuple.
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    */
   @Override
   public void add(Object data, Class<?> elementType) {

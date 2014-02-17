@@ -13,7 +13,7 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class AViewHandler extends ADDFFunctionalGroupHandler implements IHandleViews {
 
-  public AViewHandler(ADDFManager theContainer) {
-    super(theContainer);
+  public AViewHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 }
