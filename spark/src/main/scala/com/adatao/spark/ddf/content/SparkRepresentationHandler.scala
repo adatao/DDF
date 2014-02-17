@@ -27,8 +27,8 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
    *
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = container.getMetaDataHandler.getSchema
-    val numCols = schema.getNumColumns
+    val schema = container.getSchemaHandler
+    val numCols = schema.getNumColumns.toInt
 
     if (container.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load container representation")
