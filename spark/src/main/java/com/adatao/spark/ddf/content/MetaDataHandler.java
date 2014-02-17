@@ -23,8 +23,8 @@ public class MetaDataHandler extends AMetaDataHandler {
   protected long getNumRowsImpl() {
     String tableName = this.getManager().getSchemaHandler().getTableName();
     try {
-      List<String> rs = this.getManager().getDataCommandHandler()
-          .cmd2txt("select count(*) from " + tableName);
+      List<String> rs = this.getManager().getSqlHandler()
+          .sql2txt("select count(*) from " + tableName);
       return Long.parseLong(rs.get(0));
     } catch (DDFException e) {
       logger.error("Unable to query from " + tableName, e);
