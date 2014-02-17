@@ -12,21 +12,21 @@ import com.adatao.ddf.exception.DDFException;
  * @author bhan
  *
  */
-public class SparkMetaDataHandler extends AMetaDataHandler {
-  private static Logger logger = Logger.getLogger(SparkMetaDataHandler.class);
+public class MetaDataHandler extends AMetaDataHandler {
+  private static Logger logger = Logger.getLogger(MetaDataHandler.class);
 
-  public SparkMetaDataHandler(ADDFManager theDDFManager) {
+  public MetaDataHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
   }
 
   @Override
   protected long getNumRowsImpl() {
-    String tableName = this.getDDFManager().getSchemaHandler().getTableName();
+    String tableName = this.getManager().getSchemaHandler().getTableName();
     logger.debug("get NumRows Impl called");
     tableName = "airline";
     try {
-      List<String> rs = this.getDDFManager()
-          .cmd2txt("select count(*) from " + tableName);
+      List<String> rs = this.getManager()
+          .sql2txt("select count(*) from " + tableName);
       return Long.parseLong(rs.get(0));
     } catch (DDFException e) {
       logger.error("Unable to query from " + tableName, e);

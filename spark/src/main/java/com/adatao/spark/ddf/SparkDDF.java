@@ -7,7 +7,7 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
 /**
- * SparkDDF extends DDF in order to provide some utility methods that are specific to Spark
+ * DDF extends DDF in order to provide some utility methods that are specific to Spark
  * framework.
  * 
  * @author Cuong Kien Bui
@@ -25,8 +25,8 @@ public class SparkDDF extends DDF {
 
 
   private <T> void initialize(RDD<T> rdd, Class<T> elementType, Schema schema) throws DDFException {
-    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new SparkDDF");
-    if (rdd.sparkContext() == null) throw new DDFException("SparkContext is required to instantiate a new SparkDDF");
+    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
+    if (rdd.sparkContext() == null) throw new DDFException("SparkContext is required to instantiate a new DDF");
 
     this.setManager(new SparkDDFManager(rdd.sparkContext()));
     this.getRepresentationHandler().set(rdd, elementType);

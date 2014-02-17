@@ -30,6 +30,7 @@ public interface IHandleViews {
    * @param sqlCommand
    * @return the resulting DDF
    */
+  @Deprecated // to be removed
   public DDF sql2ddf(String sqlCommand);
 
   /**
@@ -39,6 +40,7 @@ public interface IHandleViews {
    * @param sqlCommand
    * @return rows of text from the SQL result
    */
+  @Deprecated // to be removed
   public String[] sql2text(String sqlCommand);
 
   /**

@@ -20,7 +20,7 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
   protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   public ADDFFunctionalGroupHandler(ADDFManager theDDFManager) {
-    this.setDDFManager(theDDFManager);
+    this.setManager(theDDFManager);
 
     PhantomReference.register(this);
   }
@@ -30,7 +30,7 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
    * @return the {@link DDF} this handler handles, via the DDFManager
    */
   public DDF getDDF() {
-    return this.getDDFManager().getDDF();
+    return this.getManager().getDDF();
   }
 
   private ADDFManager mDDFManager;
@@ -38,7 +38,7 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
   /**
    * @return the {@link ADDFManager} that contains this handler
    */
-  public ADDFManager getDDFManager() {
+  public ADDFManager getManager() {
     return mDDFManager;
   }
 
@@ -48,7 +48,7 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
    * 
    * @return this instance, for call-chaining style
    */
-  public ADDFFunctionalGroupHandler setDDFManager(ADDFManager aDDFManager) {
+  public ADDFFunctionalGroupHandler setManager(ADDFManager aDDFManager) {
     this.mDDFManager = aDDFManager;
     return this;
   }
@@ -56,6 +56,6 @@ public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomRefer
   @Override
   // ISupportPhantomReference
   public void cleanup() {
-    this.setDDFManager(null);
+    this.setManager(null);
   }
 }

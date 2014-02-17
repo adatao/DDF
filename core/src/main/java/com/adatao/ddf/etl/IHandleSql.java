@@ -7,16 +7,7 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.exception.DDFException;
 
-public interface IHandleDataCommands {
-
-  // /**
-  // * Perform a save of the current "destination type" from the DDF
-  // *
-  // * @param type
-  // * @param connection
-  // * @param command
-  // */
-  // public void save(String type, String connection, String command);
+public interface IHandleSql {
 
   /**
    * Executes the given command and stores the results into a DDF which already has a schema to
@@ -25,7 +16,7 @@ public interface IHandleDataCommands {
    * 
    * @return the DDF with loaded data content
    */
-  public DDF cmd2ddf(String command) throws DDFException;
+  public DDF sql2ddf(String command) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a DDF using the given {@link Schema},
@@ -35,7 +26,7 @@ public interface IHandleDataCommands {
    * @param schema
    * @return
    */
-  public DDF cmd2ddf(String command, Schema schema) throws DDFException;
+  public DDF sql2ddf(String command, Schema schema) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a DDF, using the specified
@@ -45,7 +36,7 @@ public interface IHandleDataCommands {
    * @param dataFormat
    * @return
    */
-  public DDF cmd2ddf(String command, DataFormat dataFormat) throws DDFException;
+  public DDF sql2ddf(String command, DataFormat dataFormat) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a DDF using the given {@link Schema},
@@ -60,7 +51,7 @@ public interface IHandleDataCommands {
    *          The dataSource (URI) of the data, e.g., jdbc://xxx
    * @return
    */
-  public DDF cmd2ddf(String command, Schema schema, String dataSource) throws DDFException;
+  public DDF sql2ddf(String command, Schema schema, String dataSource) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a DDF using the given {@link Schema},
@@ -72,7 +63,7 @@ public interface IHandleDataCommands {
    * @param dataFormat
    * @return
    */
-  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException;
+  public DDF sql2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a DDF using the given {@link Schema},
@@ -87,7 +78,7 @@ public interface IHandleDataCommands {
    * @param dataFormat
    * @return
    */
-  public DDF cmd2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
+  public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException;
 
 
 
@@ -98,7 +89,7 @@ public interface IHandleDataCommands {
    * 
    * @return the List<String> with loaded data content
    */
-  public List<String> cmd2txt(String command) throws DDFException;
+  public List<String> sql2txt(String command) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a List<String> using the given
@@ -110,5 +101,5 @@ public interface IHandleDataCommands {
    *          The dataSource (URI) of the data, e.g., jdbc://xxx
    * @return
    */
-  public List<String> cmd2txt(String command, String dataSource) throws DDFException;
+  public List<String> sql2txt(String command, String dataSource) throws DDFException;
 }
