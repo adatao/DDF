@@ -25,17 +25,13 @@ import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
-import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleDataCommands;
+import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
-<<<<<<< HEAD
 import com.adatao.spark.ddf.content.SparkMetaDataHandler;
 import com.adatao.spark.ddf.content.SparkRepresentationHandler;
-=======
->>>>>>> origin/master
 import com.adatao.spark.ddf.content.SparkSchemaHandler;
-import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
 
 /**

@@ -22,6 +22,12 @@ public class SparkRepresentationHandler extends ARepresentationHandler {
 
   }
 
+  @Override
+  protected Object getRepresentationImpl(Class<?> elementType) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   // static class Row2TablePartitionMapper extends Function<Row, TablePartition> {
   // public Row2TablePartitionMapper() {
   // super();

@@ -55,7 +55,7 @@ public class DDF implements IHandleDataCommands {
 
   private ADDFManager mManager;
 
-  public ADDFManager getDDFManager() {
+  public ADDFManager getManager() {
     return this.mManager;
   }
 
@@ -65,63 +65,63 @@ public class DDF implements IHandleDataCommands {
 
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
-    return this.getDDFManager().getBasicStatisticsComputer();
+    return this.getManager().getBasicStatisticsComputer();
   }
 
   public IHandleIndexing getIndexingHandler() {
-    return this.getDDFManager().getIndexingHandler();
+    return this.getManager().getIndexingHandler();
   }
 
   public IHandleJoins getJoinsHandler() {
-    return this.getDDFManager().getJoinsHandler();
+    return this.getManager().getJoinsHandler();
   }
 
   public IHandleMetaData getMetaDataHandler() {
-    return this.getDDFManager().getMetaDataHandler();
+    return this.getManager().getMetaDataHandler();
   }
 
   public IHandleMiscellany getMiscellanyHandler() {
-    return this.getDDFManager().getMiscellanyHandler();
+    return this.getManager().getMiscellanyHandler();
   }
 
   public IHandleMissingData getMissingDataHandler() {
-    return this.getDDFManager().getMissingDataHandler();
+    return this.getManager().getMissingDataHandler();
   }
 
   public IHandleMutability getMutabilityHandler() {
-    return this.getDDFManager().getMutabilityHandler();
+    return this.getManager().getMutabilityHandler();
   }
 
   public IHandleDataCommands getDataCommandHandler() {
-    return this.getDDFManager().getDataCommandHandler();
+    return this.getManager().getDataCommandHandler();
   }
 
   public IHandleRepresentations getRepresentationHandler() {
-    return this.getDDFManager().getRepresentationHandler();
+    return this.getManager().getRepresentationHandler();
   }
 
   public IHandleReshaping getReshapingHandler() {
-    return this.getDDFManager().getReshapingHandler();
+    return this.getManager().getReshapingHandler();
   }
 
   public IHandleSchema getSchemaHandler() {
-    return this.getDDFManager().getSchemaHandler();
+    return this.getManager().getSchemaHandler();
   }
 
   public IHandleStreamingData getStreamingDataHandler() {
-    return this.getDDFManager().getStreamingDataHandler();
+    return this.getManager().getStreamingDataHandler();
   }
 
   public IHandleTimeSeries getTimeSeriesHandler() {
-    return this.getDDFManager().getTimeSeriesHandler();
+    return this.getManager().getTimeSeriesHandler();
   }
 
   public IHandleViews getViewHandler() {
-    return this.getDDFManager().getViewHandler();
+    return this.getManager().getViewHandler();
   }
 
   public IRunAlgorithms getAlgorithmRunner() {
-    return this.getDDFManager().getAlgorithmRunner();
+    return this.getManager().getAlgorithmRunner();
   }
 
 

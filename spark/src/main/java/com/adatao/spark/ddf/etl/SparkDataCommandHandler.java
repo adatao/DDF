@@ -34,7 +34,7 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
   }
 
   private SharkContext getSharkContext() {
-    return ((SparkDDFManager) this.getDDFManager()).getSharkContext();
+    return ((SparkDDFManager) this.getManager()).getSharkContext();
   }
 
   // ////// IHandleDataCommands ////////
@@ -46,7 +46,7 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
     Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
 
     if (Strings.isNullOrEmpty(schema.getTableName())) {
-      schema.setTableName(this.getDDFManager().getSchemaHandler()
+      schema.setTableName(this.getManager().getSchemaHandler()
           .createTablename());
     }
     return new SparkDDF(rdd, Row.class, schema);
