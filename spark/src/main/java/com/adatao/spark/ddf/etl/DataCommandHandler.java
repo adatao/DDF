@@ -20,16 +20,16 @@ import com.adatao.ddf.etl.ADataCommandHandler;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
-import com.adatao.spark.ddf.content.SparkSchemaHandler;
+import com.adatao.spark.ddf.content.SchemaHandler;
 import com.google.common.base.Strings;
 
 /**
  * @author ctn
  * 
  */
-public class SparkDataCommandHandler extends ADataCommandHandler {
+public class DataCommandHandler extends ADataCommandHandler {
 
-  public SparkDataCommandHandler(ADDFManager theDDFManager) {
+  public DataCommandHandler(ADDFManager theDDFManager) {
     super(theDDFManager);
   }
 
@@ -43,7 +43,7 @@ public class SparkDataCommandHandler extends ADataCommandHandler {
   public DDF cmd2ddf(String command) throws DDFException {
     TableRDD tableRdd = this.getSharkContext().sql2rdd(command);
     RDD<Row> rdd = (RDD<Row>) tableRdd;
-    Schema schema = SparkSchemaHandler.getSchemaFrom(tableRdd.schema());
+    Schema schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
 
     if (Strings.isNullOrEmpty(schema.getTableName())) {
       schema.setTableName(this.getManager().getSchemaHandler()

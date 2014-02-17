@@ -30,9 +30,9 @@ import com.adatao.ddf.etl.IHandleDataCommands;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.spark.ddf.content.SparkMetaDataHandler;
-import com.adatao.spark.ddf.content.SparkSchemaHandler;
-import com.adatao.spark.ddf.etl.SparkDataCommandHandler;
+import com.adatao.spark.ddf.content.MetaDataHandler;
+import com.adatao.spark.ddf.content.SchemaHandler;
+import com.adatao.spark.ddf.etl.DataCommandHandler;
 
 /**
  * 
@@ -199,7 +199,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleMetaData createMetaDataHandler() {
-    return new SparkMetaDataHandler(this);
+    return new MetaDataHandler(this);
   }
 
   @Override
@@ -222,7 +222,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleDataCommands createDataCommandHandler() {
-    return new SparkDataCommandHandler(this);
+    return new DataCommandHandler(this);
   }
 
   @Override
@@ -238,7 +238,7 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IHandleSchema createSchemaHandler() {
-    return new SparkSchemaHandler(this);
+    return new SchemaHandler(this);
   }
 
   @Override
