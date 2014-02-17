@@ -36,17 +36,17 @@ def start_gateway_server():
     # connect to the gateway server
     gateway = JavaGateway(GatewayClient(port = port), auto_convert = False)
     java_import(gateway.jvm, "com.adatao.ddf.*")
-    java_import(gateway.jvm, "com.adatao.ddf.spark.*")
+    java_import(gateway.jvm, "com.adatao.spark.ddf.*")
     return gateway
 
 def compute_classpath(rootPath):
     
-    libJars = list_jarfiles(rootPath + "/core/target/scala-" + SCALA_VERSION + "/lib")
-    coreJars = list_jarfiles(rootPath + "/core/target/scala-" + SCALA_VERSION)
+    libJars = list_jarfiles(rootPath + "/spark/target/scala-" + SCALA_VERSION + "/lib")
+    hiveLibJars = list_jarfiles(rootPath + "/spark/lib/edu/berkeley/amplab")
     sparkJars = list_jarfiles(rootPath + "/spark/target/scala-" + SCALA_VERSION)
     py4jJars = list_jarfiles(rootPath + "/clients/python/lib")
 
-    return libJars + ":" + coreJars + ":" + sparkJars + ":" + py4jJars
+    return libJars + ":" + hiveLibJars + ":" + sparkJars + ":" + py4jJars + ":" + DDF_HOME + "/spark/conf/local"
 
 def list_jarfiles(path):
     jarFiles = [(path + "/" + f) for f in os.listdir(path) if f.endswith('.jar')]

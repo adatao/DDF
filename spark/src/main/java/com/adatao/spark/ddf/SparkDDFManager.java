@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.adatao.spark.ddf.content.MetaDataHandler;
 import com.adatao.spark.ddf.content.SparkRepresentationHandler;
 import org.apache.spark.SparkContext;
 
 import shark.SharkContext;
+import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 
 import com.adatao.ddf.ADDFManager;
@@ -26,13 +28,13 @@ import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
-import com.adatao.ddf.etl.IHandleDataCommands;
+import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.spark.ddf.content.MetaDataHandler;
+import com.adatao.spark.ddf.analytics.AlgorithmRunner;
 import com.adatao.spark.ddf.content.SchemaHandler;
-import com.adatao.spark.ddf.etl.DataCommandHandler;
+import com.adatao.spark.ddf.etl.SqlHandler;
 
 /**
  * 
@@ -120,7 +122,10 @@ public class SparkDDFManager extends ADDFManager {
     { "SPARK_APPNAME", "spark.appname" },
     { "SPARK_MASTER", "spark.master" }, 
     { "SPARK_HOME", "spark.home" }, 
-    { "SPARK_SERIALIZER", "spark.serializer" }, 
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "HIVE_HOME", "hive.home" },
+    { "HADOOP_HOME", "hadoop.home" },
     { "DDFSPARK_JAR", "ddfspark.jar" } 
     // @formatter:on
   };
@@ -168,7 +173,7 @@ public class SparkDDFManager extends ADDFManager {
 
       JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
           params.get("SPARK_HOME"), jobJars, params);
-      this.setSharkContext(jsc.sharkCtx());
+      this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
 
     } catch (Exception e) {
       throw new DDFException(e);
@@ -221,8 +226,8 @@ public class SparkDDFManager extends ADDFManager {
   }
 
   @Override
-  protected IHandleDataCommands createDataCommandHandler() {
-    return new DataCommandHandler(this);
+  protected IHandleSql createSqlHandler() {
+    return new SqlHandler(this);
   }
 
   @Override
@@ -261,52 +266,52 @@ public class SparkDDFManager extends ADDFManager {
 
   @Override
   protected IRunAlgorithms createAlgorithmRunner() {
-    // TODO Auto-generated method stub
-    return null;
+    return new AlgorithmRunner();
   }
 
 
 
-  // ////// IHandleDataCommands ////////
+  // ////// IHandleSql ////////
 
   @Override
-  public DDF cmd2ddf(String command) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command);
-  }
-
-  @Override
-  public DDF cmd2ddf(String command, Schema schema) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command, schema);
+  public DDF sql2ddf(String command) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command);
   }
 
   @Override
-  public DDF cmd2ddf(String command, DataFormat dataFormat) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command, dataFormat);
+  public DDF sql2ddf(String command, Schema schema) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema);
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, String dataSource) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command, schema, dataSource);
+  public DDF sql2ddf(String command, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, dataFormat);
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command, schema, dataFormat);
+  public DDF sql2ddf(String command, Schema schema, String dataSource) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataSource);
   }
 
   @Override
-  public DDF cmd2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
-    return this.getDataCommandHandler().cmd2ddf(command, schema, dataSource, dataFormat);
+  public DDF sql2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataFormat);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataSource, dataFormat);
   }
 
 
   @Override
-  public List<String> cmd2txt(String command) throws DDFException {
-    return this.getDataCommandHandler().cmd2txt(command);
+  public List<String> sql2txt(String command) throws DDFException {
+    return this.getSqlHandler().sql2txt(command);
   }
 
   @Override
-  public List<String> cmd2txt(String command, String dataSource) throws DDFException {
-    return this.getDataCommandHandler().cmd2txt(command, dataSource);
+  public List<String> sql2txt(String command, String dataSource) throws DDFException {
+    return this.getSqlHandler().sql2txt(command, dataSource);
   }
+  
 }

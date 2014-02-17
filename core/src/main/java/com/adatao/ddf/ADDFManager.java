@@ -26,7 +26,7 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleDataCommands;
+import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
@@ -107,7 +107,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   private IHandleMiscellany mMiscellanyHandler;
   private IHandleMissingData mMissingDataHandler;
   private IHandleMutability mMutabilityHandler;
-  private IHandleDataCommands mDataCommandHandler;
+  private IHandleSql mSqlHandler;
   private IHandleRepresentations mRepresentationHandler;
   private IHandleReshaping mReshapingHandler;
   private IHandleSchema mSchemaHandler;
@@ -215,18 +215,18 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   protected abstract IHandleMutability createMutabilityHandler();
 
 
-  public IHandleDataCommands getDataCommandHandler() {
-    if (mDataCommandHandler == null) mDataCommandHandler = this.createDataCommandHandler();
-    if (mDataCommandHandler == null) throw new UnsupportedOperationException();
-    else return mDataCommandHandler;
+  public IHandleSql getSqlHandler() {
+    if (mSqlHandler == null) mSqlHandler = this.createSqlHandler();
+    if (mSqlHandler == null) throw new UnsupportedOperationException();
+    else return mSqlHandler;
   }
 
-  public ADDFManager setDataCommandHandler(IHandleDataCommands ADataCommandHandler) {
-    this.mDataCommandHandler = ADataCommandHandler;
+  public ADDFManager setSqlHandler(IHandleSql ASqlHandler) {
+    this.mSqlHandler = ASqlHandler;
     return this;
   }
 
-  protected abstract IHandleDataCommands createDataCommandHandler();
+  protected abstract IHandleSql createSqlHandler();
 
 
   public IHandleRepresentations getRepresentationHandler() {
@@ -344,7 +344,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     .setMiscellanyHandler(null)
     .setMissingDataHandler(null)
     .setMutabilityHandler(null)
-    .setDataCommandHandler(null)
+    .setSqlHandler(null)
     .setRepresentationHandler(null)
     .setReshapingHandler(null)
     .setSchemaHandler(null)

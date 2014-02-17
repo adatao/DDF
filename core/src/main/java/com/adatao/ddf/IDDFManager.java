@@ -1,6 +1,6 @@
 package com.adatao.ddf;
 
-import com.adatao.ddf.etl.IHandleDataCommands;
+import com.adatao.ddf.etl.IHandleSql;;
 
 
 /**
@@ -8,6 +8,6 @@ import com.adatao.ddf.etl.IHandleDataCommands;
  * @author ctn
  * 
  */
-public interface IDDFManager extends IHandleDataCommands {
+public interface IDDFManager extends IHandleSql {
   public void shutdown();
 }
