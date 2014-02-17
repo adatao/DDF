@@ -253,6 +253,7 @@ object RootBuild extends Build {
               <version>2.15</version>
               <configuration>
                 <reuseForks>false</reuseForks>
+                <enableAssertions>false</enableAssertions>
                 <environmentVariables>
 					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
 				</environmentVariables>
@@ -270,7 +271,6 @@ object RootBuild extends Build {
                   </additionalClasspathElements>
                 <includes>
                   <include>**/*.java</include>
-                  <include>**/*.scala</include>
                 </includes>
               </configuration>
             </plugin>

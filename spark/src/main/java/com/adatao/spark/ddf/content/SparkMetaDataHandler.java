@@ -22,8 +22,10 @@ public class SparkMetaDataHandler extends AMetaDataHandler {
   @Override
   protected long getNumRowsImpl() {
     String tableName = this.getDDFManager().getSchemaHandler().getTableName();
+    logger.debug("get NumRows Impl called");
+    tableName = "airline";
     try {
-      List<String> rs = this.getDDFManager().getDataCommandHandler()
+      List<String> rs = this.getDDFManager()
           .cmd2txt("select count(*) from " + tableName);
       return Long.parseLong(rs.get(0));
     } catch (DDFException e) {
