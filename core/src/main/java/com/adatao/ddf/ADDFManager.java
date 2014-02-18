@@ -16,6 +16,14 @@
  */
 package com.adatao.ddf;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -25,9 +33,12 @@ import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -67,15 +78,45 @@ import com.adatao.ddf.util.PhantomReference;
  * 
  */
 public abstract class ADDFManager implements IDDFManager, ISupportPhantomReference {
+  private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   public ADDFManager() {
+    this.initialize(null, null);
   }
 
   public ADDFManager(DDF theDDF) {
+    this.initialize(theDDF, null);
+  }
+
+  public ADDFManager(DDF theDDF, Map<String, String> theConfig) {
+    this.initialize(theDDF, theConfig);
+  }
+
+  private void initialize(DDF theDDF, Map<String, String> theConfig) {
     this.setDDF(theDDF);
+
+    if (theConfig == null) {
+      theConfig = DDF.getConfig().getSection(DDF.getDDFEngine());
+    }
+    this.setConfig(theConfig);
 
     PhantomReference.register(this);
   }
+
+  private Map<String, String> mConfig;
+
+  private String safeToLower(String s) {
+    return s == null ? null : s.toLowerCase();
+  }
+
+  protected String getConfigValue(String key) {
+    return mConfig == null ? null : mConfig.get(safeToLower(key));
+  }
+
+  protected void setConfig(Map<String, String> theConfig) {
+    this.mConfig = theConfig;
+  }
+
 
 
   private DDF mDDF;
@@ -99,6 +140,36 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
+
+
+  /**
+   * Instantiate a new {@link ADDFFunctionalGroupHandler} given its class name
+   * 
+   * @param className
+   * @return
+   * @throws ClassNotFoundException
+   * @throws NoSuchMethodException
+   * @throws SecurityException
+   * @throws InvocationTargetException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   * @throws InstantiationException
+   */
+  @SuppressWarnings("unchecked")
+  protected <I> I newHandler(Class<I> theInterface) {
+    if (theInterface == null) return null;
+    String className = this.getConfigValue(theInterface.getSimpleName());
+
+    try {
+      Class<?> clazz = Class.forName(className);
+      Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
+          .getConstructor(new Class<?>[] { ADDFManager.class });
+      return cons != null ? (I) cons.newInstance(this) : null;
+    } catch (Exception e) {
+      LOG.error(String.format("Cannot instantiate handler for %s/%s", theInterface.getSimpleName(), className), e);
+      return null;
+    }
+  }
 
   private IComputeBasicStatistics mBasicStatisticsComputer;
   private IHandleIndexing mIndexingHandler;
@@ -128,8 +199,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IComputeBasicStatistics createBasicStatisticsComputer();
-
+  protected IComputeBasicStatistics createBasicStatisticsComputer() {
+    return newHandler(IComputeBasicStatistics.class);
+  }
 
   public IHandleIndexing getIndexingHandler() {
     if (mIndexingHandler == null) mIndexingHandler = this.createIndexingHandler();
@@ -142,7 +214,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleIndexing createIndexingHandler();
+  protected IHandleIndexing createIndexingHandler() {
+    return newHandler(IHandleIndexing.class);
+  }
 
 
   public IHandleJoins getJoinsHandler() {
@@ -156,7 +230,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleJoins createJoinsHandler();
+  protected IHandleJoins createJoinsHandler() {
+    return newHandler(IHandleJoins.class);
+  }
 
 
   public IHandleMetaData getMetaDataHandler() {
@@ -170,7 +246,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleMetaData createMetaDataHandler();
+  protected IHandleMetaData createMetaDataHandler() {
+    return newHandler(IHandleMetaData.class);
+  }
 
 
   public IHandleMiscellany getMiscellanyHandler() {
@@ -184,7 +262,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleMiscellany createMiscellanyHandler();
+  protected IHandleMiscellany createMiscellanyHandler() {
+    return newHandler(IHandleMiscellany.class);
+  }
 
 
   public IHandleMissingData getMissingDataHandler() {
@@ -198,7 +278,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleMissingData createMissingDataHandler();
+  protected IHandleMissingData createMissingDataHandler() {
+    return newHandler(IHandleMissingData.class);
+  }
 
 
   public IHandleMutability getMutabilityHandler() {
@@ -212,7 +294,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleMutability createMutabilityHandler();
+  protected IHandleMutability createMutabilityHandler() {
+    return newHandler(IHandleMutability.class);
+  }
 
 
   public IHandleSql getSqlHandler() {
@@ -226,8 +310,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleSql createSqlHandler();
-
+  protected IHandleSql createSqlHandler() {
+    return newHandler(IHandleSql.class);
+  }
 
   public IHandleRepresentations getRepresentationHandler() {
     if (mRepresentationHandler == null) mRepresentationHandler = this.createRepresentationHandler();
@@ -240,7 +325,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleRepresentations createRepresentationHandler();
+  protected IHandleRepresentations createRepresentationHandler() {
+    return newHandler(IHandleRepresentations.class);
+  }
 
 
   public IHandleReshaping getReshapingHandler() {
@@ -254,7 +341,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleReshaping createReshapingHandler();
+  protected IHandleReshaping createReshapingHandler() {
+    return newHandler(IHandleReshaping.class);
+  }
 
 
   public IHandleSchema getSchemaHandler() {
@@ -268,7 +357,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleSchema createSchemaHandler();
+  protected IHandleSchema createSchemaHandler() {
+    return newHandler(IHandleSchema.class);
+  }
 
 
   public IHandleStreamingData getStreamingDataHandler() {
@@ -282,7 +373,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleStreamingData createStreamingDataHandler();
+  protected IHandleStreamingData createStreamingDataHandler() {
+    return newHandler(IHandleStreamingData.class);
+  }
 
 
   public IHandleTimeSeries getTimeSeriesHandler() {
@@ -296,7 +389,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleTimeSeries createTimeSeriesHandler();
+  protected IHandleTimeSeries createTimeSeriesHandler() {
+    return newHandler(IHandleTimeSeries.class);
+  }
 
 
   public IHandleViews getViewHandler() {
@@ -310,8 +405,9 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IHandleViews createViewHandler();
-
+  protected IHandleViews createViewHandler() {
+    return newHandler(IHandleViews.class);
+  }
 
   public IRunAlgorithms getAlgorithmRunner() {
     if (mAlgorithmRunner == null) mAlgorithmRunner = this.createAlgorithmRunner();
@@ -324,7 +420,55 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
-  protected abstract IRunAlgorithms createAlgorithmRunner();
+  protected IRunAlgorithms createAlgorithmRunner() {
+    return newHandler(IRunAlgorithms.class);
+  }
+
+
+
+  // ////// IHandleSql ////////
+
+  @Override
+  public DDF sql2ddf(String command) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, Schema schema) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, dataFormat);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, Schema schema, String dataSource) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataSource);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataFormat);
+  }
+
+  @Override
+  public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
+    return this.getSqlHandler().sql2ddf(command, schema, dataSource, dataFormat);
+  }
+
+
+  @Override
+  public List<String> sql2txt(String command) throws DDFException {
+    return this.getSqlHandler().sql2txt(command);
+  }
+
+  @Override
+  public List<String> sql2txt(String command, String dataSource) throws DDFException {
+    return this.getSqlHandler().sql2txt(command, dataSource);
+  }
+
 
 
   /**
