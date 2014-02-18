@@ -15,9 +15,15 @@ import com.adatao.ddf.DDF;
 public class SparkDDFManagerTests {
 
   @Test
+  public void testDDFConfig() throws Exception {
+    DDF.setDDFEngine("spark");
+    Assert.assertEquals("spark", DDF.getDDFEngine());
+  }
+
+  @Test
   @Ignore
   public void testLongSparkDDFManagerRetrieval() throws DDFException {
-    // DDF.setDDFEngine("spark"); // optional, since the default engine is "spark"
+    DDF.setDDFEngine("spark");
 
     Map<String, String> params = ((SparkDDFManager) DDF.getDefaultManager()).getSparkContextParams();
     System.out.println(System.getProperty("spark.serializer"));
@@ -27,8 +33,9 @@ public class SparkDDFManagerTests {
   }
 
   @Test
+  @Ignore
   public void testSimpleSparkDDFManager() throws DDFException {
-    // DDF.setDDFEngine("spark"); // optional, since the default engine is "spark"
+    DDF.setDDFEngine("spark");
 
     // Now you can create DDF
     DDF.sql2txt("drop table if exists airline");
