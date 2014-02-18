@@ -16,9 +16,17 @@
  */
 package com.adatao.ddf;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IAlgorithm;
@@ -31,6 +39,7 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.DataFormat;
 
 
 /**
@@ -49,6 +58,26 @@ import com.adatao.ddf.content.Schema;
  */
 public class DDF {
 
+  private static final Logger sLOG = LoggerFactory.getLogger(DDF.class);
+
+  static {
+    try {
+      initialize();
+    } catch (Exception e) {
+      sLOG.error("Error during DDF initialization", e);
+    }
+  }
+
+  private static void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    loadConfig();
+  }
+
+  public static void shutdown() {
+    getDefaultManager().shutdown();
+  }
+
+
+
   private ADDFManager mManager;
 
   public ADDFManager getManager() {
@@ -59,6 +88,151 @@ public class DDF {
     this.mManager = aDDFManager;
   }
 
+
+  private static ADDFManager sDefaultManager;
+
+  public static ADDFManager getDefaultManager() {
+    return sDefaultManager;
+  }
+
+  protected static void setDefaultManager(ADDFManager aDDFManager) {
+    sDefaultManager = aDDFManager;
+  }
+
+
+
+  /**
+   * Stores DDF configuration information from ddf.cfg
+   */
+  protected static class Config {
+
+    public static class Section {
+      private Map<String, String> mEntries = new HashMap<String, String>();
+
+      public String get(String key) {
+        return mEntries.get(safeToLower(key));
+      }
+
+      public void set(String key, String value) {
+        mEntries.put(safeToLower(key), value);
+      }
+
+      public void remove(String key) {
+        mEntries.remove(safeToLower(key));
+      }
+
+      public void clear() {
+        mEntries.clear();
+      }
+    }
+
+    private Map<String, Section> mSections;
+
+    public Config() {
+      this.reset();
+    }
+
+    private static String safeToLower(String s) {
+      return s == null ? null : s.toLowerCase();
+    }
+
+    public String get(String sectionName, String key) {
+      Section section = this.getSection(safeToLower(sectionName));
+      return section == null ? null : section.get(safeToLower(sectionName));
+    }
+
+    public void set(String sectionName, String key, String value) {
+      Section section = this.getSection(safeToLower(sectionName));
+      section.set(safeToLower(sectionName), value);
+    }
+
+    public void remove(String sectionName, String key) {
+      Section section = this.getSection(safeToLower(sectionName));
+      if (section != null) section.remove(safeToLower(sectionName));
+    }
+
+    public Section getSection(String sectionName) {
+      Section section = mSections.get(safeToLower(sectionName));
+
+      if (section == null) {
+        section = new Section();
+        mSections.put(safeToLower(sectionName), section);
+      }
+
+      return section;
+    }
+
+    public void removeSection(String sectionName) {
+      this.getSection(sectionName).clear();
+      mSections.remove(safeToLower(sectionName));
+    }
+
+    public void reset() {
+      for (Section section : mSections.values()) {
+        section.clear();
+      }
+      mSections = new HashMap<String, Section>();
+    }
+  }
+
+  private static final Config sConfig = new Config();
+
+  protected static Config getConfig() {
+    return sConfig;
+  }
+
+  public static final String DEFAULT_DDF_ENGINE = "spark";
+
+  private static String sDDFEngine = DEFAULT_DDF_ENGINE;
+
+  /**
+   * Returns the currently set global DDF engine, e.g., "spark".
+   * <p>
+   * The global DDF engine is the one that will be used when static DDF methods are invoked, e.g.,
+   * {@link DDF#sql2ddf(String)}. This makes it convenient for users who are only using one DDF
+   * engine at a time, which should be 90% of all use cases.
+   * <p>
+   * It is still possible to use multiple DDF engines simultaneously, by invoking individual
+   * instances of {@link IDDFManager}, e.g., SparkDDFManager.
+   * 
+   * @return
+   */
+  public static String getDDFEngine() {
+    return sDDFEngine;
+  }
+
+  /**
+   * Sets the desired global DDF engine, e.g., "spark"
+   * 
+   * @param ddfEngine
+   */
+  public static void setDDFEngine(String ddfEngine) {
+    sDDFEngine = ddfEngine;
+  }
+
+  /**
+   * Load configuration from ddf.conf
+   * 
+   * @throws ClassNotFoundException
+   * @throws IllegalAccessException
+   * @throws InstantiationException
+   */
+  public static void loadConfig() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    // Temporary code for now; this should really be in ddf.cfg
+    String ddfEngine = getDDFEngine();
+    sConfig.set(ddfEngine, "DDF", "com.adatao.spark.ddf.SparkDDF");
+    sConfig.set(ddfEngine, "DDFManager", "com.adatao.spark.ddf.SparkDDFManager");
+    sConfig.set(ddfEngine, "IHandleRepresentations", "com.adatao.spark.ddf.RepresentationHandler");
+    sConfig.set(ddfEngine, "IHandleViews", "com.adatao.spark.ddf.ViewHandler");
+    sConfig.set(ddfEngine, "IHandleMetaData", "com.adatao.spark.ddf.MetaDataHandler");
+    sConfig.set(ddfEngine, "IHandleSchema", "com.adatao.spark.ddf.SchemaHandler");
+    sConfig.set(ddfEngine, "IHandleSql", "com.adatao.spark.ddf.SqlHandler");
+    sConfig.set(ddfEngine, "IRunAlgorithms", "com.adatao.spark.ddf.AlgorithmRunner");
+
+
+    ADDFManager defaultManager = (ADDFManager) Class.forName(sConfig.get(ddfEngine, "DDFManager")).newInstance();
+    setDefaultManager(defaultManager);
+  }
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
     return this.getManager().getBasicStatisticsComputer();
@@ -143,5 +317,42 @@ public class DDF {
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
     return this.getAlgorithmRunner().run(algorithm, this);
+  }
+
+
+
+  // ////// Static convenient methods for IHandleSql ////////
+
+  public static DDF sql2ddf(String command) throws DDFException {
+    return getDefaultManager().sql2ddf(command);
+  }
+
+  public static DDF sql2ddf(String command, Schema schema) throws DDFException {
+    return getDefaultManager().sql2ddf(command, schema);
+  }
+
+  public static DDF sql2ddf(String command, DataFormat dataFormat) throws DDFException {
+    return getDefaultManager().sql2ddf(command, dataFormat);
+  }
+
+  public static DDF sql2ddf(String command, Schema schema, String dataSource) throws DDFException {
+    return getDefaultManager().sql2ddf(command, schema, dataSource);
+  }
+
+  public static DDF sql2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
+    return getDefaultManager().sql2ddf(command, schema, dataFormat);
+  }
+
+  public static DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat)
+      throws DDFException {
+    return getDefaultManager().sql2ddf(command, schema, dataSource, dataFormat);
+  }
+
+  public static List<String> sql2txt(String command) throws DDFException {
+    return getDefaultManager().sql2txt(command);
+  }
+
+  public static List<String> sql2txt(String command, String dataSource) throws DDFException {
+    return getDefaultManager().sql2txt(command, dataSource);
   }
 }
