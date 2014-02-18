@@ -106,52 +106,72 @@ public class DDF {
    */
   protected static class Config {
 
-    private Map<String, Map<String, String>> sSections;
+    public static class Section {
+      private Map<String, String> mEntries = new HashMap<String, String>();
+
+      public String get(String key) {
+        return mEntries.get(safeToLower(key));
+      }
+
+      public void set(String key, String value) {
+        mEntries.put(safeToLower(key), value);
+      }
+
+      public void remove(String key) {
+        mEntries.remove(safeToLower(key));
+      }
+
+      public void clear() {
+        mEntries.clear();
+      }
+    }
+
+    private Map<String, Section> mSections;
 
     public Config() {
       this.reset();
     }
 
-    private String safeToLower(String s) {
+    private static String safeToLower(String s) {
       return s == null ? null : s.toLowerCase();
     }
 
     public String get(String sectionName, String key) {
-      Map<String, String> section = this.getSection(safeToLower(sectionName));
+      Section section = this.getSection(safeToLower(sectionName));
       return section == null ? null : section.get(safeToLower(sectionName));
     }
 
     public void set(String sectionName, String key, String value) {
-      Map<String, String> section = this.getOrCreateSection(safeToLower(sectionName));
-      section.put(safeToLower(sectionName), value);
+      Section section = this.getSection(safeToLower(sectionName));
+      section.set(safeToLower(sectionName), value);
     }
 
     public void remove(String sectionName, String key) {
-      Map<String, String> section = this.getSection(safeToLower(sectionName));
+      Section section = this.getSection(safeToLower(sectionName));
       if (section != null) section.remove(safeToLower(sectionName));
     }
 
-    public Map<String, String> getSection(String sectionName) {
-      return sSections.get(safeToLower(sectionName));
-    }
-
-    public Map<String, String> getOrCreateSection(String sectionName) {
-      Map<String, String> section = this.getSection(safeToLower(sectionName));
+    public Section getSection(String sectionName) {
+      Section section = mSections.get(safeToLower(sectionName));
 
       if (section == null) {
-        section = new HashMap<String, String>();
-        sSections.put(safeToLower(sectionName), section);
+        section = new Section();
+        mSections.put(safeToLower(sectionName), section);
       }
 
       return section;
     }
 
     public void removeSection(String sectionName) {
-      sSections.remove(safeToLower(sectionName));
+      this.getSection(sectionName).clear();
+      mSections.remove(safeToLower(sectionName));
     }
 
     public void reset() {
-      sSections = new HashMap<String, Map<String, String>>();
+      for (Section section : mSections.values()) {
+        section.clear();
+      }
+      mSections = new HashMap<String, Section>();
     }
   }
 
@@ -165,10 +185,27 @@ public class DDF {
 
   private static String sDDFEngine = DEFAULT_DDF_ENGINE;
 
+  /**
+   * Returns the currently set global DDF engine, e.g., "spark".
+   * <p>
+   * The global DDF engine is the one that will be used when static DDF methods are invoked, e.g.,
+   * {@link DDF#sql2ddf(String)}. This makes it convenient for users who are only using one DDF
+   * engine at a time, which should be 90% of all use cases.
+   * <p>
+   * It is still possible to use multiple DDF engines simultaneously, by invoking individual
+   * instances of {@link IDDFManager}, e.g., SparkDDFManager.
+   * 
+   * @return
+   */
   public static String getDDFEngine() {
     return sDDFEngine;
   }
 
+  /**
+   * Sets the desired global DDF engine, e.g., "spark"
+   * 
+   * @param ddfEngine
+   */
   public static void setDDFEngine(String ddfEngine) {
     sDDFEngine = ddfEngine;
   }

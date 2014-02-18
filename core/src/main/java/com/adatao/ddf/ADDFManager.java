@@ -19,11 +19,11 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adatao.ddf.DDF.Config;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -88,11 +88,11 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     this.initialize(theDDF, null);
   }
 
-  public ADDFManager(DDF theDDF, Map<String, String> theConfig) {
+  public ADDFManager(DDF theDDF, Config.Section theConfig) {
     this.initialize(theDDF, theConfig);
   }
 
-  private void initialize(DDF theDDF, Map<String, String> theConfig) {
+  private void initialize(DDF theDDF, Config.Section theConfig) {
     this.setDDF(theDDF);
 
     if (theConfig == null) {
@@ -103,7 +103,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     PhantomReference.register(this);
   }
 
-  private Map<String, String> mConfig;
+  private Config.Section mConfig;
 
   private String safeToLower(String s) {
     return s == null ? null : s.toLowerCase();
@@ -113,7 +113,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return mConfig == null ? null : mConfig.get(safeToLower(key));
   }
 
-  protected void setConfig(Map<String, String> theConfig) {
+  protected void setConfig(Config.Section theConfig) {
     this.mConfig = theConfig;
   }
 
