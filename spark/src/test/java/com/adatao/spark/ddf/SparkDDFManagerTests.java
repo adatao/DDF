@@ -17,7 +17,7 @@ public class SparkDDFManagerTests {
   @Test
   @Ignore
   public void testLongSparkDDFManagerRetrieval() throws DDFException {
-    DDF.setDDFEngine("spark");
+    // DDF.setDDFEngine("spark"); // optional, since the default engine is "spark"
 
     Map<String, String> params = ((SparkDDFManager) DDF.getDefaultManager()).getSparkContextParams();
     System.out.println(System.getProperty("spark.serializer"));
@@ -28,7 +28,7 @@ public class SparkDDFManagerTests {
 
   @Test
   public void testSimpleSparkDDFManager() throws DDFException {
-    DDF.setDDFEngine("spark");
+    // DDF.setDDFEngine("spark"); // optional, since the default engine is "spark"
 
     // Now you can create DDF
     DDF.sql2txt("drop table if exists airline");
