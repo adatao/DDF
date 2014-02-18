@@ -20,7 +20,12 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class SparkDDFManager extends ADDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
+  private static final String DEFAULT_SPARK_MASTER = "local[4]";
 
+
+  public String getDDFEngine() {
+    return "spark";
+  }
 
   private SparkContext mSparkContext;
 
@@ -128,7 +133,8 @@ public class SparkDDFManager extends ADDFManager {
       if (value != null && value.length() > 0) params.put(varPair[0], value);
     }
 
-    // Some miscellaneous stuff specific to us
+    // Some well-known defaults
+    if (!params.containsKey("SPARK_MASTER")) params.put("SPARK_MASTER", DEFAULT_SPARK_MASTER);
     if (!params.containsKey("SPARK_APPNAME")) params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
 
     return params;
@@ -145,7 +151,8 @@ public class SparkDDFManager extends ADDFManager {
   private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
     try {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
-      String[] jobJars = params.get("DDFSPARK_JAR").split(",");
+      String ddfSparkJar = params.get("DDFSPARK_JAR");
+      String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
       JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
           params.get("SPARK_HOME"), jobJars, params);
@@ -157,7 +164,5 @@ public class SparkDDFManager extends ADDFManager {
 
     return this.getSparkContext();
   }
-
-
 
 }
