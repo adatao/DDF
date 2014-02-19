@@ -17,7 +17,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  * @author ctn
  * 
  */
-class DDFConfig {
+public class DDFConfig {
 
   /**
    * Stores DDF configuration information from ddf.cfg

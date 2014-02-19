@@ -25,6 +25,7 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.ASummary;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IAlgorithm;
@@ -248,6 +249,11 @@ public class DDF {
     return this.getSchemaHandler().getNumColumns();
   }
 
+  // Calculate summary statistics of the DDF
+  public ASummary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+  
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
     return this.getAlgorithmRunner().run(algorithm, this);
