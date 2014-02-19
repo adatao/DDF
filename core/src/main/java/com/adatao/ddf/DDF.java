@@ -16,9 +16,7 @@
  */
 package com.adatao.ddf;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.adatao.ddf.content.*;
 import org.slf4j.Logger;
@@ -53,16 +51,20 @@ public class DDF {
 
   private static final Logger sLOG = LoggerFactory.getLogger(DDF.class);
 
-  static {
-    try {
-      initialize();
-    } catch (Exception e) {
-      sLOG.error("Error during DDF initialization", e);
-    }
+  // static {
+  // try {
+  // initialize();
+  // } catch (Exception e) {
+  // sLOG.error("Error during DDF initialization", e);
+  // }
+  // }
+
+  public static void initialize() throws DDFException {
+    initialize(DEFAULT_DDF_ENGINE);
   }
 
-  private static void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    loadConfig();
+  public static void initialize(String ddfEngine) throws DDFException {
+    setDDFEngine(ddfEngine);
   }
 
   public static void shutdown() {
@@ -93,86 +95,20 @@ public class DDF {
   }
 
 
+  private static DDFConfig.Config sConfig;
 
-  /**
-   * Stores DDF configuration information from ddf.cfg
-   */
-  protected static class Config {
-
-    public static class Section {
-      private Map<String, String> mEntries = new HashMap<String, String>();
-
-      public String get(String key) {
-        return mEntries.get(safeToLower(key));
-      }
-
-      public void set(String key, String value) {
-        mEntries.put(safeToLower(key), value);
-      }
-
-      public void remove(String key) {
-        mEntries.remove(safeToLower(key));
-      }
-
-      public void clear() {
-        mEntries.clear();
-      }
+  protected static DDFConfig.Config getConfig() {
+    if (sConfig == null) try {
+      initialize();
+    } catch (Exception e) {
+      sLOG.error("Unable to initialize DDF", e);
     }
 
-    private Map<String, Section> mSections;
-
-    public Config() {
-      this.reset();
-    }
-
-    private static String safeToLower(String s) {
-      return s == null ? null : s.toLowerCase();
-    }
-
-    public String get(String sectionName, String key) {
-      Section section = this.getSection(safeToLower(sectionName));
-      return section == null ? null : section.get(safeToLower(sectionName));
-    }
-
-    public void set(String sectionName, String key, String value) {
-      Section section = this.getSection(safeToLower(sectionName));
-      section.set(safeToLower(sectionName), value);
-    }
-
-    public void remove(String sectionName, String key) {
-      Section section = this.getSection(safeToLower(sectionName));
-      if (section != null) section.remove(safeToLower(sectionName));
-    }
-
-    public Section getSection(String sectionName) {
-      Section section = mSections.get(safeToLower(sectionName));
-
-      if (section == null) {
-        section = new Section();
-        mSections.put(safeToLower(sectionName), section);
-      }
-
-      return section;
-    }
-
-    public void removeSection(String sectionName) {
-      this.getSection(sectionName).clear();
-      mSections.remove(safeToLower(sectionName));
-    }
-
-    public void reset() {
-      for (Section section : mSections.values()) {
-        section.clear();
-      }
-      mSections = new HashMap<String, Section>();
-    }
-  }
-
-  private static final Config sConfig = new Config();
-
-  protected static Config getConfig() {
     return sConfig;
   }
+
+
+  public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
 
   public static final String DEFAULT_DDF_ENGINE = "spark";
 
@@ -198,34 +134,32 @@ public class DDF {
    * Sets the desired global DDF engine, e.g., "spark"
    * 
    * @param ddfEngine
+   * @throws DDFException
    */
-  public static void setDDFEngine(String ddfEngine) {
+  public static void setDDFEngine(String ddfEngine) throws DDFException {
     sDDFEngine = ddfEngine;
+
+    try {
+      // Also load/reload the ddf.ini file
+      if (sConfig != null) sConfig.reset();
+      sConfig = DDFConfig.loadConfig();
+
+      // And set the global default DDF manager corresponding to the ddfEngine we're given
+      String className = sConfig.get(ddfEngine).get("DDFManager");
+      if (className == null) throw new DDFException("Cannot locate DDFManager class name for engine " + ddfEngine);
+
+      Class<?> managerClass = Class.forName(className);
+      if (managerClass == null) throw new DDFException("Cannot locate class for name " + className);
+
+      ADDFManager defaultManager = (ADDFManager) managerClass.newInstance();
+      setDefaultManager(defaultManager);
+
+    } catch (Exception e) {
+      throw new DDFException("Error in setting DDF Engine", e);
+    }
   }
 
-  /**
-   * Load configuration from ddf.conf
-   * 
-   * @throws ClassNotFoundException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
-   */
-  public static void loadConfig() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    // Temporary code for now; this should really be in ddf.cfg
-    String ddfEngine = getDDFEngine();
-    sConfig.set(ddfEngine, "DDF", "com.adatao.spark.ddf.SparkDDF");
-    sConfig.set(ddfEngine, "DDFManager", "com.adatao.spark.ddf.SparkDDFManager");
-    sConfig.set(ddfEngine, "IHandleRepresentations", "com.adatao.spark.ddf.RepresentationHandler");
-    sConfig.set(ddfEngine, "IHandleViews", "com.adatao.spark.ddf.ViewHandler");
-    sConfig.set(ddfEngine, "IHandleMetaData", "com.adatao.spark.ddf.MetaDataHandler");
-    sConfig.set(ddfEngine, "IHandleSchema", "com.adatao.spark.ddf.SchemaHandler");
-    sConfig.set(ddfEngine, "IHandleSql", "com.adatao.spark.ddf.SqlHandler");
-    sConfig.set(ddfEngine, "IRunAlgorithms", "com.adatao.spark.ddf.AlgorithmRunner");
-
-
-    ADDFManager defaultManager = (ADDFManager) Class.forName(sConfig.get(ddfEngine, "DDFManager")).newInstance();
-    setDefaultManager(defaultManager);
-  }
+  // ////// ADDFManager delegates ////////
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
     return this.getManager().getBasicStatisticsComputer();

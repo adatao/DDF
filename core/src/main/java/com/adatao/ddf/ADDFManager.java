@@ -24,7 +24,7 @@ import com.adatao.ddf.content.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.DDF.Config;
+import com.adatao.ddf.DDFConfig.Config;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -74,42 +74,30 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   public ADDFManager() {
-    this.initialize(null, null);
+    this.initialize(null);
   }
 
   public ADDFManager(DDF theDDF) {
-    this.initialize(theDDF, null);
+    this.initialize(theDDF);
   }
 
-  public ADDFManager(DDF theDDF, Config.Section theConfig) {
-    this.initialize(theDDF, theConfig);
-  }
-
-  private void initialize(DDF theDDF, Config.Section theConfig) {
+  private void initialize(DDF theDDF) {
     this.setDDF(theDDF);
-
-    if (theConfig == null) {
-      theConfig = DDF.getConfig().getSection(DDF.getDDFEngine());
-    }
-    this.setConfig(theConfig);
-
     PhantomReference.register(this);
   }
 
-  private Config.Section mConfig;
 
-  private String safeToLower(String s) {
-    return s == null ? null : s.toLowerCase();
-  }
+  /**
+   * Returns the DDF engine name of a particular implementation, e.g., "spark"
+   * 
+   * @return
+   */
+  public abstract String getDDFEngine();
 
   protected String getConfigValue(String key) {
-    return mConfig == null ? null : mConfig.get(safeToLower(key));
+    Config.Section section = DDF.getConfig().get(this.getDDFEngine());
+    return section == null ? null : section.get(key);
   }
-
-  protected void setConfig(Config.Section theConfig) {
-    this.mConfig = theConfig;
-  }
-
 
 
   private DDF mDDF;
@@ -133,6 +121,34 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return this;
   }
 
+
+  /**
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF". Simultaneously, also
+   * instantiate a new DDFManger of the type specified in ddf.ini as "DDFManager". Then, the two are
+   * linked to each other.
+   * 
+   * @return the newly instantiated DDF
+   * 
+   * @throws DDFException
+   */
+  protected DDF newDDF() throws DDFException {
+    try {
+      DDF ddf = (DDF) Class.forName(this.getConfigValue("DDF")).newInstance();
+      if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + this.getConfigValue("DDF"));
+
+      ADDFManager ddfManager = (ADDFManager) Class.forName(this.getConfigValue("DDFManager")).newInstance();
+      if (ddfManager == null) throw new DDFException("Cannot instantiate a new instance of "
+          + this.getConfigValue("DDFManager"));
+
+      ddf.setManager(ddfManager);
+      ddfManager.setDDF(ddf);
+
+      return ddf;
+
+    } catch (Exception e) {
+      throw new DDFException("While instantiating a new DDF", e);
+    }
+  }
 
 
   /**
