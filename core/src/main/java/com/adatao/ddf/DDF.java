@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.adatao.ddf.content.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +32,6 @@ import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IRunAlgorithms;
-import com.adatao.ddf.content.IHandleIndexing;
-import com.adatao.ddf.content.IHandleMetaData;
-import com.adatao.ddf.content.IHandleMissingData;
-import com.adatao.ddf.content.IHandleMutability;
-import com.adatao.ddf.content.IHandleRepresentations;
-import com.adatao.ddf.content.IHandleSchema;
-import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 
 
@@ -354,5 +347,45 @@ public class DDF {
 
   public static List<String> sql2txt(String command, String dataSource) throws DDFException {
     return getDefaultManager().sql2txt(command, dataSource);
+  }
+
+  /**
+   * Get factor for a column
+   * @param columnID
+   * @return list of levels for specified column
+   */
+  public List<String> factorize(int columnID) {
+    AFactorSupporter.FactorColumnInfo factor= getManager().getFactorSupporter().factorize(columnID);
+
+    //IMPLEMENTATION HERE
+    return null;
+  }
+
+  /**
+   * Get factor for list of columns
+   * @param columnIDs
+   * @return a hashmap contain mapping from columnID -> list of levels
+   */
+  public HashMap<Integer, List<String>> factorize(int[] columnIDs) {
+    AFactorSupporter.FactorColumnInfo[] factors= getManager().getFactorSupporter().factorize(columnIDs);
+
+    //IMPLEMENTATION HERE
+    return null;
+  }
+
+  /**
+   * apply factor coding for a specified column
+   * @param columnID
+   * @return new DDF with factor coding applied
+   */
+  public DDF applyFactorCoding(int columnID) {
+    return getManager().getFactorSupporter().applyFactorCoding(columnID, this);
+  }
+
+  /**
+   * apply factor coding for list of columns
+   */
+  public DDF applyFactorCoding(int[] columnIDs) {
+    return getManager().getFactorSupporter().applyFactorCoding(columnIDs, this);
   }
 }

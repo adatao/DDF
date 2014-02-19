@@ -20,20 +20,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import com.adatao.ddf.content.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.DDF.Config;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IRunAlgorithms;
-import com.adatao.ddf.content.IHandleIndexing;
-import com.adatao.ddf.content.IHandleMetaData;
-import com.adatao.ddf.content.IHandleMissingData;
-import com.adatao.ddf.content.IHandleMutability;
-import com.adatao.ddf.content.IHandleRepresentations;
-import com.adatao.ddf.content.IHandleSchema;
-import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleSql;
@@ -186,7 +179,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   private IHandleTimeSeries mTimeSeriesHandler;
   private IHandleViews mViewHandler;
   private IRunAlgorithms mAlgorithmRunner;
-
+  private AFactorSupporter mFactorSupporter;
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
     if (mBasicStatisticsComputer == null) mBasicStatisticsComputer = this.createBasicStatisticsComputer();
@@ -424,7 +417,10 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return newHandler(IRunAlgorithms.class);
   }
 
-
+  public AFactorSupporter getFactorSupporter() {
+    //IMPLEMENTATION HERE
+    return mFactorSupporter;
+  }
 
   // ////// IHandleSql ////////
 
