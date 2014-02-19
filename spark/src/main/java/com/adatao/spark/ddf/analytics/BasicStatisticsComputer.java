@@ -27,7 +27,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   /*
    * Mapper function
    */
-  static class GetSummaryMapper extends Function<Object[], Summary[]> {
+  public static class GetSummaryMapper extends Function<Object[], Summary[]> {
     public GetSummaryMapper() {
     }
     @Override
