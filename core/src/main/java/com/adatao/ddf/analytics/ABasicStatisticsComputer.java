@@ -1,11 +1,12 @@
 package com.adatao.ddf.analytics;
 
-import java.util.List;
-
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.ADDFManager;
-import com.google.common.collect.Lists;
-
+/**
+ * 
+ * @author bhan
+ *
+ */
 public abstract class ABasicStatisticsComputer extends
     ADDFFunctionalGroupHandler implements IComputeBasicStatistics {
 

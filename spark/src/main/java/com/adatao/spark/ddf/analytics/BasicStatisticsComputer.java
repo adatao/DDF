@@ -9,7 +9,11 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
-
+/**
+ * Compute the basic statistics for each column in a RDD-based DDF
+ * @author bhan
+ *
+ */
 public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   private static final Logger sLOG = LoggerFactory
       .getLogger(BasicStatisticsComputer.class);
@@ -22,9 +26,9 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   public Summary[] getSummaryImpl() {
     JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager()
         .getRepresentationHandler().get(Object[].class);
-    Summary[] result = data.map(new GetSummaryMapper()).reduce(
+    Summary[] stats = data.map(new GetSummaryMapper()).reduce(
         new GetSummaryReducer());
-    return result;
+    return stats;
   }
 
   /*
@@ -44,26 +48,22 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
           if (null == p[i]) {
             result[i] = null;
           } else {
-
             if (p[i] instanceof Double) {
               Double a = (Double) p[i];
               result[i] = s.merge(a);
-
             } else if (p[i] instanceof Integer) {
               Double a = Double.parseDouble(p[i].toString());
-
               result[i] = s.merge(a);
             } else if (p[i] != null) {
-              String current = p[i].toString();
-              if (current.trim().toUpperCase().equals("NA")) {
+              String str = p[i].toString();
+              if (str.trim().toUpperCase().equals("NA")) {
                 result[i] = new Summary();
-                // result[i].setIsNA(true);
                 result[i].setNACount(1);
               } else {
-                double test = 0.0;
+                double number = 0.0;
                 try {
-                  test = Double.parseDouble(current);
-                  s.merge(test);
+                  number = Double.parseDouble(str);
+                  s.merge(number);
                   result[i] = s;
                 } catch (Exception ex) {
                   result[i] = null;
@@ -72,7 +72,6 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
               }
             }
           }
-
         }
         return result;
       } else {
@@ -108,11 +107,9 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
           // both are NA
           else {
             result[i] = new Summary();
-            // result[i].setIsNA(true);
             result[i].setNACount(a[i].NACount() + b[i].NACount());
           }
         } else {
-
           if (a[i] != null) {
             result[i] = new Summary();
             result[i] = a[i];
@@ -121,9 +118,6 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
             result[i] = new Summary();
             result[i] = b[i];
             result[i].addToNACount(1);
-          }
-          // both are null
-          else {
           }
         }
       }
