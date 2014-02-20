@@ -72,7 +72,7 @@ public class DDF {
   }
 
   public static void initialize(String ddfEngine) throws DDFException {
-    setDDFEngine(ddfEngine);
+    setEngine(ddfEngine);
   }
 
   public static void shutdown() {
@@ -134,7 +134,7 @@ public class DDF {
    * 
    * @return
    */
-  public static String getDDFEngine() {
+  public static String getEngine() {
     return sDDFEngine;
   }
 
@@ -144,7 +144,7 @@ public class DDF {
    * @param ddfEngine
    * @throws DDFException
    */
-  public static void setDDFEngine(String ddfEngine) throws DDFException {
+  public static void setEngine(String ddfEngine) throws DDFException {
     sDDFEngine = ddfEngine;
 
     try {
