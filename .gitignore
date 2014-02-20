@@ -25,9 +25,9 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
-*.ear
+#*.jar
+#*.war
+#*.ear
 
 ### Scala
 *.class
@@ -47,6 +47,10 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+*.dat
+.idea/*
+.idea_modules/*
+*.iml
 
 ### Python
 # Byte-compiled / optimized / DLL files
@@ -56,3 +60,9 @@ __pycache__/
 # C extensions
 *.so
 
+
+#core/metastore_db/*
+
+inst/java/
+*~
+*metastore_db/

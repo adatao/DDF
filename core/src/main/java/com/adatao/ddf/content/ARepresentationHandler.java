@@ -6,7 +6,7 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
 
 /**
@@ -15,8 +15,8 @@ import com.adatao.ddf.DDF;
  */
 public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADDFHelper container) {
-    super(container);
+  public ARepresentationHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
 
 
@@ -32,7 +32,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    * Gets an existing representation for our {@link DDF} matching the given elementType, if any.
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    * 
    * @return null if no matching representation available
    */
@@ -48,12 +48,27 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void reset() {
     mReps.clear();
   }
+  /**
+   *
+   */
+  protected abstract Object getRepresentationImpl(Class<?> elementType);
+  /**
+   *
+   */
+  @Override
+  public void getRepresentation(Class<?> elementType){
+    Object obj= this.get(elementType);
 
+    if(obj == null){
+      obj= this.getRepresentationImpl(elementType);
+      this.add(obj, elementType);
+    }
+  }
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    */
   @Override
   public void set(Object data, Class<?> elementType) {
@@ -63,10 +78,10 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
-   * replacing the one that matches the given containerType, elementType tuple.
+   * replacing the one that matches the given DDFManagerType, elementType tuple.
    * 
    * @param elementType
-   *          the type of each element in the container
+   *          the type of each element in the DDFManager
    */
   @Override
   public void add(Object data, Class<?> elementType) {
@@ -102,5 +117,20 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void cleanup() {
     mReps.clear();
     super.cleanup();
+    uncacheAll();
+  }
+
+
+  @Override
+  public void cacheAll() {
+    // TODO Auto-generated method stub
+    
+  }
+
+
+  @Override
+  public void uncacheAll() {
+    // TODO Auto-generated method stub
+    
   }
 }

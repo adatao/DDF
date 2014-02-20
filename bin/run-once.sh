@@ -38,12 +38,12 @@ function run() {
 
   #echo "
   ##***************************************************************************************
-  #Re-installing the unamanged libs in ~/.m2 and ~/.ivy2
+  #Re-installing the unmanaged libs in ~/.m2 and ~/.ivy2
   #***************************************************************************************
   #"
-  #rm -fr ~/.m2/repository/{adatao,org/spark-project}
-  #rm -fr ~/.ivy2/{cache,local}/{adatao.*,org.spark-project}
-  #server/lib/mvn-install-jars.sh || exit 1
+  #rm -fr ~/.m2/repository/{adatao,org/spark-project,edu/berkeley}
+  #rm -fr ~/.ivy2/{cache,local}/{adatao.*,org.spark-project,edu.berkeley.*}
+  spark/lib/mvn-install-jars.sh || exit 1
 
   echo "
   ***************************************************************************************

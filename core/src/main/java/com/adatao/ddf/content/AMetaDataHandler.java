@@ -6,18 +6,19 @@ package com.adatao.ddf.content;
 import java.util.UUID;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFHelper;
+import com.adatao.ddf.ADDFManager;
 
 /**
  * @author ctn
  * 
  */
-public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetadata {
+public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
+    implements IHandleMetaData {
 
-  public AMetaDataHandler(ADDFHelper theContainer) {
-    super(theContainer);
+
+  public AMetaDataHandler(ADDFManager theDDFManager) {
+    super(theDDFManager);
   }
-
 
   private UUID mId = UUID.randomUUID();
   @Override
@@ -30,9 +31,9 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
     mId = id;
   }
 
-
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
+
   private long mNumColumns = 0L;
   private boolean bNumColumnsIsValid = false;
   private ColumnInfo[] columnMetadata;
@@ -42,12 +43,14 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
   protected long getNumColumnsImpl() {
     return columnMetadata.length;
   }
+
   /**
    * Called to assert that the row count needs to be recomputed at next access
    */
   protected void invalidateNumRows() {
     bNumRowsIsValid = false;
   }
+
 
   /**
    * Called to assert that the column count needs to be recomputed at next access
@@ -60,6 +63,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
     return columnMetadata;
   }
 
+
   @Override
   public long getNumRows() {
     if (!bNumRowsIsValid) {
@@ -67,14 +71,5 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implem
       bNumRowsIsValid = true;
     }
     return mNumRows;
-  }
-
-  @Override
-  public long getNumColumns() {
-    if (!bNumColumnsIsValid) {
-      mNumColumns = this.getNumRowsImpl();
-      bNumColumnsIsValid = true;
-    }
-    return mNumColumns;
   }
 }

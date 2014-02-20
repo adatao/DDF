@@ -12,8 +12,8 @@ SBT="bin/sbt"
 $SBT make-pom
 
 TARGET_DIR=target
-#PROJECTS=(core examples)
-PROJECTS=(core)
+# Remember to update this with list of projects under root
+PROJECTS=(core spark extras)
 
 for project in ${PROJECTS[*]} ; do
   # find the latest *.pom under $TARGET_DIR

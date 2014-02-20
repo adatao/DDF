@@ -6,14 +6,12 @@ package com.adatao.ddf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.content.IHandleMetadata;
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
 /**
  * Abstract base class for a handler of a group of DDF functionality, e.g., {@link IHandleMetadata},
- * or {@link IHandleFilteringAndProjections}.
+ * or {@link IHandleViews}.
  * 
  * @author ctn
  * 
@@ -21,43 +19,43 @@ import com.adatao.ddf.util.PhantomReference;
 public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
   protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-  public ADDFFunctionalGroupHandler(ADDFHelper theContainer) {
-    this.setContainer(theContainer);
+  public ADDFFunctionalGroupHandler(ADDFManager theDDFManager) {
+    this.setManager(theDDFManager);
 
     PhantomReference.register(this);
   }
 
 
   /**
-   * @return the {@link DDF} this handler handles, via the Container
+   * @return the {@link DDF} this handler handles, via the DDFManager
    */
   public DDF getDDF() {
-    return this.getContainer().getDDF();
+    return this.getManager().getDDF();
   }
 
-  private ADDFHelper mContainer;
+  private ADDFManager mDDFManager;
 
   /**
-   * @return the {@link ADDFHelper} that contains this handler
+   * @return the {@link ADDFManager} that contains this handler
    */
-  public ADDFHelper getContainer() {
-    return mContainer;
+  public ADDFManager getManager() {
+    return mDDFManager;
   }
 
   /**
-   * @param aContainer
-   *          the containing {@link ADDFHelper} to set
+   * @param aDDFManager
+   *          the containing {@link ADDFManager} to set
    * 
    * @return this instance, for call-chaining style
    */
-  public ADDFFunctionalGroupHandler setContainer(ADDFHelper aContainer) {
-    this.mContainer = aContainer;
+  public ADDFFunctionalGroupHandler setManager(ADDFManager aDDFManager) {
+    this.mDDFManager = aDDFManager;
     return this;
   }
 
   @Override
   // ISupportPhantomReference
   public void cleanup() {
-    this.setContainer(null);
+    this.setManager(null);
   }
 }

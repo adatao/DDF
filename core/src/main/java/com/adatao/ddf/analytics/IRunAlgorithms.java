@@ -4,6 +4,7 @@ import com.adatao.ddf.DDF;
 
 /**
  * Common execution for all pAnalytics algorithms
+
  * @author bhan
  *
  */
@@ -20,4 +21,5 @@ public interface IRunAlgorithms {
 	 */
 	IAlgorithmOutputModel execute();
 	void cleanup();	
+
 }

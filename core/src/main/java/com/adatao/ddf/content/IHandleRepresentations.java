@@ -1,12 +1,10 @@
 package com.adatao.ddf.content;
 
-import com.adatao.ddf.etl.IHandleFilteringAndProjections;
-
 /**
  * <p>
  * Handles the underlying, implementation-specific representation(s) of a DDF. Note that a single
  * DDF may have simultaneously multiple representations, all of which are expected to be equivalent
- * in terms of relevant content value. Contrast this with, e.g., {@link IHandleFilteringAndProjections},
+ * in terms of relevant content value. Contrast this with, e.g., {@link IHandleViews},
  * which results in entirely new DDFs with different columns or rows. These new DDFs are logically
  * referred to as new "views".
  * </p>
@@ -44,7 +42,10 @@ public interface IHandleRepresentations {
    * Clears out all current representations.
    */
   public void reset();
-
+  /**
+   *
+   */
+  public void getRepresentation(Class<?> elementType);
   /**
    * Clears all current representations and set it to the supplied one.
    * 

@@ -29,18 +29,29 @@ object RootBuild extends Build {
 
 	val coreProjectName = projectName + "-core"
 	val coreVersion = rootVersion
-	//val coreJarName = coreProjectName + "_" + theScalaVersion + "-" + coreVersion + ".jar"
-	//val coreTestJarName = coreProjectName + "_" + theScalaVersion + "-" + coreVersion + "-tests.jar"
-	val coreJarName = coreProjectName + "-" + coreVersion + ".jar"
+	val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
 	val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
+
+	val sparkProjectName = projectName + "_spark"
+	val sparkVersion = rootVersion
+	val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+	val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 	
-	//lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, enterprise, community, examples)
-	//lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, examples)
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core)
+	val examplesProjectName = projectName + "_examples"
+	val examplesVersion = rootVersion
+	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
+	val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
+
+	val extrasProjectName = projectName + "_extras"
+	val extrasVersion = rootVersion
+	val extrasJarName = extrasProjectName + "-" + extrasVersion + ".jar"
+	val extrasTestJarName = extrasProjectName + "-" + extrasVersion + "-tests.jar"
+	
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, extras)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
-	//lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core)
-	//lazy val community = Project("community", file("community"), settings = communitySettings) dependsOn (core)
-	//lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (core) dependsOn (core)
+	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
+	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
+	lazy val extras = Project("extras", file("extras"), settings = extrasSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -51,8 +62,6 @@ object RootBuild extends Build {
 
   // Hadoop version to build against. For example, "0.20.2", "0.20.205.0", or
   // "1.0.4" for Apache releases, or "0.20.2-cdh3u5" for Cloudera Hadoop.
-  //val HADOOP_VERSION = "1.0.4"
-  //val HADOOP_MAJOR_VERSION = "1"
   val HADOOP_VERSION = "1.0.4"
   val HADOOP_MAJOR_VERSION = "0"
 
@@ -128,16 +137,13 @@ object RootBuild extends Build {
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
     resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-    resolvers ++= Seq("Adatao Mvnrepos Snapshots" at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-      "Adatao Mvnrepos Releases" at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+    resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-    resolvers ++= Seq(
-      "BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
-      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-
-      "scala-tools.org" at "https://oss.sonatype.org/content/groups/scala-tools/"
-      //			"Spark-project" at "https://oss.sonatype.org/"
-      //			"Akka Repository" at "http://repo.akka.io/releases/"
+    resolvers ++= Seq("BetaDriven Repository"  at "http://nexus.bedatadriven.com/content/groups/public/",
+		      "Typesafe Repository"    at "http://repo.typesafe.com/typesafe/releases/", 
+		      "scala-tools.org"        at "https://oss.sonatype.org/content/groups/scala-tools/"
+		      //"Akka Repository"        at "http://repo.akka.io/releases/"
     ),
 
 
@@ -165,12 +171,21 @@ object RootBuild extends Build {
       "org.scalatest" %% "scalatest" % "1.9.1" % "test",
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
+      "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
+      "org.apache.thrift" % "libthrift" % "0.9.0",
+      "org.apache.thrift" % "libfb303" % "0.9.0",
+      "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+      // needed by Hive
+      "commons-dbcp" % "commons-dbcp" % "1.4",
+      "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
+      "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+      "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
+      "org.datanucleus" % "datanucleus-core" % "2.0.3",
+      "org.apache.derby" % "derby" % "10.4.2.0",
+      "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
       "org.easymock" % "easymock" % "3.1" % "test"
-
     ),
 
-    // for fast linear algebra
-    libraryDependencies += "org.jblas" % "jblas" % "1.2.3",
 
     /* Already in plugins.sbt
     addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.8.5"),
@@ -180,6 +195,8 @@ object RootBuild extends Build {
     */
 
     otherResolvers := Seq(Resolver.file("dotM2", file(Path.userHome + "/.m2/repository"))),
+
+
     publishLocalConfiguration in MavenCompile <<= (packagedArtifacts, deliverLocal, ivyLoggingLevel) map {
       (arts, _, level) => new PublishConfiguration(None, "dotM2", arts, Seq(), level)
     },
@@ -187,24 +204,25 @@ object RootBuild extends Build {
     publishLocal in MavenCompile <<= publishTask(publishLocalConfiguration in MavenCompile, deliverLocal),
     publishLocalBoth <<= Seq(publishLocal in MavenCompile, publishLocal).dependOn,
 
+
     dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
     dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
-    //		dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
-    //		dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
+    // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
+    // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
-    //		dependencyOverrides += "log4j" % "log4j" % "1.2.17",
+    dependencyOverrides += "log4j" % "log4j" % "1.2.17",
     dependencyOverrides += "org.slf4j" % "slf4j-api" % slf4jVersion,
     dependencyOverrides += "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
-    //		dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
+    dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
-    //		dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
+    // dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
-    //		dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
-    //		dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8"
+    // dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
+    // dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8"
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
     dependencyOverrides += "org.xerial.snappy" % "snappy-java" % "1.0.5", //spark-core conflicts with avro
     dependencyOverrides += "org.apache.httpcomponents" % "httpcore" % "4.1.4",
@@ -213,6 +231,7 @@ object RootBuild extends Build {
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 
+    
     pomExtra := (
       <!--
 			**************************************************************************************************
@@ -234,12 +253,25 @@ object RootBuild extends Build {
               <version>2.15</version>
               <configuration>
                 <reuseForks>false</reuseForks>
+                <enableAssertions>false</enableAssertions>
+                <environmentVariables>
+					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
+				</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
-                  <log4j.configuration>pa-log4j.properties</log4j.configuration>
+                  <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                 </systemPropertyVariables>
+                <additionalClasspathElements>
+                  <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/../lib_managed/jars/*</additionalClasspathElement>
+                  <additionalClasspathElement>${{HADOOP_HOME}}/conf/</additionalClasspathElement>
+                  <additionalClasspathElement>${{HIVE_HOME}}/conf/</additionalClasspathElement>
+                  </additionalClasspathElements>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
               </configuration>
             </plugin>
             <plugin>
@@ -270,6 +302,42 @@ object RootBuild extends Build {
                 <recompileMode>incremental</recompileMode>
               </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <configLocation>${{basedir}}/../src/main/resources/sun_checks.xml</configLocation>
+                <propertyExpansion>checkstyle.conf.dir=${{basedir}}/../src/main/resources</propertyExpansion>
+                <outputFileFormat>xml</outputFileFormat>
+              </configuration>
+            </plugin>
+            
+            <!--
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <configuration>
+                  <verbose>false</verbose>
+                  <failOnViolation>true</failOnViolation>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                  <failOnWarning>false</failOnWarning>
+                  <sourceDirectory>${{basedir}}/src/main/scala</sourceDirectory>
+                  <testSourceDirectory>${{basedir}}/src/test/scala</testSourceDirectory>
+                  <configLocation>${{basedir}}/../src/main/resources/scalastyle-config.xml</configLocation>
+                  <outputFile>${{basedir}}/{targetDir}/scalastyle-output.xml</outputFile>
+                  <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>check</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
+              -->
           </plugins>
         </build>
         <profiles>
@@ -371,16 +439,21 @@ object RootBuild extends Build {
   /////// Individual project settings //////
   def rootSettings = commonSettings ++ Seq(publish := {})
 
+
   def coreSettings = commonSettings ++ Seq(
     name := coreProjectName,
-
-    javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    javaOptions in Test <+= baseDirectory map {dir => "-Drserver.jar=" + dir + "/" + targetDir + "/" + coreJarName},
-
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
-    //unmanagedSourceDirectories in Compile <+= baseDirectory{ _ / ("src/hadoop" + HADOOP_MAJOR_VERSION + "/scala") }
+
+  def sparkSettings = commonSettings ++ Seq(
+    name := sparkProjectName,
+    javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    //javaOptions in Test <+= baseDirectory map {dir => "-Drserver.jar=" + dir + "/" + targetDir + "/" + sparkJarName},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch spark/" + targetDir + "/*timestamp") },
 
     resolvers ++= Seq(
       //"JBoss Repository" at "http://repository.jboss.org/nexus/content/repositories/releases/",
@@ -389,52 +462,28 @@ object RootBuild extends Build {
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
 
-    libraryDependencies ++= adatao_unmanaged ++ Seq(
-      //"org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
-      //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin")),
-      //"com.google.code.findbugs" % "jsr305" % "1.3.9", // to avoid [error] error while loading Optional, Missing dependency 'class javax.annotation.Nullable', required by /home/ctn/src/adatao/BigR/lib_managed/jars/guava-13.0.jar(com/google/common/base/Optional.class)
-      //"mysql" % "mysql-connector-java" % "5.1.25"
+    libraryDependencies ++= adatao_unmanaged
+  ) ++ assemblySettings ++ extraAssemblySettings
 
-    ) ++ (
-      //if (HADOOP_MAJOR_VERSION == "2")
-      //	Some("org.apache.hadoop" % "hadoop-client" % HADOOP_VERSION)
-      //else
-      None
-      ).toSeq ++ Seq(
-      // Per @ngon: [you need these Hive dependencies, else] though you can compile, but are not able to run.
-      //"org.apache.avro" % "avro-mapred" % "1.5.3",
-      //"commons-dbcp" % "commons-dbcp" % "1.4",
-      //"org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-core" % "2.0.3",
-      //"org.apache.derby" % "derby" % "10.4.2.0",
-      //"org.apache.hbase" % "hbase" % "0.92.0" excludeAll(excludeEverthing, excludeEverythingHackForMakePom),
-      // Now under adatao_unmanaged "javax.jdo" % "jdo2-api" % "2.3-ec",
-      //"org.mortbay.jetty" % "jetty-util" % "6.1.26",
-      //"jline" % "jline" % "0.9.94",
-      //"org.json" % "json" % "20090211",
-      //"org.apache.thrift" % "libfb303" % "0.9.0"
-    )
-  ) ++ assemblySettings ++ extraAssemblySettings //++ Twirl.settings
+  def examplesSettings = commonSettings ++ Seq(
+    name := examplesProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
-
-  //def communitySettings = commonSettings ++ Seq(
-  //	name := projectName + "_community",
-  //	libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
-  //)
+  def extrasSettings = commonSettings ++ Seq(
+    name := extrasProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch extras/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
 
   //def enterpriseSettings = commonSettings ++ Seq(
   //	name := projectName + "_enterprise",
   //	libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
   //)
-
-
-  def examplesSettings = commonSettings ++ Seq(
-    name := projectName + "_examples"
-    //libraryDependencies ++= Seq("com.twitter" % "algebird-core_2.9.2" % "0.1.11")
-  )
 
 
   /*

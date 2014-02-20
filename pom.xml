@@ -61,6 +61,11 @@
 			<url>http://scala-tools.org/repo-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
+	
+	<modules>
+	  <module>core</module>
+	  <module>spark</module>
+	</modules>
 
 	<dependencies>
 
@@ -113,6 +118,40 @@
 					</jvmArgs>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-checkstyle-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <configLocation>src/main/resources/sun_checks.xml</configLocation>
+                <outputFileFormat>xml</outputFileFormat>
+              </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <configuration>
+                  <verbose>false</verbose>
+                  <failOnViolation>true</failOnViolation>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                  <failOnWarning>false</failOnWarning>
+                  <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
+                  <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
+                  <configLocation>src/main/resources/scalastyle-config.xml</configLocation>
+                  <outputFile>target/scalastyle-output.xml</outputFile>
+                  <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>check</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -123,7 +162,21 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
-
+            
+            <plugin>
+	            <artifactId>maven-dependency-plugin</artifactId>
+	            <executions>
+	              <execution>
+	                <phase>install</phase>
+	                <goals>
+	                  <goal>copy-dependencies</goal>
+	                </goals>
+	                <configuration>
+	                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+	                </configuration>
+	              </execution>
+	            </executions>
+	          </plugin>
 		</plugins>
 	</build>
 
