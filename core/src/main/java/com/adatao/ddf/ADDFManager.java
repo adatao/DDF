@@ -21,12 +21,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.adatao.ddf.content.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.DDFConfig.Config;
+import com.adatao.ddf.analytics.AFactorHandler;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IHandleFactors;
 import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.content.Schema.ColumnWithData;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleSql;
@@ -123,6 +127,28 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
 
 
   /**
+   * Instantiate a new DDF with the given name, and populates it with the given columns
+   * 
+   * @param name
+   * @param columnsWithData
+   * @return
+   * @throws DDFException
+   */
+  public DDF newDDF(String name, ColumnWithData[] columnsWithData) throws DDFException {
+    DDF newDDF = this.newDDF();
+    ADDFManager manager = newDDF.getManager();
+
+    // Set the new DDF's schema properly
+    Schema schema = new Schema(name, columnsWithData);
+    manager.getSchemaHandler().setSchema(schema);
+
+    // Now populate the new DDF with data
+    // TODO
+
+    return newDDF;
+  }
+
+  /**
    * Instantiates a new DDF of the type specified in ddf.ini as "DDF". Simultaneously, also
    * instantiate a new DDFManger of the type specified in ddf.ini as "DDFManager". Then, the two are
    * linked to each other.
@@ -136,12 +162,12 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
       DDF ddf = (DDF) Class.forName(this.getConfigValue("DDF")).newInstance();
       if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + this.getConfigValue("DDF"));
 
-      ADDFManager ddfManager = (ADDFManager) Class.forName(this.getConfigValue("DDFManager")).newInstance();
-      if (ddfManager == null) throw new DDFException("Cannot instantiate a new instance of "
+      ADDFManager manager = (ADDFManager) Class.forName(this.getConfigValue("DDFManager")).newInstance();
+      if (manager == null) throw new DDFException("Cannot instantiate a new instance of "
           + this.getConfigValue("DDFManager"));
 
-      ddf.setManager(ddfManager);
-      ddfManager.setDDF(ddf);
+      ddf.setManager(manager);
+      manager.setDDF(ddf);
 
       return ddf;
 
@@ -181,6 +207,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   }
 
   private IComputeBasicStatistics mBasicStatisticsComputer;
+  private IHandleFactors mFactorHandler;
   private IHandleIndexing mIndexingHandler;
   private IHandleJoins mJoinsHandler;
   private IHandleMetaData mMetaDataHandler;
@@ -195,7 +222,7 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   private IHandleTimeSeries mTimeSeriesHandler;
   private IHandleViews mViewHandler;
   private IRunAlgorithms mAlgorithmRunner;
-  private AFactorSupporter mFactorSupporter;
+  private AFactorHandler mFactorSupporter;
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
     if (mBasicStatisticsComputer == null) mBasicStatisticsComputer = this.createBasicStatisticsComputer();
@@ -211,6 +238,23 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
   protected IComputeBasicStatistics createBasicStatisticsComputer() {
     return newHandler(IComputeBasicStatistics.class);
   }
+
+
+  public IHandleFactors getFactorHandler() {
+    if (mFactorHandler == null) mFactorHandler = this.createFactorHandler();
+    if (mFactorHandler == null) throw new UnsupportedOperationException();
+    else return mFactorHandler;
+  }
+
+  public ADDFManager setFactorHandler(IHandleFactors aFactorHandler) {
+    this.mFactorHandler = aFactorHandler;
+    return this;
+  }
+
+  protected IHandleFactors createFactorHandler() {
+    return newHandler(IHandleFactors.class);
+  }
+
 
   public IHandleIndexing getIndexingHandler() {
     if (mIndexingHandler == null) mIndexingHandler = this.createIndexingHandler();
@@ -433,8 +477,8 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     return newHandler(IRunAlgorithms.class);
   }
 
-  public AFactorSupporter getFactorSupporter() {
-    //IMPLEMENTATION HERE
+  public AFactorHandler getFactorSupporter() {
+    // IMPLEMENTATION HERE
     return mFactorSupporter;
   }
 
@@ -510,4 +554,5 @@ public abstract class ADDFManager implements IDDFManager, ISupportPhantomReferen
     ;
     // @formatter:on
   }
+
 }

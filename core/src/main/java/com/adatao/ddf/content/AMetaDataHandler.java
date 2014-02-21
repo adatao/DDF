@@ -4,7 +4,6 @@
 package com.adatao.ddf.content;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
