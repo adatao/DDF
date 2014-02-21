@@ -1,6 +1,8 @@
 package com.adatao.ddf;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,12 +145,13 @@ public class Factor extends Vector {
    * Also see this informative R vignette:
    * http://cran.r-project.org/web/packages/gdata/vignettes/mapLevels.pdf
    * 
+   * @throws DDFException
+   * 
    */
-  protected Map<String, Integer> computeLevelMap() {
-    mLevelMap = this.instantiateSynchronizedLevelMap();
-
-    // TODO
-
+  protected Map<String, Integer> computeLevelMap() throws DDFException {
+    List<String> levels = null; // TODO: retrieve the list of levels from the underlying data, e.g.,
+                                // SELECT DISTINCT
+    this.setLevels(levels, false);
     return mLevelMap;
   }
 
@@ -156,12 +159,13 @@ public class Factor extends Vector {
    * Returns a String list of the named levels (sometimes referred to as "labels") in the factor
    * 
    * @return
+   * @throws DDFException
    */
-  public Set<String> getLevels() {
+  public Set<String> getLevels() throws DDFException {
     return this.getLevelMap().keySet();
   }
 
-  public Map<String, Integer> getLevelMap() {
+  public Map<String, Integer> getLevelMap() throws DDFException {
     if (mLevelMap == null) mLevelMap = this.computeLevelMap();
     return mLevelMap;
   }
@@ -175,8 +179,9 @@ public class Factor extends Vector {
    * @param isOrdered
    *          a flag indicating whether the levels actually have "less than" and "greater than"
    *          left-to-right order meaning
+   * @throws DDFException
    */
-  public void setLevels(List<String> levels, boolean isOrdered) {
+  public void setLevels(List<String> levels, boolean isOrdered) throws DDFException {
     this.setLevels(levels, null, isOrdered);
   }
 
@@ -188,9 +193,29 @@ public class Factor extends Vector {
    * @param isOrdered
    *          a flag indicating whether the levels actually have "less than" and "greater than"
    *          left-to-right order meaning
+   * @throws DDFException
    */
-  public void setLevels(List<String> levels, List<Integer> codes, boolean isOrdered) {
-    // TODO
+  public void setLevels(List<String> levels, List<Integer> codes, boolean isOrdered) throws DDFException {
+    if (levels == null || levels.size() == 0) throw new DDFException("Levels cannot be null or empty");
+    if (codes != null && codes.size() != levels.size()) throw new DDFException(String.format(
+        "The number of levels is %d which does not match the number of codes %d", levels.size(), codes.size()));
+
+    if (mLevelMap == null) mLevelMap = this.instantiateSynchronizedLevelMap();
+
+    if (codes == null) {
+      // Auto-create a 1-based level-code map
+      codes = new ArrayList<Integer>();
+      for (int i = 1; i <= levels.size(); i++) {
+        codes.add(i);
+      }
+    }
+
+    Iterator<String> levelIter = levels.iterator();
+    Iterator<Integer> codeIter = codes.iterator();
+    while (levelIter.hasNext()) {
+      mLevelMap.put(levelIter.next(), codeIter.next());
+    }
+
     this.setOrdered(isOrdered);
   }
 

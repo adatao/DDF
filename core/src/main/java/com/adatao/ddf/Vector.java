@@ -16,6 +16,8 @@ import com.adatao.ddf.exception.DDFException;
  * <p>
  * The column is referenced by name.
  * 
+ * TODO: Vector operations
+ * 
  * @author ctn
  * 
  */
