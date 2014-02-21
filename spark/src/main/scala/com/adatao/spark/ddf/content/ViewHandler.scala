@@ -14,7 +14,7 @@ import com.adatao.spark.ddf.SparkDDFManager
  * @author ctn
  *
  */
-class SparkViewHandler(container: SparkDDFManager) extends AViewHandler(container) with IHandleViews {
+class SparkViewHandler(theDDFManager: SparkDDFManager) extends AViewHandler(theDDFManager) with IHandleViews {
 
   object ViewFormat extends Enumeration {
     type ViewFormat = Value
@@ -34,12 +34,12 @@ class SparkViewHandler(container: SparkDDFManager) extends AViewHandler(containe
    */
   def get(columns: Array[Int], format: ViewFormat): DDF = {
     format match {
-      case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, container)
-      case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, container)
-      case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, container)
-      case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, container)
-      case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, container)
-      case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, container)
+      case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, theDDFManager)
+      case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, theDDFManager)
+      case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, theDDFManager)
+      case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, theDDFManager)
+      case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, theDDFManager)
+      case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, theDDFManager)
       case _ ⇒ {}
     }
     null
@@ -74,32 +74,32 @@ class SparkViewHandler(container: SparkDDFManager) extends AViewHandler(containe
 }
 
 object ViewHandler {
-  def getDefault(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getDefault(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getArrayObject(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getArrayObject(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getArrayDouble(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getArrayDouble(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getTablePartition(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getTablePartition(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getLabeledPoint(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getLabeledPoint(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
     null
   }
 
-  def getLabeledPoints(cols: Array[Int], container: SparkDDFManager): DDF = {
+  def getLabeledPoints(cols: Array[Int], theDDFManager: SparkDDFManager): DDF = {
 
 
     null

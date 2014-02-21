@@ -21,15 +21,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.etl.IHandleSql;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IHandleFactors;
 import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.IHandleMissingData;
@@ -40,6 +37,10 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.ColumnWithData;
 import com.adatao.ddf.content.Schema.DataFormat;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 
 
 /**
@@ -254,6 +255,11 @@ public class DDF {
     return this.getSchemaHandler().getNumColumns();
   }
 
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+  
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
     return this.getAlgorithmRunner().run(algorithm, this);
