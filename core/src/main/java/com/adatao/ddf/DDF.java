@@ -21,14 +21,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.etl.IHandleSql;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.IHandleMissingData;
@@ -38,6 +35,10 @@ import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 
 
 /**
@@ -71,7 +72,7 @@ public class DDF {
   }
 
   public static void initialize(String ddfEngine) throws DDFException {
-    setDDFEngine(ddfEngine);
+    setEngine(ddfEngine);
   }
 
   public static void shutdown() {
@@ -133,7 +134,7 @@ public class DDF {
    * 
    * @return
    */
-  public static String getDDFEngine() {
+  public static String getEngine() {
     return sDDFEngine;
   }
 
@@ -143,7 +144,7 @@ public class DDF {
    * @param ddfEngine
    * @throws DDFException
    */
-  public static void setDDFEngine(String ddfEngine) throws DDFException {
+  public static void setEngine(String ddfEngine) throws DDFException {
     sDDFEngine = ddfEngine;
 
     try {
@@ -248,6 +249,11 @@ public class DDF {
     return this.getSchemaHandler().getNumColumns();
   }
 
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+  
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
     return this.getAlgorithmRunner().run(algorithm, this);

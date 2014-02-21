@@ -21,20 +21,20 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresentationHandler(container) with IHandleRepresentations {
+class SparkRepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
 
   /**
    *
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = container.getSchemaHandler
+    val schema = theDDFManager.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
-    if (container.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load container representation")
+    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
+      throw new Exception("Please load theDDFManager representation")
     }
 
-    val rdd = container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
