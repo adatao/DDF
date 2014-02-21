@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IHandleFactors;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -34,6 +35,7 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.ColumnWithData;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
@@ -173,6 +175,10 @@ public class DDF {
     return this.getManager().getBasicStatisticsComputer();
   }
 
+  public IHandleFactors getFactorHandler() {
+    return this.getManager().getFactorHandler();
+  }
+
   public IHandleIndexing getIndexingHandler() {
     return this.getManager().getIndexingHandler();
   }
@@ -294,5 +300,65 @@ public class DDF {
 
   public static List<String> sql2txt(String command, String dataSource) throws DDFException {
     return getDefaultManager().sql2txt(command, dataSource);
+  }
+
+  // /**
+  // * Get factor for a column
+  // *
+  // * @param columnIndex
+  // * @return list of levels for specified column
+  // */
+  // public List<String> factorize(int columnIndex) {
+  // AFactorHandler.FactorColumnInfo[] factors = this.getFactorHandler().factorize(new int[] {
+  // columnIndex });
+  //
+  // // IMPLEMENTATION HERE
+  // return null;
+  // }
+  //
+  // /**
+  // * Get factor for list of columns
+  // *
+  // * @param columnIDs
+  // * @return a hashmap contain mapping from columnID -> list of levels
+  // */
+  // public HashMap<Integer, List<String>> factorize(int[] columnIndices) {
+  // AFactorHandler.FactorColumnInfo[] factors = this.getFactorHandler().factorize(columnIndices);
+  //
+  // // IMPLEMENTATION HERE
+  // return null;
+  // }
+  //
+  // /**
+  // * apply factor coding for a specified column
+  // *
+  // * @param columnID
+  // * @return new DDF with factor coding applied
+  // */
+  // public DDF applyFactorCoding(int columnID) {
+  // return getManager().getFactorSupporter().applyFactorCoding(columnID, this);
+  // }
+  //
+  // /**
+  // * apply factor coding for list of columns
+  // */
+  // public DDF applyFactorCoding(int[] columnIDs) {
+  // return getManager().getFactorSupporter().applyFactorCoding(columnIDs, this);
+  // }
+
+  /**
+   * 
+   * @param name
+   *          name of the newly created DDF
+   * @param columnWithData
+   * @return
+   * @throws DDFException
+   */
+  public static DDF newDDF(String name, ColumnWithData columnWithData) throws DDFException {
+    return newDDF(name, new ColumnWithData[] { columnWithData });
+  }
+
+  public static DDF newDDF(String name, ColumnWithData[] columnsWithData) throws DDFException {
+    return getDefaultManager().newDDF(name, columnsWithData);
   }
 }

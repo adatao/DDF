@@ -24,8 +24,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
 
   @Override
   public Summary[] getSummaryImpl() {
-    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager()
-        .getRepresentationHandler().get(Object[].class);
+    @SuppressWarnings("unchecked")
+    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager().getRepresentationHandler().get(Object[].class);
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(
         new GetSummaryReducer());
     return stats;
@@ -35,6 +35,11 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
    * Mapper function
    */
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     public GetSummaryMapper() {
     }
 
@@ -83,6 +88,11 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
 
   public static class GetSummaryReducer extends
       Function2<Summary[], Summary[], Summary[]> {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     public GetSummaryReducer() {
 
     }

@@ -45,4 +45,5 @@ public class ASchemaHandler extends ADDFFunctionalGroupHandler implements IHandl
   public long getNumColumns() {
     return this.mSchema.getNumColumns();
   }
+
 }
