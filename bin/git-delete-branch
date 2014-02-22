@@ -39,15 +39,13 @@ else
     echo ""
     echo "Now deleting local branch [$BRANCH_TO_DELETE]"
     echo git branch -D "$BRANCH_TO_DELETE" && git branch -D "$BRANCH_TO_DELETE"
+	fi
 
-    if [ $? == 0 ] ; then
-      echo ""
-      echo -n "Would you like to delete the origin (central repo) copy of [$BRANCH_TO_DELETE], too? (N/y)"
-      read response
-      if [ "$response" == "Y" -o "$response" == "y" ] ; then
-	echo "git push origin --delete $BRANCH_TO_DELETE" && git push origin --delete $BRANCH_TO_DELETE
-      fi
-
-    fi
+  echo ""
+  echo -n "Would you like to delete the origin (central repo) copy of [$BRANCH_TO_DELETE], too? (N/y)"
+  read response
+  if [ "$response" == "Y" -o "$response" == "y" ] ; then
+    echo "git push origin --delete $BRANCH_TO_DELETE" && git push origin --delete $BRANCH_TO_DELETE
   fi
+
 fi
