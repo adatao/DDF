@@ -21,7 +21,7 @@ An aim of the DDF project is to shine a focus of Big Data conversations
 on top-down, user-focussed simplicity and power, where "users" include
 business analysts, data scientists, and high-level Big Data engineers.
 
-===
+---
 
 ### Directory Structure
 
