@@ -9,10 +9,12 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
+
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
+ * 
  * @author bhan
- *
+ * 
  */
 public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   private static final Logger sLOG = LoggerFactory
@@ -25,24 +27,17 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   @Override
   public Summary[] getSummaryImpl() {
     @SuppressWarnings("unchecked")
-    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager().getRepresentationHandler().get(Object[].class);
+    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager()
+        .getRepresentationHandler().get(Object[].class);
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(
         new GetSummaryReducer());
     return stats;
   }
 
-  /*
+  /**
    * Mapper function
    */
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    public GetSummaryMapper() {
-    }
-
     @Override
     public Summary[] call(Object[] p) {
       int dim = p.length;
@@ -72,7 +67,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
                   result[i] = s;
                 } catch (Exception ex) {
                   result[i] = null;
-                  sLOG.info("GetSummaryMapper: catch " + p[i] + " is not number");
+                  sLOG.info("GetSummaryMapper: catch " + p[i]
+                      + " is not number");
                 }
               }
             }
@@ -88,15 +84,6 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
 
   public static class GetSummaryReducer extends
       Function2<Summary[], Summary[], Summary[]> {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    public GetSummaryReducer() {
-
-    }
-
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;

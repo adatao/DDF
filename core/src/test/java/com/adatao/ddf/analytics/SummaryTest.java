@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.adatao.ddf.util.Utils;
+
 public class SummaryTest {
   private double[] da, db, dc, dd;
   private Summary a, b, c, d;
@@ -26,9 +28,12 @@ public class SummaryTest {
 
   @Test
   public void testMergeDoubleArray() {
-    assertArrayEquals("Expected exacted matching",
-        new double[] { d.mean(), d.stdev(), d.variance(), d.min(), d.max() },
-        new double[] { 4.5, 3.08, 9.5, 1, 9 }, 0.0);
+    assertArrayEquals(
+        "Expected exacted matching",
+        new double[] { Utils.roundUp(d.mean()), Utils.roundUp(d.stdev()),
+            Utils.roundUp(d.variance()), Utils.roundUp(d.min()),
+            Utils.roundUp(d.max()) }, new double[] { 4.5, 3.08, 9.5, 1, 9 },
+        0.0);
     assertArrayEquals(new long[] { d.count(), d.NACount() },
         new long[] { 6, 3 });
     assertEquals(c.mean(), Double.NaN, 0.0);
@@ -51,6 +56,5 @@ public class SummaryTest {
         "mean:2.0 stdev:1.0 var:1.0 cNA:0 count:3 min:1.0 max:3.0"));
     assertTrue(d.toString().equals(
         "mean:4.5 stdev:3.08 var:9.5 cNA:3 count:6 min:1.0 max:9.0"));
-    System.out.println(a.toString());
   }
 }

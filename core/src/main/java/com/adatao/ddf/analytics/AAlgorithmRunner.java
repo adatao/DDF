@@ -8,7 +8,7 @@ import com.adatao.ddf.DDF;
 public abstract class AAlgorithmRunner implements IRunAlgorithms {
 
   private void preprocess(IAlgorithm algorithm, DDF ddf) {
-    ddf.getRepresentationHandler().getRepresentation(algorithm.getExpectedDataType());
+    ddf.getRepresentationHandler().get(algorithm.getExpectedDataType());
     algorithm.preprocess(ddf);
   }
 

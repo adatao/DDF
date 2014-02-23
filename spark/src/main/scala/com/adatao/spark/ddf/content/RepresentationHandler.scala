@@ -3,7 +3,7 @@
  */
 package com.adatao.spark.ddf.content
 
-import com.adatao.ddf.content.{IHandleRepresentations, ARepresentationHandler}
+import com.adatao.ddf.content.{ IHandleRepresentations, ARepresentationHandler }
 import com.adatao.ddf.content.Schema.ColumnType
 import java.lang.Class
 import scala.reflect.Manifest
@@ -21,22 +21,26 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class SparkRepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
+class RepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
 
+  protected def getDefaultRepresentationImpl(): RDD[Row] = {
+    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
+      throw new Exception("Please load theDDFManager representation")
+    }
+    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    rdd
+  }
   /**
-   *
+   * Creates a specific representation
    */
+
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
     val schema = theDDFManager.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
-    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load theDDFManager representation")
-    }
-
-    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
+    val rdd = getDefaultRepresentationImpl();
     elementType match {
 
       case arrayObject if arrayObject == classOf[Array[Object]] => getRDDArrayObject(rdd, numCols)
@@ -126,8 +130,7 @@ object SparkRepresentationHandler {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
-      }
-      else {
+      } else {
         array(i) = extractors(i)(obj)
       }
       i += 1
@@ -145,12 +148,10 @@ object SparkRepresentationHandler {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
-      }
-      else {
+      } else {
         if (i < numCols - 1) {
           features(i) = extractors(i)(obj)
-        }
-        else {
+        } else {
           label = extractors(i)(obj)
         }
       }
