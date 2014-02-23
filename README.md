@@ -25,17 +25,17 @@ business analysts, data scientists, and high-level Big Data engineers.
 
 ### Directory Structure
 
-<table>
-<tr><td>bin/</td><td>useful helper scripts</td></tr>
-<tr><td>exe/</td><td>DDF execution/launch scripts and executables</td></tr>
-<tr><td>conf/</td><td>DDF configuration files</td></tr>
-<tr><td>clients/</td><td>DDF client code, e.g., R, Python, etc.</td></tr>
-<tr><td>contrib/</td><td>Contributed DDF code that has not/does not fit into the core API</td></tr>
-<tr><td>core/</td><td>DDF core API</td></tr>
-<tr><td>spark/</td><td>DDF Spark implementation</td></tr>
-<tr><td>examples/</td><td>DDF example API-user code</td></tr>
-<tr><td>project/</td><td>Scala build config files</td></tr>
-</table>
+| Directory | Description |
+|-----------|-------------|
+| bin | useful helper scripts |
+| exe | DDF execution/launch scripts and executables |
+| conf | DDF configuration files |
+| clients | DDF client code, e.g., R, Python, etc. |
+| contrib | Contributed DDF code that has not/does not fit into the core API |
+| core | DDF core API |
+| spark | DDF Spark implementation |
+| examples | DDF example API-user code |
+| project | Scala build config files |
 
 ### Getting Started
 
