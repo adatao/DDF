@@ -79,13 +79,9 @@ public class SparkDDFManager extends ADDFManager {
     this.initialize(null, params);
   }
 
-  private void initialize(SparkContext sparkContext, Map<String, String> params)
-      throws DDFException {
-    this.setSparkContext(sparkContext == null ? this.createSparkContext(params)
-        : sparkContext);
-
-    if (sparkContext instanceof SharkContext)
-      this.setSharkContext((SharkContext) sparkContext);
+  private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
+    this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
   }
 
   public void shutdown() {
@@ -96,77 +92,68 @@ public class SparkDDFManager extends ADDFManager {
     }
   }
 
-  private static final String[][] SPARK_ENV_VARS = new String[][] {
-      // @formatter:off
-      { "SPARK_APPNAME", "spark.appname" }, { "SPARK_MASTER", "spark.master" },
-      { "SPARK_HOME", "spark.home" },
-      { "SPARK_SERIALIZER", "spark.serializer" },
-      { "SPARK_SERIALIZER", "spark.serializer" }, { "HIVE_HOME", "hive.home" },
-      { "HADOOP_HOME", "hadoop.home" }, { "DDFSPARK_JAR", "ddfspark.jar" }
-  // @formatter:on
+  private static final String[][] SPARK_ENV_VARS = new String[][] { 
+    // @formatter:off
+    { "SPARK_APPNAME", "spark.appname" },
+    { "SPARK_MASTER", "spark.master" }, 
+    { "SPARK_HOME", "spark.home" }, 
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "SPARK_SERIALIZER", "spark.serializer" },
+    { "HIVE_HOME", "hive.home" },
+    { "HADOOP_HOME", "hadoop.home" },
+    { "DDFSPARK_JAR", "ddfspark.jar" } 
+    // @formatter:on
   };
 
   /**
-   * Takes an existing params map, and reads both environment as well as system
-   * property settings to merge into it. The merge priority is as follows: (1)
-   * already set in params, (2) in system properties (e.g., -Dspark.home=xxx),
-   * (3) in environment variables (e.g., export SPARK_HOME=xxx)
+   * Takes an existing params map, and reads both environment as well as system property settings to
+   * merge into it. The merge priority is as follows: (1) already set in params, (2) in system
+   * properties (e.g., -Dspark.home=xxx), (3) in environment variables (e.g., export SPARK_HOME=xxx)
    * 
    * @param params
    * @return
    */
-  private Map<String, String> mergeSparkParamsFromSettings(
-      Map<String, String> params) {
-    if (params == null)
-      params = new HashMap<String, String>();
+  private Map<String, String> mergeSparkParamsFromSettings(Map<String, String> params) {
+    if (params == null) params = new HashMap<String, String>();
 
     Map<String, String> env = System.getenv();
 
     for (String[] varPair : SPARK_ENV_VARS) {
-      if (params.containsKey(varPair[0]))
-        continue; // already set in params
+      if (params.containsKey(varPair[0])) continue; // already set in params
 
       // Read setting either from System Properties, or environment variable.
       // Env variable has lower priority if both are set.
       String value = System.getProperty(varPair[1], env.get(varPair[0]));
-      if (value != null && value.length() > 0)
-        params.put(varPair[0], value);
+      if (value != null && value.length() > 0) params.put(varPair[0], value);
     }
 
     // Some well-known defaults
-    if (!params.containsKey("SPARK_MASTER"))
-      params.put("SPARK_MASTER", DEFAULT_SPARK_MASTER);
-    if (!params.containsKey("SPARK_APPNAME"))
-      params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
+    if (!params.containsKey("SPARK_MASTER")) params.put("SPARK_MASTER", DEFAULT_SPARK_MASTER);
+    if (!params.containsKey("SPARK_APPNAME")) params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
 
     return params;
   }
 
   /**
-   * Side effect: also sets SharkContext and SparkContextParams in case the
-   * client wants to examine or use those.
+   * Side effect: also sets SharkContext and SparkContextParams in case the client wants to examine
+   * or use those.
    * 
    * @param params
    * @return
    * @throws DDFException
    */
-  private SparkContext createSparkContext(Map<String, String> params)
-      throws DDFException {
+  private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
     try {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String ddfSparkJar = params.get("DDFSPARK_JAR");
-      String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",")
-          : new String[] {};
-
-      JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"),
-          params.get("SPARK_APPNAME"), params.get("SPARK_HOME"), jobJars,
-          params);
+      String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
+      JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+          params.get("SPARK_HOME"), jobJars, params);
       this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
-
     } catch (Exception e) {
       throw new DDFException(e);
     }
     return this.getSparkContext();
   }
-
+  
 }
