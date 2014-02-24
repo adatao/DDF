@@ -10,9 +10,9 @@ import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.ddf.ADDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
-import com.adatao.spark.ddf.content.SparkRepresentationHandler._
+import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
 
 /**
@@ -21,7 +21,7 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class RepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
+class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
 
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
     if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
@@ -93,7 +93,7 @@ class RepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentat
   }
 }
 
-object SparkRepresentationHandler {
+object RepresentationHandler {
   /**
    *
    */
