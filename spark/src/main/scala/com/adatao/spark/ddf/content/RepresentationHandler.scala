@@ -14,6 +14,7 @@ import com.adatao.ddf.ADDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
+import com.adatao.ddf.ADDFManager
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -21,8 +22,7 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
-
+class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
     if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
@@ -165,7 +165,7 @@ object RepresentationHandler {
       case obj => obj.asInstanceOf[Double]
     }
 
-    case ColumnType.INTEGER => {
+    case ColumnType.INT => {
       case obj => obj.asInstanceOf[Int].toDouble
     }
 
