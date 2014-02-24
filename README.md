@@ -51,37 +51,37 @@ creates pom.xml in the various sub-project directories, and Eclipse
 
 ```
 $ cd DDF
-DDF $ bin/run-once.sh
+$ bin/run-once.sh
 ```
 
 If you ever need to regenerated the pom.xml files:
 
 ```
-DDF $ bin/make-poms.sh
+$ bin/make-poms.sh
 ```
 
 The following regenerates Eclipse .project and .classpath files:
 
 ```
-DDF $ bin/make-eclipse-projects.sh
+$ bin/make-eclipse-projects.sh
 ```
 
 ### Building `DDF_core` or `DDF_spark`
 
 ```
-DDF/core $ mvn clean package
-DDF/spark $ mvn clean package
+$ (cd core ; mvn clean package)
+$ (cd spark ; mvn clean package)
 ```
 
 ### Running tests
 	
 ```
-DDF $ bin/sbt test
+$ bin/sbt test
 ```
 
 or
 
 ```
-DDF/core $ mvn test
-DDF/spark $ mvn test
+$ (cd core ; mvn test)
+$ (cd spark ; mvn test)
 ```
