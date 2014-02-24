@@ -38,9 +38,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
     val schema = theDDFManager.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
-    schema.getColumns.foreach{
-      colInfo => LOG.info(">>>>>>>> " + colInfo.getType)
-    }
+
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     val rdd = getDefaultRepresentationImpl();
