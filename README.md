@@ -42,15 +42,17 @@ business analysts, data scientists, and high-level Big Data engineers.
 First clone or fork a copy of DDF, e.g.:
 
 ````
-    % git clone http://git.adatao.com/DDF 
+$ git clone http://git.adatao.com/DDF 
 ````
 
 Now you need to prepare the build, which prepares the libraries,
 creates pom.xml in the various sub-project directories, and Eclipse
 .project and .classpath files.
 
-    % cd DDF
-    DDF % bin/run-once.sh
+````
+$ cd DDF
+DDF $ bin/run-once.sh
+````
 
 If you ever need to regenerated the pom.xml files:
 
