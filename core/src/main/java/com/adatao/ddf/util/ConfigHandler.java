@@ -203,7 +203,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       curDir = String.format("%s/..", curDir);
     }
 
-    // System.out.printf("Found config at %s\n", path);
+    mLog.debug(String.format("Using config file found at %s\n", path));
     return path;
   }
 
