@@ -56,22 +56,32 @@ DDF $ bin/run-once.sh
 
 If you ever need to regenerated the pom.xml files:
 
-    DDF % bin/make-poms.sh
+````
+DDF $ bin/make-poms.sh
+````
 
 The following regenerates Eclipse .project and .classpath files:
-		
-    DDF % bin/make-eclipse-projects.sh
+
+````
+DDF $ bin/make-eclipse-projects.sh
+````
 
 ### Building `DDF_core` or `DDF_spark`
-		
-    DDF/core % mvn clean package
-    DDF/spark % mvn clean package
+
+````
+DDF/core $ mvn clean package
+DDF/spark $ mvn clean package
+````
 
 ### Running tests
-		
-    DDF % bin/sbt test
+	
+````
+DDF $ bin/sbt test
+````
 
 or
 
-    DDF/core % mvn test
-    DDF/spark % mvn test
+````
+DDF/core $ mvn test
+DDF/spark $ mvn test
+````
