@@ -18,6 +18,7 @@ import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.util.ConfigHandler.Config.Section;
+import com.google.common.base.Strings;
 
 
 /**
@@ -147,7 +148,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     Config resultConfig = new Config();
 
     String configFileName = System.getenv(CONFIG_FILE_ENV_VAR);
-    if (configFileName == null) configFileName = this.locateConfigFileName();
+    if (Strings.isNullOrEmpty(configFileName)) configFileName = this.locateConfigFileName();
 
     // TODO: load a default, built-in configuration, even if we can't find the config file
 

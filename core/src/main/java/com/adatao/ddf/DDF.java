@@ -38,6 +38,7 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
+import com.google.common.base.Strings;
 
 
 /**
@@ -63,8 +64,8 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * @param elementType
    *          The DDF data is expected to have rows (or columns) of elements with elementType
    * @param namespace
-   *          The namespace to place this DDF in. If null, it will be picked up from current
-   *          settings.
+   *          The namespace to place this DDF in. If null, it will be picked up from the
+   *          DDFManager's current namespace.
    * @param name
    *          The name for this DDF. If null, it will come from the given schema. If that's null, a
    *          UUID-based name will be generated.
@@ -89,12 +90,11 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     if (manager == null) manager = DDFManager.sDummyDDFManager;
     this.setManager(manager);
 
-    if (namespace == null) namespace = this.getManager().getConfigValue("namespace");
-    if (namespace == null) namespace = this.getManager().getConfigValue("global", "namespace");
+    if (Strings.isNullOrEmpty(namespace)) namespace = manager.getNamespace();
     this.setNamespace(namespace);
 
-    if (name == null && schema != null) name = schema.getTableName();
-    if (name == null) name = String.format("DDF-%s", UUID.randomUUID());
+    if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
+    if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
     this.setName(name);
   }
 
@@ -106,11 +106,10 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   /**
    * @return the namespace this DDF belongs in
+   * @throws DDFException
    */
-  public String getNamespace() {
-    if (mNamespace == null) {
-
-    }
+  public String getNamespace() throws DDFException {
+    if (mNamespace == null) mNamespace = this.getManager().getNamespace();
     return mNamespace;
   }
 

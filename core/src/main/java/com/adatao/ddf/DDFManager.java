@@ -31,6 +31,7 @@ import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.jcoll.ddf.JCollDDFManager;
+import com.google.common.base.Strings;
 
 /**
  * <p>
@@ -100,10 +101,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (engineName == null || engineName.length() == 0) return null;
+    if (Strings.isNullOrEmpty(engineName)) return null;
 
     String className = getDummyDDFManager().getConfigValue(engineName, "DDFManager");
-    if (className == null || className.length() == 0) return null;
+    if (Strings.isNullOrEmpty(className)) return null;
 
     DDFManager manager;
     try {
@@ -166,6 +167,19 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     } catch (Exception e) {
       throw new DDFException("While instantiating a new DDF", e);
     }
+  }
+
+
+  private String mNamespace;
+
+  public String getNamespace() throws DDFException {
+    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getConfigValue("namespace");
+    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getConfigValue("global", "namespace");
+    return mNamespace;
+  }
+
+  public void setNameSpace(String namespace) {
+    mNamespace = namespace;
   }
 
   // ////// ISupportPhantomReference ////////
