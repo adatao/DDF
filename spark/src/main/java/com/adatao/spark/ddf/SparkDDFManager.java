@@ -20,7 +20,7 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class SparkDDFManager extends ADDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
-  private static final String DEFAULT_SPARK_MASTER = "local[4]";
+  private static final String DEFAULT_SPARK_MASTER = "local";
 
   public String getDDFEngine() {
     return "spark";

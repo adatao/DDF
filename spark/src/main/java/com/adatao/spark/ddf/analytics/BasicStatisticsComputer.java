@@ -37,6 +37,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   /**
    * Mapper function
    */
+  @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
     @Override
     public Summary[] call(Object[] p) {
@@ -82,6 +83,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class GetSummaryReducer extends
       Function2<Summary[], Summary[], Summary[]> {
     @Override
