@@ -41,7 +41,9 @@ business analysts, data scientists, and high-level Big Data engineers.
 
 First clone or fork a copy of DDF, e.g.:
 
+````
     % git clone http://git.adatao.com/DDF 
+````
 
 Now you need to prepare the build, which prepares the libraries,
 creates pom.xml in the various sub-project directories, and Eclipse
