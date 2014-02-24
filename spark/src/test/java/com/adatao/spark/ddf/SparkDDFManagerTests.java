@@ -58,7 +58,7 @@ public class SparkDDFManagerTests {
             "CancellationCode string, Diverted string, CarrierDelay int, " +
             "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
         );
-    DDF.sql2txt("load data local inpath '/users/daoduchuan/DDF/resources/test/airline.csv' into table airline");
+    DDF.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
     DDF ddf = DDF
         .sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
     Assert.assertEquals(16, ddf.getSummary().length);
