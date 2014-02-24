@@ -23,10 +23,11 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IRunAlgorithms;
+import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
 import com.adatao.ddf.content.IHandleMissingData;
@@ -166,11 +167,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
-  }
-
-  // Run Algorithms
-  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
-    return this.getAlgorithmRunner().run(algorithm, this);
   }
 
 
@@ -385,6 +381,17 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   }
 
 
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+
+  // Run Algorithms
+  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
+    return this.getAlgorithmRunner().run(algorithm, this);
+  }
+
+
   public IHandleTimeSeries getTimeSeriesHandler() {
     if (mTimeSeriesHandler == null) mTimeSeriesHandler = this.createTimeSeriesHandler();
     if (mTimeSeriesHandler == null) throw new UnsupportedOperationException();
@@ -490,5 +497,4 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       ;
     // @formatter:on
   }
-
 }

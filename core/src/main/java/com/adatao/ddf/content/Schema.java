@@ -1,8 +1,12 @@
 package com.adatao.ddf.content;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import scala.actors.threadpool.Arrays;
 
 import com.google.common.collect.Lists;
 
@@ -49,6 +53,11 @@ public class Schema implements Serializable {
 
   public Schema(String tableName, List<Column> columns) {
     this.initialize(tableName, columns);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Schema(String tableName, Column[] columns) {
+    this.initialize(tableName, Arrays.asList(columns));
   }
 
   private void initialize(String tableName, List<Column> columns) {
@@ -201,9 +210,32 @@ public class Schema implements Serializable {
 
   }
 
+  public static class ColumnWithData extends Column {
+    private Object[] mData;
+
+    public ColumnWithData(String name, Object[] data) {
+      super(name, ColumnType.fromArray(data));
+    }
+
+    /**
+     * @return the data
+     */
+    public Object[] getData() {
+      return mData;
+    }
+
+    /**
+     * @param data
+     *          the data to set
+     */
+    public void setData(Object[] data) {
+      this.mData = data;
+    }
+  }
+
   public enum ColumnType {
 
-    STRING, INTEGER, DOUBLE, TIMESTAMP, BLOB;
+    STRING, INTEGER, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
 
     public static ColumnType fromString(String s) {
       if (s == null || s.length() == 0) return null;
@@ -215,6 +247,24 @@ public class Schema implements Serializable {
       }
 
       return null;
+    }
+
+    public static ColumnType fromObject(Object obj) {
+      if (obj == null) return null;
+      Class<?> objClass = obj.getClass();
+
+      if (String.class.isAssignableFrom(objClass)) return STRING;
+      if (Integer.class.isAssignableFrom(objClass)) return DOUBLE;
+      if (Long.class.isAssignableFrom(objClass)) return LONG;
+      if (Float.class.isAssignableFrom(objClass)) return FLOAT;
+      if (Date.class.isAssignableFrom(objClass)) return TIMESTAMP;
+      if (java.sql.Date.class.isAssignableFrom(objClass)) return TIMESTAMP;
+      if (Timestamp.class.isAssignableFrom(objClass)) return TIMESTAMP;
+      else return BLOB;
+    }
+
+    public static ColumnType fromArray(Object[] elements) {
+      return (elements == null ? null : fromObject(elements[0]));
     }
   }
 

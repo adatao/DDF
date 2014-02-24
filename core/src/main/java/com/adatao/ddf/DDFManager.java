@@ -16,6 +16,7 @@
  */
 package com.adatao.ddf;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 import com.adatao.ddf.analytics.IRunAlgorithms;
@@ -145,10 +146,21 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * 
    * @throws DDFException
    */
-  protected DDF newDDF() throws DDFException {
+  // protected DDF newDDF() throws DDFException {
+  @SuppressWarnings("unchecked")
+  protected DDF newDDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
+      Schema schema) throws DDFException {
+
+    String className = this.getConfigValue("DDF");
+
     try {
-      DDF ddf = (DDF) Class.forName(this.getConfigValue("DDF")).newInstance();
-      if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + this.getConfigValue("DDF"));
+      Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getConstructor(DDFManager.class,
+          Object.class, Class.class, String.class, String.class, String.class);
+      if (cons == null) throw new DDFException("Cannot get constructor for " + className);
+
+      DDF ddf = cons.newInstance(manager, data, elementType, namespace, name, schema);
+      if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + className);
+
       return ddf;
 
     } catch (Exception e) {

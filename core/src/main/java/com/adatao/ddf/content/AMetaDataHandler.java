@@ -3,6 +3,7 @@
  */
 package com.adatao.ddf.content;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
@@ -58,4 +59,27 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     }
     return mNumRows;
   }
+
+  private HashMap<Integer, ICustomMetaData> mCustomMetaDatas;
+
+  public ICustomMetaData getCustomMetaData(int idx) {
+    return mCustomMetaDatas.get(idx);
+  }
+
+  public void setCustomMetaData(ICustomMetaData customMetaData) {
+    mCustomMetaDatas.put(customMetaData.getColumnIndex(), customMetaData);
+  }
+
+  public HashMap<Integer, ICustomMetaData> getListCustomMetaData() {
+    return mCustomMetaDatas;
+  }
+  public static interface ICustomMetaData {
+
+    public double[] buildCoding(String value);
+
+    public double get(String value, int idx);
+
+    public int getColumnIndex();
+  }
+
 }

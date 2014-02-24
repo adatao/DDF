@@ -1,6 +1,5 @@
 package com.adatao.spark.ddf;
 
-
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public class SparkDDFManagerTests {
   @Test
   public void testLongSparkDDFManagerRetrieval() throws DDFException {
     DDFManager manager = DDFManager.get("spark");
-
     Map<String, String> params = ((SparkDDFManager) manager).getSparkContextParams();
     System.out.println(System.getProperty("spark.serializer"));
     System.out.println(params.get("DDFSPARK_JAR"));

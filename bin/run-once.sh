@@ -11,7 +11,7 @@ SBT=bin/sbt
 LOGFILE="$DIR/$ME.log"
 touch $LOGFILE
 
-function run() {
+function Run() {
   echo "
   ---------------------------------------------------------------------------------------
 
@@ -43,14 +43,14 @@ function run() {
   #"
   #rm -fr ~/.m2/repository/{adatao,org/spark-project,edu/berkeley}
   #rm -fr ~/.ivy2/{cache,local}/{adatao.*,org.spark-project,edu.berkeley.*}
-  spark/lib/mvn-install-jars.sh || exit 1
+  spark/lib/mvn-install-jars.sh || Error "mvn-install-jars.sh failed"
 
   echo "
   ***************************************************************************************
   Running one time 'sbt clean package eclipse' to generate .classpath and .project files
   ***************************************************************************************
   "
-  #$SBT clean compile package eclipse || exit 1
+  #$SBT clean compile package eclipse || Error "$SBT clean compile package eclipse failed"
   # Don't exit on failure; we may still be able to get mvn going
   $SBT clean compile package eclipse
 
@@ -59,14 +59,14 @@ function run() {
   Running one time 'bin/make-poms.sh' to generate sub-project pom.xml files
   ***************************************************************************************
   "
-  bin/make-poms.sh || exit 1
+  bin/make-poms.sh || Error "make-poms.sh failed"
 
   echo "
   ***************************************************************************************
   Running one time 'mvn clean compile package -DskipTests' under 'core/' to confirm successful build
   ***************************************************************************************
   "
-  (cd core ; mvn clean compile package -DskipTests) || exit 1
+  (cd core ; mvn clean compile package -DskipTests) || Error "mvn compile in core failed"
 
   echo "
   ***************************************************************************************
@@ -75,4 +75,16 @@ function run() {
   "
 }
 
-run 2>&1 | tee -a $LOGFILE
+function Error() {
+	local MSG=$1
+  echo "
+  ***************************************************************************************
+  Error: ${MSG:=Build error}
+
+  NB: If you see something like 'Invalid target release', be sure you have JAVA_HOME set
+  ***************************************************************************************
+	"
+	exit 1
+}
+
+Run 2>&1 | tee -a $LOGFILE

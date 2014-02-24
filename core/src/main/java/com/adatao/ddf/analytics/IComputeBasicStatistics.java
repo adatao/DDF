@@ -4,4 +4,6 @@ import com.adatao.ddf.IHandleDDFFunctionalGroup;
 
 public interface IComputeBasicStatistics extends IHandleDDFFunctionalGroup {
 
+  public Summary[] getSummary();
+
 }

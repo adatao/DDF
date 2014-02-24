@@ -47,9 +47,10 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   public void reset();
 
   /**
+   * @return 
    *
    */
-  public void getRepresentation(Class<?> elementType);
+  public Object getRepresentation(Class<?> elementType);
 
   /**
    * Clears all current representations and set it to the supplied one.

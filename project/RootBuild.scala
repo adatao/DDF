@@ -42,16 +42,16 @@ object RootBuild extends Build {
 	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
 	val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
 
-	val extrasProjectName = projectName + "_extras"
-	val extrasVersion = rootVersion
-	val extrasJarName = extrasProjectName + "-" + extrasVersion + ".jar"
-	val extrasTestJarName = extrasProjectName + "-" + extrasVersion + "-tests.jar"
+	val contribProjectName = projectName + "_contrib"
+	val contribVersion = rootVersion
+	val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
+	val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, extras)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
 	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
-	lazy val extras = Project("extras", file("extras"), settings = extrasSettings) dependsOn (spark) dependsOn(core)
+	lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -472,11 +472,11 @@ object RootBuild extends Build {
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
-  def extrasSettings = commonSettings ++ Seq(
-    name := extrasProjectName,
+  def contribSettings = commonSettings ++ Seq(
+    name := contribProjectName,
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch extras/" + targetDir + "/*timestamp") }
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch contrib/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
 

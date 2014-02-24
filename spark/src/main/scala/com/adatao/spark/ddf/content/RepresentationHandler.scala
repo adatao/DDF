@@ -14,6 +14,7 @@ import com.adatao.spark.ddf.SparkDDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.SparkRepresentationHandler._
 import com.adatao.ddf.exception.DDFException
+import com.adatao.ddf.DDF
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -21,20 +22,20 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresentationHandler(container) with IHandleRepresentations {
+class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) with IHandleRepresentations {
 
   /**
    *
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = container.getSchemaHandler
+    val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
-    if (container.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load container representation")
+    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
+      throw new Exception("Please load theDDFManager representation")
     }
 
-    val rdd = container.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
