@@ -3,12 +3,15 @@ package com.adatao.spark.ddf.analytics;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
+import scala.reflect.ClassManifest;
+import scala.reflect.ClassManifest$;
 
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
@@ -27,8 +30,9 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   @Override
   public Summary[] getSummaryImpl() {
     @SuppressWarnings("unchecked")
-    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager()
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getManager()
         .getRepresentationHandler().get(Object[].class);
+    JavaRDD<Object[]> data= new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(
         new GetSummaryReducer());
     return stats;
