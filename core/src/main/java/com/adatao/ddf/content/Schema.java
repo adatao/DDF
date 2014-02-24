@@ -235,7 +235,7 @@ public class Schema implements Serializable {
 
   public enum ColumnType {
 
-    STRING, INTEGER, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
+    STRING, INT, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
 
     public static ColumnType fromString(String s) {
       if (s == null || s.length() == 0) return null;
