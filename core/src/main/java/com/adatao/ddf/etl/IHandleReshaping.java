@@ -1,5 +1,7 @@
 package com.adatao.ddf.etl;
 
-public interface IHandleReshaping {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleReshaping extends IHandleDDFFunctionalGroup {
 
 }

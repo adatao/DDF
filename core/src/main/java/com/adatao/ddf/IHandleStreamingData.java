@@ -1,5 +1,5 @@
 package com.adatao.ddf;
 
-public interface IHandleStreamingData {
+public interface IHandleStreamingData extends IHandleDDFFunctionalGroup {
 
 }

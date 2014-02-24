@@ -2,7 +2,9 @@ package com.adatao.ddf.content;
 
 import java.util.UUID;
 
-public interface IHandleMetaData {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleMetaData extends IHandleDDFFunctionalGroup {
 
   public UUID getId();
 

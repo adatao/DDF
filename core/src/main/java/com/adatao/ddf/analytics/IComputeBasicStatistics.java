@@ -1,5 +1,7 @@
 package com.adatao.ddf.analytics;
 
-public interface IComputeBasicStatistics {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IComputeBasicStatistics extends IHandleDDFFunctionalGroup {
 
 }

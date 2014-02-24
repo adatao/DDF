@@ -72,7 +72,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Persisting " + rdd)
+          mLog.info(this.getClass() + ": Persisting " + rdd)
           rdd.persist
         }
     })
@@ -82,7 +82,7 @@ class SparkRepresentationHandler(container: SparkDDFManager) extends ARepresenta
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Unpersisting " + rdd)
+          mLog.info(this.getClass() + ": Unpersisting " + rdd)
           rdd.unpersist(false)
         }
     })

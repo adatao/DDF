@@ -1,4 +1,4 @@
 package com.adatao.ddf;
 
-public interface IHandleMiscellany {
+public interface IHandleMiscellany extends IHandleDDFFunctionalGroup {
 }

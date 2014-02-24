@@ -1,5 +1,7 @@
 package com.adatao.ddf.content;
 
-public interface IHandleIndexing {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleIndexing extends IHandleDDFFunctionalGroup {
 
 }
