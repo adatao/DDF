@@ -34,12 +34,12 @@ import com.adatao.ddf.IHandleDDFFunctionalGroup;
 public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
 
   /**
-   * Retrieves a representation with elements of elementType.
+   * Retrieves a representation with elements of rowType.
    * 
-   * @param unitType
+   * @param rowType
    * @return a pointer to the specified
    */
-  public Object get(Class<?> unitType);
+  public Object get(Class<?> rowType);
 
   /**
    * Clears out all current representations.
@@ -50,25 +50,25 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * Clears all current representations and set it to the supplied one.
    * 
    * @param data
-   * @param unitType
+   * @param rowType
    */
-  public void set(Object data, Class<?> unitType);
+  public void set(Object data, Class<?> rowType);
 
   /**
    * Adds a representation to the set of existing representations.
    * 
    * @param data
-   * @param unitType
+   * @param rowType
    */
-  public void add(Object data, Class<?> unitType);
+  public void add(Object data, Class<?> rowType);
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param unitType
+   * @param rowType
    */
 
-  public void remove(Class<?> unitType);
+  public void remove(Class<?> rowType);
 
   /**
    * Cache all representations, e.g., in an in-memory context

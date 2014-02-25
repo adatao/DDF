@@ -64,8 +64,8 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * 
    * @param data
    *          The DDF data
-   * @param elementType
-   *          The DDF data is expected to have rows (or columns) of elements with elementType
+   * @param rowType
+   *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
    *          The namespace to place this DDF in. If null, it will be picked up from the
    *          DDFManager's current namespace.
@@ -76,21 +76,21 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name, Schema schema)
+  public DDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
-    this.initialize(manager, data, elementType, namespace, name, schema);
+    this.initialize(manager, data, rowType, namespace, name, schema);
   }
 
   protected DDF() {
   }
 
-  protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
+  protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    this.getRepresentationHandler().set(data, elementType);
+    this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.setManager(manager);
+    this.getRepresentationHandler().set(data, rowType);
 
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);
@@ -497,13 +497,21 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     try {
       className = getConfigValue(this.getEngine(), theInterface.getSimpleName());
+      if (Strings.isNullOrEmpty(className)) {
+        mLog.error(String.format("Cannot determine classname for %s from configuration source [%]:%s",
+            theInterface.getSimpleName(), getConfigHandler().getSource(), this.getEngine()));
+        return null;
+      }
+
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
-          .getConstructor(new Class<?>[] { DDFManager.class });
+          .getConstructor(new Class<?>[] { DDF.class });
+
       return cons != null ? (I) cons.newInstance(this) : null;
 
     } catch (Exception e) {
-      mLog.error(String.format("Cannot instantiate handler for %s/%s", theInterface.getSimpleName(), className), e);
+      mLog.error(String.format("Cannot instantiate handler for [%s]:%s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), e);
       return null;
     }
   }

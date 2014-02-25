@@ -15,11 +15,11 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class SparkDDF extends DDF {
 
-  public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<?> elementType, String namespace, String name, Schema schema)
+  public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<?> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
     if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
-    this.initialize(manager, rdd, elementType, namespace, name, schema);
+    this.initialize(manager, rdd, rowType, namespace, name, schema);
   }
 
   /**
@@ -33,9 +33,9 @@ public class SparkDDF extends DDF {
 
 
   @SuppressWarnings("unchecked")
-  public <T> RDD<T> getRDD(Class<T> elementType) throws DDFException {
-    Object obj = this.getRepresentationHandler().get(elementType);
+  public <T> RDD<T> getRDD(Class<T> rowType) throws DDFException {
+    Object obj = this.getRepresentationHandler().get(rowType);
     if (obj instanceof RDD<?>) return (RDD<T>) obj;
-    else throw new DDFException("Unable to get RDD with element type " + elementType);
+    else throw new DDFException("Unable to get RDD with element type " + rowType);
   }
 }

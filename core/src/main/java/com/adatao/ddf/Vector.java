@@ -106,8 +106,8 @@ public class Vector {
   private void initialize(String name, Object[] data, String engineName) throws DDFException {
     if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
 
-    Class<?> elementType = data[0].getClass();
-    DDF newDDF = DDFManager.get(engineName).newDDF(null, data, elementType, null, name, new Schema(name));
+    Class<?> rowType = data[0].getClass();
+    DDF newDDF = DDFManager.get(engineName).newDDF(null, data, rowType, null, name, new Schema(name));
 
     this.initialize(newDDF, name);
   }

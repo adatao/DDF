@@ -8,6 +8,19 @@ import com.adatao.ddf.util.ConfigHandler.Config.Section;
 
 public interface IHandleConfig extends IHandleDDFFunctionalGroup {
 
+  /**
+   * Returns a file name, URI, or some other description of where the configuration info comes from.
+   * 
+   * @return
+   */
+  public String getSource();
+
+  /**
+   * Loads/reloads the config file
+   * 
+   * @return the loaded {@link Config} object
+   * @throws Exception
+   */
   public Config loadConfig() throws Exception;
 
   public Config getConfig();
