@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import scala.actors.threadpool.Arrays;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 /**
@@ -61,7 +62,7 @@ public class Schema implements Serializable {
   }
 
   private void initialize(String tableName, List<Column> columns) {
-    if (tableName == null) tableName = UUID.randomUUID().toString();
+    if (Strings.isNullOrEmpty(tableName)) tableName = UUID.randomUUID().toString();
     this.mTableName = tableName;
     this.mColumns = columns;
 

@@ -22,6 +22,7 @@ import com.adatao.ddf.ADDFManager
  * @author ctn
  *
  */
+
 class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
     if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
@@ -35,7 +36,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
    */
 
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = theDDFManager.getSchemaHandler
+    val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
@@ -76,7 +77,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Persisting " + rdd)
+          mLog.info(this.getClass() + ": Persisting " + rdd)
           rdd.persist
         }
     })
@@ -86,7 +87,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Unpersisting " + rdd)
+          mLog.info(this.getClass() + ": Unpersisting " + rdd)
           rdd.unpersist(false)
         }
     })

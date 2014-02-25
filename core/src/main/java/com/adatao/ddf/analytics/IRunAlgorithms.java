@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
 
 /**
  * Common execution for all pAnalytics algorithms
@@ -8,7 +9,7 @@ import com.adatao.ddf.DDF;
  * @author bhan
  * 
  */
-public interface IRunAlgorithms {
+public interface IRunAlgorithms extends IHandleDDFFunctionalGroup {
 
   /**
    * Set up parameters and data transformation for the algorithm execution

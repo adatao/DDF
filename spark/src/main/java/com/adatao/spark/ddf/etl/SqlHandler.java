@@ -12,7 +12,6 @@ import shark.SharkContext;
 import shark.api.Row;
 import shark.api.TableRDD;
 
-import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -29,8 +28,8 @@ import com.google.common.base.Strings;
  */
 public class SqlHandler extends ASqlHandler {
 
-  public SqlHandler(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public SqlHandler(DDF theDDF) {
+    super(theDDF);
   }
 
   private SharkContext getSharkContext() {
@@ -41,44 +40,51 @@ public class SqlHandler extends ASqlHandler {
 
   @Override
   public DDF sql2ddf(String command) throws DDFException {
-    TableRDD tableRdd = this.getSharkContext().sql2rdd(command);
-    RDD<Row> rdd = (RDD<Row>) tableRdd;
-    Schema schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
-
-    if (Strings.isNullOrEmpty(schema.getTableName())) {
-      schema.setTableName(this.getManager().getSchemaHandler().createTablename());
-    }
-    return new SparkDDF(rdd, Row.class, schema);
+    return this.sql2ddf(command, null, null, null);
   }
 
   @Override
   public DDF sql2ddf(String command, Schema schema) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.sql2ddf(command, schema, null, null);
   }
 
   @Override
   public DDF sql2ddf(String command, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.sql2ddf(command, null, null, dataFormat);
   }
 
   @Override
   public DDF sql2ddf(String command, Schema schema, String dataSource) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.sql2ddf(command, schema, dataSource, null);
   }
 
   @Override
   public DDF sql2ddf(String command, Schema schema, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return this.sql2ddf(command, schema, null, dataFormat);
   }
 
   @Override
   public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    TableRDD tableRdd = null;
+
+    // TODO: handle other dataSources and dataFormats
+
+    if (dataSource == null) {
+      tableRdd = this.getSharkContext().sql2rdd(command);
+
+    } else {
+      // TODO
+    }
+
+    RDD<Row> rdd = (RDD<Row>) tableRdd;
+
+    if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
+
+    String tableName = (schema != null ? schema.getTableName() : null);
+    if (Strings.isNullOrEmpty(tableName)) tableName = (rdd != null ? rdd.name() : null);
+    if (Strings.isNullOrEmpty(tableName)) this.getDDF().getSchemaHandler().newTableName();
+
+    return new SparkDDF(this.getManager(), rdd, Row.class, null, tableName, schema);
   }
 
   private <T> List<T> toList(Seq<T> sequence) {
@@ -89,16 +95,17 @@ public class SqlHandler extends ASqlHandler {
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {
-    try {
-      return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
-    } catch (Exception e) {
-      throw new DDFException(e);
-    }
+    return this.sql2txt(command, null);
   }
 
   @Override
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO: handle other dataSources
+    try {
+      return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+
+    } catch (Exception e) {
+      throw new DDFException(e);
+    }
   }
 }

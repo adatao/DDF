@@ -1,5 +1,7 @@
 package com.adatao.ddf.content;
 
-public interface IHandleMissingData {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleMissingData extends IHandleDDFFunctionalGroup {
 
 }

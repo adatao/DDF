@@ -7,12 +7,11 @@ import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
 import scala.reflect.ClassManifest;
 import scala.reflect.ClassManifest$;
-
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
@@ -20,16 +19,15 @@ import scala.reflect.ClassManifest$;
  * 
  */
 public class BasicStatisticsComputer extends ABasicStatisticsComputer {
-  private static final Logger sLOG = LoggerFactory
-      .getLogger(BasicStatisticsComputer.class);
 
-  public BasicStatisticsComputer(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public BasicStatisticsComputer(DDF theDDF) {
+    super(theDDF);
   }
 
   @Override
   public Summary[] getSummaryImpl() {
     @SuppressWarnings("unchecked")
+
     RDD<Object[]> rdd = (RDD<Object[]>) this.getManager()
         .getRepresentationHandler().get(Object[].class);
     JavaRDD<Object[]> data= new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
@@ -81,7 +79,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
         }
         return result;
       } else {
-        sLOG.error("malformed line input");
+        mLog.error("malformed line input");
         return null;
       }
     }

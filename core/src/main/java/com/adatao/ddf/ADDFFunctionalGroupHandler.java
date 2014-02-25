@@ -3,9 +3,6 @@
  */
 package com.adatao.ddf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
@@ -16,46 +13,39 @@ import com.adatao.ddf.util.PhantomReference;
  * @author ctn
  * 
  */
-public abstract class ADDFFunctionalGroupHandler implements ISupportPhantomReference {
-  protected Logger LOG = LoggerFactory.getLogger(this.getClass());
+public abstract class ADDFFunctionalGroupHandler extends ALoggable implements IHandleDDFFunctionalGroup,
+    ISupportPhantomReference {
 
-  public ADDFFunctionalGroupHandler(ADDFManager theDDFManager) {
-    this.setManager(theDDFManager);
-
+  public ADDFFunctionalGroupHandler(DDF theDDF) {
+    this.setDDF(theDDF);
     PhantomReference.register(this);
   }
 
+  private DDF mDDF;
 
-  /**
-   * @return the {@link DDF} this handler handles, via the DDFManager
-   */
-  public DDF getDDF() {
-    return this.getManager().getDDF();
-  }
-
-  private ADDFManager mDDFManager;
-
-  /**
-   * @return the {@link ADDFManager} that contains this handler
-   */
-  public ADDFManager getManager() {
-    return mDDFManager;
-  }
-
-  /**
-   * @param aDDFManager
-   *          the containing {@link ADDFManager} to set
+  /*
+   * (non-Javadoc)
    * 
-   * @return this instance, for call-chaining style
+   * @see com.adatao.ddf.IHandleDDFFunctionalGroup#getDDF()
    */
-  public ADDFFunctionalGroupHandler setManager(ADDFManager aDDFManager) {
-    this.mDDFManager = aDDFManager;
-    return this;
+  @Override
+  public DDF getDDF() {
+    return mDDF;
   }
+
+  @Override
+  public void setDDF(DDF theDDF) {
+    mDDF = theDDF;
+  }
+
+  public DDFManager getManager() {
+    return this.getDDF().getManager();
+  }
+
 
   @Override
   // ISupportPhantomReference
   public void cleanup() {
-    this.setManager(null);
+    this.setDDF(null);
   }
 }

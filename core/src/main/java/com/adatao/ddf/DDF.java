@@ -16,15 +16,16 @@
  */
 package com.adatao.ddf;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
-import com.adatao.ddf.analytics.IHandleFactors;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -35,12 +36,9 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.ColumnWithData;
-import com.adatao.ddf.content.Schema.DataFormat;
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.etl.IHandleSql;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.util.ISupportPhantomReference;
+import com.adatao.ddf.util.PhantomReference;
+import com.google.common.base.Strings;
 
 /**
  * <p>
@@ -57,50 +55,96 @@ import com.adatao.ddf.exception.DDFException;
  * @author ctn
  * 
  */
-public class DDF {
+public class DDF extends ALoggable implements ISupportPhantomReference {
 
-  private static final Logger sLOG = LoggerFactory.getLogger(DDF.class);
+  /**
+   * 
+   * @param data
+   *          The DDF data
+   * @param elementType
+   *          The DDF data is expected to have rows (or columns) of elements with elementType
+   * @param namespace
+   *          The namespace to place this DDF in. If null, it will be picked up from the
+   *          DDFManager's current namespace.
+   * @param name
+   *          The name for this DDF. If null, it will come from the given schema. If that's null, a
+   *          UUID-based name will be generated.
+   * @param schema
+   *          The {@link Schema} of the new DDF
+   * @throws DDFException
+   */
+  public DDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name, Schema schema)
+      throws DDFException {
 
-  // static {
-  // try {
-  // initialize();
-  // } catch (Exception e) {
-  // sLOG.error("Error during DDF initialization", e);
-  // }
-  // }
-
-  public static void initialize() throws DDFException {
-    initialize(DEFAULT_DDF_ENGINE);
+    this.initialize(manager, data, elementType, namespace, name, schema);
   }
 
-  public static void initialize(String ddfEngine) throws DDFException {
-    setEngine(ddfEngine);
+  protected DDF() {
   }
 
-  public static void shutdown() {
-    getDefaultManager().shutdown();
-  }
+  protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
+      Schema schema) throws DDFException {
 
+<<<<<<< HEAD
   private ADDFManager mManager;
+=======
+    this.getRepresentationHandler().set(data, elementType);
 
-  public ADDFManager getManager() {
-    return this.mManager;
+    if (manager == null) manager = DDFManager.sDummyDDFManager;
+    this.setManager(manager);
+
+    if (Strings.isNullOrEmpty(namespace)) namespace = manager.getNamespace();
+    this.setNamespace(namespace);
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
+
+    if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
+    if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
+    this.setName(name);
   }
 
-  protected void setManager(ADDFManager aDDFManager) {
-    this.mManager = aDDFManager;
-  }
 
+<<<<<<< HEAD
   private static ADDFManager sDefaultManager;
+=======
 
-  public static ADDFManager getDefaultManager() {
-    return sDefaultManager;
+  private String mNamespace;
+
+  private String mName;
+
+  /**
+   * @return the namespace this DDF belongs in
+   * @throws DDFException
+   */
+  public String getNamespace() throws DDFException {
+    if (mNamespace == null) mNamespace = this.getManager().getNamespace();
+    return mNamespace;
   }
 
-  protected static void setDefaultManager(ADDFManager aDDFManager) {
-    sDefaultManager = aDDFManager;
+  /**
+   * @param namespace
+   *          the namespace to place this DDF in
+   */
+  public void setNamespace(String namespace) {
+    this.mNamespace = namespace;
+  }
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
+
+  /**
+   * @return the name of this DDF
+   */
+  public String getName() {
+    return mName;
   }
 
+  /**
+   * @param name
+   *          the DDF name to set
+   */
+  public void setName(String name) {
+    this.mName = name;
+  }
+
+<<<<<<< HEAD
   private static DDFConfig.Config sConfig;
 
   protected static DDFConfig.Config getConfig() {
@@ -110,16 +154,29 @@ public class DDF {
       } catch (Exception e) {
         sLOG.error("Unable to initialize DDF", e);
       }
+=======
 
-    return sConfig;
+
+  private DDFManager mManager;
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
+
+  public DDFManager getManager() {
+    return this.mManager;
   }
 
+<<<<<<< HEAD
   public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
+=======
+  protected void setManager(DDFManager DDFManager) {
+    this.mManager = DDFManager;
+  }
 
-  public static final String DEFAULT_DDF_ENGINE = "spark";
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
-  private static String sDDFEngine = DEFAULT_DDF_ENGINE;
 
+  // ////// MetaData that deserves to be right here at the top level ////////
+
+<<<<<<< HEAD
   /**
    * Returns the currently set global DDF engine, e.g., "spark".
    * <p>
@@ -136,17 +193,17 @@ public class DDF {
    */
   public static String getEngine() {
     return sDDFEngine;
+=======
+  public Schema getSchema() {
+    return this.getSchemaHandler().getSchema();
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
   }
 
-  /**
-   * Sets the desired global DDF engine, e.g., "spark"
-   * 
-   * @param ddfEngine
-   * @throws DDFException
-   */
-  public static void setEngine(String ddfEngine) throws DDFException {
-    sDDFEngine = ddfEngine;
+  public String getTableName() {
+    return this.getSchema().getTableName();
+  }
 
+<<<<<<< HEAD
     try {
       // Also load/reload the ddf.ini file
       if (sConfig != null)
@@ -163,91 +220,7 @@ public class DDF {
       Class<?> managerClass = Class.forName(className);
       if (managerClass == null)
         throw new DDFException("Cannot locate class for name " + className);
-
-      ADDFManager defaultManager = (ADDFManager) managerClass.newInstance();
-      setDefaultManager(defaultManager);
-
-    } catch (Exception e) {
-      throw new DDFException("Error in setting DDF Engine", e);
-    }
-  }
-
-  // ////// ADDFManager delegates ////////
-
-  public IComputeBasicStatistics getBasicStatisticsComputer() {
-    return this.getManager().getBasicStatisticsComputer();
-  }
-
-  public IHandleFactors getFactorHandler() {
-    return this.getManager().getFactorHandler();
-  }
-
-  public IHandleIndexing getIndexingHandler() {
-    return this.getManager().getIndexingHandler();
-  }
-
-  public IHandleJoins getJoinsHandler() {
-    return this.getManager().getJoinsHandler();
-  }
-
-  public IHandleMetaData getMetaDataHandler() {
-    return this.getManager().getMetaDataHandler();
-  }
-
-  public IHandleMiscellany getMiscellanyHandler() {
-    return this.getManager().getMiscellanyHandler();
-  }
-
-  public IHandleMissingData getMissingDataHandler() {
-    return this.getManager().getMissingDataHandler();
-  }
-
-  public IHandleMutability getMutabilityHandler() {
-    return this.getManager().getMutabilityHandler();
-  }
-
-  public IHandleSql getSqlHandler() {
-    return this.getManager().getSqlHandler();
-  }
-
-  public IHandleRepresentations getRepresentationHandler() {
-    return this.getManager().getRepresentationHandler();
-  }
-
-  public IHandleReshaping getReshapingHandler() {
-    return this.getManager().getReshapingHandler();
-  }
-
-  public IHandleSchema getSchemaHandler() {
-    return this.getManager().getSchemaHandler();
-  }
-
-  public IHandleStreamingData getStreamingDataHandler() {
-    return this.getManager().getStreamingDataHandler();
-  }
-
-  public IHandleTimeSeries getTimeSeriesHandler() {
-    return this.getManager().getTimeSeriesHandler();
-  }
-
-  public IHandleViews getViewHandler() {
-    return this.getManager().getViewHandler();
-  }
-
-  public IRunAlgorithms getAlgorithmRunner() {
-    return this.getManager().getAlgorithmRunner();
-  }
-
-  // ////// MetaData that deserves to be right here at the top level ////////
-
-  public Schema getSchema() {
-    return this.getSchemaHandler().getSchema();
-  }
-
-  public String getTableName() {
-    return this.getSchema().getTableName();
-  }
-
+=======
   public long getNumRows() {
     return this.getMetaDataHandler().getNumRows();
   }
@@ -255,6 +228,210 @@ public class DDF {
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
+
+>>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
+
+
+  // ////// Function-Group Handlers ////////
+
+  private IComputeBasicStatistics mBasicStatisticsComputer;
+  private IHandleIndexing mIndexingHandler;
+  private IHandleJoins mJoinsHandler;
+  private IHandleMetaData mMetaDataHandler;
+  private IHandleMiscellany mMiscellanyHandler;
+  private IHandleMissingData mMissingDataHandler;
+  private IHandleMutability mMutabilityHandler;
+  private IHandleSql mSqlHandler;
+  private IHandleRepresentations mRepresentationHandler;
+  private IHandleReshaping mReshapingHandler;
+  private IHandleSchema mSchemaHandler;
+  private IHandleStreamingData mStreamingDataHandler;
+  private IHandleTimeSeries mTimeSeriesHandler;
+  private IHandleViews mViewHandler;
+  private IRunAlgorithms mAlgorithmRunner;
+
+
+  public IComputeBasicStatistics getBasicStatisticsComputer() {
+    if (mBasicStatisticsComputer == null) mBasicStatisticsComputer = this.createBasicStatisticsComputer();
+    if (mBasicStatisticsComputer == null) throw new UnsupportedOperationException();
+    else return mBasicStatisticsComputer;
+  }
+
+  public DDF setBasicStatisticsComputer(IComputeBasicStatistics aBasicStatisticsComputer) {
+    this.mBasicStatisticsComputer = aBasicStatisticsComputer;
+    return this;
+  }
+
+  protected IComputeBasicStatistics createBasicStatisticsComputer() {
+    return newHandler(IComputeBasicStatistics.class);
+  }
+
+
+  public IHandleIndexing getIndexingHandler() {
+    if (mIndexingHandler == null) mIndexingHandler = this.createIndexingHandler();
+    if (mIndexingHandler == null) throw new UnsupportedOperationException();
+    else return mIndexingHandler;
+  }
+
+  public DDF setIndexingHandler(IHandleIndexing anIndexingHandler) {
+    this.mIndexingHandler = anIndexingHandler;
+    return this;
+  }
+
+  protected IHandleIndexing createIndexingHandler() {
+    return newHandler(IHandleIndexing.class);
+  }
+
+
+  public IHandleJoins getJoinsHandler() {
+    if (mJoinsHandler == null) mJoinsHandler = this.createJoinsHandler();
+    if (mJoinsHandler == null) throw new UnsupportedOperationException();
+    else return mJoinsHandler;
+  }
+
+  public DDF setJoinsHandler(IHandleJoins aJoinsHandler) {
+    this.mJoinsHandler = aJoinsHandler;
+    return this;
+  }
+
+  protected IHandleJoins createJoinsHandler() {
+    return newHandler(IHandleJoins.class);
+  }
+
+
+  public IHandleMetaData getMetaDataHandler() {
+    if (mMetaDataHandler == null) mMetaDataHandler = this.createMetaDataHandler();
+    if (mMetaDataHandler == null) throw new UnsupportedOperationException();
+    else return mMetaDataHandler;
+  }
+
+  public DDF setMetaDataHandler(IHandleMetaData aMetaDataHandler) {
+    this.mMetaDataHandler = aMetaDataHandler;
+    return this;
+  }
+
+  protected IHandleMetaData createMetaDataHandler() {
+    return newHandler(IHandleMetaData.class);
+  }
+
+
+  public IHandleMiscellany getMiscellanyHandler() {
+    if (mMiscellanyHandler == null) mMiscellanyHandler = this.createMiscellanyHandler();
+    if (mMiscellanyHandler == null) throw new UnsupportedOperationException();
+    else return mMiscellanyHandler;
+  }
+
+  public DDF setMiscellanyHandler(IHandleMiscellany aMiscellanyHandler) {
+    this.mMiscellanyHandler = aMiscellanyHandler;
+    return this;
+  }
+
+  protected IHandleMiscellany createMiscellanyHandler() {
+    return newHandler(IHandleMiscellany.class);
+  }
+
+
+  public IHandleMissingData getMissingDataHandler() {
+    if (mMissingDataHandler == null) mMissingDataHandler = this.createMissingDataHandler();
+    if (mMissingDataHandler == null) throw new UnsupportedOperationException();
+    else return mMissingDataHandler;
+  }
+
+  public DDF setMissingDataHandler(IHandleMissingData aMissingDataHandler) {
+    this.mMissingDataHandler = aMissingDataHandler;
+    return this;
+  }
+
+  protected IHandleMissingData createMissingDataHandler() {
+    return newHandler(IHandleMissingData.class);
+  }
+
+
+  public IHandleMutability getMutabilityHandler() {
+    if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
+    if (mMutabilityHandler == null) throw new UnsupportedOperationException();
+    else return mMutabilityHandler;
+  }
+
+  public DDF setMutabilityHandler(IHandleMutability aMutabilityHandler) {
+    this.mMutabilityHandler = aMutabilityHandler;
+    return this;
+  }
+
+  protected IHandleMutability createMutabilityHandler() {
+    return newHandler(IHandleMutability.class);
+  }
+
+
+  public IHandleSql getSqlHandler() {
+    if (mSqlHandler == null) mSqlHandler = this.createSqlHandler();
+    if (mSqlHandler == null) throw new UnsupportedOperationException();
+    else return mSqlHandler;
+  }
+
+  public DDF setSqlHandler(IHandleSql ASqlHandler) {
+    this.mSqlHandler = ASqlHandler;
+    return this;
+  }
+
+  protected IHandleSql createSqlHandler() {
+    return newHandler(IHandleSql.class);
+  }
+
+  public IHandleRepresentations getRepresentationHandler() {
+    if (mRepresentationHandler == null) mRepresentationHandler = this.createRepresentationHandler();
+    if (mRepresentationHandler == null) throw new UnsupportedOperationException();
+    else return mRepresentationHandler;
+  }
+
+  public DDF setRepresentationHandler(IHandleRepresentations aRepresentationHandler) {
+    this.mRepresentationHandler = aRepresentationHandler;
+    return this;
+  }
+
+  protected IHandleRepresentations createRepresentationHandler() {
+    return newHandler(IHandleRepresentations.class);
+  }
+
+
+  public IHandleReshaping getReshapingHandler() {
+    if (mReshapingHandler == null) mReshapingHandler = this.createReshapingHandler();
+    if (mReshapingHandler == null) throw new UnsupportedOperationException();
+    else return mReshapingHandler;
+  }
+
+  public DDF setReshapingHandler(IHandleReshaping aReshapingHandler) {
+    this.mReshapingHandler = aReshapingHandler;
+    return this;
+  }
+
+  // ////// MetaData that deserves to be right here at the top level ////////
+
+  public DDF setSchemaHandler(IHandleSchema aSchemaHandler) {
+    this.mSchemaHandler = aSchemaHandler;
+    return this;
+  }
+
+  protected IHandleSchema createSchemaHandler() {
+    return newHandler(IHandleSchema.class);
+  }
+
+
+  public IHandleStreamingData getStreamingDataHandler() {
+    if (mStreamingDataHandler == null) mStreamingDataHandler = this.createStreamingDataHandler();
+    if (mStreamingDataHandler == null) throw new UnsupportedOperationException();
+    else return mStreamingDataHandler;
+  }
+
+  public DDF setStreamingDataHandler(IHandleStreamingData aStreamingDataHandler) {
+    this.mStreamingDataHandler = aStreamingDataHandler;
+    return this;
+  }
+
+  protected IHandleStreamingData createStreamingDataHandler() {
+    return newHandler(IHandleStreamingData.class);
+  }
+
 
   // Calculate summary statistics of the DDF
   public Summary[] getSummary() {
@@ -277,13 +454,17 @@ public class DDF {
 
   // ////// Static convenient methods for IHandleSql ////////
 
-  public static DDF sql2ddf(String command) throws DDFException {
-    return getDefaultManager().sql2ddf(command);
+  public IHandleViews getViewHandler() {
+    if (mViewHandler == null) mViewHandler = this.createViewHandler();
+    if (mViewHandler == null) throw new UnsupportedOperationException();
+    else return mViewHandler;
   }
 
-  public static DDF sql2ddf(String command, Schema schema) throws DDFException {
-    return getDefaultManager().sql2ddf(command, schema);
+  public DDF setViewHandler(IHandleViews aViewHandler) {
+    this.mViewHandler = aViewHandler;
+    return this;
   }
+
 
   public static DDF sql2ddf(String command, DataFormat dataFormat)
       throws DDFException {
@@ -360,15 +541,20 @@ public class DDF {
   // return getManager().getFactorSupporter().applyFactorCoding(columnIDs,
   // this);
   // }
-
   /**
+   * Instantiate a new {@link ADDFFunctionalGroupHandler} given its class name
    * 
-   * @param name
-   *          name of the newly created DDF
-   * @param columnWithData
+   * @param className
    * @return
-   * @throws DDFException
+   * @throws ClassNotFoundException
+   * @throws NoSuchMethodException
+   * @throws SecurityException
+   * @throws InvocationTargetException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   * @throws InstantiationException
    */
+
   public static DDF newDDF(String name, ColumnWithData columnWithData)
       throws DDFException {
     return newDDF(name, new ColumnWithData[] { columnWithData });
