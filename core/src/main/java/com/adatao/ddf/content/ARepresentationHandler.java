@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.types.NA;
 
 /**
  * @author ctn
@@ -22,7 +23,11 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
   protected String getKeyFor(Class<?> rowType) {
-    return rowType.toString();
+    return this.getSafeRowType(rowType).toString();
+  }
+
+  protected Class<?> getSafeRowType(Class<?> rowType) {
+    return rowType != null ? rowType : NA.class;
   }
 
   /**
@@ -35,6 +40,8 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    */
   @Override
   public Object get(Class<?> rowType) {
+    rowType = this.getSafeRowType(rowType);
+
     Object obj = mReps.get(getKeyFor(rowType));
     if (obj == null) {
       obj = this.getRepresentationImpl(rowType);
@@ -133,6 +140,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
 
   public enum RepresentationType {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
+
     public static RepresentationType fromString(String s) {
       if (s == null || s.length() == 0) return null;
       s = s.toUpperCase().trim();
