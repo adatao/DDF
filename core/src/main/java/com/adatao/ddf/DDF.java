@@ -506,7 +506,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
-          .getConstructor(new Class<?>[] { DDFManager.class });
+          .getConstructor(new Class<?>[] { DDF.class });
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
