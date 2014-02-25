@@ -13,7 +13,7 @@ public abstract class AAlgorithmRunner extends ADDFFunctionalGroupHandler implem
   }
 
   private void preprocess(IAlgorithm algorithm, DDF ddf) {
-    ddf.getRepresentationHandler().getRepresentation(algorithm.getExpectedDataType());
+    ddf.getRepresentationHandler().get(algorithm.getExpectedDataType());
     algorithm.preprocess(ddf);
   }
 

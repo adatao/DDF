@@ -236,24 +236,20 @@ public class Schema implements Serializable {
 
   public enum ColumnType {
 
-    STRING, INTEGER, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
+    STRING, INT, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
 
     public static ColumnType fromString(String s) {
       if (s == null || s.length() == 0) return null;
-
       s = s.toUpperCase().trim();
-
       for (ColumnType t : values()) {
         if (s.equals(t.name())) return t;
       }
-
       return null;
     }
 
     public static ColumnType fromObject(Object obj) {
       if (obj == null) return null;
       Class<?> objClass = obj.getClass();
-
       if (String.class.isAssignableFrom(objClass)) return STRING;
       if (Integer.class.isAssignableFrom(objClass)) return DOUBLE;
       if (Long.class.isAssignableFrom(objClass)) return LONG;

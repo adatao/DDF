@@ -125,6 +125,41 @@ public class Factor extends Vector {
     super(name, data);
   }
 
+  /**
+   * Instantiate a new Factor with the given Integer array
+   * 
+   * @param data
+   * @param theColumnName
+   * @param engineName
+   * @throws DDFException
+   */
+  public Factor(String name, Integer[] data, String engineName) throws DDFException {
+    super(name, data, engineName);
+  }
+
+  /**
+   * Instantiate a new Factor with the given Integer array
+   * 
+   * @param data
+   * @param theColumnName
+   * @param engineName
+   * @throws DDFException
+   */
+  public Factor(String name, Double[] data, String engineName) throws DDFException {
+    super(name, data, engineName);
+  }
+
+  /**
+   * Instantiate a new Factor with the given Integer array
+   * 
+   * @param data
+   * @param theColumnName
+   * @param engineName
+   * @throws DDFException
+   */
+  public Factor(String name, String[] data, String engineName) throws DDFException {
+    super(name, data, engineName);
+  }
 
 
   private Map<String, Integer> mLevelMap;

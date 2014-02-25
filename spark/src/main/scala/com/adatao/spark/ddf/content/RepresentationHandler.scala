@@ -3,17 +3,18 @@
  */
 package com.adatao.spark.ddf.content
 
-import com.adatao.ddf.content.{IHandleRepresentations, ARepresentationHandler}
+import com.adatao.ddf.content.{ IHandleRepresentations, ARepresentationHandler }
 import com.adatao.ddf.content.Schema.ColumnType
 import java.lang.Class
 import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.ddf.DDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
-import com.adatao.spark.ddf.content.SparkRepresentationHandler._
+import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
+import com.adatao.ddf.DDFManager
 import com.adatao.ddf.DDF
 
 /**
@@ -22,22 +23,26 @@ import com.adatao.ddf.DDF
  * @author ctn
  *
  */
-class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) with IHandleRepresentations {
 
+class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
+  protected def getDefaultRepresentationImpl(): RDD[Row] = {
+    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
+      throw new Exception("Please load theDDFManager representation")
+    }
+    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    rdd
+  }
   /**
-   *
+   * Creates a specific representation
    */
+
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
     val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
-    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load theDDFManager representation")
-    }
-
-    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
+    val rdd = getDefaultRepresentationImpl();
     elementType match {
 
       case arrayObject if arrayObject == classOf[Array[Object]] => getRDDArrayObject(rdd, numCols)
@@ -90,7 +95,7 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) with
   }
 }
 
-object SparkRepresentationHandler {
+object RepresentationHandler {
   /**
    *
    */
@@ -127,8 +132,7 @@ object SparkRepresentationHandler {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
-      }
-      else {
+      } else {
         array(i) = extractors(i)(obj)
       }
       i += 1
@@ -146,12 +150,10 @@ object SparkRepresentationHandler {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
-      }
-      else {
+      } else {
         if (i < numCols - 1) {
           features(i) = extractors(i)(obj)
-        }
-        else {
+        } else {
           label = extractors(i)(obj)
         }
       }
@@ -165,7 +167,7 @@ object SparkRepresentationHandler {
       case obj => obj.asInstanceOf[Double]
     }
 
-    case ColumnType.INTEGER => {
+    case ColumnType.INT => {
       case obj => obj.asInstanceOf[Int].toDouble
     }
 

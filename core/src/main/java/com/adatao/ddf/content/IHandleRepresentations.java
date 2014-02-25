@@ -47,12 +47,6 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   public void reset();
 
   /**
-   * @return 
-   *
-   */
-  public Object getRepresentation(Class<?> elementType);
-
-  /**
    * Clears all current representations and set it to the supplied one.
    * 
    * @param data
@@ -84,4 +78,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * Uncache all representations, e.g., in an in-memory context
    */
   public void uncacheAll();
+
+  public Object getDefault();
+
 }

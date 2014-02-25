@@ -12,12 +12,12 @@ import com.adatao.ddf.DDF;
  * @author ctn
  * 
  */
-public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
+public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
+    implements IHandleRepresentations {
 
   public ARepresentationHandler(DDF theDDF) {
     super(theDDF);
   }
-
 
   // The various representations for our DDF
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
@@ -26,9 +26,9 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
     return elementType.toString();
   }
 
-
   /**
-   * Gets an existing representation for our {@link DDF} matching the given elementType, if any.
+   * Gets an existing representation for our {@link DDF} matching the given
+   * elementType, if any.
    * 
    * @param elementType
    *          the type of each element in the DDFManager
@@ -37,8 +37,20 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    */
   @Override
   public Object get(Class<?> elementType) {
-    return mReps.get(getKeyFor(elementType));
+    Object obj = mReps.get(getKeyFor(elementType));
+    if (obj == null) {
+      obj = this.getRepresentationImpl(elementType);
+      this.add(obj, elementType);
+    }
+    if (obj ==null) throw new UnsupportedOperationException();
+    else return obj;
   }
+
+  @Override
+  public Object getDefault() {
+    return getDefaultRepresentationImpl();
+  }
+  protected abstract Object getDefaultRepresentationImpl();
 
   /**
    * Resets (or clears) all representations
@@ -47,25 +59,15 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void reset() {
     mReps.clear();
   }
+
   /**
    *
    */
   protected abstract Object getRepresentationImpl(Class<?> elementType);
-  /**
-   *
-   */
-  @Override
-  public Object getRepresentation(Class<?> elementType){
-    Object obj= this.get(elementType);
 
-    if(obj == null){
-      obj= this.getRepresentationImpl(elementType);
-      this.add(obj, elementType);
-    }
-    return obj;
-  }
   /**
-   * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
+   * Sets a new and unique representation for our {@link DDF}, clearing out any
+   * existing ones
    * 
    * @param elementType
    *          the type of each element in the DDFManager
@@ -77,8 +79,9 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   }
 
   /**
-   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
-   * replacing the one that matches the given DDFManagerType, elementType tuple.
+   * Adds a new and unique representation for our {@link DDF}, keeping any
+   * existing ones but replacing the one that matches the given DDFManagerType,
+   * elementType tuple.
    * 
    * @param elementType
    *          the type of each element in the DDFManager
@@ -97,7 +100,6 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   public void remove(Class<?> elementType) {
     mReps.remove(getKeyFor(elementType));
   }
-
 
   /**
    * Returns a String list of current representations, useful for debugging
@@ -120,17 +122,29 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
     uncacheAll();
   }
 
-
   @Override
   public void cacheAll() {
     // TODO Auto-generated method stub
-    
-  }
 
+  }
 
   @Override
   public void uncacheAll() {
     // TODO Auto-generated method stub
-    
+
+  }
+
+  public enum RepresentationType {
+    DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
+    public static RepresentationType fromString(String s) {
+      if (s == null || s.length() == 0)
+        return null;
+      s = s.toUpperCase().trim();
+      for (RepresentationType t : values()) {
+        if (s.equals(t.name()))
+          return t;
+      }
+      return null;
+    }
   }
 }

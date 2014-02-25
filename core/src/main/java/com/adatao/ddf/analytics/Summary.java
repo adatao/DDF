@@ -2,7 +2,8 @@ package com.adatao.ddf.analytics;
 
 import java.io.Serializable;
 
-import com.adatao.ddf.util.DDFUtils;
+import com.adatao.ddf.util.Utils;
+import com.google.common.base.Joiner;
 
 /**
  * Basic statistics for a set of double numbers including min, max, count,
@@ -16,7 +17,7 @@ public class Summary implements Serializable {
 
   private long mCount = 0; // tracking number of non-NA values
   private double mMean = 0; // tracking mean
-  private double tmpVar = 0; // tracking variance
+  private double mSS = 0; // sum of squared deviations
   private long mNACount = 0; // tracking number of NA values
   private double mMin = Double.MAX_VALUE;
   private double mMax = Double.MIN_VALUE;
@@ -28,23 +29,23 @@ public class Summary implements Serializable {
     this.merge(numbers);
   }
 
-  public Summary(long mCount, double mMean, double tmpVar, long mNACount,
+  public Summary(long mCount, double mMean, double mSS, long mNACount,
       double mMin, double mMax) {
     super();
     this.mCount = mCount;
     this.mMean = mMean;
-    this.tmpVar = tmpVar;
+    this.mSS = mSS;
     this.mNACount = mNACount;
     this.mMin = mMin;
     this.mMax = mMax;
   }
 
   public Summary newSummary(Summary a) {
-    return new Summary(a.mCount, a.mMean, a.tmpVar, a.mNACount, a.mMin, a.mMax);
+    return new Summary(a.mCount, a.mMean, a.mSS, a.mNACount, a.mMin, a.mMax);
   }
 
   public long count() {
-    return mCount;
+    return this.mCount;
   }
 
   public long NACount() {
@@ -57,12 +58,12 @@ public class Summary implements Serializable {
     return this.mMean;
   }
 
-  public double tmpVar() {
-    return this.tmpVar;
+  public double mSS() {
+    return this.mSS;
   }
 
   public boolean isNA() {
-    return (mCount == 0 && mNACount > 0);
+    return (this.mCount == 0 && this.mNACount > 0);
   }
 
   public void setNACount(long n) {
@@ -70,16 +71,15 @@ public class Summary implements Serializable {
   }
 
   public double min() {
-    if (mCount == 0)
+    if (this.mCount == 0)
       return Double.NaN;
-
-    return mMin;
+    return this.mMin;
   }
 
   public double max() {
-    if (mCount == 0)
+    if (this.mCount == 0)
       return Double.NaN;
-    return mMax;
+    return this.mMax;
   }
 
   public void addToNACount(long number) {
@@ -90,12 +90,10 @@ public class Summary implements Serializable {
     if (Double.isNaN(number)) {
       this.mNACount++;
     } else {
-
       this.mCount++;
-
       double delta = number - mMean;
       mMean += delta / mCount;
-      tmpVar += delta * (number - mMean);
+      mSS += delta * (number - mMean);
       mMin = Math.min(mMin, number);
       mMax = Math.max(mMax, number);
     }
@@ -115,7 +113,7 @@ public class Summary implements Serializable {
     } else {
       if (mCount == 0) {
         mMean = other.mean();
-        tmpVar = other.tmpVar();
+        mSS = other.mSS();
         mCount = other.count();
       } else if (other.mCount != 0) {
         double delta = other.mean() - mMean;
@@ -127,7 +125,7 @@ public class Summary implements Serializable {
         } else {
           mMean = (mMean * mCount + other.mean() * other.mCount) / n;
         }
-        tmpVar += other.tmpVar() + (delta * delta * mCount * other.mCount) / n;
+        mSS += other.mSS() + (delta * delta * mCount * other.mCount) / n;
         mCount += other.mCount;
       }
       this.mNACount += other.NACount();
@@ -139,31 +137,27 @@ public class Summary implements Serializable {
   }
 
   public double sum() {
-    return DDFUtils.formatDouble(mMean * mCount);
-  }
-
-  public double stdev() {
-
-    return DDFUtils.formatDouble(Math.sqrt(variance()));
-
+    return mMean * mCount;
   }
 
   public double variance() {
     if (mCount <= 1) {
       return Double.NaN;
     } else {
-      return DDFUtils.formatDouble(tmpVar / (mCount - 1));
+      return mSS / (mCount - 1);
     }
+  }
+
+  public double stdev() {
+    return Math.sqrt(this.variance());
   }
 
   @Override
   public String toString() {
-    // return String.format(
-    // "mean:%f stdev:%f var:%f cNA:%d count:%d min:%f max:%f", mean(),
-    // stdev(), variance(), mNACount, mCount, min(), max());
-    return "mean:" + mean() + " stdev:" + stdev() + " var:" + variance()
-        + " cNA:" + mNACount + " count:" + mCount + " min:" + min() + " max:"
-        + max();
-
+    Joiner joiner = Joiner.on("");
+    return joiner.join("mean:", Utils.roundUp(mean()), " stdev:",
+        Utils.roundUp(stdev()), " var:", Utils.roundUp(variance()), " cNA:",
+        mNACount, " count:", mCount, " min:", Utils.roundUp(min()), " max:",
+        Utils.roundUp(max()));
   }
 }

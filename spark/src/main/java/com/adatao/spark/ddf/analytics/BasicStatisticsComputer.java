@@ -3,12 +3,14 @@ package com.adatao.spark.ddf.analytics;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
+import scala.reflect.ClassManifest$;
 
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
@@ -22,27 +24,22 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
     super(theDDF);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl() {
-    @SuppressWarnings("unchecked")
-    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+
+    JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }
 
-  /*
+  /**
    * Mapper function
    */
+  @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
-    protected final Logger mLog = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    public GetSummaryMapper() {
-    }
+    private final Logger mLog = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Summary[] call(Object[] p) {
@@ -87,16 +84,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    public GetSummaryReducer() {
-
-    }
-
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;
