@@ -173,6 +173,6 @@ public class SparkDDFManager extends DDFManager {
 
   @Override
   protected DDF createDummyDDF() throws DDFException {
-    return new SparkDDF(this, null, null, null, null, null);
+    return new SparkDDF(this);
   }
 }
