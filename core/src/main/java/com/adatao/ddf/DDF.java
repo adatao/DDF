@@ -88,12 +88,8 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    // if (manager == null) throw new
-    // DDFException("Cannot initialize a DDF with a null DDFManager");
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    if (rowType == null) rowType = Object[].class; 
-    // make sure it's non-null for RepresentationHandler
     this.getRepresentationHandler().set(data, rowType);
 
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
