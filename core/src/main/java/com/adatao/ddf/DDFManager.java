@@ -30,7 +30,6 @@ import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.jcoll.ddf.JCollDDFManager;
 import com.google.common.base.Strings;
 
 /**
@@ -81,17 +80,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
 
-  static DDFManager sDummyDDFManager = new JCollDDFManager();
-
-  /**
-   * We need a dummy DDFManager in order to support some engine-independent global functions, like
-   * get(engineName). For this purpose, we'll just use the built-in {@link JCollDDFManager}.
-   * 
-   * @return
-   */
-  static DDFManager getDummyDDFManager() {
-    return sDummyDDFManager;
-  }
+  public static final String DEFAULT_ENGINE_NAME = "spark";
 
   /**
    * Returns a new instance of {@link DDFManager} for the given engine name
@@ -101,9 +90,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (Strings.isNullOrEmpty(engineName)) return null;
+    if (Strings.isNullOrEmpty(engineName)) engineName = DEFAULT_ENGINE_NAME;
 
-    String className = getDummyDDFManager().getConfigValue(engineName, "DDFManager");
+    String className = DDF.getConfigValue(engineName, "DDFManager");
     if (Strings.isNullOrEmpty(className)) return null;
 
     DDFManager manager;
@@ -115,8 +104,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     }
     return manager;
   }
-
-  // public static final String DEFAULT_DDF_ENGINE = "spark";
 
   /**
    * Returns the DDF engine name of a particular implementation, e.g., "spark".
@@ -147,12 +134,11 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * 
    * @throws DDFException
    */
-  // protected DDF newDDF() throws DDFException {
   @SuppressWarnings("unchecked")
   protected DDF newDDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    String className = this.getConfigValue("DDF");
+    String className = DDF.getConfigValue(this.getEngine(), "DDF");
 
     try {
       Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getConstructor(DDFManager.class,

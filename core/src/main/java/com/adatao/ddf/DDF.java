@@ -36,8 +36,11 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.util.ConfigHandler;
+import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
+import com.adatao.jcoll.ddf.JCollDDFManager;
 import com.google.common.base.Strings;
 
 
@@ -87,10 +90,9 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     this.getRepresentationHandler().set(data, elementType);
 
-    if (manager == null) manager = DDFManager.sDummyDDFManager;
     this.setManager(manager);
 
-    if (Strings.isNullOrEmpty(namespace)) namespace = manager.getNamespace();
+    if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);
 
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
@@ -98,6 +100,21 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     this.setName(name);
   }
 
+
+
+  // ////// Global/Static Fields & Methods ////////
+
+  private static final IHandleConfig sConfigHandler = new ConfigHandler();
+
+  public static IHandleConfig getConfigHandler() {
+    return sConfigHandler;
+  }
+
+  public static String getConfigValue(String section, String key) {
+    return getConfigHandler().getValue(section, key);
+  }
+
+  // ////// Instance Fields & Methods ////////
 
 
   private String mNamespace;
@@ -138,14 +155,36 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
 
 
+  /**
+   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead
+   * to nothing good).
+   */
+  private DDFManager sDummyManager = new JCollDDFManager();
+
   private DDFManager mManager;
 
+  /**
+   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy"
+   * DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
+   * 
+   * @return
+   */
   public DDFManager getManager() {
-    return this.mManager;
+    if (mManager == null) mManager = sDummyManager;
+    return mManager;
   }
 
   protected void setManager(DDFManager DDFManager) {
     this.mManager = DDFManager;
+  }
+
+
+  /**
+   * 
+   * @return The engine name we are built on, e.g., "spark" or "java_collections"
+   */
+  public String getEngine() {
+    return this.getManager().getEngine();
   }
 
 
@@ -457,10 +496,10 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     String className = null;
 
     try {
-      className = this.getManager().getConfigValue(theInterface.getSimpleName());
+      className = getConfigValue(this.getEngine(), theInterface.getSimpleName());
       if (Strings.isNullOrEmpty(className)) {
-        mLog.error(String.format("Cannot determine classname for %s from configuration source %s",
-            theInterface.getSimpleName(), this.getManager().getConfigHandler().getSource()));
+        mLog.error(String.format("Cannot determine classname for %s from configuration source [%]:%s",
+            theInterface.getSimpleName(), getConfigHandler().getSource(), this.getEngine()));
         return null;
       }
 
@@ -470,7 +509,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       return cons != null ? (I) cons.newInstance(this) : null;
 
     } catch (Exception e) {
-      mLog.error(String.format("Cannot instantiate handler for %s/%s", theInterface.getSimpleName(), className), e);
+      mLog.error(String.format("Cannot instantiate handler for [%s]:%s/%s", this.getEngine(), theInterface.getSimpleName(), className), e);
       return null;
     }
   }
