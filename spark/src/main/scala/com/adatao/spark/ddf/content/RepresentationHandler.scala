@@ -10,12 +10,11 @@ import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.ddf.DDFManager
+import com.adatao.ddf.{DDF, DDFManager}
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
-import com.adatao.ddf.DDFManager
-import com.adatao.ddf.DDF
+
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -26,6 +25,7 @@ import com.adatao.ddf.DDF
 
 class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
+
     if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
     }
@@ -36,20 +36,20 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
    * Creates a specific representation
    */
 
-  protected def getRepresentationImpl(elementType: Class[_]): Object = {
+  protected def getRepresentationImpl(unitType: Class[_]): Object = {
     val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     val rdd = getDefaultRepresentationImpl();
-    elementType match {
+    unitType match {
 
-      case arrayObject if arrayObject == classOf[Array[Object]] => getRDDArrayObject(rdd, numCols)
+      case ARRAY_OBJECT => getRDDArrayObject(rdd, numCols)
 
-      case arrayDouble if arrayDouble == classOf[Array[Double]] => getRDDArrayDouble(rdd, numCols, extractors)
+      case ARRAY_DOUBLE => getRDDArrayDouble(rdd, numCols, extractors)
 
-      case labeledPoint if labeledPoint == classOf[LabeledPoint] => getRDDLabeledPoint(rdd, numCols, extractors)
+      case LABELED_POINT => getRDDLabeledPoint(rdd, numCols, extractors)
 
       case _ => throw new DDFException("elementType not supported")
     }
@@ -97,6 +97,13 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
 
 object RepresentationHandler {
   /**
+   * Supported Representations
+   */
+  val ARRAY_DOUBLE = classOf[Array[Double]]
+  val ARRAY_OBJECT = classOf[Array[Object]]
+  val LABELED_POINT = classOf[LabeledPoint]
+
+  /**
    *
    */
   def getRDDArrayObject(rdd: RDD[Row], numCols: Int): RDD[Array[Object]] = {
@@ -128,7 +135,7 @@ object RepresentationHandler {
     var i = 0
     var isNull = false
 
-    while (i < numCols && isNull == false) {
+    while (i < numCols && !isNull) {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
@@ -146,7 +153,7 @@ object RepresentationHandler {
     var isNull = false
     var i = 0
 
-    while (i < numCols && isNull == false) {
+    while (i < numCols && !isNull) {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true

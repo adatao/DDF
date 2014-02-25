@@ -36,10 +36,10 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   /**
    * Retrieves a representation with elements of elementType.
    * 
-   * @param elementType
+   * @param unitType
    * @return a pointer to the specified
    */
-  public Object get(Class<?> elementType);
+  public Object get(Class<?> unitType);
 
   /**
    * Clears out all current representations.
@@ -50,24 +50,25 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * Clears all current representations and set it to the supplied one.
    * 
    * @param data
-   * @param elementType
+   * @param unitType
    */
-  public void set(Object data, Class<?> elementType);
+  public void set(Object data, Class<?> unitType);
 
   /**
    * Adds a representation to the set of existing representations.
    * 
    * @param data
-   * @param elementType
+   * @param unitType
    */
-  public void add(Object data, Class<?> elementType);
+  public void add(Object data, Class<?> unitType);
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param elementType
+   * @param unitType
    */
-  public void remove(Class<?> elementType);
+
+  public void remove(Class<?> unitType);
 
   /**
    * Cache all representations, e.g., in an in-memory context

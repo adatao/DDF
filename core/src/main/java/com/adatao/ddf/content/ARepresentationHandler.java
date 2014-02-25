@@ -22,25 +22,25 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
   // The various representations for our DDF
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
-  protected String getKeyFor(Class<?> elementType) {
-    return elementType.toString();
+  protected String getKeyFor(Class<?> unitType) {
+    return unitType.toString();
   }
 
   /**
    * Gets an existing representation for our {@link DDF} matching the given
    * elementType, if any.
    * 
-   * @param elementType
+   * @param unitType
    *          the type of each element in the DDFManager
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> elementType) {
-    Object obj = mReps.get(getKeyFor(elementType));
+  public Object get(Class<?> unitType) {
+    Object obj = mReps.get(getKeyFor(unitType));
     if (obj == null) {
-      obj = this.getRepresentationImpl(elementType);
-      this.add(obj, elementType);
+      obj = this.getRepresentationImpl(unitType);
+      this.add(obj, unitType);
     }
     if (obj ==null) throw new UnsupportedOperationException();
     else return obj;

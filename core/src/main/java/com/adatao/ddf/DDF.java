@@ -387,7 +387,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
-    return this.getAlgorithmRunner().run(algorithm, this);
+    return this.getAlgorithmRunner().run(algorithm);
   }
 
 

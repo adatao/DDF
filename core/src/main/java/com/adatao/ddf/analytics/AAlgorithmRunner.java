@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
+
 import com.adatao.ddf.DDF;
 
 /**
@@ -12,15 +13,14 @@ public abstract class AAlgorithmRunner extends ADDFFunctionalGroupHandler implem
     super(theDDF);
   }
 
-  private void preprocess(IAlgorithm algorithm, DDF ddf) {
-    ddf.getRepresentationHandler().get(algorithm.getExpectedDataType());
-    algorithm.preprocess(ddf);
+  private void preprocess(IAlgorithm algorithm) {
+    this.getDDF().getRepresentationHandler().get(algorithm.getExpectedDataType());
+    algorithm.preprocess(this.getDDF());
   }
 
   @Override
-  public IAlgorithmOutputModel run(IAlgorithm algorithm, DDF ddf) {
-    preprocess(algorithm, ddf);
-
-    return algorithm.run(ddf);
+  public IAlgorithmOutputModel run(IAlgorithm algorithm) {
+    preprocess(algorithm);
+    return algorithm.run(this.getDDF());
   }
 }

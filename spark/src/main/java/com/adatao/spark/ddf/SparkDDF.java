@@ -22,7 +22,6 @@ public class SparkDDF extends DDF {
     this.initialize(manager, rdd, elementType, namespace, name, schema);
   }
 
-
   /**
    * Signature without RDD, useful for creating a dummy DDF used by DDFManager
    * 
