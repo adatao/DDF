@@ -88,9 +88,10 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    this.getRepresentationHandler().set(data, elementType);
+    if (manager == null) throw new DDFException("Cannot initialize a DDF with a null DDFManager");
+    this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.setManager(manager);
+    this.getRepresentationHandler().set(data, elementType);
 
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);
@@ -506,10 +507,12 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
           .getConstructor(new Class<?>[] { DDFManager.class });
+
       return cons != null ? (I) cons.newInstance(this) : null;
 
     } catch (Exception e) {
-      mLog.error(String.format("Cannot instantiate handler for [%s]:%s/%s", this.getEngine(), theInterface.getSimpleName(), className), e);
+      mLog.error(String.format("Cannot instantiate handler for [%s]:%s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), e);
       return null;
     }
   }
