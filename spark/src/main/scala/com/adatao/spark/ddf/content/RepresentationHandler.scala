@@ -10,10 +10,11 @@ import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.ddf.ADDFManager
+import com.adatao.ddf.{DDF, DDFManager}
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
+
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -21,12 +22,14 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) {
+
+class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
-    if (this.getManager.getRepresentationHandler.get(classOf[Row]) == null) {
+
+    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
     }
-    val rdd = this.getManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     rdd
   }
   /**
@@ -34,7 +37,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
    */
 
   protected def getRepresentationImpl(unitType: Class[_]): Object = {
-    val schema = this.getManager.getSchemaHandler
+    val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
@@ -75,7 +78,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Persisting " + rdd)
+          mLog.info(this.getClass() + ": Persisting " + rdd)
           rdd.persist
         }
     })
@@ -85,7 +88,7 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Unpersisting " + rdd)
+          mLog.info(this.getClass() + ": Unpersisting " + rdd)
           rdd.unpersist(false)
         }
     })

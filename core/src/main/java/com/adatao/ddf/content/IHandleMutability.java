@@ -1,5 +1,7 @@
 package com.adatao.ddf.content;
 
-public interface IHandleMutability {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleMutability extends IHandleDDFFunctionalGroup {
 
 }

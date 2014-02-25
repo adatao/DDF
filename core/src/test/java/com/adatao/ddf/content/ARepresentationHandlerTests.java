@@ -6,7 +6,7 @@ package com.adatao.ddf.content;
  */
 /*
 public class ARepresentationHandlerTests {
-  public static class Helper extends ADDFManager {
+  public static class Helper extends DDFManager {
     public Helper(DDF ddf) {
       super(ddf);
       this.setRepresentationHandler(new Handler(this));
@@ -104,7 +104,7 @@ public class ARepresentationHandlerTests {
   }
 
   public static class Handler extends ARepresentationHandler {
-    public Handler(ADDFManager container) {
+    public Handler(DDFManager container) {
       super(container);
     }
 
@@ -122,7 +122,7 @@ public class ARepresentationHandlerTests {
   }
 
   private static DDF ddf = new DDF(new Helper(null));
-  private static ADDFManager helper = ddf.getHelper();
+  private static DDFManager helper = ddf.getHelper();
   private static IHandleRepresentations handler = helper.getRepresentationHandler();
 
   private static List<String> list = new ArrayList<String>();

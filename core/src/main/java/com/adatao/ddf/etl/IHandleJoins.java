@@ -1,5 +1,7 @@
 package com.adatao.ddf.etl;
 
-public interface IHandleJoins {
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
+public interface IHandleJoins extends IHandleDDFFunctionalGroup {
 
 }

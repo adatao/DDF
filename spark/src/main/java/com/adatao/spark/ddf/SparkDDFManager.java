@@ -9,7 +9,8 @@ import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
 
 /**
@@ -18,9 +19,10 @@ import com.adatao.ddf.exception.DDFException;
  * @version 0.1
  * 
  */
-public class SparkDDFManager extends ADDFManager {
+public class SparkDDFManager extends DDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
-  private static final String DEFAULT_SPARK_MASTER = "local";
+  private static final String DEFAULT_SPARK_MASTER = "local[4]";
+
 
   public String getDDFEngine() {
     return "spark";
@@ -35,6 +37,7 @@ public class SparkDDFManager extends ADDFManager {
   private void setSparkContext(SparkContext sparkContext) {
     this.mSparkContext = sparkContext;
   }
+
 
   private SharkContext mSharkContext;
 
@@ -62,6 +65,8 @@ public class SparkDDFManager extends ADDFManager {
     this.mSparkContextParams = mSparkContextParams;
   }
 
+
+
   public SparkDDFManager(SparkContext sparkContext) throws DDFException {
     this.initialize(sparkContext, null);
   }
@@ -81,6 +86,7 @@ public class SparkDDFManager extends ADDFManager {
 
   private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
     this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+
     if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
   }
 
@@ -91,6 +97,7 @@ public class SparkDDFManager extends ADDFManager {
       this.getSparkContext().stop();
     }
   }
+
 
   private static final String[][] SPARK_ENV_VARS = new String[][] { 
     // @formatter:off
@@ -147,13 +154,25 @@ public class SparkDDFManager extends ADDFManager {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String ddfSparkJar = params.get("DDFSPARK_JAR");
       String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
+
       JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
           params.get("SPARK_HOME"), jobJars, params);
       this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
+
     } catch (Exception e) {
       throw new DDFException(e);
     }
+
     return this.getSparkContext();
   }
-  
+
+  @Override
+  public String getEngine() {
+    return "spark";
+  }
+
+  @Override
+  protected DDF createDummyDDF() throws DDFException {
+    return new SparkDDF(this, null, null, null, null, null);
+  }
 }

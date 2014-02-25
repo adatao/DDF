@@ -7,10 +7,9 @@ import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
-import scala.reflect.ClassManifest;
 import scala.reflect.ClassManifest$;
 
 /**
@@ -20,21 +19,18 @@ import scala.reflect.ClassManifest$;
  * 
  */
 public class BasicStatisticsComputer extends ABasicStatisticsComputer {
-  private static final Logger sLOG = LoggerFactory
-      .getLogger(BasicStatisticsComputer.class);
 
-  public BasicStatisticsComputer(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public BasicStatisticsComputer(DDF theDDF) {
+    super(theDDF);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl() {
-    @SuppressWarnings("unchecked")
-    RDD<Object[]> rdd = (RDD<Object[]>) this.getManager()
-        .getRepresentationHandler().get(Object[].class);
-    JavaRDD<Object[]> data= new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
-    Summary[] stats = data.map(new GetSummaryMapper()).reduce(
-        new GetSummaryReducer());
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+
+    JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
+    Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }
 
@@ -43,6 +39,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
    */
   @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
+    private final Logger mLog = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public Summary[] call(Object[] p) {
       int dim = p.length;
@@ -72,8 +70,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
                   result[i] = s;
                 } catch (Exception ex) {
                   result[i] = null;
-                  sLOG.info("GetSummaryMapper: catch " + p[i]
-                      + " is not number");
+                  mLog.info("GetSummaryMapper: catch " + p[i] + " is not number");
                 }
               }
             }
@@ -81,15 +78,14 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
         }
         return result;
       } else {
-        sLOG.error("malformed line input");
+        mLog.error("malformed line input");
         return null;
       }
     }
   }
 
   @SuppressWarnings("serial")
-  public static class GetSummaryReducer extends
-      Function2<Summary[], Summary[], Summary[]> {
+  public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;

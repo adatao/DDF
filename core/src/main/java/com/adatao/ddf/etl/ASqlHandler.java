@@ -4,7 +4,7 @@
 package com.adatao.ddf.etl;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
 
 /**
  * @author ctn
@@ -12,7 +12,7 @@ import com.adatao.ddf.ADDFManager;
  */
 public abstract class ASqlHandler extends ADDFFunctionalGroupHandler implements IHandleSql {
 
-  public ASqlHandler(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public ASqlHandler(DDF theDDF) {
+    super(theDDF);
   }
 }
