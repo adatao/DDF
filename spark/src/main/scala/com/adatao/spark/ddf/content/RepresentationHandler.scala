@@ -36,14 +36,14 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
    * Creates a specific representation
    */
 
-  protected def getRepresentationImpl(unitType: Class[_]): Object = {
+  protected def getRepresentationImpl(rowType: Class[_]): Object = {
     val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     val rdd = getDefaultRepresentationImpl();
-    unitType match {
+    rowType match {
 
       case ARRAY_OBJECT => getRDDArrayObject(rdd, numCols)
 
@@ -51,7 +51,7 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
 
       case LABELED_POINT => getRDDLabeledPoint(rdd, numCols, extractors)
 
-      case _ => throw new DDFException("elementType not supported")
+      case _ => throw new DDFException("rowType not supported")
     }
   }
 

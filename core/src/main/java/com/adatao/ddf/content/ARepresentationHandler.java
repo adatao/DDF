@@ -12,8 +12,7 @@ import com.adatao.ddf.DDF;
  * @author ctn
  * 
  */
-public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
-    implements IHandleRepresentations {
+public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
   public ARepresentationHandler(DDF theDDF) {
     super(theDDF);
@@ -22,27 +21,26 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
   // The various representations for our DDF
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
-  protected String getKeyFor(Class<?> unitType) {
-    return unitType.toString();
+  protected String getKeyFor(Class<?> rowType) {
+    return rowType.toString();
   }
 
   /**
-   * Gets an existing representation for our {@link DDF} matching the given
-   * elementType, if any.
+   * Gets an existing representation for our {@link DDF} matching the given rowType, if any.
    * 
-   * @param unitType
-   *          the type of each element in the DDFManager
+   * @param rowType
+   *          the type of each unit or element in the DDF
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> unitType) {
-    Object obj = mReps.get(getKeyFor(unitType));
+  public Object get(Class<?> rowType) {
+    Object obj = mReps.get(getKeyFor(rowType));
     if (obj == null) {
-      obj = this.getRepresentationImpl(unitType);
-      this.add(obj, unitType);
+      obj = this.getRepresentationImpl(rowType);
+      this.add(obj, rowType);
     }
-    if (obj ==null) throw new UnsupportedOperationException();
+    if (obj == null) throw new UnsupportedOperationException();
     else return obj;
   }
 
@@ -50,6 +48,7 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
   public Object getDefault() {
     return getDefaultRepresentationImpl();
   }
+
   protected abstract Object getDefaultRepresentationImpl();
 
   /**
@@ -63,42 +62,40 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
   /**
    *
    */
-  protected abstract Object getRepresentationImpl(Class<?> elementType);
+  protected abstract Object getRepresentationImpl(Class<?> rowType);
 
   /**
-   * Sets a new and unique representation for our {@link DDF}, clearing out any
-   * existing ones
+   * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
-   * @param elementType
+   * @param rowType
    *          the type of each element in the DDFManager
    */
   @Override
-  public void set(Object data, Class<?> elementType) {
+  public void set(Object data, Class<?> rowType) {
     this.reset();
-    this.add(data, elementType);
+    this.add(data, rowType);
   }
 
   /**
-   * Adds a new and unique representation for our {@link DDF}, keeping any
-   * existing ones but replacing the one that matches the given DDFManagerType,
-   * elementType tuple.
+   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
+   * replacing the one that matches the given DDFManagerType, rowType tuple.
    * 
-   * @param elementType
+   * @param rowType
    *          the type of each element in the DDFManager
    */
   @Override
-  public void add(Object data, Class<?> elementType) {
-    mReps.put(getKeyFor(elementType), data);
+  public void add(Object data, Class<?> rowType) {
+    mReps.put(getKeyFor(rowType), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param elementType
+   * @param rowType
    */
   @Override
-  public void remove(Class<?> elementType) {
-    mReps.remove(getKeyFor(elementType));
+  public void remove(Class<?> rowType) {
+    mReps.remove(getKeyFor(rowType));
   }
 
   /**
@@ -137,12 +134,10 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler
   public enum RepresentationType {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
     public static RepresentationType fromString(String s) {
-      if (s == null || s.length() == 0)
-        return null;
+      if (s == null || s.length() == 0) return null;
       s = s.toUpperCase().trim();
       for (RepresentationType t : values()) {
-        if (s.equals(t.name()))
-          return t;
+        if (s.equals(t.name())) return t;
       }
       return null;
     }

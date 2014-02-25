@@ -64,8 +64,8 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * 
    * @param data
    *          The DDF data
-   * @param elementType
-   *          The DDF data is expected to have rows (or columns) of elements with elementType
+   * @param rowType
+   *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
    *          The namespace to place this DDF in. If null, it will be picked up from the
    *          DDFManager's current namespace.
@@ -76,22 +76,25 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name, Schema schema)
+  public DDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
-    this.initialize(manager, data, elementType, namespace, name, schema);
+    this.initialize(manager, data, rowType, namespace, name, schema);
   }
 
   protected DDF() {
   }
 
-  protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
+  protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    //if (manager == null) throw new DDFException("Cannot initialize a DDF with a null DDFManager");
+    // if (manager == null) throw new
+    // DDFException("Cannot initialize a DDF with a null DDFManager");
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.getRepresentationHandler().set(data, elementType);
+    if (rowType == null) rowType = Object[].class; 
+    // make sure it's non-null for RepresentationHandler
+    this.getRepresentationHandler().set(data, rowType);
 
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);

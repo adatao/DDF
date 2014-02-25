@@ -135,7 +135,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws DDFException
    */
   @SuppressWarnings("unchecked")
-  protected DDF newDDF(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
+  protected DDF newDDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
 
     String className = DDF.getConfigValue(this.getEngine(), "DDF");
@@ -145,7 +145,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
           Object.class, Class.class, String.class, String.class, String.class);
       if (cons == null) throw new DDFException("Cannot get constructor for " + className);
 
-      DDF ddf = cons.newInstance(manager, data, elementType, namespace, name, schema);
+      DDF ddf = cons.newInstance(manager, data, rowType, namespace, name, schema);
       if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + className);
 
       return ddf;
