@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
-import scala.reflect.ClassManifest;
 import scala.reflect.ClassManifest$;
+
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
@@ -24,15 +24,13 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
     super(theDDF);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl() {
-    @SuppressWarnings("unchecked")
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
 
-    RDD<Object[]> rdd = (RDD<Object[]>) this.getManager()
-        .getRepresentationHandler().get(Object[].class);
-    JavaRDD<Object[]> data= new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
-    Summary[] stats = data.map(new GetSummaryMapper()).reduce(
-        new GetSummaryReducer());
+    JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
+    Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }
 
@@ -41,6 +39,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
    */
   @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
+    private final Logger mLog = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public Summary[] call(Object[] p) {
       int dim = p.length;
@@ -70,8 +70,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
                   result[i] = s;
                 } catch (Exception ex) {
                   result[i] = null;
-                  sLOG.info("GetSummaryMapper: catch " + p[i]
-                      + " is not number");
+                  mLog.info("GetSummaryMapper: catch " + p[i] + " is not number");
                 }
               }
             }
@@ -86,8 +85,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
   }
 
   @SuppressWarnings("serial")
-  public static class GetSummaryReducer extends
-      Function2<Summary[], Summary[], Summary[]> {
+  public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;

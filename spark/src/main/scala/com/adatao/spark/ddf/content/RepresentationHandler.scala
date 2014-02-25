@@ -10,11 +10,12 @@ import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.ddf.ADDFManager
+import com.adatao.ddf.DDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
-import com.adatao.ddf.ADDFManager
+import com.adatao.ddf.DDFManager
+import com.adatao.ddf.DDF
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -23,12 +24,12 @@ import com.adatao.ddf.ADDFManager
  *
  */
 
-class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) {
+class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
-    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
+    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
     }
-    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     rdd
   }
   /**

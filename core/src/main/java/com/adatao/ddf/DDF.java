@@ -380,6 +380,17 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   }
 
 
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+
+  // Run Algorithms
+  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
+    return this.getAlgorithmRunner().run(algorithm, this);
+  }
+
+
   public IHandleTimeSeries getTimeSeriesHandler() {
     if (mTimeSeriesHandler == null) mTimeSeriesHandler = this.createTimeSeriesHandler();
     if (mTimeSeriesHandler == null) throw new UnsupportedOperationException();
@@ -485,26 +496,4 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       ;
     // @formatter:on
   }
-  
-
-  
-  // Calculate summary statistics of the DDF
-  public Summary[] getSummary() {
-    return this.getBasicStatisticsComputer().getSummary();
-  }
-
-  // Run Algorithms
-  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
-    return this.getAlgorithmRunner().run(algorithm, this);
-  }
-
-  // Get a specific representation
-  public Object getRepresentation(Class<?> elementType) {
-    return this.getRepresentationHandler().get(elementType);
-  }
-  
-  public Object getDefaultRepresentation() {
-    return this.getRepresentationHandler().getDefault();
-  }
-
 }

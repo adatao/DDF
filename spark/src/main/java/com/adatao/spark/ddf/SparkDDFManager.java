@@ -21,7 +21,8 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class SparkDDFManager extends DDFManager {
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
-  private static final String DEFAULT_SPARK_MASTER = "local";
+  private static final String DEFAULT_SPARK_MASTER = "local[4]";
+
 
   public String getDDFEngine() {
     return "spark";
@@ -36,6 +37,7 @@ public class SparkDDFManager extends DDFManager {
   private void setSparkContext(SparkContext sparkContext) {
     this.mSparkContext = sparkContext;
   }
+
 
   private SharkContext mSharkContext;
 
@@ -63,6 +65,8 @@ public class SparkDDFManager extends DDFManager {
     this.mSparkContextParams = mSparkContextParams;
   }
 
+
+
   public SparkDDFManager(SparkContext sparkContext) throws DDFException {
     this.initialize(sparkContext, null);
   }
@@ -82,6 +86,7 @@ public class SparkDDFManager extends DDFManager {
 
   private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
     this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+
     if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
   }
 
@@ -92,6 +97,7 @@ public class SparkDDFManager extends DDFManager {
       this.getSparkContext().stop();
     }
   }
+
 
   private static final String[][] SPARK_ENV_VARS = new String[][] { 
     // @formatter:off
@@ -148,12 +154,25 @@ public class SparkDDFManager extends DDFManager {
       this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
       String ddfSparkJar = params.get("DDFSPARK_JAR");
       String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
+
       JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
           params.get("SPARK_HOME"), jobJars, params);
       this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
+
     } catch (Exception e) {
       throw new DDFException(e);
     }
+
     return this.getSparkContext();
+  }
+
+  @Override
+  public String getEngine() {
+    return "spark";
+  }
+
+  @Override
+  protected DDF createDummyDDF() throws DDFException {
+    return new SparkDDF(this, null, null, null, null, null);
   }
 }
