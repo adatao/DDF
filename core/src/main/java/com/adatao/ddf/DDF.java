@@ -40,16 +40,16 @@ import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
 
+
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata,
- * representations, etc.) and capabilities (self-compute basic statistics,
- * aggregations, etc.).
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and
+ * capabilities (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
- * This class was designed using the Bridge Pattern to provide clean separation
- * between the abstract concepts and the implementation so that the API can
- * support multiple big data platforms under the same set of abstract concepts.
+ * This class was designed using the Bridge Pattern to provide clean separation between the abstract
+ * concepts and the implementation so that the API can support multiple big data platforms under the
+ * same set of abstract concepts.
  * </p>
  * 
  * @author ctn
@@ -85,9 +85,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
       Schema schema) throws DDFException {
 
-<<<<<<< HEAD
-  private ADDFManager mManager;
-=======
     this.getRepresentationHandler().set(data, elementType);
 
     if (manager == null) manager = DDFManager.sDummyDDFManager;
@@ -95,7 +92,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     if (Strings.isNullOrEmpty(namespace)) namespace = manager.getNamespace();
     this.setNamespace(namespace);
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
     if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
@@ -103,9 +99,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   }
 
 
-<<<<<<< HEAD
-  private static ADDFManager sDefaultManager;
-=======
 
   private String mNamespace;
 
@@ -127,7 +120,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   public void setNamespace(String namespace) {
     this.mNamespace = namespace;
   }
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
   /**
    * @return the name of this DDF
@@ -144,83 +136,30 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     this.mName = name;
   }
 
-<<<<<<< HEAD
-  private static DDFConfig.Config sConfig;
-
-  protected static DDFConfig.Config getConfig() {
-    if (sConfig == null)
-      try {
-        initialize();
-      } catch (Exception e) {
-        sLOG.error("Unable to initialize DDF", e);
-      }
-=======
 
 
   private DDFManager mManager;
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
   public DDFManager getManager() {
     return this.mManager;
   }
 
-<<<<<<< HEAD
-  public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
-=======
   protected void setManager(DDFManager DDFManager) {
     this.mManager = DDFManager;
   }
 
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
 
   // ////// MetaData that deserves to be right here at the top level ////////
 
-<<<<<<< HEAD
-  /**
-   * Returns the currently set global DDF engine, e.g., "spark".
-   * <p>
-   * The global DDF engine is the one that will be used when static DDF methods
-   * are invoked, e.g., {@link DDF#sql2ddf(String)}. This makes it convenient
-   * for users who are only using one DDF engine at a time, which should be 90%
-   * of all use cases.
-   * <p>
-   * It is still possible to use multiple DDF engines simultaneously, by
-   * invoking individual instances of {@link IDDFManager}, e.g.,
-   * SparkDDFManager.
-   * 
-   * @return
-   */
-  public static String getEngine() {
-    return sDDFEngine;
-=======
   public Schema getSchema() {
     return this.getSchemaHandler().getSchema();
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
   }
 
   public String getTableName() {
     return this.getSchema().getTableName();
   }
 
-<<<<<<< HEAD
-    try {
-      // Also load/reload the ddf.ini file
-      if (sConfig != null)
-        sConfig.reset();
-      sConfig = DDFConfig.loadConfig();
-
-      // And set the global default DDF manager corresponding to the ddfEngine
-      // we're given
-      String className = sConfig.get(ddfEngine).get("DDFManager");
-      if (className == null)
-        throw new DDFException(
-            "Cannot locate DDFManager class name for engine " + ddfEngine);
-
-      Class<?> managerClass = Class.forName(className);
-      if (managerClass == null)
-        throw new DDFException("Cannot locate class for name " + className);
-=======
   public long getNumRows() {
     return this.getMetaDataHandler().getNumRows();
   }
@@ -229,7 +168,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     return this.getSchemaHandler().getNumColumns();
   }
 
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
 
   // ////// Function-Group Handlers ////////
@@ -405,7 +343,16 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     return this;
   }
 
-  // ////// MetaData that deserves to be right here at the top level ////////
+  protected IHandleReshaping createReshapingHandler() {
+    return newHandler(IHandleReshaping.class);
+  }
+
+
+  public IHandleSchema getSchemaHandler() {
+    if (mSchemaHandler == null) mSchemaHandler = this.createSchemaHandler();
+    if (mSchemaHandler == null) throw new UnsupportedOperationException();
+    else return mSchemaHandler;
+  }
 
   public DDF setSchemaHandler(IHandleSchema aSchemaHandler) {
     this.mSchemaHandler = aSchemaHandler;
@@ -433,26 +380,21 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   }
 
 
-  // Calculate summary statistics of the DDF
-  public Summary[] getSummary() {
-    return this.getBasicStatisticsComputer().getSummary();
+  public IHandleTimeSeries getTimeSeriesHandler() {
+    if (mTimeSeriesHandler == null) mTimeSeriesHandler = this.createTimeSeriesHandler();
+    if (mTimeSeriesHandler == null) throw new UnsupportedOperationException();
+    else return mTimeSeriesHandler;
   }
 
-  // Get a specific representation
-  public Object getRepresentation(Class<?> elementType) {
-    return this.getRepresentationHandler().get(elementType);
-  }
-  
-  public Object getDefaultRepresentation() {
-    return this.getRepresentationHandler().getDefault();
+  public DDF setTimeSeriesHandler(IHandleTimeSeries aTimeSeriesHandler) {
+    this.mTimeSeriesHandler = aTimeSeriesHandler;
+    return this;
   }
 
-  // Run Algorithms
-  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
-    return this.getAlgorithmRunner().run(algorithm, this);
+  protected IHandleTimeSeries createTimeSeriesHandler() {
+    return newHandler(IHandleTimeSeries.class);
   }
 
-  // ////// Static convenient methods for IHandleSql ////////
 
   public IHandleViews getViewHandler() {
     if (mViewHandler == null) mViewHandler = this.createViewHandler();
@@ -465,82 +407,25 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     return this;
   }
 
-
-  public static DDF sql2ddf(String command, DataFormat dataFormat)
-      throws DDFException {
-    return getDefaultManager().sql2ddf(command, dataFormat);
+  protected IHandleViews createViewHandler() {
+    return newHandler(IHandleViews.class);
   }
 
-  public static DDF sql2ddf(String command, Schema schema, String dataSource)
-      throws DDFException {
-    return getDefaultManager().sql2ddf(command, schema, dataSource);
+  public IRunAlgorithms getAlgorithmRunner() {
+    if (mAlgorithmRunner == null) mAlgorithmRunner = this.createAlgorithmRunner();
+    if (mAlgorithmRunner == null) throw new UnsupportedOperationException();
+    else return mAlgorithmRunner;
   }
 
-  public static DDF sql2ddf(String command, Schema schema, DataFormat dataFormat)
-      throws DDFException {
-    return getDefaultManager().sql2ddf(command, schema, dataFormat);
+  public DDF setAlgorithmRunner(IRunAlgorithms aAlgorithmRunner) {
+    this.mAlgorithmRunner = aAlgorithmRunner;
+    return this;
   }
 
-  public static DDF sql2ddf(String command, Schema schema, String dataSource,
-      DataFormat dataFormat) throws DDFException {
-    return getDefaultManager().sql2ddf(command, schema, dataSource, dataFormat);
+  protected IRunAlgorithms createAlgorithmRunner() {
+    return newHandler(IRunAlgorithms.class);
   }
 
-  public static List<String> sql2txt(String command) throws DDFException {
-    return getDefaultManager().sql2txt(command);
-  }
-
-  public static List<String> sql2txt(String command, String dataSource)
-      throws DDFException {
-    return getDefaultManager().sql2txt(command, dataSource);
-  }
-
-  // /**
-  // * Get factor for a column
-  // *
-  // * @param columnIndex
-  // * @return list of levels for specified column
-  // */
-  // public List<String> factorize(int columnIndex) {
-  // AFactorHandler.FactorColumnInfo[] factors =
-  // this.getFactorHandler().factorize(new int[] {
-  // columnIndex });
-  //
-  // // IMPLEMENTATION HERE
-  // return null;
-  // }
-  //
-  // /**
-  // * Get factor for list of columns
-  // *
-  // * @param columnIDs
-  // * @return a hashmap contain mapping from columnID -> list of levels
-  // */
-  // public HashMap<Integer, List<String>> factorize(int[] columnIndices) {
-  // AFactorHandler.FactorColumnInfo[] factors =
-  // this.getFactorHandler().factorize(columnIndices);
-  //
-  // // IMPLEMENTATION HERE
-  // return null;
-  // }
-  //
-  // /**
-  // * apply factor coding for a specified column
-  // *
-  // * @param columnID
-  // * @return new DDF with factor coding applied
-  // */
-  // public DDF applyFactorCoding(int columnID) {
-  // return getManager().getFactorSupporter().applyFactorCoding(columnID, this);
-  // }
-  //
-  // /**
-  // * apply factor coding for list of columns
-  // */
-  // public DDF applyFactorCoding(int[] columnIDs) {
-  // return getManager().getFactorSupporter().applyFactorCoding(columnIDs,
-  // this);
-  // }
   /**
    * Instantiate a new {@link ADDFFunctionalGroupHandler} given its class name
    * 
@@ -554,14 +439,72 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * @throws IllegalAccessException
    * @throws InstantiationException
    */
+  @SuppressWarnings("unchecked")
+  protected <I> I newHandler(Class<I> theInterface) {
+    if (theInterface == null) return null;
 
-  public static DDF newDDF(String name, ColumnWithData columnWithData)
-      throws DDFException {
-    return newDDF(name, new ColumnWithData[] { columnWithData });
+    String className = null;
+
+    try {
+      className = this.getManager().getConfigValue(theInterface.getSimpleName());
+      Class<?> clazz = Class.forName(className);
+      Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
+          .getConstructor(new Class<?>[] { DDFManager.class });
+      return cons != null ? (I) cons.newInstance(this) : null;
+
+    } catch (Exception e) {
+      mLog.error(String.format("Cannot instantiate handler for %s/%s", theInterface.getSimpleName(), className), e);
+      return null;
+    }
   }
 
-  public static DDF newDDF(String name, ColumnWithData[] columnsWithData)
-      throws DDFException {
-    return getDefaultManager().newDDF(name, columnsWithData);
+
+
+  /**
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was
+   * registered under {@link PhantomReference}.
+   */
+  @Override
+  public void cleanup() {
+    // @formatter:off
+    this
+      .setAlgorithmRunner(null)
+      .setBasicStatisticsComputer(null)
+      .setIndexingHandler(null)
+      .setJoinsHandler(null)
+      .setMetaDataHandler(null)
+      .setMiscellanyHandler(null)
+      .setMissingDataHandler(null)
+      .setMutabilityHandler(null)
+      .setSqlHandler(null)
+      .setRepresentationHandler(null)
+      .setReshapingHandler(null)
+      .setSchemaHandler(null)
+      .setStreamingDataHandler(null)
+      .setTimeSeriesHandler(null)
+      ;
+    // @formatter:on
   }
+  
+
+  
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getBasicStatisticsComputer().getSummary();
+  }
+
+  // Run Algorithms
+  public IAlgorithmOutputModel train(IAlgorithm algorithm) {
+    return this.getAlgorithmRunner().run(algorithm, this);
+  }
+
+  // Get a specific representation
+  public Object getRepresentation(Class<?> elementType) {
+    return this.getRepresentationHandler().get(elementType);
+  }
+  
+  public Object getDefaultRepresentation() {
+    return this.getRepresentationHandler().getDefault();
+  }
+
 }
