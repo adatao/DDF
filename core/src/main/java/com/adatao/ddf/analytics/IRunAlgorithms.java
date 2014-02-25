@@ -1,6 +1,5 @@
 package com.adatao.ddf.analytics;
 
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.IHandleDDFFunctionalGroup;
 
 /**

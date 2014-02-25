@@ -203,6 +203,11 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       curDir = String.format("%s/..", curDir);
     }
 
+    mSource = path;
+
+    if (Strings.isNullOrEmpty(path)) throw new IOException(String.format("Cannot locate DDF configuration file %s",
+        configFileName));
+
     mLog.debug(String.format("Using config file found at %s\n", path));
     return path;
   }
@@ -225,5 +230,13 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
   @Override
   public Map<String, String> getSettings(String sectionName) {
     return this.getConfig().getSettings(sectionName);
+  }
+
+
+  private String mSource;
+
+  @Override
+  public String getSource() {
+    return mSource;
   }
 }

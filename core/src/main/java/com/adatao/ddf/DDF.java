@@ -458,6 +458,12 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     try {
       className = this.getManager().getConfigValue(theInterface.getSimpleName());
+      if (Strings.isNullOrEmpty(className)) {
+        mLog.error(String.format("Cannot determine classname for %s from configuration source %s",
+            theInterface.getSimpleName(), this.getManager().getConfigHandler().getSource()));
+        return null;
+      }
+
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
           .getConstructor(new Class<?>[] { DDFManager.class });
