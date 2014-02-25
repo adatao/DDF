@@ -88,7 +88,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
       Schema schema) throws DDFException {
 
-    if (manager == null) throw new DDFException("Cannot initialize a DDF with a null DDFManager");
+    //if (manager == null) throw new DDFException("Cannot initialize a DDF with a null DDFManager");
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
     this.getRepresentationHandler().set(data, elementType);
