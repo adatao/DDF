@@ -18,20 +18,20 @@ public class SparkDDF extends DDF {
   public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<?> elementType, String namespace, String name, Schema schema)
       throws DDFException {
 
+    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
     this.initialize(manager, rdd, elementType, namespace, name, schema);
   }
 
-  protected <T> void initialize(DDFManager manager, RDD<T> rdd, Class<?> elementType, String namespace, String name,
-      Schema schema) throws DDFException {
 
-    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
-    // if (rdd.sparkContext() == null) throw new
-    // DDFException("SparkContext is required to instantiate a new DDF");
-
-    // this.setManager(new SparkDDFManager(rdd.sparkContext()));
-
-    this.initialize(manager, (Object) rdd, elementType, namespace, name, schema);
+  /**
+   * Signature without RDD, useful for creating a dummy DDF used by DDFManager
+   * 
+   * @param manager
+   */
+  /* package-private */SparkDDF(DDFManager manager) throws DDFException {
+    this.initialize(manager, (Object) null, null, null, null, null);
   }
+
 
   @SuppressWarnings("unchecked")
   public <T> RDD<T> getRDD(Class<T> elementType) throws DDFException {
