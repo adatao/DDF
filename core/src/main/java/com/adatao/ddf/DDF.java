@@ -85,50 +85,14 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected void initialize(DDFManager manager, Object data, Class<?> elementType, String namespace, String name,
       Schema schema) throws DDFException {
 
-<<<<<<< HEAD
   private ADDFManager mManager;
-=======
-    this.getRepresentationHandler().set(data, elementType);
-
-    if (manager == null) manager = DDFManager.sDummyDDFManager;
-    this.setManager(manager);
-
-    if (Strings.isNullOrEmpty(namespace)) namespace = manager.getNamespace();
-    this.setNamespace(namespace);
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
     if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
     this.setName(name);
   }
 
-
-<<<<<<< HEAD
   private static ADDFManager sDefaultManager;
-=======
-
-  private String mNamespace;
-
-  private String mName;
-
-  /**
-   * @return the namespace this DDF belongs in
-   * @throws DDFException
-   */
-  public String getNamespace() throws DDFException {
-    if (mNamespace == null) mNamespace = this.getManager().getNamespace();
-    return mNamespace;
-  }
-
-  /**
-   * @param namespace
-   *          the namespace to place this DDF in
-   */
-  public void setNamespace(String namespace) {
-    this.mNamespace = namespace;
-  }
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
-
   /**
    * @return the name of this DDF
    */
@@ -144,7 +108,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     this.mName = name;
   }
 
-<<<<<<< HEAD
   private static DDFConfig.Config sConfig;
 
   protected static DDFConfig.Config getConfig() {
@@ -154,29 +117,15 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       } catch (Exception e) {
         sLOG.error("Unable to initialize DDF", e);
       }
-=======
-
-
-  private DDFManager mManager;
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
   public DDFManager getManager() {
     return this.mManager;
   }
 
-<<<<<<< HEAD
   public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
-=======
-  protected void setManager(DDFManager DDFManager) {
-    this.mManager = DDFManager;
-  }
-
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
 
 
   // ////// MetaData that deserves to be right here at the top level ////////
-
-<<<<<<< HEAD
   /**
    * Returns the currently set global DDF engine, e.g., "spark".
    * <p>
@@ -193,17 +142,11 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    */
   public static String getEngine() {
     return sDDFEngine;
-=======
-  public Schema getSchema() {
-    return this.getSchemaHandler().getSchema();
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
   }
 
   public String getTableName() {
     return this.getSchema().getTableName();
   }
-
-<<<<<<< HEAD
     try {
       // Also load/reload the ddf.ini file
       if (sConfig != null)
@@ -220,17 +163,6 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       Class<?> managerClass = Class.forName(className);
       if (managerClass == null)
         throw new DDFException("Cannot locate class for name " + className);
-=======
-  public long getNumRows() {
-    return this.getMetaDataHandler().getNumRows();
-  }
-
-  public long getNumColumns() {
-    return this.getSchemaHandler().getNumColumns();
-  }
-
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
-
 
   // ////// Function-Group Handlers ////////
 

@@ -15,7 +15,6 @@ import com.adatao.ddf.DDFManager;
 public class SparkDDFManagerTests {
 
   @Test
-<<<<<<< HEAD
   @Ignore
   public void testDDFConfig() throws Exception {
     DDF.setEngine("spark");
@@ -24,8 +23,6 @@ public class SparkDDFManagerTests {
 
   @Test
   @Ignore
-=======
->>>>>>> fa883897a62c58c17b8dab1a5769ad4f68f4a410
   public void testLongSparkDDFManagerRetrieval() throws DDFException {
     DDFManager manager = DDFManager.get("spark");
     Map<String, String> params = ((SparkDDFManager) manager).getSparkContextParams();
