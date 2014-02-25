@@ -92,10 +92,11 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     this.getRepresentationHandler().set(data, rowType);
 
+    this.getSchemaHandler().setSchema(schema);
+    if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
+
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);
-
-    if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
     if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
     this.setName(name);
   }
