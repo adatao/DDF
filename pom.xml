@@ -128,32 +128,31 @@
                 <outputFileFormat>xml</outputFileFormat>
               </configuration>
             </plugin>
-            <!-- 
+            <!--
             <plugin>
-                <groupId>org.scalastyle</groupId>
-                <artifactId>scalastyle-maven-plugin</artifactId>
-                <version>0.4.0</version>
-                <configuration>
-                  <verbose>false</verbose>
-                  <failOnViolation>true</failOnViolation>
-                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                  <failOnWarning>false</failOnWarning>
-                  <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
-                  <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
-                  <configLocation>src/main/resources/scalastyle-config.xml</configLocation>
-                  <outputFile>target/scalastyle-output.xml</outputFile>
-                  <outputEncoding>UTF-8</outputEncoding>
-                </configuration>
-                <executions>
-                  <execution>
-                    <goals>
-                      <goal>check</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-              -->
-
+              <groupId>org.scalastyle</groupId>
+              <artifactId>scalastyle-maven-plugin</artifactId>
+              <version>0.4.0</version>
+              <configuration>
+                <verbose>false</verbose>
+                <failOnViolation>true</failOnViolation>
+                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                <failOnWarning>false</failOnWarning>
+                <sourceDirectory>${basedir}/core/src/main/scala</sourceDirectory>
+                <testSourceDirectory>${basedir}/core/src/test/scala</testSourceDirectory>
+                <configLocation>src/main/resources/scalastyle-config.xml</configLocation>
+                <outputFile>target/scalastyle-output.xml</outputFile>
+                <outputEncoding>UTF-8</outputEncoding>
+              </configuration>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
