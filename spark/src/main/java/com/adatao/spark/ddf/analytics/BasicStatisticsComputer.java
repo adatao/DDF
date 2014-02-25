@@ -6,28 +6,27 @@ import org.apache.spark.api.java.function.Function2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ABasicStatisticsComputer;
 import com.adatao.ddf.analytics.Summary;
+
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
+ * 
  * @author bhan
- *
+ * 
  */
 public class BasicStatisticsComputer extends ABasicStatisticsComputer {
-  private static final Logger sLOG = LoggerFactory
-      .getLogger(BasicStatisticsComputer.class);
 
-  public BasicStatisticsComputer(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public BasicStatisticsComputer(DDF theDDF) {
+    super(theDDF);
   }
 
   @Override
   public Summary[] getSummaryImpl() {
     @SuppressWarnings("unchecked")
-    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getManager().getRepresentationHandler().get(Object[].class);
-    Summary[] stats = data.map(new GetSummaryMapper()).reduce(
-        new GetSummaryReducer());
+    JavaRDD<Object[]> data = (JavaRDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+    Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }
 
@@ -35,6 +34,8 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
    * Mapper function
    */
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
+    protected final Logger mLog = LoggerFactory.getLogger(this.getClass());
+
     /**
      * 
      */
@@ -72,7 +73,7 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
                   result[i] = s;
                 } catch (Exception ex) {
                   result[i] = null;
-                  sLOG.info("GetSummaryMapper: catch " + p[i] + " is not number");
+                  mLog.info("GetSummaryMapper: catch " + p[i] + " is not number");
                 }
               }
             }
@@ -80,14 +81,13 @@ public class BasicStatisticsComputer extends ABasicStatisticsComputer {
         }
         return result;
       } else {
-        sLOG.error("malformed line input");
+        mLog.error("malformed line input");
         return null;
       }
     }
   }
 
-  public static class GetSummaryReducer extends
-      Function2<Summary[], Summary[], Summary[]> {
+  public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
     /**
      * 
      */

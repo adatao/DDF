@@ -3,7 +3,6 @@
  */
 package com.adatao.ddf;
 
-import java.util.UUID;
 
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
@@ -68,7 +67,11 @@ public class Vector {
   }
 
   private void initialize(String name, Object[] data) throws DDFException {
-    DDF newDDF = DDF.newDDF(String.format("Vector-%", UUID.randomUUID()), new Schema.ColumnWithData(name, data));
+    if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
+
+    Class<?> elementType = data[0].getClass();
+    DDF newDDF = DDFManager.getDummyDDFManager().newDDF(null, data, elementType, null, name, new Schema(name));
+
     this.initialize(newDDF, name);
   }
 

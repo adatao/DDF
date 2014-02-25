@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFManager;
+import com.adatao.ddf.DDF;
 
 /**
  * @author ctn
@@ -17,8 +17,8 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     implements IHandleMetaData {
 
 
-  public AMetaDataHandler(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public AMetaDataHandler(DDF theDDF) {
+    super(theDDF);
   }
 
   private UUID mId = UUID.randomUUID();

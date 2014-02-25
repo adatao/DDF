@@ -14,6 +14,7 @@ import com.adatao.spark.ddf.SparkDDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.SparkRepresentationHandler._
 import com.adatao.ddf.exception.DDFException
+import com.adatao.ddf.DDF
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -21,20 +22,20 @@ import com.adatao.ddf.exception.DDFException
  * @author ctn
  *
  */
-class SparkRepresentationHandler(theDDFManager: SparkDDFManager) extends ARepresentationHandler(theDDFManager) with IHandleRepresentations {
+class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) with IHandleRepresentations {
 
   /**
    *
    */
   protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = theDDFManager.getSchemaHandler
+    val schema = mDDF.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
-    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
+    if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
     }
 
-    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     elementType match {
@@ -72,7 +73,7 @@ class SparkRepresentationHandler(theDDFManager: SparkDDFManager) extends ARepres
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Persisting " + rdd)
+          mLog.info(this.getClass() + ": Persisting " + rdd)
           rdd.persist
         }
     })
@@ -82,7 +83,7 @@ class SparkRepresentationHandler(theDDFManager: SparkDDFManager) extends ARepres
     forAllReps({
       rdd: RDD[_] ⇒
         if (rdd != null) {
-          LOG.info(this.getClass() + ": Unpersisting " + rdd)
+          mLog.info(this.getClass() + ": Unpersisting " + rdd)
           rdd.unpersist(false)
         }
     })

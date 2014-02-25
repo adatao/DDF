@@ -1,12 +1,14 @@
 package com.adatao.ddf.content;
 
+import com.adatao.ddf.IHandleDDFFunctionalGroup;
+
 /**
  * <p>
  * Handles the underlying, implementation-specific representation(s) of a DDF. Note that a single
  * DDF may have simultaneously multiple representations, all of which are expected to be equivalent
- * in terms of relevant content value. Contrast this with, e.g., {@link IHandleViews},
- * which results in entirely new DDFs with different columns or rows. These new DDFs are logically
- * referred to as new "views".
+ * in terms of relevant content value. Contrast this with, e.g., {@link IHandleViews}, which results
+ * in entirely new DDFs with different columns or rows. These new DDFs are logically referred to as
+ * new "views".
  * </p>
  * <p>
  * For example, a DDF may initially be represented as an RDD[TablePartition]. But in order to send
@@ -21,15 +23,16 @@ package com.adatao.ddf.content;
  * replacement functions. The underlying RDDs are of course immutable.
  * </p>
  * <p>
- * As a final example, a DDF may be set up to accept incoming streaming data. The client has a constant
- * reference to this DDF, but the underlying data is constantly being updated, such that each query against
- * this DDF would result in different data being returned/aggregated.
+ * As a final example, a DDF may be set up to accept incoming streaming data. The client has a
+ * constant reference to this DDF, but the underlying data is constantly being updated, such that
+ * each query against this DDF would result in different data being returned/aggregated.
  * </p>
  * 
  * @author ctn
  * 
  */
-public interface IHandleRepresentations {
+public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
+
   /**
    * Retrieves a representation with elements of elementType.
    * 
@@ -42,11 +45,13 @@ public interface IHandleRepresentations {
    * Clears out all current representations.
    */
   public void reset();
+
   /**
    * @return 
    *
    */
   public Object getRepresentation(Class<?> elementType);
+
   /**
    * Clears all current representations and set it to the supplied one.
    * 
@@ -69,12 +74,12 @@ public interface IHandleRepresentations {
    * @param elementType
    */
   public void remove(Class<?> elementType);
-  
+
   /**
    * Cache all representations, e.g., in an in-memory context
    */
   public void cacheAll();
-  
+
   /**
    * Uncache all representations, e.g., in an in-memory context
    */

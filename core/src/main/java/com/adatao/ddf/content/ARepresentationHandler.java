@@ -6,7 +6,6 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.ADDFManager;
 import com.adatao.ddf.DDF;
 
 /**
@@ -15,8 +14,8 @@ import com.adatao.ddf.DDF;
  */
 public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(ADDFManager theDDFManager) {
-    super(theDDFManager);
+  public ARepresentationHandler(DDF theDDF) {
+    super(theDDF);
   }
 
 
