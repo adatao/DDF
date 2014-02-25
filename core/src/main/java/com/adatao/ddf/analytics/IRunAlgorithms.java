@@ -20,5 +20,5 @@ public interface IRunAlgorithms {
    *          The DDF in the appropriate representation to be processed by the algorithm
    * @return the {@link IAlgorithmModel}
    */
-  public IAlgorithmOutputModel run(IAlgorithm algorithm, DDF theDDF);
+  public IAlgorithmOutputModel run(IAlgorithm algorithm);
 }

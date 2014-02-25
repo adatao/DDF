@@ -14,7 +14,6 @@ import com.adatao.ddf.ADDFManager
 import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
-import com.adatao.ddf.ADDFManager
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -24,30 +23,30 @@ import com.adatao.ddf.ADDFManager
  */
 class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationHandler(theDDFManager) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
-    if (theDDFManager.getRepresentationHandler.get(classOf[Row]) == null) {
+    if (this.getManager.getRepresentationHandler.get(classOf[Row]) == null) {
       throw new Exception("Please load theDDFManager representation")
     }
-    val rdd = theDDFManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+    val rdd = this.getManager.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     rdd
   }
   /**
    * Creates a specific representation
    */
 
-  protected def getRepresentationImpl(elementType: Class[_]): Object = {
-    val schema = theDDFManager.getSchemaHandler
+  protected def getRepresentationImpl(unitType: Class[_]): Object = {
+    val schema = this.getManager.getSchemaHandler
     val numCols = schema.getNumColumns.toInt
 
     val extractors = schema.getColumns().map(colInfo => doubleExtractor(colInfo.getType)).toArray
 
     val rdd = getDefaultRepresentationImpl();
-    elementType match {
+    unitType match {
 
-      case arrayObject if arrayObject == classOf[Array[Object]] => getRDDArrayObject(rdd, numCols)
+      case ARRAY_OBJECT => getRDDArrayObject(rdd, numCols)
 
-      case arrayDouble if arrayDouble == classOf[Array[Double]] => getRDDArrayDouble(rdd, numCols, extractors)
+      case ARRAY_DOUBLE => getRDDArrayDouble(rdd, numCols, extractors)
 
-      case labeledPoint if labeledPoint == classOf[LabeledPoint] => getRDDLabeledPoint(rdd, numCols, extractors)
+      case LABELED_POINT => getRDDLabeledPoint(rdd, numCols, extractors)
 
       case _ => throw new DDFException("elementType not supported")
     }
@@ -95,6 +94,13 @@ class RepresentationHandler(theDDFManager: ADDFManager) extends ARepresentationH
 
 object RepresentationHandler {
   /**
+   * Supported Representations
+   */
+  val ARRAY_DOUBLE = classOf[Array[Double]]
+  val ARRAY_OBJECT = classOf[Array[Object]]
+  val LABELED_POINT = classOf[LabeledPoint]
+
+  /**
    *
    */
   def getRDDArrayObject(rdd: RDD[Row], numCols: Int): RDD[Array[Object]] = {
@@ -126,7 +132,7 @@ object RepresentationHandler {
     var i = 0
     var isNull = false
 
-    while (i < numCols && isNull == false) {
+    while (i < numCols && !isNull) {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true
@@ -144,7 +150,7 @@ object RepresentationHandler {
     var isNull = false
     var i = 0
 
-    while (i < numCols && isNull == false) {
+    while (i < numCols && !isNull) {
       val obj = row.getPrimitive(i)
       if (obj == null) {
         isNull = true

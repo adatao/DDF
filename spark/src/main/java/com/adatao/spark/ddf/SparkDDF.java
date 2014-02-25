@@ -27,8 +27,8 @@ public class SparkDDF extends DDF {
   private <T> void initialize(RDD<T> rdd, Class<T> elementType, Schema schema) throws DDFException {
     if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
     if (rdd.sparkContext() == null) throw new DDFException("SparkContext is required to instantiate a new DDF");
-
     this.setManager(new SparkDDFManager(rdd.sparkContext()));
+    this.getManager().setDDF(this);
     this.getRepresentationHandler().set(rdd, elementType);
     this.getSchemaHandler().setSchema(schema);
   }

@@ -272,7 +272,7 @@ public class DDF {
 
   // Run Algorithms
   public IAlgorithmOutputModel train(IAlgorithm algorithm) {
-    return this.getAlgorithmRunner().run(algorithm, this);
+    return this.getAlgorithmRunner().run(algorithm);
   }
 
   // ////// Static convenient methods for IHandleSql ////////
