@@ -209,6 +209,11 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   }
 
 
+  // ///// Aggregate operations
+  
+  public double getCorr(String colA, String colB) {
+    return 0;
+  }
 
   // ////// Function-Group Handlers ////////
 
