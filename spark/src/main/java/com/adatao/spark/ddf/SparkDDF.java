@@ -8,17 +8,15 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
 /**
- * DDF extends DDF in order to provide some utility methods that are specific to Spark framework.
- * 
- * @author Cuong Kien Bui
- * @version 0.1
+ * An Apache-Spark-based implementation of DDF
  */
 public class SparkDDF extends DDF {
 
-  public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<?> rowType, String namespace, String name, Schema schema)
+  public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
-    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new DDF");
+    super(manager);
+    if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new SparkDDF");
     this.initialize(manager, rdd, rowType, namespace, name, schema);
   }
 
@@ -27,10 +25,9 @@ public class SparkDDF extends DDF {
    * 
    * @param manager
    */
-  /* package-private */SparkDDF(DDFManager manager) throws DDFException {
-    this.initialize(manager, (Object) null, null, null, null, null);
+  public SparkDDF(DDFManager manager) throws DDFException {
+    super(manager);
   }
-
 
   @SuppressWarnings("unchecked")
   public <T> RDD<T> getRDD(Class<T> rowType) throws DDFException {

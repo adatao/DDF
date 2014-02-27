@@ -4,6 +4,8 @@
 package com.adatao.ddf;
 
 
+import java.util.Iterator;
+
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
@@ -20,7 +22,7 @@ import com.adatao.ddf.exception.DDFException;
  * @author ctn
  * 
  */
-public class Vector {
+public class Vector<T> {
 
   /**
    * Instantiate a new Vector based on an existing DDF, given a column name. The column name is not
@@ -34,80 +36,33 @@ public class Vector {
   }
 
   /**
-   * Instantiate a new Vector with the given Integer array. Uses the default engine.
+   * Instantiate a new Vector with the given T array. Uses the default engine.
    * 
    * @param data
    * @param theColumnName
    * @throws DDFException
    */
-  public Vector(String name, Integer[] data) throws DDFException {
+  public Vector(String name, T[] data) throws DDFException {
     this.initialize(name, data, null);
   }
 
   /**
-   * Instantiate a new Vector with the given Double array. Uses the default engine.
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Vector(String name, Double[] data) throws DDFException {
-    this.initialize(name, data, null);
-  }
-
-  /**
-   * Instantiate a new Vector with the given String array. Uses the default engine.
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Vector(String name, String[] data) throws DDFException {
-    this.initialize(name, data, null);
-  }
-
-  /**
-   * Instantiate a new Vector with the given Integer array.
+   * Instantiate a new Vector with the given T array. Uses the default engine.
    * 
    * @param data
    * @param theColumnName
    * @param engineName
    * @throws DDFException
    */
-  public Vector(String name, Integer[] data, String engineName) throws DDFException {
+  public Vector(String name, T[] data, String engineName) throws DDFException {
     this.initialize(name, data, engineName);
   }
 
-  /**
-   * Instantiate a new Vector with the given Double array.
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Vector(String name, Double[] data, String engineName) throws DDFException {
-    this.initialize(name, data, engineName);
-  }
-
-  /**
-   * Instantiate a new Vector with the given String array.
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Vector(String name, String[] data, String engineName) throws DDFException {
-    this.initialize(name, data, engineName);
-  }
-
-
-  private void initialize(String name, Object[] data, String engineName) throws DDFException {
+  private void initialize(String name, T[] data, String engineName) throws DDFException {
     if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
 
     Class<?> rowType = data[0].getClass();
-    DDF newDDF = DDFManager.get(engineName).newDDF(null, data, rowType, null, name, new Schema(name));
+    DDF newDDF = DDFManager.get(engineName).newDDF(null, (Object) data, rowType, null, name, new Schema(name));
 
     this.initialize(newDDF, name);
   }
@@ -158,4 +113,8 @@ public class Vector {
     this.mDDFColumnName = mDDFColumnName;
   }
 
+  @SuppressWarnings("unchecked")
+  public Iterator<T> iterator() {
+    return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
+  }
 }

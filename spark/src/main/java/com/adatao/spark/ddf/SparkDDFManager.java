@@ -9,19 +9,47 @@ import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
 
 /**
- * 
- * @author Cuong Kien Bui
- * @version 0.1
- * 
+ * An Apache-Spark-based implementation of DDFManager
  */
 public class SparkDDFManager extends DDFManager {
+
+  @Override
+  public String getEngine() {
+    return "spark";
+  }
+
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
   private static final String DEFAULT_SPARK_MASTER = "local[4]";
+
+
+
+  public SparkDDFManager(SparkContext sparkContext) throws DDFException {
+    this.initialize(sparkContext, null);
+  }
+
+  /**
+   * Use system environment variables to configure the SparkContext creation.
+   * 
+   * @throws DDFException
+   */
+  public SparkDDFManager() throws DDFException {
+    this.initialize(null, new HashMap<String, String>());
+  }
+
+  public SparkDDFManager(Map<String, String> params) throws DDFException {
+    this.initialize(null, params);
+  }
+
+  private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
+    this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
+
+    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
+  }
+
 
 
   public String getDDFEngine() {
@@ -66,29 +94,6 @@ public class SparkDDFManager extends DDFManager {
   }
 
 
-
-  public SparkDDFManager(SparkContext sparkContext) throws DDFException {
-    this.initialize(sparkContext, null);
-  }
-
-  /**
-   * Use system environment variables to configure the SparkContext creation.
-   * 
-   * @throws DDFException
-   */
-  public SparkDDFManager() throws DDFException {
-    this.initialize(null, new HashMap<String, String>());
-  }
-
-  public SparkDDFManager(Map<String, String> params) throws DDFException {
-    this.initialize(null, params);
-  }
-
-  private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
-    this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
-
-    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
-  }
 
   public void shutdown() {
     if (this.getSharkContext() != null) {
@@ -164,15 +169,5 @@ public class SparkDDFManager extends DDFManager {
     }
 
     return this.getSparkContext();
-  }
-
-  @Override
-  public String getEngine() {
-    return "spark";
-  }
-
-  @Override
-  protected DDF createDummyDDF() throws DDFException {
-    return new SparkDDF(this);
   }
 }

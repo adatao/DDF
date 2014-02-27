@@ -8,7 +8,6 @@ import java.util.List;
 import shark.api.ColumnDesc;
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.ASchemaHandler;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.google.common.collect.Lists;
@@ -17,7 +16,7 @@ import com.google.common.collect.Lists;
  * @author ctn
  * 
  */
-public class SchemaHandler extends ASchemaHandler {
+public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
 
   public SchemaHandler(DDF theDDF) {
     super(theDDF);
