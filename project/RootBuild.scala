@@ -255,19 +255,20 @@ object RootBuild extends Build {
                 <reuseForks>false</reuseForks>
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
-					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
-				</environmentVariables>
+								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
+								</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>
+                  <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
                 </systemPropertyVariables>
                 <additionalClasspathElements>
-                  <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/conf/</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/conf/local/</additionalClasspathElement>
                   <additionalClasspathElement>${{basedir}}/../lib_managed/jars/*</additionalClasspathElement>
                   <additionalClasspathElement>${{HADOOP_HOME}}/conf/</additionalClasspathElement>
-                  <additionalClasspathElement>${{HIVE_HOME}}/conf/</additionalClasspathElement>
                   </additionalClasspathElements>
                 <includes>
                   <include>**/*.java</include>
