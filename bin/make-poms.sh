@@ -12,8 +12,8 @@ SBT="bin/sbt"
 $SBT make-pom
 
 TARGET_DIR=target
-# Remember to update this with list of projects under root
-PROJECTS=(core spark extras)
+# Project list is heuristically determined to be those dirs that have src/main/ under them
+PROJECTS=(`echo */src/main | sed -e 's/\/src\/main//g'`)
 
 for project in ${PROJECTS[*]} ; do
   # find the latest *.pom under $TARGET_DIR
