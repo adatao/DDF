@@ -21,7 +21,7 @@ object RootBuild extends Build {
 	val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
 	val rootOrganization = "com.adatao"
-	val projectName = "DDF"
+	val projectName = "ddf"
 	val rootProjectName = projectName
 	val rootVersion = "1.0"
 
@@ -83,22 +83,22 @@ object RootBuild extends Build {
 
   // We define this explicitly rather than via unmanagedJars, so that make-pom will generate it in pom.xml as well
   // org % package % version
-  val adatao_unmanaged = Seq(
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_builtins" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_cli" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_common" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_contrib" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_exec" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_hbase_handler" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_hwi" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_jdbc" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_metastore" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_pdk" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_serde" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_service" % "0.9.0.patched",
-    "adatao.unmanaged.edu.berkeley.amplab" % "hive_shims" % "0.9.0.patched",
-    "adatao.unmanaged.net.rforge" % "REngine" % "1.7.2.compiled",
-    "adatao.unmanaged.net.rforge" % "Rserve" % "1.7.2.compiled"
+  val com_adatao_unmanaged = Seq(
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_builtins" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_cli" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_common" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_contrib" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_exec" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_hbase_handler" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_hwi" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_jdbc" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_metastore" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_pdk" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_serde" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_service" % "0.9.0.patched",
+    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_shims" % "0.9.0.patched",
+    "com.adatao.unmanaged.net.rforge" % "REngine" % "1.7.2.compiled",
+    "com.adatao.unmanaged.net.rforge" % "Rserve" % "1.7.2.compiled"
   )
 
   /////// Common/Shared project settings ///////
@@ -132,7 +132,7 @@ object RootBuild extends Build {
     ),
     */
 
-    // This goes first for fastest resolution. We need this for adatao_unmanaged.
+    // This goes first for fastest resolution. We need this for com_adatao_unmanaged.
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
@@ -255,19 +255,20 @@ object RootBuild extends Build {
                 <reuseForks>false</reuseForks>
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
-					<DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
-				</environmentVariables>
+								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
+								</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>
+                  <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
                 </systemPropertyVariables>
                 <additionalClasspathElements>
-                  <additionalClasspathElement>${{basedir}}/conf/local</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/conf/</additionalClasspathElement>
+                  <additionalClasspathElement>${{basedir}}/conf/local/</additionalClasspathElement>
                   <additionalClasspathElement>${{basedir}}/../lib_managed/jars/*</additionalClasspathElement>
                   <additionalClasspathElement>${{HADOOP_HOME}}/conf/</additionalClasspathElement>
-                  <additionalClasspathElement>${{HIVE_HOME}}/conf/</additionalClasspathElement>
                   </additionalClasspathElements>
                 <includes>
                   <include>**/*.java</include>
@@ -462,7 +463,7 @@ object RootBuild extends Build {
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
 
-    libraryDependencies ++= adatao_unmanaged
+    libraryDependencies ++= com_adatao_unmanaged
   ) ++ assemblySettings ++ extraAssemblySettings
 
   def examplesSettings = commonSettings ++ Seq(

@@ -24,5 +24,3 @@
   <value>/user/hive/warehouse</value>
   <description>location of default database for the warehouse</description>
 </property>
-
-</configuration>

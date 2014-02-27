@@ -8,11 +8,11 @@
 	-->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.adatao</groupId>
-	<artifactId>DDF</artifactId>
+	<artifactId>ddf</artifactId>
 	<packaging>pom</packaging>
 	<description>Adatao Distributed DataFrame</description>
 	<version>1.0</version>
-	<name>DDF</name>
+	<name>ddf</name>
 	<organization>
 		<name>com.adatao</name>
 	</organization>
@@ -21,14 +21,14 @@
 	<licenses>
 		<license>
 			<name>Copyright Adatao, Inc.</name>
-			<url>https://github.com/adatao/DDF/blob/master/LICENSE</url>
+			<url>https://github.com/adatao/ddf/blob/master/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@github.com:adatao/DDF</connection>
-		<url>scm:git:git@github.com:adatao/DDF.git</url>
+		<connection>scm:git:git@github.com:adatao/ddf</connection>
+		<url>scm:git:git@github.com:adatao/ddf.git</url>
 	</scm>
 
 	<developers>

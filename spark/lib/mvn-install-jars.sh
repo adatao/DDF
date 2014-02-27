@@ -57,4 +57,5 @@ function ScanDirs {
 }
 
 #GROUP_ID=lib_unmanaged ScanDirs
-GROUP_ID=adatao.unmanaged ScanDirs
+#GROUP_ID=adatao.unmanaged ScanDirs
+GROUP_ID=com.adatao.unmanaged ScanDirs
