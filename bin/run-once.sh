@@ -21,12 +21,14 @@ function Run() {
   ***************************************************************************************
   "
 
+
   echo "
   ***************************************************************************************
   Retrieving sbt
   ***************************************************************************************
   "
 	bin/get-sbt.sh
+
 
   # Don't do this automatically; it seems too expensive in terms of people having to re-download stuff
   #echo "
@@ -35,6 +37,7 @@ function Run() {
   #***************************************************************************************
   #"
   #bin/clean-m2-repository.sh
+
 
   #echo "
   ##***************************************************************************************
@@ -45,6 +48,7 @@ function Run() {
   #rm -fr ~/.ivy2/{cache,local}/{adatao.*,org.spark-project,edu.berkeley.*}
   spark/lib/mvn-install-jars.sh || Error "mvn-install-jars.sh failed"
 
+
   echo "
   ***************************************************************************************
   Running one time 'sbt clean package eclipse' to generate .classpath and .project files
@@ -54,6 +58,7 @@ function Run() {
   # Don't exit on failure; we may still be able to get mvn going
   $SBT clean compile package eclipse
 
+
   echo "
   ***************************************************************************************
   Running one time 'bin/make-poms.sh' to generate sub-project pom.xml files
@@ -61,12 +66,22 @@ function Run() {
   "
   bin/make-poms.sh || Error "make-poms.sh failed"
 
+
   echo "
   ***************************************************************************************
-  Running one time 'mvn clean compile package -DskipTests' under 'core/' to confirm successful build
+  Running one time 'mvn clean compile package install -DskipTests' under 'core/' to confirm successful build
   ***************************************************************************************
   "
-  (cd core ; mvn clean compile package -DskipTests) || Error "mvn compile in core failed"
+  (cd core ; mvn clean compile package install -DskipTests) || Error "mvn compile in core failed"
+
+
+  echo "
+  ***************************************************************************************
+  Running one time 'mvn clean compile package -DskipTests' under 'spark/' to confirm successful build
+  ***************************************************************************************
+  "
+  (cd spark ; mvn clean compile package -DskipTests) || Error "mvn compile in spark failed"
+
 
   echo "
   ***************************************************************************************
