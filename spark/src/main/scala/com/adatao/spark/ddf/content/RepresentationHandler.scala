@@ -27,7 +27,7 @@ class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
   protected def getDefaultRepresentationImpl(): RDD[Row] = {
 
     if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
-      throw new Exception("Please load theDDFManager representation")
+      throw new DDFException("Please load theDDFManager representation")
     }
     val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
     rdd

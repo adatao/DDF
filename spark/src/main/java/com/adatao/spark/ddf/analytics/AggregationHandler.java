@@ -25,7 +25,7 @@ public class AggregationHandler extends AAggregationHandler {
   }
 
   @Override
-  public double corr(String colA, String colB) {
+  public double corrImpl(String colA, String colB) {
     String sqlCmd = "Select corr(" + colA + ", " + colB + ") from "
         + this.getDDF().getTableName();
     List<String> rs;
@@ -39,7 +39,7 @@ public class AggregationHandler extends AAggregationHandler {
   }
 
   @Override
-  public Map<String, Double[]> aggregate(String[] columnNames,
+  public Map<String, Double[]> aggregateImpl(String[] columnNames,
       String[] groupByColumns, String funcName) {
     String tableName = this.getDDF().getTableName();
     String groupByStr, funcStr;
@@ -61,7 +61,8 @@ public class AggregationHandler extends AAggregationHandler {
         + " group by " + groupByStr;
     try {
       List<String> result = this.getManager().sql2txt(sqlCmd);
-      return toAggregateResult(result, groupByColumns.length);
+      if (result.size()!=0)
+        return toAggregateResult(result, groupByColumns.length);
     } catch (DDFException e) {
       logger.error("Unable to query from " + tableName, e);
     }
@@ -76,20 +77,30 @@ public class AggregationHandler extends AAggregationHandler {
       String[] stats = res.substring(pos + 1).split("\t");
       Double[] statsDouble = new Double[stats.length];
       for (int i = 0; i < stats.length; i++) {
+        if (!stats[i].equalsIgnoreCase("null")) statsDouble[i]=Double.NaN;
+        else
         statsDouble[i] = Utils.roundUp(Double.parseDouble(stats[i]));
       }
       aggregateResult.put(groupByColNames, statsDouble);
     }
-    return null;
+    return aggregateResult;
   }
 
   private String nameToFunction(String colName, String funcName) {
     switch (AggregateFunction.valueOf(funcName)) {
     case median:
       return String.format(" percentile_approx(%s, 0.5),", colName);
+    case mean:
+      return String.format(" avg(%s),", colName);
     default:
       return funcName + String.format(" (%s),", colName);
     }
+  }
+
+  @Override
+  public double corr(String colA, String colB) {
+    // TODO Auto-generated method stub
+    return 0;
   }
 
 }

@@ -1,49 +1,53 @@
 package com.adatao.ddf.analytics;
 
+import java.util.Map;
+
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
+
 /**
  * 
  * @author bhan
- *
+ * 
  */
-public abstract class AAggregationHandler extends ADDFFunctionalGroupHandler implements IHandleAggregation {
+public abstract class AAggregationHandler extends ADDFFunctionalGroupHandler
+    implements IHandleAggregation {
 
   public AAggregationHandler(DDF theDDF) {
     super(theDDF);
   }
-  
-  public double aggregate(int[] columnIndices, String func) {
-    return aggregate(getColumnNames(columnIndices), func);
-  }
-  
-  private int[] getColumnNames(int[] columnIndices) {
-    // TODO Auto-generated method stub
-    return null;
+
+  public Map<String, Double[]> aggregate(String[] columnNames,
+      String[] groupByColumns, String funcName) {
+    if (AggregateFunction.fromString(funcName) == null)
+      throw new UnsupportedOperationException();
+    return aggregateImpl(columnNames, groupByColumns, funcName);
   }
 
-  public boolean isSupported(String[] columnNames, String funcName) {
-    if (AggregateFunction.fromString(funcName) == null) return false;
-    // TODO check columnType must be number
-    return true;
+  public double corr(String colA, String colB) {
+    if (!this.getDDF().getSchemaHandler().getSchema().getColumn(colA)
+        .isNumber())
+      throw new UnsupportedOperationException();
+    return corrImpl(colA, colB);
   }
-  
-  public boolean isValid(String[] columnNames, String funcName) {
-    return ( "corr".equalsIgnoreCase(funcName) && columnNames.length !=2);
-    // TODO check columnNames exist
-  }
-  
+
+  public abstract Map<String, Double[]> aggregateImpl(String[] columnNames,
+      String[] groupByColumns, String funcName);
+
+  public abstract double corrImpl(String colA, String colB);
+
   public enum AggregateFunction {
-    mean, sum, min, max, median, variance, stdev, corr;
+    mean, count, sum, min, max, median, variance, stddev;
     public static AggregateFunction fromString(String s) {
-      if (s == null || s.length() == 0) return null;
+      if (s == null || s.length() == 0)
+        return null;
       s = s.toUpperCase().trim();
       for (AggregateFunction t : values()) {
-        if (s.equals(t.name())) return t;
+        if (s.equals(t.name()))
+          return t;
       }
       return null;
-  }
-  
+    }
 
   }
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import scala.actors.threadpool.Arrays;
 
+import com.adatao.ddf.analytics.AAggregationHandler.AggregateFunction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -112,7 +113,6 @@ public class Schema implements Serializable {
     if (i == null) {
       return null;
     }
-
     return getColumn(i);
   }
 
@@ -208,6 +208,10 @@ public class Schema implements Serializable {
       this.mType = type;
       return this;
     }
+    
+    public boolean isNumber() {
+      return ColumnType.isNumber(mType);
+    }
 
   }
 
@@ -262,6 +266,17 @@ public class Schema implements Serializable {
 
     public static ColumnType fromArray(Object[] elements) {
       return (elements == null ? null : fromObject(elements[0]));
+    }
+    
+    public static boolean isNumber(ColumnType colType) {
+      switch (colType) {
+      case INT: return true;
+      case DOUBLE: return true;
+      case FLOAT: return true;
+      case LONG: return true;  
+      default:
+        return false;
+      } 
     }
   }
 

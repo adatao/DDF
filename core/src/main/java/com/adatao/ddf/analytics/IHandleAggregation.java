@@ -6,7 +6,7 @@ import com.adatao.ddf.IHandleDDFFunctionalGroup;
 
 public interface IHandleAggregation extends IHandleDDFFunctionalGroup {
   
-  public Map<String, Map<String, Double>> aggregate(String[] columnNames, String[] groupByColumns, String funcName);
+  public Map<String, Double[]> aggregate(String[] columnNames, String[] groupByColumns, String funcName);
   
   public double corr(String colA, String colB);
   
