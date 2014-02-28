@@ -14,9 +14,9 @@ import com.google.common.base.Strings;
 /**
  * 
  */
-public class AAggregationHandler extends ADDFFunctionalGroupHandler implements IHandleAggregation {
+public class AggregationHandler extends ADDFFunctionalGroupHandler implements IHandleAggregation {
 
-  public AAggregationHandler(DDF theDDF) {
+  public AggregationHandler(DDF theDDF) {
     super(theDDF);
   }
 
