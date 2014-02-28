@@ -68,7 +68,6 @@ public class Schema implements Serializable {
 
   //"<name> <type>, <name> <type>"
   private List<Column> parseColumnList(String columnList) {
-    
     if (Strings.isNullOrEmpty(columnList)) return null;
     String[] segments = columnList.split(" *, *");
 
