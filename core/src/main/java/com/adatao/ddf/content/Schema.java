@@ -11,6 +11,7 @@ import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
@@ -66,6 +67,7 @@ public class Schema implements Serializable {
 
   }
 
+  //"<name> <type>, <name> <type>"
   private List<Column> parseColumnList(String columnList) {
     if (Strings.isNullOrEmpty(columnList)) return null;
     String[] segments = columnList.split(" *, *");
@@ -95,6 +97,13 @@ public class Schema implements Serializable {
     return mColumns;
   }
 
+  public List<String> getColumnNames() {
+    List<String> columnNames = Lists.newArrayList();
+    for (Column col : mColumns) {
+      columnNames.add(col.getName());
+    }
+    return columnNames;
+  }
   public void setColumns(List<Column> Columns) {
     this.mColumns = Columns;
   }
@@ -118,17 +127,16 @@ public class Schema implements Serializable {
   }
 
   public Column getColumn(String name) {
-    Integer i = getColumnIndex(name);
-    if (i == null) {
+    int i = getColumnIndex(name);
+    if (i == -1) {
       return null;
     }
-
     return getColumn(i);
   }
 
   public int getColumnIndex(String name) {
-    if (mColumns.isEmpty() || Strings.isNullOrEmpty(name)) return -1;
 
+    if (mColumns.isEmpty() || Strings.isNullOrEmpty(name)) return -1;
 
     for (int i = 0; i < mColumns.size(); i++) {
       if (name.equalsIgnoreCase(mColumns.get(i).getName())) return i;
@@ -157,9 +165,11 @@ public class Schema implements Serializable {
    * @return true if succeed
    */
   public boolean removeColumn(String name) {
+
     if (getColumnIndex(name) < 0) return false;
     this.mColumns.remove(getColumnIndex(name));
     return true;
+
   }
 
   /**
@@ -209,6 +219,10 @@ public class Schema implements Serializable {
     public Column setType(ColumnType type) {
       this.mType = type;
       return this;
+    }
+    
+    public boolean isNumeric() {
+      return ColumnType.isNumeric(mType);
     }
 
   }
@@ -264,6 +278,16 @@ public class Schema implements Serializable {
 
     public static ColumnType fromArray(Object[] elements) {
       return (elements == null ? null : fromObject(elements[0]));
+    }
+    
+    public static boolean isNumeric(ColumnType colType) {
+      switch (colType) {
+        case INT: return true;
+        case DOUBLE: return true;
+        case FLOAT: return true;
+        case LONG: return true;  
+        default: return false;
+      } 
     }
   }
 
