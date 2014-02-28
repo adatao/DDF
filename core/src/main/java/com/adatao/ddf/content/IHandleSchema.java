@@ -20,4 +20,5 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
 
   public String newTableName();
 
+  public int getColumnIndex(String columnName);
 }

@@ -14,10 +14,10 @@ import com.adatao.ddf.content.Schema.Column;
  * @author ctn
  * 
  */
-public abstract class ASchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
+public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
 
 
-  public ASchemaHandler(DDF theDDF) {
+  public SchemaHandler(DDF theDDF) {
     super(theDDF);
   }
 
@@ -45,6 +45,11 @@ public abstract class ASchemaHandler extends ADDFFunctionalGroupHandler implemen
 
   public long getNumColumns() {
     return this.mSchema.getNumColumns();
+  }
+
+  @Override
+  public int getColumnIndex(String columnName) {
+    return this.getSchema().getColumnIndex(columnName);
   }
 
 }

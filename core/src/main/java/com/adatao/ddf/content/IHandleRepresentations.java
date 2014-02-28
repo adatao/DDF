@@ -28,8 +28,6 @@ import com.adatao.ddf.IHandleDDFFunctionalGroup;
  * each query against this DDF would result in different data being returned/aggregated.
  * </p>
  * 
- * @author ctn
- * 
  */
 public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
 
@@ -80,6 +78,14 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    */
   public void uncacheAll();
 
+  /**
+   * Returns the default representation for this engine
+   * 
+   * @return
+   */
   public Object getDefault();
 
+  public Class<?> getDefaultRowType();
+
+  public Class<?> getDefaultColumnType();
 }

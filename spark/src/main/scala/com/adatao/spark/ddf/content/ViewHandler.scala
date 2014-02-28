@@ -4,7 +4,6 @@
 package com.adatao.spark.ddf.content
 
 import com.adatao.ddf.content.IHandleViews
-import com.adatao.ddf.content.AViewHandler
 import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.SparkDDFManager
 
@@ -14,7 +13,7 @@ import com.adatao.spark.ddf.SparkDDFManager
  * @author ctn
  *
  */
-class ViewHandler(mDDF: DDF) extends AViewHandler(mDDF) with IHandleViews {
+class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) with IHandleViews {
 
 	object ViewFormat extends Enumeration {
 		type ViewFormat = Value
@@ -49,27 +48,10 @@ class ViewHandler(mDDF: DDF) extends AViewHandler(mDDF) with IHandleViews {
 		this.get(columns, ViewFormat.withName(format))
 	}
 
-	override def sql2ddf(sqlCommand: String): DDF = {
-
-		//Implementation here
-		null
-	}
-
-	override def sql2text(sqlCommand: String): Array[String] = {
-
-		//Implementation here
-		null
-	}
-
 	override def getRandomSample(numSamples: Int): DDF = {
 
 		//Implementation here
 		null
-	}
-
-	override def reset(): Unit = {
-
-		//Implementation here
 	}
 }
 

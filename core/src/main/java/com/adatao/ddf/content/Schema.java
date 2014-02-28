@@ -2,6 +2,8 @@ package com.adatao.ddf.content;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -9,18 +11,14 @@ import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
- * 
- * @author bhan
- * 
  */
 @SuppressWarnings("serial")
 public class Schema implements Serializable {
   private String mTableName;
-  private List<Column> mColumns = Lists.newArrayList();
+  private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
 
   /**
    * Constructor that can take a list of columns in the following format:
@@ -69,8 +67,20 @@ public class Schema implements Serializable {
   }
 
   private List<Column> parseColumnList(String columnList) {
-    /* TODO */
-    return null;
+    if (Strings.isNullOrEmpty(columnList)) return null;
+    String[] segments = columnList.split(" *, *");
+
+    mColumns.clear();
+    for (String segment : segments) {
+      if (Strings.isNullOrEmpty(segment)) continue;
+
+      String[] parts = segment.split("  *");
+      if (Strings.isNullOrEmpty(parts[0]) || Strings.isNullOrEmpty(parts[1])) continue;
+
+      mColumns.add(new Column(parts[0], parts[1]));
+    }
+
+    return mColumns;
   }
 
   public String getTableName() {
@@ -116,16 +126,15 @@ public class Schema implements Serializable {
     return getColumn(i);
   }
 
-  public Integer getColumnIndex(String name) {
-    if (mColumns.isEmpty()) {
-      return null;
-    }
+  public int getColumnIndex(String name) {
+    if (mColumns.isEmpty() || Strings.isNullOrEmpty(name)) return -1;
+
+
     for (int i = 0; i < mColumns.size(); i++) {
-      if (mColumns.get(i).getName().equals(name)) {
-        return i;
-      }
+      if (name.equalsIgnoreCase(mColumns.get(i).getName())) return i;
     }
-    return null;
+
+    return -1;
   }
 
   /**
@@ -148,13 +157,9 @@ public class Schema implements Serializable {
    * @return true if succeed
    */
   public boolean removeColumn(String name) {
-    if (getColumnIndex(name) != null) {
-      this.mColumns.remove(getColumnIndex(name));
-      return true;
-    } else {
-      return false;
-    }
-
+    if (getColumnIndex(name) < 0) return false;
+    this.mColumns.remove(getColumnIndex(name));
+    return true;
   }
 
   /**
@@ -165,12 +170,9 @@ public class Schema implements Serializable {
    * @return true if succeed
    */
   public boolean removeColumn(int i) {
-    if (getColumn(i) != null) {
-      this.mColumns.remove(i);
-      return true;
-    } else {
-      return false;
-    }
+    if (getColumn(i) == null) return false;
+    this.mColumns.remove(i);
+    return true;
   }
 
   /**
