@@ -16,6 +16,8 @@
  */
 package com.adatao.ddf;
 
+
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -38,22 +40,23 @@ import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.util.ConfigHandler;
+import com.adatao.ddf.util.ConfigHandler.ConfigConstant;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
+import com.adatao.ddf.util.Utils;
 import com.adatao.local.ddf.LocalDDFManager;
 import com.google.common.base.Strings;
 
 
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and
- * capabilities (self-compute basic statistics, aggregations, etc.).
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and capabilities
+ * (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
- * This class was designed using the Bridge Pattern to provide clean separation between the abstract
- * concepts and the implementation so that the API can support multiple big data platforms under the
- * same set of abstract concepts.
+ * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
+ * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
  * </p>
  * 
  * @author ctn
@@ -68,11 +71,10 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
    * @param rowType
    *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
-   *          The namespace to place this DDF in. If null, it will be picked up from the
-   *          DDFManager's current namespace.
+   *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
    * @param name
-   *          The name for this DDF. If null, it will come from the given schema. If that's null, a
-   *          UUID-based name will be generated.
+   *          The name for this DDF. If null, it will come from the given schema. If that's null, a UUID-based name will
+   *          be generated.
    * @param schema
    *          The {@link Schema} of the new DDF
    * @throws DDFException
@@ -84,13 +86,23 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   }
 
   /**
-   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each
-   * implementor.
+   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
    */
   protected DDF(DDFManager manager) {
-    this.setManager(manager);
+    this(manager, sDummyManager);
+  }
+
+  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) {
+    this.setManager(manager != null ? manager : defaultManagerIfNull);
+  }
+
+  /**
+   * Available for serialization by subclasses only.
+   */
+  protected DDF() {
+    this(sDummyManager);
   }
 
   protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
@@ -115,13 +127,42 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
   private static final IHandleConfig sConfigHandler = new ConfigHandler();
 
+
   public static IHandleConfig getConfigHandler() {
     return sConfigHandler;
+  }
+
+  public static String getConfigValue(ConfigConstant section, ConfigConstant key) {
+    return getConfigValue(section.getValue(), key.getValue());
+  }
+
+  public static String getConfigValue(String section, ConfigConstant key) {
+    return getConfigValue(section, key.getValue());
   }
 
   public static String getConfigValue(String section, String key) {
     return getConfigHandler().getValue(section, key);
   }
+
+  public static String getGlobalConfigValue(ConfigConstant key) {
+    return getConfigValue(ConfigConstant.SECTION_GLOBAL.getValue(), key.getValue());
+  }
+
+  public static String getGlobalConfigValue(String key) {
+    return getConfigValue(ConfigConstant.SECTION_GLOBAL.getValue(), key);
+  }
+
+  /**
+   * Returns the runtime local-storage directory path name, creating one if necessary.
+   * 
+   * @return
+   * @throws IOException
+   */
+  public static String getConfigRuntimeDirectory() throws IOException {
+    return Utils.locateOrCreateDirectory(getGlobalConfigValue(ConfigConstant.DDF_RUNTIME_DIR));
+  }
+
+
 
   // ////// Instance Fields & Methods ////////
 
@@ -129,6 +170,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   private String mNamespace;
 
   private String mName;
+
 
   /**
    * @return the namespace this DDF belongs in
@@ -166,16 +208,16 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
 
   /**
-   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead
-   * to nothing good).
+   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    */
-  private DDFManager sDummyManager = new LocalDDFManager();
+  private static final DDFManager sDummyManager = new LocalDDFManager();
 
   private DDFManager mManager;
 
+
   /**
-   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy"
-   * DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
+   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy" DDF Manager in case
+   * our manager is not set for some reason. (This may lead to nothing good).
    * 
    * @return
    */
@@ -508,7 +550,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     try {
       className = getConfigValue(this.getEngine(), theInterface.getSimpleName());
 
-      if (Strings.isNullOrEmpty(className)) className = getConfigValue("default", theInterface.getSimpleName());
+      if (Strings.isNullOrEmpty(className)) className = getGlobalConfigValue(theInterface.getSimpleName());
 
       if (Strings.isNullOrEmpty(className)) {
         mLog.error(String.format("Cannot determine classname for %s from configuration source [%s] %s",
@@ -532,8 +574,8 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
 
   /**
-   * This will be called via the {@link ISupportPhantomReference} interface if this object was
-   * registered under {@link PhantomReference}.
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was registered under
+   * {@link PhantomReference}.
    */
   @Override
   public void cleanup() {

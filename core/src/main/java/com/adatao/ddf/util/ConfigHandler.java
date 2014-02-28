@@ -3,17 +3,16 @@
  */
 package com.adatao.ddf.util;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
-
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.DDF;
@@ -35,11 +34,35 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     super(theDDF);
   }
 
-  public static final String CONFIG_FILE_ENV_VAR = "DDF_INI";
-  public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
-  public static final String CONFIG_SEARCH_DIR_NAME = "conf";
+
+  public enum ConfigConstant {
+    // @formatter:off
+    DDF_INI_ENV_VAR("DDF_INI"), DDF_INI_FILE_NAME("ddf.ini"), DDF_CONFIG_DIR("ddf-conf"), DDF_RUNTIME_DIR("ddf-runtime"),
+    
+    DEFAULT_ENGINE_NAME("spark"), 
+    
+    SECTION_GLOBAL("global"), 
+    
+    FIELD_NAMESPACE("Namespace"), FIELD_DDF("DDF"), FIELD_DDF_MANAGER("DDFManager"),
+    FIELD_LOCAL_PERSISTENCE_DIRECTORY("LocalPersistenceDir")
+    ;
+    // @formatter:on
+
+    private String mValue;
+
+
+    private ConfigConstant(String value) {
+      mValue = value;
+    }
+
+    public String getValue() {
+      return mValue;
+    }
+  }
+
 
   private Config mConfig;
+
 
   @Override
   public Config getConfig() {
@@ -53,6 +76,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     return mConfig;
   }
 
+
   /**
    * Stores DDF configuration information from ddf.ini
    */
@@ -60,6 +84,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
     public static class Section {
       private Map<String, String> mEntries = new HashMap<String, String>();
+
 
       public Map<String, String> getEntries() {
         return mEntries;
@@ -82,7 +107,9 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       }
     }
 
+
     private Map<String, Section> mSections;
+
 
     public Config() {
       this.reset();
@@ -131,9 +158,9 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     }
   }
 
+
   /**
-   * Load configuration from ddf.ini, or the file name specified by the environment variable
-   * DDF_INI.
+   * Load configuration from ddf.ini, or the file name specified by the environment variable DDF_INI.
    * 
    * @throws ClassNotFoundException
    * @throws IllegalAccessException
@@ -147,7 +174,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
     Config resultConfig = new Config();
 
-    String configFileName = System.getenv(CONFIG_FILE_ENV_VAR);
+    String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.getValue());
     if (Strings.isNullOrEmpty(configFileName)) configFileName = this.locateConfigFileName();
 
     // TODO: load a default, built-in configuration, even if we can't find the config file
@@ -184,7 +211,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
    * @throws IOException
    */
   private String locateConfigFileName() throws IOException {
-    String configFileName = DEFAULT_CONFIG_FILE_NAME;
+    String configFileName = ConfigConstant.DDF_INI_FILE_NAME.getValue();
     String curDir = new File(".").getCanonicalPath();
 
     String path = null;
@@ -194,7 +221,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       path = String.format("%s/%s", curDir, configFileName);
       if (Utils.fileExists(path)) break;
 
-      String dir = String.format("%s/%s", curDir, CONFIG_SEARCH_DIR_NAME);
+      String dir = String.format("%s/%s", curDir, ConfigConstant.DDF_CONFIG_DIR.getValue());
       if (Utils.dirExists(dir)) {
         path = String.format("%s/%s", dir, configFileName);
         if (Utils.fileExists(path)) break;
@@ -234,6 +261,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
 
   private String mSource;
+
 
   @Override
   public String getSource() {

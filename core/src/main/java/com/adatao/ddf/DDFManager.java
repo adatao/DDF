@@ -16,9 +16,9 @@
  */
 package com.adatao.ddf;
 
+
 import java.lang.reflect.Constructor;
 import java.util.List;
-
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.Schema;
@@ -29,18 +29,17 @@ import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
+import com.adatao.ddf.util.ConfigHandler.ConfigConstant;
 import com.google.common.base.Strings;
 
 /**
  * <p>
- * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary
- * to implement various DDF interfaces, such as {@link IHandleRepresentations} and
- * {@link IRunAlgorithms}.
+ * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary to implement various
+ * DDF interfaces, such as {@link IHandleRepresentations} and {@link IRunAlgorithms}.
  * </p>
  * <p>
- * We use the Dependency Injection, Delegation, and Composite patterns to make it easy for others to
- * provide alternative (even snap-in replacements), support/implementation for DDF. The class
- * diagram is as follows:
+ * We use the Dependency Injection, Delegation, and Composite patterns to make it easy for others to provide alternative
+ * (even snap-in replacements), support/implementation for DDF. The class diagram is as follows:
  * </p>
  * 
  * <pre>
@@ -57,13 +56,12 @@ import com.google.common.base.Strings;
  *                                  ----------------------------------
  * </pre>
  * <p>
- * An implementor need not provide all or even most of these interfaces. Each interface handler can
- * be get/set separately, as long as they cooperate properly on things like the underlying
- * representation. This makes it easy to roll out additional interfaces and their implementations
- * over time.
+ * An implementor need not provide all or even most of these interfaces. Each interface handler can be get/set
+ * separately, as long as they cooperate properly on things like the underlying representation. This makes it easy to
+ * roll out additional interfaces and their implementations over time.
  * </p>
- * DDFManager implements {@link IHandleSqlLike} because we want to expose those methods as directly
- * to the API user as possible, in an engine-dependent manner.
+ * DDFManager implements {@link IHandleSqlLike} because we want to expose those methods as directly to the API user as
+ * possible, in an engine-dependent manner.
  * 
  * @author ctn
  * 
@@ -79,8 +77,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
 
-  public static final String DEFAULT_ENGINE_NAME = "spark";
-
   /**
    * Returns a new instance of {@link DDFManager} for the given engine name
    * 
@@ -89,9 +85,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (Strings.isNullOrEmpty(engineName)) engineName = DEFAULT_ENGINE_NAME;
+    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.DEFAULT_ENGINE_NAME.getValue();
 
-    String className = DDF.getConfigValue(engineName, "DDFManager");
+    String className = DDF.getConfigValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
     if (Strings.isNullOrEmpty(className)) return null;
 
     DDFManager manager;
@@ -111,7 +107,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    */
   public abstract String getEngine();
 
+
   private DDF mDummyDDF;
+
 
   protected DDF getDummyDDF() throws DDFException {
     if (mDummyDDF == null) mDummyDDF = this.newDDF(this);
@@ -153,8 +151,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /**
-   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that
-   * requires only {@link DDFManager} as an argument.
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that requires only
+   * {@link DDFManager} as an argument.
    * 
    * @param manager
    *          the {@link DDFManager} to assign
@@ -166,8 +164,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /**
-   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that
-   * requires no argument.
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that requires no argument.
    * 
    * @return the newly instantiated DDF
    * @throws DDFException
@@ -180,8 +177,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   @SuppressWarnings("unchecked")
   private DDF newDDF(Class<?>[] argTypes, Object[] argValues) throws DDFException {
 
-    String className = DDF.getConfigValue(this.getEngine(), "DDF");
-    if (Strings.isNullOrEmpty(className)) className = DDF.getConfigValue("default", "DDF");
+    String className = this.getEngineConfigValue(ConfigConstant.FIELD_DDF);
+    if (Strings.isNullOrEmpty(className)) className = DDF.getGlobalConfigValue(ConfigConstant.FIELD_DDF);
     if (Strings.isNullOrEmpty(className)) throw new DDFException(String.format(
         "Cannot determine class name for [%s] %s", this.getEngine(), "DDF"));
 
@@ -199,11 +196,13 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     }
   }
 
+
   private String mNamespace;
 
+
   public String getNamespace() throws DDFException {
-    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getConfigValue("namespace");
-    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getConfigValue("global", "namespace");
+    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getEngineConfigValue(ConfigConstant.FIELD_NAMESPACE);
+    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = DDF.getGlobalConfigValue(ConfigConstant.FIELD_NAMESPACE);
     return mNamespace;
   }
 
@@ -228,10 +227,11 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
   protected IHandleConfig mConfigHandler;
 
+
   /**
-   * The base implementation here will first look at the environment variable DDF_CONFIG_HANDLER to
-   * see if a class name is specified. If yes, that class is used. Otherwise it will instantiate the
-   * standard {@link ConfigHandler} and save as our ConfigHandler.
+   * The base implementation here will first look at the environment variable DDF_CONFIG_HANDLER to see if a class name
+   * is specified. If yes, that class is used. Otherwise it will instantiate the standard {@link ConfigHandler} and save
+   * as our ConfigHandler.
    * 
    * @return
    */
@@ -263,12 +263,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @return
    * @throws Exception
    */
-  protected String getConfigValue(String key) throws DDFException {
-    return this.getConfigValue(this.getEngine(), key);
-  }
-
-  protected String getConfigValue(String section, String key) throws DDFException {
-    return this.getConfigHandler().getValue(section, key);
+  protected String getEngineConfigValue(ConfigConstant key) throws DDFException {
+    return DDF.getConfigValue(this.getEngine(), key.getValue());
   }
 
 
