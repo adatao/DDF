@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import scala.actors.threadpool.Arrays;
 
-import com.adatao.ddf.analytics.AAggregationHandler.AggregateFunction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -69,9 +68,16 @@ public class Schema implements Serializable {
 
   }
 
+  //"<name> <type>, <name> <type>"
   private List<Column> parseColumnList(String columnList) {
-    /* TODO */
-    return null;
+    List<Column> colList= Lists.newArrayList();
+    String[] colArr = columnList.split(",");
+    for (String column : colArr) {
+      String[] pair = column.trim().split(" ");
+      colList.add(new Column(pair[0], pair[1]));
+    }
+    return colList;
+    
   }
 
   public String getTableName() {
@@ -109,23 +115,23 @@ public class Schema implements Serializable {
   }
 
   public Column getColumn(String name) {
-    Integer i = getColumnIndex(name);
-    if (i == null) {
+    int i = getColumnIndex(name);
+    if (i == -1) {
       return null;
     }
     return getColumn(i);
   }
 
-  public Integer getColumnIndex(String name) {
+  public int getColumnIndex(String name) {
     if (mColumns.isEmpty()) {
-      return null;
+      return -1;
     }
     for (int i = 0; i < mColumns.size(); i++) {
       if (mColumns.get(i).getName().equals(name)) {
         return i;
       }
     }
-    return null;
+    return -1;
   }
 
   /**
@@ -148,7 +154,7 @@ public class Schema implements Serializable {
    * @return true if succeed
    */
   public boolean removeColumn(String name) {
-    if (getColumnIndex(name) != null) {
+    if (getColumnIndex(name) != -1) {
       this.mColumns.remove(getColumnIndex(name));
       return true;
     } else {
@@ -209,8 +215,8 @@ public class Schema implements Serializable {
       return this;
     }
     
-    public boolean isNumber() {
-      return ColumnType.isNumber(mType);
+    public boolean isNumeric() {
+      return ColumnType.isNumeric(mType);
     }
 
   }
@@ -268,14 +274,13 @@ public class Schema implements Serializable {
       return (elements == null ? null : fromObject(elements[0]));
     }
     
-    public static boolean isNumber(ColumnType colType) {
+    public static boolean isNumeric(ColumnType colType) {
       switch (colType) {
-      case INT: return true;
-      case DOUBLE: return true;
-      case FLOAT: return true;
-      case LONG: return true;  
-      default:
-        return false;
+        case INT: return true;
+        case DOUBLE: return true;
+        case FLOAT: return true;
+        case LONG: return true;  
+        default: return false;
       } 
     }
   }

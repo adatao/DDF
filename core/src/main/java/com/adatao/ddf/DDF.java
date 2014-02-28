@@ -39,6 +39,7 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -197,6 +198,10 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   public Schema getSchema() {
     return this.getSchemaHandler().getSchema();
+  }
+  
+  public Column getColumn(String column) {
+    return this.getSchema().getColumn(column);
   }
 
   public String getTableName() {
