@@ -3,7 +3,7 @@
  */
 package com.adatao.spark.ddf.content
 
-import com.adatao.ddf.content.{ IHandleRepresentations, ARepresentationHandler }
+import com.adatao.ddf.content.IHandleRepresentations
 import com.adatao.ddf.content.Schema.ColumnType
 import java.lang.Class
 import scala.reflect.Manifest
@@ -22,7 +22,7 @@ import com.adatao.ddf.exception.DDFException
  *
  */
 
-class RepresentationHandler(mDDF: DDF) extends ARepresentationHandler(mDDF) {
+class RepresentationHandler(mDDF: DDF) extends com.adatao.ddf.content.RepresentationHandler(mDDF) {
 	protected def getDefaultRepresentationImpl(): RDD[Row] = {
 
 		if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
