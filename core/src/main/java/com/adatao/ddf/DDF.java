@@ -16,15 +16,17 @@
  */
 package com.adatao.ddf;
 
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.AAggregationHandler.AggregateField;
+import com.adatao.ddf.analytics.AAggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
@@ -50,13 +52,12 @@ import com.google.common.base.Strings;
 
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and
- * capabilities (self-compute basic statistics, aggregations, etc.).
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and capabilities
+ * (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
- * This class was designed using the Bridge Pattern to provide clean separation between the abstract
- * concepts and the implementation so that the API can support multiple big data platforms under the
- * same set of abstract concepts.
+ * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
+ * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
  * </p>
  * 
  * @author ctn
@@ -71,11 +72,10 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * @param rowType
    *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
-   *          The namespace to place this DDF in. If null, it will be picked up from the
-   *          DDFManager's current namespace.
+   *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
    * @param name
-   *          The name for this DDF. If null, it will come from the given schema. If that's null, a
-   *          UUID-based name will be generated.
+   *          The name for this DDF. If null, it will come from the given schema. If that's null, a UUID-based name will
+   *          be generated.
    * @param schema
    *          The {@link Schema} of the new DDF
    * @throws DDFException
@@ -86,8 +86,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     this.initialize(manager, data, rowType, namespace, name, schema);
   }
 
-  protected DDF() {
-  }
+  protected DDF() {}
 
   protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
@@ -111,6 +110,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   private static final IHandleConfig sConfigHandler = new ConfigHandler();
 
+
   public static IHandleConfig getConfigHandler() {
     return sConfigHandler;
   }
@@ -119,12 +119,14 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     return getConfigHandler().getValue(section, key);
   }
 
+
   // ////// Instance Fields & Methods ////////
 
 
   private String mNamespace;
 
   private String mName;
+
 
   /**
    * @return the namespace this DDF belongs in
@@ -161,16 +163,16 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
 
   /**
-   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead
-   * to nothing good).
+   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    */
   private DDFManager sDummyManager = new JCollDDFManager();
 
   private DDFManager mManager;
 
+
   /**
-   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy"
-   * DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
+   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy" DDF Manager in case
+   * our manager is not set for some reason. (This may lead to nothing good).
    * 
    * @return
    */
@@ -199,7 +201,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   public Schema getSchema() {
     return this.getSchemaHandler().getSchema();
   }
-  
+
   public Column getColumn(String column) {
     return this.getSchema().getColumn(column);
   }
@@ -218,16 +220,16 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
 
   // ///// Aggregate operations
-  
-  public double corr(String colA, String colB) {
-    return this.getAggregationler().corr(colA, colB);
+
+  // public double corr(String colA, String colB) {
+  // return this.getAggregationler().corr(colA, colB);
+  // }
+
+  public AggregationResult aggregate(List<AggregateField> fields) throws DDFException {
+    return this.getAggregationler().aggregate(fields);
   }
 
-  public Map<String, Double[]> aggregate(String[] columnNames,
-      String[] groupByColumns, String funcName) {
-    return this.getAggregationler().aggregate(columnNames, groupByColumns,
-        funcName);
-  }
+
   // ////// Function-Group Handlers ////////
 
   private IComputeBasicStatistics mBasicStatisticsComputer;
@@ -357,6 +359,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   protected IHandleAggregation createAggregationHandler() {
     return newHandler(IHandleAggregation.class);
   }
+
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
@@ -552,8 +555,8 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
 
   /**
-   * This will be called via the {@link ISupportPhantomReference} interface if this object was
-   * registered under {@link PhantomReference}.
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was registered under
+   * {@link PhantomReference}.
    */
   @Override
   public void cleanup() {
