@@ -23,7 +23,6 @@ import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
-import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleSqlLike;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ConfigHandler;
@@ -111,47 +110,91 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
   private DDF mDummyDDF;
 
-  /**
-   * Each {@link DDFManager} implementation must provide a "dummy" or helper DDF that we will use to access that
-   * implementation's handlers, such as {@link IHandleSql} or {@link IHandleConfig}.
-   * 
-   * @return
-   */
-  protected abstract DDF createDummyDDF() throws DDFException;
-
   protected DDF getDummyDDF() throws DDFException {
-    if (mDummyDDF == null) mDummyDDF = this.createDummyDDF();
+    if (mDummyDDF == null) mDummyDDF = this.newDDF(this);
     return mDummyDDF;
   }
 
   /**
    * Instantiates a new DDF of the type specified in ddf.ini as "DDF".
    * 
-   * @return the newly instantiated DDF
-   * 
+   * @param manager
+   * @param data
+   * @param rowType
+   * @param namespace
+   * @param name
+   * @param schema
+   * @return
    * @throws DDFException
    */
-  @SuppressWarnings("unchecked")
-  protected DDF newDDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
+  public DDF newDDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
+    // @formatter:off
+    return this.newDDF(
+        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
+        new Object[]   { manager, data, rowType, namespace, name, schema }
+        );
+    // @formatter:on
+  }
+
+
+  public DDF newDDF(Object data, Class<?> rowType, String namespace, String name, Schema schema) throws DDFException {
+
+    // @formatter:off
+    return this.newDDF(
+        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
+        new Object[]   { this, data, rowType, namespace, name, schema }
+        );
+    // @formatter:on
+  }
+
+  /**
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that
+   * requires only {@link DDFManager} as an argument.
+   * 
+   * @param manager
+   *          the {@link DDFManager} to assign
+   * @return the newly instantiated DDF
+   * @throws DDFException
+   */
+  public DDF newDDF(DDFManager manager) throws DDFException {
+    return this.newDDF(new Class<?>[] { DDFManager.class }, new Object[] { manager });
+  }
+
+  /**
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that
+   * requires no argument.
+   * 
+   * @return the newly instantiated DDF
+   * @throws DDFException
+   */
+  public DDF newDDF() throws DDFException {
+    return this.newDDF(new Class<?>[] {}, new Object[] {});
+  }
+
+
+  @SuppressWarnings("unchecked")
+  private DDF newDDF(Class<?>[] argTypes, Object[] argValues) throws DDFException {
+
     String className = DDF.getConfigValue(this.getEngine(), "DDF");
+    if (Strings.isNullOrEmpty(className)) className = DDF.getConfigValue("default", "DDF");
+    if (Strings.isNullOrEmpty(className)) throw new DDFException(String.format(
+        "Cannot determine class name for [%s] %s", this.getEngine(), "DDF"));
 
     try {
-      Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getConstructor(DDFManager.class,
-          Object.class, Class.class, String.class, String.class, String.class);
+      Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getConstructor(argTypes);
       if (cons == null) throw new DDFException("Cannot get constructor for " + className);
 
-      DDF ddf = cons.newInstance(manager, data, rowType, namespace, name, schema);
+      DDF ddf = cons.newInstance(argValues);
       if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + className);
 
       return ddf;
 
     } catch (Exception e) {
-      throw new DDFException("While instantiating a new DDF", e);
+      throw new DDFException("While instantiating a new DDF of class " + className, e);
     }
   }
-
 
   private String mNamespace;
 

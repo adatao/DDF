@@ -20,6 +20,7 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Iterator;
 import java.util.UUID;
 
 import com.adatao.ddf.etl.IHandleJoins;
@@ -47,7 +48,7 @@ import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.jcoll.ddf.JCollDDFManager;
+import com.adatao.local.ddf.LocalDDFManager;
 import com.google.common.base.Strings;
 
 
@@ -64,7 +65,7 @@ import com.google.common.base.Strings;
  * @author ctn
  * 
  */
-public class DDF extends ALoggable implements ISupportPhantomReference {
+public abstract class DDF extends ALoggable implements ISupportPhantomReference {
 
   /**
    * 
@@ -87,7 +88,15 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     this.initialize(manager, data, rowType, namespace, name, schema);
   }
 
-  protected DDF() {}
+  /**
+   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each
+   * implementor.
+   * 
+   * @param manager
+   */
+  protected DDF(DDFManager manager) {
+    this.setManager(manager);
+  }
 
   protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
       Schema schema) throws DDFException {
@@ -101,7 +110,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     if (Strings.isNullOrEmpty(namespace)) namespace = this.getManager().getNamespace();
     this.setNamespace(namespace);
-    if (Strings.isNullOrEmpty(name)) name = String.format("DDF-%s", UUID.randomUUID());
+
     this.setName(name);
   }
 
@@ -150,6 +159,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
    * @return the name of this DDF
    */
   public String getName() {
+    if (Strings.isNullOrEmpty(mName)) mName = String.format("DDF-%s-%s", this.getEngine(), UUID.randomUUID());
     return mName;
   }
 
@@ -166,7 +176,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
   /**
    * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    */
-  private DDFManager sDummyManager = new JCollDDFManager();
+  private DDFManager sDummyManager = new LocalDDFManager();
 
   private DDFManager mManager;
 
@@ -222,7 +232,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   // ///// Aggregate operations
 
-   public double correlation(String columnA, String columnB) {
+   public double correlation(String columnA, String columnB) throws DDFException {
    return this.getAggregationHandler().computeCorrelation(columnA, columnB);
    }
 
@@ -534,8 +544,11 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
     try {
       className = getConfigValue(this.getEngine(), theInterface.getSimpleName());
+
+      if (Strings.isNullOrEmpty(className)) className = getConfigValue("default", theInterface.getSimpleName());
+
       if (Strings.isNullOrEmpty(className)) {
-        mLog.error(String.format("Cannot determine classname for %s from configuration source [%]:%s",
+        mLog.error(String.format("Cannot determine classname for %s from configuration source [%s] %s",
             theInterface.getSimpleName(), getConfigHandler().getSource(), this.getEngine()));
         return null;
       }
@@ -547,7 +560,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       return cons != null ? (I) cons.newInstance(this) : null;
 
     } catch (Exception e) {
-      mLog.error(String.format("Cannot instantiate handler for [%s]:%s/%s", this.getEngine(),
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
           theInterface.getSimpleName(), className), e);
       return null;
     }
@@ -579,5 +592,33 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
       .setTimeSeriesHandler(null)
       ;
     // @formatter:on
+  }
+
+
+  // ////// Facade methods ////////
+
+  /**
+   * 
+   * @param columnName
+   * @return
+   */
+  public int getColumnIndex(String columnName) {
+    return this.getSchema().getColumnIndex(columnName);
+  }
+
+  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
+    return this.getViewHandler().getRowIterator(rowType);
+  }
+
+  public Iterator<?> getRowIterator() {
+    return this.getViewHandler().getRowIterator();
+  }
+
+  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
+    return this.getViewHandler().getElementIterator(rowType, columnType, columnName);
+  }
+
+  public Iterator<?> getElementIterator(String columnName) {
+    return this.getViewHandler().getElementIterator(columnName);
   }
 }

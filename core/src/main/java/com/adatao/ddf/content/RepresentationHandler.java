@@ -13,9 +13,9 @@ import com.adatao.ddf.types.NA;
  * @author ctn
  * 
  */
-public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
+public class RepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
-  public ARepresentationHandler(DDF theDDF) {
+  public RepresentationHandler(DDF theDDF) {
     super(theDDF);
   }
 
@@ -40,23 +40,45 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
    */
   @Override
   public Object get(Class<?> rowType) {
+    return this.get(rowType, true);
+  }
+
+  private Object get(Class<?> rowType, boolean doCreate) {
     rowType = this.getSafeRowType(rowType);
 
     Object obj = mReps.get(getKeyFor(rowType));
-    if (obj == null) {
-      obj = this.getRepresentationImpl(rowType);
+    if (obj == null && doCreate) {
+      obj = this.createRepresentation(rowType);
       this.add(obj, rowType);
     }
+
     if (obj == null) throw new UnsupportedOperationException();
     else return obj;
   }
 
+  /**
+   * Returns the default rowType for this engine. The base implementation returns Object[].class.
+   * 
+   * @return
+   */
   @Override
-  public Object getDefault() {
-    return getDefaultRepresentationImpl();
+  public Class<?> getDefaultRowType() {
+    return Object[].class;
   }
 
-  protected abstract Object getDefaultRepresentationImpl();
+  /**
+   * Returns the default columnType for this engine. The base implementation returns Object.class.
+   * 
+   * @return
+   */
+  public Class<?> getDefaultColumnType() {
+    return Object.class;
+  }
+
+  @Override
+  public Object getDefault() {
+    return this.get(this.getDefaultRowType());
+  }
 
   /**
    * Resets (or clears) all representations
@@ -67,9 +89,18 @@ public abstract class ARepresentationHandler extends ADDFFunctionalGroupHandler 
   }
 
   /**
-   *
+   * Converts from existing representation(s) to the desired representation, which has the specified
+   * rowType.
+   * 
+   * The base representation returns only the default representation if the rowType matches the
+   * default type. Otherwise it returns null.
+   * 
+   * @param rowType
+   * @return
    */
-  protected abstract Object getRepresentationImpl(Class<?> rowType);
+  public Object createRepresentation(Class<?> rowType) {
+    return this.getDefaultRowType().equals(rowType) ? this.get(rowType, false) : null;
+  }
 
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
