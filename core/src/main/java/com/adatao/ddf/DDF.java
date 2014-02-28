@@ -220,6 +220,10 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   public String getTableName() {
     return this.getSchema().getTableName();
   }
+  
+  public List<String> getColumnNames() {
+    return this.getSchema().getColumnNames();
+  }
 
   public long getNumRows() {
     return this.getMetaDataHandler().getNumRows();

@@ -11,6 +11,7 @@ import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
@@ -96,6 +97,13 @@ public class Schema implements Serializable {
     return mColumns;
   }
 
+  public List<String> getColumnNames() {
+    List<String> columnNames = Lists.newArrayList();
+    for (Column col : mColumns) {
+      columnNames.add(col.getName());
+    }
+    return columnNames;
+  }
   public void setColumns(List<Column> Columns) {
     this.mColumns = Columns;
   }
