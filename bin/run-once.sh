@@ -40,7 +40,7 @@ function Run() {
 
 
   #echo "
-  ##***************************************************************************************
+  #***************************************************************************************
   #Re-installing the unmanaged libs in ~/.m2 and ~/.ivy2
   #***************************************************************************************
   #"
@@ -67,20 +67,7 @@ function Run() {
   bin/make-poms.sh || Error "make-poms.sh failed"
 
 
-  echo "
-  ***************************************************************************************
-  Running one time 'mvn clean compile package install -DskipTests' under 'core/' to confirm successful build
-  ***************************************************************************************
-  "
-  (cd core ; mvn clean compile package install -DskipTests) || Error "mvn compile in core failed"
-
-
-  echo "
-  ***************************************************************************************
-  Running one time 'mvn clean compile package -DskipTests' under 'spark/' to confirm successful build
-  ***************************************************************************************
-  "
-  (cd spark ; mvn clean compile package -DskipTests) || Error "mvn compile in spark failed"
+  bin/mvn-once.sh
 
 
   echo "
@@ -102,4 +89,5 @@ function Error() {
 	exit 1
 }
 
-Run 2>&1 | tee -a $LOGFILE
+#Run 2>&1 | tee -a $LOGFILE
+Run
