@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.UUID;
+
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
@@ -221,12 +222,12 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
 
   // ///// Aggregate operations
 
-  // public double corr(String colA, String colB) {
-  // return this.getAggregationler().corr(colA, colB);
-  // }
+   public double correlation(String columnA, String columnB) {
+   return this.getAggregationHandler().computeCorrelation(columnA, columnB);
+   }
 
   public AggregationResult aggregate(List<AggregateField> fields) throws DDFException {
-    return this.getAggregationler().aggregate(fields);
+    return this.getAggregationHandler().aggregate(fields);
   }
 
 
@@ -345,7 +346,7 @@ public class DDF extends ALoggable implements ISupportPhantomReference {
     return newHandler(IHandleMissingData.class);
   }
 
-  public IHandleAggregation getAggregationler() {
+  public IHandleAggregation getAggregationHandler() {
     if (mAggregationHandler == null) mAggregationHandler = this.createAggregationHandler();
     if (mAggregationHandler == null) throw new UnsupportedOperationException();
     else return mAggregationHandler;

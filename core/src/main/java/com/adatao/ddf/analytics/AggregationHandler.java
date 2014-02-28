@@ -4,12 +4,16 @@ package com.adatao.ddf.analytics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.Utils;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -20,27 +24,18 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     super(theDDF);
   }
 
-  // public double computeCorrelation(String columnA, String columnB) {
-  // if (!this.getDDF().getColumn(columnA).isNumeric()) throw new UnsupportedOperationException();
-  // return null; // correlationImpl(columnA, columnB);
-  // }
-
-
-  // @Override
-  // public double correlationImpl(String columnA, String columnB) {
-  //
-  // String sqlCmd = String.format("SELECT CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF().getTableName());
-  // List<String> rs;
-  // try {
-  // rs = this.getManager().sql2txt(sqlCmd);
-  // return Utils.roundUp(Double.parseDouble(rs.get(0)));
-  // } catch (DDFException e) {
-  // logger.error("Unable to query from " + this.getDDF().getTableName(), e);
-  // }
-  // return 0;
-  // }
-
-
+  @Override
+  public double computeCorrelation(String columnA, String columnB) throws DDFException {
+    if (!this.getDDF().getColumn(columnA).isNumeric()) throw new DDFException("Only numeric fields are accepted!");
+    String sqlCmd = String.format("SELECT CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF().getTableName());
+    List<String> rs;
+    try {
+      rs = this.getManager().sql2txt(sqlCmd);
+      return Utils.roundUp(Double.parseDouble(rs.get(0)));
+    } catch (Exception e) {
+      throw new DDFException("Unable to query from " + this.getDDF().getTableName(), e);
+    }
+  }
 
   /**
    * Performs the equivalent of a SQL aggregation statement like "SELECT year, month, AVG(depdelay), MIN(arrdelay) FROM
@@ -217,7 +212,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
      * @return
      */
     private static String toSqlSpecs(List<AggregateField> fields, boolean isFieldSpecs) {
-      List<String> specs = new ArrayList<String>();
+      List<String> specs = Lists.newArrayList();
 
       for (AggregateField field : fields) {
         if (isFieldSpecs || !field.isAggregated()) specs.add(field.toString());
@@ -243,14 +238,14 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     public String toString(String column) {
       switch (this) {
-        case MEDIAN:
-          return String.format("PERCENTILE_APPROX(%s, 0.5)", column);
+      case MEDIAN:
+        return String.format("PERCENTILE_APPROX(%s, 0.5)", column);
 
-        case MEAN:
-          return String.format("AVG(%s)", column);
+      case MEAN:
+        return String.format("AVG(%s)", column);
 
-        default:
-          return String.format("%s(%s)", this.toString(), column);
+      default:
+        return String.format("%s(%s)", this.toString(), column);
       }
 
     }

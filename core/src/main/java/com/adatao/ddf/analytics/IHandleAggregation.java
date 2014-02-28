@@ -9,7 +9,7 @@ import com.adatao.ddf.exception.DDFException;
 
 public interface IHandleAggregation extends IHandleDDFFunctionalGroup {
 
-  // public double computeCorrelation(String columnA, String columnB);
+  public double computeCorrelation(String columnA, String columnB) throws DDFException;
 
   public AggregationResult aggregate(List<AggregateField> fields) throws DDFException;
 
