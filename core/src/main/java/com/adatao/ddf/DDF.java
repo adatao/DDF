@@ -221,6 +221,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return this.getSchema().getColumnNames();
   }
 
+
   public long getNumRows() {
     return this.getMetaDataHandler().getNumRows();
   }
@@ -366,7 +367,6 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   protected IHandleMissingData createMissingDataHandler() {
     return newHandler(IHandleMissingData.class);
   }
-
 
   public IHandleAggregation getAggregationHandler() {
     if (mAggregationHandler == null) mAggregationHandler = this.createAggregationHandler();

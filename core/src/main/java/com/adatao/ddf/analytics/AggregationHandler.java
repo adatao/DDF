@@ -97,7 +97,6 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     }
   }
 
-
   /**
    * Represents a field in the aggregation statement "SELECT a, b, SUM(c), MIN(c), MAX(d), COUNT(*) GROUP BY a, b"
    */
