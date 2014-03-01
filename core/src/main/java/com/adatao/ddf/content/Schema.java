@@ -11,6 +11,7 @@ import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
+import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
@@ -19,6 +20,7 @@ import com.google.gson.annotations.Expose;
 public class Schema implements Serializable {
   @Expose private String mTableName;
   @Expose private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
+
 
 
   /**
@@ -96,6 +98,14 @@ public class Schema implements Serializable {
 
   public void setColumns(List<Column> Columns) {
     this.mColumns = Columns;
+  }
+
+  public List<String> getColumnNames() {
+    List<String> columnNames = Lists.newArrayList();
+    for (Column col : mColumns) {
+      columnNames.add(col.getName());
+    }
+    return columnNames;
   }
 
   public void setColumnNames(List<String> names) {
@@ -185,6 +195,7 @@ public class Schema implements Serializable {
     @Expose private ColumnType mType;
 
 
+
     public Column(String name, ColumnType type) {
       this.mName = name;
       this.mType = type;
@@ -210,6 +221,10 @@ public class Schema implements Serializable {
     public Column setType(ColumnType type) {
       this.mType = type;
       return this;
+    }
+
+    public boolean isNumeric() {
+      return ColumnType.isNumeric(mType);
     }
 
   }
@@ -267,9 +282,25 @@ public class Schema implements Serializable {
     public static ColumnType fromArray(Object[] elements) {
       return (elements == null ? null : fromObject(elements[0]));
     }
+
+    public static boolean isNumeric(ColumnType colType) {
+      switch (colType) {
+        case INT:
+          return true;
+        case DOUBLE:
+          return true;
+        case FLOAT:
+          return true;
+        case LONG:
+          return true;
+        default:
+          return false;
+      }
+    }
   }
 
   public enum DataFormat {
     SQL, CSV, TSV
   }
+
 }
