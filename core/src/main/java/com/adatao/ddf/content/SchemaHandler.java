@@ -3,9 +3,9 @@
  */
 package com.adatao.ddf.content;
 
+
 import java.util.List;
 import java.util.UUID;
-
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.Column;
@@ -21,7 +21,9 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     super(theDDF);
   }
 
+
   private Schema mSchema;
+
 
   public Schema getSchema() {
     return mSchema;
@@ -31,6 +33,9 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     this.mSchema = theSchema;
   }
 
+  /**
+   * @return the Schema's table name
+   */
   public String getTableName() {
     return this.mSchema.getTableName();
   }
@@ -40,7 +45,9 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   public String newTableName() {
-    return String.format("ddf-%s", UUID.randomUUID());
+    return (this.getDDF() != null) //
+    ? String.format("%s-%s-%s", this.getDDF().getClass().getSimpleName(), this.getDDF().getEngine(), UUID.randomUUID()) //
+        : String.format("DDF-%s", UUID.randomUUID());
   }
 
   public long getNumColumns() {

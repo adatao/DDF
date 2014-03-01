@@ -144,4 +144,8 @@ public class Utils {
       return round(number, 2, BigDecimal.ROUND_HALF_UP);
     }
   }
+
+  public static void deleteFile(String fileName) {
+    new File(fileName).delete();
+  }
 }

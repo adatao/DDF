@@ -23,7 +23,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.IAlgorithm;
@@ -252,11 +251,9 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   // ////// Instance Fields & Methods ////////
 
 
-  @Expose
-  private String mNamespace;
+  @Expose private String mNamespace;
 
-  @Expose
-  private String mName;
+  @Expose private String mName;
 
 
   /**
@@ -277,15 +274,22 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   }
 
   /**
+   * Also synchronizes the Schema's table name with that of the DDF name
+   * 
    * @return the name of this DDF
    */
   public String getName() {
-    if (Strings.isNullOrEmpty(mName)) mName = this.generateNewName();
-    return mName;
-  }
+    if (Strings.isNullOrEmpty(mName)) {
+      if (!Strings.isNullOrEmpty(this.getSchemaHandler().getTableName())) {
+        mName = this.getSchemaHandler().getTableName();
 
-  protected String generateNewName() {
-    return String.format("%s-%s-%s", this.getClass().getSimpleName(), this.getEngine(), UUID.randomUUID());
+      } else {
+        mName = this.getSchemaHandler().newTableName();
+        this.getSchemaHandler().getSchema().setTableName(mName);
+      }
+    }
+
+    return mName;
   }
 
   /**
@@ -341,7 +345,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   public Column getColumn(String column) {
     return this.getSchema().getColumn(column);
   }
-  
+
   public String getTableName() {
     return this.getSchema().getTableName();
   }
@@ -373,14 +377,18 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   }
 
   /**
-   * Compute aggregation which is equivalent to SQL aggregation statement like "SELECT a, b, sum(c), max(d) FROM e GROUP BY a, b"
-   * @param fields a string includes aggregated fields and functions, e.g "a, b, sum(c), max(d)"
+   * Compute aggregation which is equivalent to SQL aggregation statement like
+   * "SELECT a, b, sum(c), max(d) FROM e GROUP BY a, b"
+   * 
+   * @param fields
+   *          a string includes aggregated fields and functions, e.g "a, b, sum(c), max(d)"
    * @return
    * @throws DDFException
    */
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
+
 
   // ////// Function-Group Handlers ////////
 
@@ -513,6 +521,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   protected IHandleAggregation createAggregationHandler() {
     return newHandler(IHandleAggregation.class);
   }
+
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
@@ -786,18 +795,22 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
 
   // //// Persistence handling //////
 
-  public void save() throws DDFException {
-    this.getPersistenceHandler().save(true);
+  /**
+   * 
+   * @return URI/filename of persisted location
+   * @throws DDFException
+   */
+  public String persist() throws DDFException {
+    return this.getPersistenceHandler().save(true);
   }
 
+  public void unpersist() throws DDFException {
+    this.getManager().unpersist(this.getNamespace(), this.getName());
+  }
 
-  @Override
   public void beforeSerialization() throws DDFException {}
 
   @Override
-  public void afterDeserialization() throws DDFException {
-    // TODO Auto-generated method stub
-
-  }
+  public void afterDeserialization() throws DDFException {}
 
 }

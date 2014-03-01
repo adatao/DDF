@@ -31,10 +31,11 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * 
    * @param doOverwrite
    *          overwrites if true
+   * @return URI/filename of persisted location
    * @throws DDFException
    *           if doOverwrite is false and the destination already exists
    */
-  public void save(boolean doOverwrite) throws DDFException;
+  public String save(boolean doOverwrite) throws DDFException;
 
   /**
    * Deletes the identified DDF "file" from persistent storage. This does not affect any DDF currently loaded in memory

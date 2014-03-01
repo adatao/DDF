@@ -4,6 +4,7 @@
 package com.adatao.local.ddf.content;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;
@@ -36,6 +37,10 @@ public class PersistenceHandlerTests {
   @Test
   public void testSaveDDF() throws Exception {
     DDF ddf = new LocalObjectDDF<String>("Hello");
-    ddf.save();
+
+    String uri = ddf.persist();
+    Assert.assertTrue("Persisted file must exist: " + uri, new File(uri).exists());
+
+    ddf.unpersist();
   }
 }

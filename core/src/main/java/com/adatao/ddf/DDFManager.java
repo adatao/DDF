@@ -275,4 +275,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
     return this.getDummyDDF().getSqlHandler().sql2txt(command, dataSource);
   }
+
+  // //// Persistence handling //////
+
+  public void unpersist(String namespace, String name) throws DDFException {
+    this.getDummyDDF().getPersistenceHandler().delete(namespace, name);
+  }
 }

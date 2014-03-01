@@ -57,7 +57,7 @@ public class LocalObjectDDF<T> extends LocalDDF {
     rows.add(object);
     this.setObjectClass((Class<T>) object.getClass());
 
-    if (name == null) name = this.generateNewName();
+    if (name == null) name = this.getSchemaHandler().newTableName();
 
     this.initialize(manager, rows, this.getObjectClass(), namespace, name, new Schema(name, "object blob"));
   }

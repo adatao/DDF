@@ -64,19 +64,38 @@ public class PersistenceHandler extends APersistenceHandler {
     return result;
   }
 
+  protected String getDataFileName() throws DDFException {
+    return this.getx(this.getDDF().getNamespace(), this.getDDF().getName(), ".dat");
+  }
+
+  protected String getDataFileName(String namespace, String name) throws DDFException {
+    return this.getx(namespace, name, ".dat");
+  }
+
+  protected String getSchemaFileName() throws DDFException {
+    return this.getx(this.getDDF().getNamespace(), this.getDDF().getName(), ".dat");
+  }
+
+  protected String getSchemaFileName(String namespace, String name) throws DDFException {
+    return this.getx(namespace, name, ".sch");
+  }
+
+  private String getx(String namespace, String name, String postfix) throws DDFException {
+    String directory = locateOrCreatePersistenceSubdirectory(namespace);
+    return String.format("%s/%s%s", directory, name, postfix);
+  }
+
   /*
    * (non-Javadoc)
    * 
    * @see com.adatao.ddf.content.IHandlePersistence#save(boolean)
    */
   @Override
-  public void save(boolean doOverwrite) throws DDFException {
+  public String save(boolean doOverwrite) throws DDFException {
     if (this.getDDF() == null) throw new DDFException("DDF cannot be null");
 
-    String directory = locateOrCreatePersistenceSubdirectory(this.getDDF().getNamespace());
-
-    String dataFile = String.format("%s/%s.dat", directory, this.getDDF().getName());
-    String schemaFile = String.format("%s/%s.sch", directory, this.getDDF().getName());
+    String dataFile = this.getDataFileName();
+    String schemaFile = this.getSchemaFileName();
 
     if (!doOverwrite && (Utils.fileExists(dataFile) || Utils.fileExists(schemaFile))) {
       throw new DDFException("DDF already exists in persistence storage, and overwrite option is false");
@@ -84,6 +103,8 @@ public class PersistenceHandler extends APersistenceHandler {
 
     this.writeToFile(dataFile, jsonSerialize(this.getDDF()));
     this.writeToFile(schemaFile, jsonSerialize(this.getDDF().getSchema()));
+
+    return dataFile;
   }
 
   private void writeToFile(String fileName, String contents) throws DDFException {
@@ -178,8 +199,8 @@ public class PersistenceHandler extends APersistenceHandler {
    */
   @Override
   public void delete(String namespace, String name) throws DDFException {
-    // TODO Auto-generated method stub
-
+    Utils.deleteFile(this.getDataFileName(namespace, name));
+    Utils.deleteFile(this.getSchemaFileName(namespace, name));
   }
 
   /*

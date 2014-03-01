@@ -1,13 +1,11 @@
 package com.adatao.local.ddf;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.Vector;
@@ -17,6 +15,7 @@ import com.adatao.ddf.exception.DDFException;
 public class LocalDDFTests {
 
   DDFManager mManager;
+
 
   private DDFManager getDDFManager() throws DDFException {
     if (mManager == null) mManager = DDFManager.get("local");
@@ -29,7 +28,7 @@ public class LocalDDFTests {
     list.add(new Object[] { "First", "Christopher" });
     String namespace = null; // use default
     String name = this.getClass().getSimpleName();
-    Schema schema = new Schema("name string, value string");
+    Schema schema = new Schema(name, "name string, value string");
     DDF ddf = ((LocalDDFManager) this.getDDFManager()).newDDF(list, namespace, name, schema);
     return ddf;
   }
