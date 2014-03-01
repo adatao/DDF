@@ -4,6 +4,7 @@ package com.adatao.ddf.content;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
 
 public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
@@ -31,11 +32,11 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * 
    * @param doOverwrite
    *          overwrites if true
-   * @return URI/filename of persisted location
+   * @return PersistenceUri of persisted location
    * @throws DDFException
    *           if doOverwrite is false and the destination already exists
    */
-  public String save(boolean doOverwrite) throws DDFException;
+  public PersistenceUri save(boolean doOverwrite) throws DDFException;
 
   /**
    * Deletes the identified DDF "file" from persistent storage. This does not affect any DDF currently loaded in memory
@@ -73,4 +74,27 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    *           , e.g., if file does not exist
    */
   public DDF load(String namespace, String name) throws DDFException;
+
+  /**
+   * Loads DDF from given URI. The URI format should be:
+   * 
+   * <pre>
+   * <engine>://<path>
+   * </pre>
+   * 
+   * e.g.,
+   * 
+   * <pre>
+   * local:///root/ddf/ddf-runtime/local-ddf-db/com.example/MyDDF.dat
+   * </pre>
+   * 
+   * If the engine is not specified, the current DDF's engine is used.
+   * 
+   * @param uri
+   * @return
+   * @throws DDFException
+   */
+  public DDF load(String uri) throws DDFException;
+
+  public DDF load(PersistenceUri uri) throws DDFException;
 }

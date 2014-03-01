@@ -1,7 +1,7 @@
 package com.adatao.spark.ddf;
 
-import org.apache.spark.rdd.RDD;
 
+import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
@@ -11,6 +11,9 @@ import com.adatao.ddf.exception.DDFException;
  * An Apache-Spark-based implementation of DDF
  */
 public class SparkDDF extends DDF {
+
+  private static final long serialVersionUID = 1L;
+
 
   public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> rowType, String namespace, String name, Schema schema)
       throws DDFException {

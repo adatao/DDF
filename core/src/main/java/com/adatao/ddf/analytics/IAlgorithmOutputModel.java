@@ -1,5 +1,6 @@
 package com.adatao.ddf.analytics;
 
+
 import java.io.Serializable;
 
 /**
@@ -14,4 +15,5 @@ public interface IAlgorithmOutputModel extends Serializable {
    */
   void persist();
 
+  void unpersist();
 }

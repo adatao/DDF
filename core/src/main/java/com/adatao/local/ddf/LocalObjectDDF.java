@@ -69,7 +69,7 @@ public class LocalObjectDDF<T> extends LocalDDF {
    * @throws DDFException
    */
   public LocalObjectDDF(T object) throws DDFException {
-    this(DDFManager.get(ConfigConstant.ENGINE_NAME_LOCAL.getValue()), object, null, null);
+    this(DDFManager.get(ConfigConstant.ENGINE_NAME_LOCAL.toString()), object, null, null);
   }
 
 

@@ -29,6 +29,7 @@ import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.ddf.DDF.ConfigConstant;
 import com.google.common.base.Strings;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 
 /**
  * <p>
@@ -83,7 +84,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.getValue();
+    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.toString();
 
     String className = DDF.getConfigValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
     if (Strings.isNullOrEmpty(className)) return null;
@@ -229,7 +230,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   protected String getEngineConfigValue(ConfigConstant key) throws DDFException {
-    return DDF.getConfigValue(this.getEngine(), key.getValue());
+    return DDF.getConfigValue(this.getEngine(), key.toString());
   }
 
 
@@ -280,5 +281,23 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
   public void unpersist(String namespace, String name) throws DDFException {
     this.getDummyDDF().getPersistenceHandler().delete(namespace, name);
+  }
+
+  public static DDF doLoad(String uri) throws DDFException {
+    return doLoad(new PersistenceUri(uri));
+  }
+
+  public static DDF doLoad(PersistenceUri uri) throws DDFException {
+    if (uri == null) throw new DDFException("URI cannot be null");
+    if (Strings.isNullOrEmpty(uri.getEngine())) throw new DDFException("Engine/Protocol in URI cannot be missing");
+    return DDFManager.get(uri.getEngine()).load(uri);
+  }
+
+  public DDF load(String namespace, String name) throws DDFException {
+    return this.getDummyDDF().getPersistenceHandler().load(namespace, name);
+  }
+
+  public DDF load(PersistenceUri uri) throws DDFException {
+    return this.getDummyDDF().getPersistenceHandler().load(uri);
   }
 }

@@ -4,26 +4,16 @@
 package com.adatao.local.ddf.content;
 
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDF.ConfigConstant;
 import com.adatao.ddf.content.APersistenceHandler;
-import com.adatao.ddf.content.IBeforeAndAfterSerDes;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.Utils;
+import com.adatao.ddf.util.Utils.JsonSerDes;
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 /**
  * This {@link PersistenceHandler} loads and saves from/to a designated local storage area.
@@ -65,22 +55,22 @@ public class PersistenceHandler extends APersistenceHandler {
   }
 
   protected String getDataFileName() throws DDFException {
-    return this.getx(this.getDDF().getNamespace(), this.getDDF().getName(), ".dat");
+    return this.getFilePath(this.getDDF().getNamespace(), this.getDDF().getName(), ".dat");
   }
 
   protected String getDataFileName(String namespace, String name) throws DDFException {
-    return this.getx(namespace, name, ".dat");
+    return this.getFilePath(namespace, name, ".dat");
   }
 
   protected String getSchemaFileName() throws DDFException {
-    return this.getx(this.getDDF().getNamespace(), this.getDDF().getName(), ".dat");
+    return this.getFilePath(this.getDDF().getNamespace(), this.getDDF().getName(), ".sch");
   }
 
   protected String getSchemaFileName(String namespace, String name) throws DDFException {
-    return this.getx(namespace, name, ".sch");
+    return this.getFilePath(namespace, name, ".sch");
   }
 
-  private String getx(String namespace, String name, String postfix) throws DDFException {
+  private String getFilePath(String namespace, String name, String postfix) throws DDFException {
     String directory = locateOrCreatePersistenceSubdirectory(namespace);
     return String.format("%s/%s%s", directory, name, postfix);
   }
@@ -91,7 +81,7 @@ public class PersistenceHandler extends APersistenceHandler {
    * @see com.adatao.ddf.content.IHandlePersistence#save(boolean)
    */
   @Override
-  public String save(boolean doOverwrite) throws DDFException {
+  public PersistenceUri save(boolean doOverwrite) throws DDFException {
     if (this.getDDF() == null) throw new DDFException("DDF cannot be null");
 
     String dataFile = this.getDataFileName();
@@ -101,96 +91,18 @@ public class PersistenceHandler extends APersistenceHandler {
       throw new DDFException("DDF already exists in persistence storage, and overwrite option is false");
     }
 
-    this.writeToFile(dataFile, jsonSerialize(this.getDDF()));
-    this.writeToFile(schemaFile, jsonSerialize(this.getDDF().getSchema()));
-
-    return dataFile;
-  }
-
-  private void writeToFile(String fileName, String contents) throws DDFException {
-    Writer writer = null;
-
     try {
-      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "utf-8"));
-      writer.write(contents);
-      writer.write('\n');
-
-    } catch (IOException ex) {
-      throw new DDFException(String.format("Cannot write to file %s", fileName, ex));
-
-    } finally {
-      try {
-        writer.close();
-
-      } catch (Exception ex) {
-        mLog.error("While trying to call write.close()", ex);
-      }
-    }
-  }
-
-
-  protected static final String SERDES_CLASS_NAME_FIELD = "_class";
-  protected static final String SERDES_TIMESTAMP_FIELD = "_timestamp";
-  protected static final String SERDES_USER_FIELD = "_user";
-
-
-  protected static <T> String jsonSerialize(Object ddf) throws DDFException {
-    if (ddf == null) return "null";
-
-    if (ddf instanceof IBeforeAndAfterSerDes) ((IBeforeAndAfterSerDes) ddf).beforeSerialization();
-
-    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    String json = gson.toJson(ddf);
-
-    // Add the bookkeeping fields, e.g., SERDES_CLASS_NAME_FIELD
-    JsonObject jObj = toJsonObject(json);
-    jObj.addProperty(SERDES_CLASS_NAME_FIELD, ddf.getClass().getSimpleName());
-    jObj.addProperty(SERDES_TIMESTAMP_FIELD,
-        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG).format(new Date()));
-    jObj.addProperty(SERDES_USER_FIELD, System.getProperty("user.name"));
-
-
-    json = gson.toJson(jObj);
-    return json;
-  }
-
-  private static JsonObject toJsonObject(String json) {
-    JsonElement jElement = new JsonParser().parse(json);
-    if (jElement == null) return null;
-
-    JsonObject jObj = jElement.getAsJsonObject();
-    return jObj;
-  }
-
-  protected static DDF jsonDeserialize(String json) throws DDFException {
-    if (Strings.isNullOrEmpty(json)) return null;
-
-    try {
-      JsonElement jElement = new JsonParser().parse(json);
-      if (jElement == null) return null;
-
-      JsonObject jObj = jElement.getAsJsonObject();
-      if (jObj == null) return null;
-
-      jElement = jObj.get(SERDES_CLASS_NAME_FIELD);
-      if (jElement == null) return null;
-
-      String className = jElement.getAsString();
-      if (Strings.isNullOrEmpty(className)) return null;
-
-      Class<?> theClass = Class.forName(className);
-      if (theClass == null) return null;
-
-      Object obj = new Gson().fromJson(json, theClass);
-
-      if (obj instanceof IBeforeAndAfterSerDes) ((IBeforeAndAfterSerDes) obj).afterDeserialization();
-
-      return (obj instanceof DDF ? (DDF) obj : null);
+      Utils.writeToFile(dataFile, JsonSerDes.serialize(this.getDDF()) + '\n');
+      Utils.writeToFile(schemaFile, JsonSerDes.serialize(this.getDDF().getSchema()) + '\n');
 
     } catch (Exception e) {
-      throw new DDFException("Cannot deserialize " + json, e);
+      throw new DDFException(e);
     }
+
+    return new PersistenceUri(this.getDDF().getEngine(), dataFile);
   }
+
+
 
   /*
    * (non-Javadoc)
@@ -216,6 +128,18 @@ public class PersistenceHandler extends APersistenceHandler {
 
   }
 
+
+  @Override
+  public DDF load(String uri) throws DDFException {
+    return this.load(new PersistenceUri(uri));
+  }
+
+  @Override
+  public DDF load(PersistenceUri uri) throws DDFException {
+    PersistenceUri2 uri2 = new PersistenceUri2(uri);
+    return this.load(uri2.getNamespace(), uri2.getName());
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -223,10 +147,31 @@ public class PersistenceHandler extends APersistenceHandler {
    */
   @Override
   public DDF load(String namespace, String name) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+    Object ddf = null, schema = null;
 
+    try {
+      ddf = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".dat"));
+      if (ddf == null) throw new DDFException((String.format("Got null for DDF for %s/%s", namespace, name)));
+
+      schema = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".sch"));
+      if (schema == null) throw new DDFException((String.format("Got null for Schema for %s/%s", namespace, name)));
+
+    } catch (Exception e) {
+      throw new DDFException((String.format("Unable to load DDF or schema for %s/%s", namespace, name)));
+    }
+
+
+    if (ddf instanceof DDF) {
+      if (schema instanceof Schema) {
+        ((DDF) ddf).getSchemaHandler().setSchema((Schema) schema);
+      }
+
+    } else {
+      throw new DDFException("Expected object to be DDF, got " + ddf.getClass());
+    }
+
+    return (DDF) ddf;
+  }
 
   @Override
   public List<String> listNamespaces() throws DDFException {
@@ -237,5 +182,80 @@ public class PersistenceHandler extends APersistenceHandler {
   @Override
   public List<String> listDDFs(String namespace) throws DDFException {
     return Utils.listSubdirectories(this.locateOrCreatePersistenceSubdirectory(namespace));
+  }
+
+
+  /**
+   * Like {@link PersistenceUri} but also with namespace and name parsed
+   */
+  public static class PersistenceUri2 extends PersistenceUri {
+    public PersistenceUri2(String uri) throws DDFException {
+      super(uri);
+      this.parsePath();
+    }
+
+    public PersistenceUri2(PersistenceUri uri) throws DDFException {
+      super(uri.getEngine(), uri.getPath());
+      this.parsePath();
+    }
+
+
+    private String mNamespace;
+    private String mName;
+
+
+    /**
+     * Parse the path part of the uri into namespace and name
+     */
+    private void parsePath() {
+      if (Strings.isNullOrEmpty(this.getPath())) return;
+
+      String[] parts = this.getPath().split("/");
+      if (parts == null || parts.length == 0) return;
+
+      String name = parts[parts.length - 1];
+      if (!Strings.isNullOrEmpty(name)) {
+        if (name.toLowerCase().endsWith(".dat") || name.toLowerCase().endsWith(".sch")) {
+          name = name.substring(0, name.lastIndexOf('.'));
+          // Also trim our current path
+          this.setPath(this.getPath().substring(0, this.getPath().lastIndexOf('.')));
+        }
+      }
+      this.setName(name);
+
+      if (parts.length > 1) {
+        this.setNamespace(parts[parts.length - 2]);
+      }
+    }
+
+    /**
+     * @return the namespace
+     */
+    public String getNamespace() {
+      return mNamespace;
+    }
+
+    /**
+     * @param namespace
+     *          the namespace to set
+     */
+    protected void setNamespace(String namespace) {
+      this.mNamespace = namespace;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+      return mName;
+    }
+
+    /**
+     * @param name
+     *          the name to set
+     */
+    protected void setName(String name) {
+      this.mName = name;
+    }
   }
 }

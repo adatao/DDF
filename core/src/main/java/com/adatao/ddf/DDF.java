@@ -31,6 +31,7 @@ import com.adatao.ddf.analytics.IComputeBasicStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.analytics.Summary;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IBeforeAndAfterSerDes;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
@@ -158,7 +159,8 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
       mValue = value;
     }
 
-    public String getValue() {
+    @Override
+    public String toString() {
       return mValue;
     }
   }
@@ -169,15 +171,15 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
 
   public static IHandleConfig getConfigHandler() {
     if (sConfigHandler == null) {
-      String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.getValue());
-      if (Strings.isNullOrEmpty(configFileName)) configFileName = ConfigConstant.DDF_INI_FILE_NAME.getValue();
-      sConfigHandler = new ConfigHandler(ConfigConstant.DDF_CONFIG_DIR.getValue(), configFileName);
+      String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.toString());
+      if (Strings.isNullOrEmpty(configFileName)) configFileName = ConfigConstant.DDF_INI_FILE_NAME.toString();
+      sConfigHandler = new ConfigHandler(ConfigConstant.DDF_CONFIG_DIR.toString(), configFileName);
 
       if (sConfigHandler.getConfig() == null) {
         // HACK: prep a basic default config!
         Config config = new Config();
 
-        config.getSection(ConfigConstant.SECTION_GLOBAL.getValue()) //
+        config.getSection(ConfigConstant.SECTION_GLOBAL.toString()) //
             .set("Namespace", "com.example") //
             .set("RuntimeDir", "ddf-runtime") //
             .set("LocalPersistenceDir", "local-ddf-db") //
@@ -217,11 +219,11 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   }
 
   public static String getConfigValue(ConfigConstant section, ConfigConstant key) {
-    return getConfigValue(section.getValue(), key.getValue());
+    return getConfigValue(section.toString(), key.toString());
   }
 
   public static String getConfigValue(String section, ConfigConstant key) {
-    return getConfigValue(section, key.getValue());
+    return getConfigValue(section, key.toString());
   }
 
   public static String getConfigValue(String section, String key) {
@@ -229,11 +231,11 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   }
 
   public static String getGlobalConfigValue(ConfigConstant key) {
-    return getConfigValue(ConfigConstant.SECTION_GLOBAL.getValue(), key.getValue());
+    return getConfigValue(ConfigConstant.SECTION_GLOBAL.toString(), key.toString());
   }
 
   public static String getGlobalConfigValue(String key) {
-    return getConfigValue(ConfigConstant.SECTION_GLOBAL.getValue(), key);
+    return getConfigValue(ConfigConstant.SECTION_GLOBAL.toString(), key);
   }
 
   /**
@@ -800,7 +802,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
    * @return URI/filename of persisted location
    * @throws DDFException
    */
-  public String persist() throws DDFException {
+  public PersistenceUri persist() throws DDFException {
     return this.getPersistenceHandler().save(true);
   }
 
