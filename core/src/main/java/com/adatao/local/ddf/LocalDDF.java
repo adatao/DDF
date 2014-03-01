@@ -4,7 +4,6 @@
 package com.adatao.local.ddf;
 
 
-import java.io.Serializable;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
@@ -15,7 +14,7 @@ import com.adatao.ddf.exception.DDFException;
  * An implementation of DDF with local memory and local storage
  * 
  */
-public class LocalDDF extends DDF implements Serializable {
+public class LocalDDF extends DDF {
 
   private static final long serialVersionUID = 1L;
 
@@ -64,4 +63,5 @@ public class LocalDDF extends DDF implements Serializable {
     if (obj instanceof List<?>) return (List<T>) obj;
     else throw new DDFException("Unable to get List with element type " + rowType);
   }
+
 }

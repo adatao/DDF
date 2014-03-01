@@ -25,11 +25,9 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleSqlLike;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.util.ConfigHandler;
-import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.ddf.util.ConfigHandler.ConfigConstant;
+import com.adatao.ddf.DDF.ConfigConstant;
 import com.google.common.base.Strings;
 
 /**
@@ -85,7 +83,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.DEFAULT_ENGINE_NAME.getValue();
+    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.getValue();
 
     String className = DDF.getConfigValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
     if (Strings.isNullOrEmpty(className)) return null;
@@ -222,39 +220,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
 
-
-  // ////// IHandleConfiguration support ////////
-
-  protected IHandleConfig mConfigHandler;
-
-
-  /**
-   * The base implementation here will first look at the environment variable DDF_CONFIG_HANDLER to see if a class name
-   * is specified. If yes, that class is used. Otherwise it will instantiate the standard {@link ConfigHandler} and save
-   * as our ConfigHandler.
-   * 
-   * @return
-   */
-  public IHandleConfig getConfigHandler() throws DDFException {
-    if (mConfigHandler == null) {
-
-      try {
-        String configHandlerClass = System.getenv("DDF_CONFIG_HANDLER");
-        if (configHandlerClass != null) {
-          mConfigHandler = (IHandleConfig) Class.forName(configHandlerClass).newInstance();
-        }
-
-        if (mConfigHandler == null) mConfigHandler = new ConfigHandler();
-
-        if (mConfigHandler != null) mConfigHandler.loadConfig();
-
-      } catch (Exception e) {
-        throw new DDFException(e);
-      }
-    }
-
-    return mConfigHandler;
-  }
 
   /**
    * Convenience method to get a config value from DDF.

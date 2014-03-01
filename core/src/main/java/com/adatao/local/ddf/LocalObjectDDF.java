@@ -9,6 +9,7 @@ import java.util.List;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import com.google.gson.annotations.Expose;
 
 /**
  * An implementation of DDF that backs a single object, with local memory and local storage. It uses JSON serialization
@@ -30,6 +31,12 @@ public class LocalObjectDDF<T> extends LocalDDF {
 
   private Class<T> mObjectClass;
 
+  // For serdes only
+  @Expose private T mObject;
+
+  // For serdes only
+  @SuppressWarnings("unused") @Expose private String mObjectClassName;
+
 
   /**
    * Given an object of type T, we construct this DDF as a List<T> containing only one element, the object itself. The
@@ -50,7 +57,9 @@ public class LocalObjectDDF<T> extends LocalDDF {
     rows.add(object);
     this.setObjectClass((Class<T>) object.getClass());
 
-    this.initialize(manager, rows, this.getObjectClass(), namespace, name, new Schema("object blob"));
+    if (name == null) name = this.generateNewName();
+
+    this.initialize(manager, rows, this.getObjectClass(), namespace, name, new Schema(name, "object blob"));
   }
 
   /**
@@ -60,7 +69,7 @@ public class LocalObjectDDF<T> extends LocalDDF {
    * @throws DDFException
    */
   public LocalObjectDDF(T object) throws DDFException {
-    this(null, object, null, null);
+    this(DDFManager.get(ConfigConstant.ENGINE_NAME_LOCAL.getValue()), object, null, null);
   }
 
 
@@ -78,13 +87,17 @@ public class LocalObjectDDF<T> extends LocalDDF {
    */
   private void setObjectClass(Class<T> objectClass) {
     this.mObjectClass = objectClass;
+    this.mObjectClassName = objectClass.getCanonicalName();
   }
 
 
 
+  @SuppressWarnings("unchecked")
   public T getObject() throws DDFException {
     List<T> list = this.getList(this.getObjectClass());
-    return (list != null && !list.isEmpty() ? list.get(0) : null);
+    mObject = (list != null && !list.isEmpty() ? list.get(0) : null);
+    this.setObjectClass((Class<T>) mObject.getClass());
+    return mObject;
   }
 
   public void setObject(T object) throws DDFException {
@@ -92,5 +105,12 @@ public class LocalObjectDDF<T> extends LocalDDF {
     if (list == null) throw new DDFException("List<T> representation cannot be null");
     list.clear();
     list.add(object);
+  }
+
+
+  @Override
+  public void beforeSerialization() throws DDFException {
+    super.beforeSerialization();
+    this.getObject(); // to trigger the setting of the mObject field
   }
 }
