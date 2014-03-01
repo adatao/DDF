@@ -15,13 +15,13 @@ setMethod("initialize",
           }
 )
 
-setGeneric("sql",
+setGeneric("adatao.sql",
            function(x, sql, ...) {
-             standardGeneric("sql")
+             standardGeneric("adatao.sql")
            }
 )
 
-setMethod("sql",
+setMethod("adatao.sql",
           signature("DDFManager", "character"),
           function(x, sql) {
             jdm <- x@jdm
@@ -29,13 +29,13 @@ setMethod("sql",
           }
 )
 
-setGeneric("sql2ddf",
+setGeneric("adatao.sql2ddf",
            function(x, sql, ...) {
-             standardGeneric("sql2ddf")
+             standardGeneric("adatao.sql2ddf")
            }
 )
 
-setMethod("sql2ddf",
+setMethod("adatao.sql2ddf",
           signature("DDFManager", "character"),
           function(x, sql) {
             jdm <- x@jdm
