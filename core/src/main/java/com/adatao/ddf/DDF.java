@@ -16,17 +16,11 @@
  */
 package com.adatao.ddf;
 
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
-
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.etl.IHandleSql;
-import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.IAlgorithm;
@@ -44,6 +38,10 @@ import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -54,12 +52,13 @@ import com.google.common.base.Strings;
 
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and capabilities
- * (self-compute basic statistics, aggregations, etc.).
+ * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and
+ * capabilities (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>
- * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
- * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
+ * This class was designed using the Bridge Pattern to provide clean separation between the abstract
+ * concepts and the implementation so that the API can support multiple big data platforms under the
+ * same set of abstract concepts.
  * </p>
  * 
  * @author ctn
@@ -74,10 +73,11 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
    * @param rowType
    *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
-   *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
+   *          The namespace to place this DDF in. If null, it will be picked up from the
+   *          DDFManager's current namespace.
    * @param name
-   *          The name for this DDF. If null, it will come from the given schema. If that's null, a UUID-based name will
-   *          be generated.
+   *          The name for this DDF. If null, it will come from the given schema. If that's null, a
+   *          UUID-based name will be generated.
    * @param schema
    *          The {@link Schema} of the new DDF
    * @throws DDFException
@@ -89,8 +89,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   }
 
   /**
-   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each
-   * implementor.
+   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
    */
@@ -120,7 +119,6 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
   private static final IHandleConfig sConfigHandler = new ConfigHandler();
 
-
   public static IHandleConfig getConfigHandler() {
     return sConfigHandler;
   }
@@ -129,14 +127,12 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return getConfigHandler().getValue(section, key);
   }
 
-
   // ////// Instance Fields & Methods ////////
 
 
   private String mNamespace;
 
   private String mName;
-
 
   /**
    * @return the namespace this DDF belongs in
@@ -174,16 +170,16 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
 
   /**
-   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
+   * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead
+   * to nothing good).
    */
   private DDFManager sDummyManager = new LocalDDFManager();
 
   private DDFManager mManager;
 
-
   /**
-   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy" DDF Manager in case
-   * our manager is not set for some reason. (This may lead to nothing good).
+   * Returns the previously set manager, or sets it to a dummy manager if null. We provide a "dummy"
+   * DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    * 
    * @return
    */
@@ -216,11 +212,11 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   public Column getColumn(String column) {
     return this.getSchema().getColumn(column);
   }
-
+  
   public String getTableName() {
     return this.getSchema().getTableName();
   }
-  
+
   public List<String> getColumnNames() {
     return this.getSchema().getColumnNames();
   }
@@ -233,17 +229,28 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return this.getSchemaHandler().getNumColumns();
   }
 
-
   // ///// Aggregate operations
 
-   public double correlation(String columnA, String columnB) throws DDFException {
-   return this.getAggregationHandler().computeCorrelation(columnA, columnB);
-   }
-
-  public AggregationResult aggregate(List<AggregateField> fields) throws DDFException {
-    return this.getAggregationHandler().aggregate(fields);
+  /**
+   * 
+   * @param columnA
+   * @param columnB
+   * @return correlation value of columnA and columnB
+   * @throws DDFException
+   */
+  public double correlation(String columnA, String columnB) throws DDFException {
+    return this.getAggregationHandler().computeCorrelation(columnA, columnB);
   }
 
+  /**
+   * Compute aggregation which is equivalent to SQL aggregation statement like "SELECT a, b, sum(c), max(d) FROM e GROUP BY a, b"
+   * @param fields a string includes aggregated fields and functions, e.g "a, b, sum(c), max(d)"
+   * @return
+   * @throws DDFException
+   */
+  public AggregationResult aggregate(String fields) throws DDFException {
+    return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
+  }
 
   // ////// Function-Group Handlers ////////
 
@@ -360,6 +367,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return newHandler(IHandleMissingData.class);
   }
 
+
   public IHandleAggregation getAggregationHandler() {
     if (mAggregationHandler == null) mAggregationHandler = this.createAggregationHandler();
     if (mAggregationHandler == null) throw new UnsupportedOperationException();
@@ -374,7 +382,6 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   protected IHandleAggregation createAggregationHandler() {
     return newHandler(IHandleAggregation.class);
   }
-
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
@@ -573,8 +580,8 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
 
 
   /**
-   * This will be called via the {@link ISupportPhantomReference} interface if this object was registered under
-   * {@link PhantomReference}.
+   * This will be called via the {@link ISupportPhantomReference} interface if this object was
+   * registered under {@link PhantomReference}.
    */
   @Override
   public void cleanup() {

@@ -1,5 +1,6 @@
 package com.adatao.ddf.content;
 
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -7,9 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import scala.actors.threadpool.Arrays;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -21,11 +20,11 @@ public class Schema implements Serializable {
   private String mTableName;
   private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
 
+
   /**
-   * Constructor that can take a list of columns in the following format:
-   * "<name> <type>, <name> <type>". For example,
-   * "id string, description string, units integer, unit_price float, total float". This string will
-   * be parsed into a {@link List} of {@link Column}s.
+   * Constructor that can take a list of columns in the following format: "<name> <type>, <name> <type>". For example,
+   * "id string, description string, units integer, unit_price float, total float". This string will be parsed into a
+   * {@link List} of {@link Column}s.
    * 
    * Since the table name is not specified, it is initially set to a random UUID.
    * 
@@ -36,8 +35,7 @@ public class Schema implements Serializable {
   }
 
   /**
-   * Constructor that can take a list of columns in the following format:
-   * "<name> <type>, <name> <type>". For example,
+   * Constructor that can take a list of columns in the following format: "<name> <type>, <name> <type>". For example,
    * "id string, description string, units integer, unit_price float, total float".
    * 
    * @param tableName
@@ -67,7 +65,6 @@ public class Schema implements Serializable {
 
   }
 
-  //"<name> <type>, <name> <type>"
   private List<Column> parseColumnList(String columnList) {
     if (Strings.isNullOrEmpty(columnList)) return null;
     String[] segments = columnList.split(" *, *");
@@ -97,15 +94,16 @@ public class Schema implements Serializable {
     return mColumns;
   }
 
+  public void setColumns(List<Column> Columns) {
+    this.mColumns = Columns;
+  }
+
   public List<String> getColumnNames() {
     List<String> columnNames = Lists.newArrayList();
     for (Column col : mColumns) {
       columnNames.add(col.getName());
     }
     return columnNames;
-  }
-  public void setColumns(List<Column> Columns) {
-    this.mColumns = Columns;
   }
 
   public void setColumnNames(List<String> names) {
@@ -127,16 +125,17 @@ public class Schema implements Serializable {
   }
 
   public Column getColumn(String name) {
-    int i = getColumnIndex(name);
-    if (i == -1) {
+    Integer i = getColumnIndex(name);
+    if (i == null) {
       return null;
     }
+
     return getColumn(i);
   }
 
   public int getColumnIndex(String name) {
-
     if (mColumns.isEmpty() || Strings.isNullOrEmpty(name)) return -1;
+
 
     for (int i = 0; i < mColumns.size(); i++) {
       if (name.equalsIgnoreCase(mColumns.get(i).getName())) return i;
@@ -165,11 +164,9 @@ public class Schema implements Serializable {
    * @return true if succeed
    */
   public boolean removeColumn(String name) {
-
     if (getColumnIndex(name) < 0) return false;
     this.mColumns.remove(getColumnIndex(name));
     return true;
-
   }
 
   /**
@@ -185,6 +182,7 @@ public class Schema implements Serializable {
     return true;
   }
 
+
   /**
    * This class represents the metadata of a column
    * 
@@ -193,6 +191,7 @@ public class Schema implements Serializable {
   public static class Column {
     private String mName;
     private ColumnType mType;
+
 
     public Column(String name, ColumnType type) {
       this.mName = name;
@@ -220,7 +219,7 @@ public class Schema implements Serializable {
       this.mType = type;
       return this;
     }
-    
+
     public boolean isNumeric() {
       return ColumnType.isNumeric(mType);
     }
@@ -229,6 +228,7 @@ public class Schema implements Serializable {
 
   public static class ColumnWithData extends Column {
     private Object[] mData;
+
 
     public ColumnWithData(String name, Object[] data) {
       super(name, ColumnType.fromArray(data));
@@ -279,19 +279,25 @@ public class Schema implements Serializable {
     public static ColumnType fromArray(Object[] elements) {
       return (elements == null ? null : fromObject(elements[0]));
     }
-    
+
     public static boolean isNumeric(ColumnType colType) {
       switch (colType) {
-        case INT: return true;
-        case DOUBLE: return true;
-        case FLOAT: return true;
-        case LONG: return true;  
-        default: return false;
-      } 
+        case INT:
+          return true;
+        case DOUBLE:
+          return true;
+        case FLOAT:
+          return true;
+        case LONG:
+          return true;
+        default:
+          return false;
+      }
     }
   }
 
   public enum DataFormat {
     SQL, CSV, TSV
   }
+
 }

@@ -1,6 +1,5 @@
 package com.adatao.ddf.analytics;
 
-
 import java.util.List;
 import com.adatao.ddf.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
@@ -14,3 +13,4 @@ public interface IHandleAggregation extends IHandleDDFFunctionalGroup {
   public AggregationResult aggregate(List<AggregateField> fields) throws DDFException;
 
 }
+

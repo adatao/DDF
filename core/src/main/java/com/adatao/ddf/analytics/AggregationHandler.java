@@ -4,10 +4,8 @@ package com.adatao.ddf.analytics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
@@ -26,14 +24,15 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
   @Override
   public double computeCorrelation(String columnA, String columnB) throws DDFException {
-    if (!this.getDDF().getColumn(columnA).isNumeric()) throw new DDFException("Only numeric fields are accepted!");
+    if (!(this.getDDF().getColumn(columnA).isNumeric() || this.getDDF().getColumn(columnB).isNumeric())) throw new DDFException(
+        "Only numeric fields are accepted!");
     String sqlCmd = String.format("SELECT CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF().getTableName());
-    List<String> rs;
     try {
-      rs = this.getManager().sql2txt(sqlCmd);
+      List<String> rs = this.getManager().sql2txt(sqlCmd);
       return Utils.roundUp(Double.parseDouble(rs.get(0)));
     } catch (Exception e) {
-      throw new DDFException("Unable to query from " + this.getDDF().getTableName(), e);
+      throw new DDFException(String.format("Unable to get CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF()
+          .getTableName()), e);
     }
   }
 
@@ -238,14 +237,14 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     public String toString(String column) {
       switch (this) {
-      case MEDIAN:
-        return String.format("PERCENTILE_APPROX(%s, 0.5)", column);
+        case MEDIAN:
+          return String.format("PERCENTILE_APPROX(%s, 0.5)", column);
 
-      case MEAN:
-        return String.format("AVG(%s)", column);
+        case MEAN:
+          return String.format("AVG(%s)", column);
 
-      default:
-        return String.format("%s(%s)", this.toString(), column);
+        default:
+          return String.format("%s(%s)", this.toString(), column);
       }
 
     }
