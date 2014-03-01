@@ -1,5 +1,6 @@
 package com.adatao.ddf.content;
 
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -7,10 +8,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import scala.actors.threadpool.Arrays;
-
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 /**
  * Table schema of a DDF including table name and column metadata
@@ -20,11 +20,11 @@ public class Schema implements Serializable {
   private String mTableName;
   private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
 
+
   /**
-   * Constructor that can take a list of columns in the following format:
-   * "<name> <type>, <name> <type>". For example,
-   * "id string, description string, units integer, unit_price float, total float". This string will
-   * be parsed into a {@link List} of {@link Column}s.
+   * Constructor that can take a list of columns in the following format: "<name> <type>, <name> <type>". For example,
+   * "id string, description string, units integer, unit_price float, total float". This string will be parsed into a
+   * {@link List} of {@link Column}s.
    * 
    * Since the table name is not specified, it is initially set to a random UUID.
    * 
@@ -35,8 +35,7 @@ public class Schema implements Serializable {
   }
 
   /**
-   * Constructor that can take a list of columns in the following format:
-   * "<name> <type>, <name> <type>". For example,
+   * Constructor that can take a list of columns in the following format: "<name> <type>, <name> <type>". For example,
    * "id string, description string, units integer, unit_price float, total float".
    * 
    * @param tableName
@@ -97,6 +96,14 @@ public class Schema implements Serializable {
 
   public void setColumns(List<Column> Columns) {
     this.mColumns = Columns;
+  }
+
+  public List<String> getColumnNames() {
+    List<String> columnNames = Lists.newArrayList();
+    for (Column col : mColumns) {
+      columnNames.add(col.getName());
+    }
+    return columnNames;
   }
 
   public void setColumnNames(List<String> names) {
@@ -175,6 +182,7 @@ public class Schema implements Serializable {
     return true;
   }
 
+
   /**
    * This class represents the metadata of a column
    * 
@@ -183,6 +191,7 @@ public class Schema implements Serializable {
   public static class Column {
     private String mName;
     private ColumnType mType;
+
 
     public Column(String name, ColumnType type) {
       this.mName = name;
@@ -211,10 +220,15 @@ public class Schema implements Serializable {
       return this;
     }
 
+    public boolean isNumeric() {
+      return ColumnType.isNumeric(mType);
+    }
+
   }
 
   public static class ColumnWithData extends Column {
     private Object[] mData;
+
 
     public ColumnWithData(String name, Object[] data) {
       super(name, ColumnType.fromArray(data));
@@ -265,9 +279,25 @@ public class Schema implements Serializable {
     public static ColumnType fromArray(Object[] elements) {
       return (elements == null ? null : fromObject(elements[0]));
     }
+
+    public static boolean isNumeric(ColumnType colType) {
+      switch (colType) {
+        case INT:
+          return true;
+        case DOUBLE:
+          return true;
+        case FLOAT:
+          return true;
+        case LONG:
+          return true;
+        default:
+          return false;
+      }
+    }
   }
 
   public enum DataFormat {
     SQL, CSV, TSV
   }
+
 }

@@ -19,14 +19,14 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
-import com.adatao.ddf.etl.IHandleJoins;
-import com.adatao.ddf.etl.IHandleReshaping;
-import com.adatao.ddf.etl.IHandleSql;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
+import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.IAlgorithm;
 import com.adatao.ddf.analytics.IAlgorithmOutputModel;
 import com.adatao.ddf.analytics.IComputeBasicStatistics;
+import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.analytics.IRunAlgorithms;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.IHandleIndexing;
@@ -37,6 +37,11 @@ import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.IHandleSchema;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleReshaping;
+import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.ConfigHandler;
 import com.adatao.ddf.util.IHandleConfig;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -84,8 +89,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   }
 
   /**
-   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each
-   * implementor.
+   * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
    */
@@ -205,9 +209,18 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return this.getSchemaHandler().getSchema();
   }
 
+  public Column getColumn(String column) {
+    return this.getSchema().getColumn(column);
+  }
+  
   public String getTableName() {
     return this.getSchema().getTableName();
   }
+
+  public List<String> getColumnNames() {
+    return this.getSchema().getColumnNames();
+  }
+
 
   public long getNumRows() {
     return this.getMetaDataHandler().getNumRows();
@@ -217,7 +230,28 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return this.getSchemaHandler().getNumColumns();
   }
 
+  // ///// Aggregate operations
 
+  /**
+   * 
+   * @param columnA
+   * @param columnB
+   * @return correlation value of columnA and columnB
+   * @throws DDFException
+   */
+  public double correlation(String columnA, String columnB) throws DDFException {
+    return this.getAggregationHandler().computeCorrelation(columnA, columnB);
+  }
+
+  /**
+   * Compute aggregation which is equivalent to SQL aggregation statement like "SELECT a, b, sum(c), max(d) FROM e GROUP BY a, b"
+   * @param fields a string includes aggregated fields and functions, e.g "a, b, sum(c), max(d)"
+   * @return
+   * @throws DDFException
+   */
+  public AggregationResult aggregate(String fields) throws DDFException {
+    return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
+  }
 
   // ////// Function-Group Handlers ////////
 
@@ -236,6 +270,7 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
   private IHandleTimeSeries mTimeSeriesHandler;
   private IHandleViews mViewHandler;
   private IRunAlgorithms mAlgorithmRunner;
+  private IHandleAggregation mAggregationHandler;
 
 
   public IComputeBasicStatistics getBasicStatisticsComputer() {
@@ -333,7 +368,20 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference 
     return newHandler(IHandleMissingData.class);
   }
 
+  public IHandleAggregation getAggregationHandler() {
+    if (mAggregationHandler == null) mAggregationHandler = this.createAggregationHandler();
+    if (mAggregationHandler == null) throw new UnsupportedOperationException();
+    else return mAggregationHandler;
+  }
 
+  public DDF setAggregationHandler(IHandleAggregation aAggregationHandler) {
+    this.mAggregationHandler = aAggregationHandler;
+    return this;
+  }
+
+  protected IHandleAggregation createAggregationHandler() {
+    return newHandler(IHandleAggregation.class);
+  }
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
