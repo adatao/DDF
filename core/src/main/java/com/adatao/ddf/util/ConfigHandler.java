@@ -3,20 +3,18 @@
  */
 package com.adatao.ddf.util;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
-
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.ALoggable;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.util.ConfigHandler.Config.Section;
 import com.google.common.base.Strings;
 
@@ -25,21 +23,29 @@ import com.google.common.base.Strings;
  * @author ctn
  * 
  */
-public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandleConfig {
+public class ConfigHandler extends ALoggable implements IHandleConfig {
 
-  public ConfigHandler() {
-    super(null);
+  public ConfigHandler(String configDir, String configFileName) {
+    mConfigDir = configDir;
+    mConfigFileName = configFileName;
   }
 
-  public ConfigHandler(DDF theDDF) {
-    super(theDDF);
+
+  private String mConfigDir;
+  private String mConfigFileName;
+
+
+  public String getConfigDir() {
+    return mConfigDir;
   }
 
-  public static final String CONFIG_FILE_ENV_VAR = "DDF_INI";
-  public static final String DEFAULT_CONFIG_FILE_NAME = "ddf.ini";
-  public static final String CONFIG_SEARCH_DIR_NAME = "conf";
+  public String getConfigFileName() {
+    return mConfigFileName;
+  }
+
 
   private Config mConfig;
+
 
   @Override
   public Config getConfig() {
@@ -53,6 +59,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     return mConfig;
   }
 
+
   /**
    * Stores DDF configuration information from ddf.ini
    */
@@ -60,6 +67,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
     public static class Section {
       private Map<String, String> mEntries = new HashMap<String, String>();
+
 
       public Map<String, String> getEntries() {
         return mEntries;
@@ -69,8 +77,9 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
         return mEntries.get(safeToLower(key));
       }
 
-      public void set(String key, String value) {
+      public Section set(String key, String value) {
         mEntries.put(safeToLower(key), value);
+        return this;
       }
 
       public void remove(String key) {
@@ -82,7 +91,9 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       }
     }
 
+
     private Map<String, Section> mSections;
+
 
     public Config() {
       this.reset();
@@ -131,13 +142,11 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     }
   }
 
+
   /**
-   * Load configuration from ddf.ini, or the file name specified by the environment variable
-   * DDF_INI.
+   * Load configuration from ddf.ini, or the file name specified by the environment variable DDF_INI.
    * 
-   * @throws ClassNotFoundException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
+   * @throws Exception
    * 
    * @return the default {@link DDFManager} to be used when the user calls static methods of DDF
    * @throws ConfigurationException
@@ -147,12 +156,16 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
     Config resultConfig = new Config();
 
-    String configFileName = System.getenv(CONFIG_FILE_ENV_VAR);
-    if (Strings.isNullOrEmpty(configFileName)) configFileName = this.locateConfigFileName();
+    if (!Utils.fileExists(this.getConfigFileName())) {
+      // String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.getValue());
+      File file = new File(this.locateConfigFileName(this.getConfigDir(), this.getConfigFileName()));
+      mConfigDir = file.getParentFile().getName();
+      mConfigFileName = file.getCanonicalPath();
+    }
 
-    // TODO: load a default, built-in configuration, even if we can't find the config file
+    if (!Utils.fileExists(this.getConfigFileName())) return null;
 
-    HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(configFileName);
+    HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(this.getConfigFileName());
 
     @SuppressWarnings("unchecked")
     Set<String> sectionNames = config.getSections();
@@ -177,14 +190,18 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
     return mConfig;
   }
 
+  @Override
+  public void setConfig(Config theConfig) {
+    mConfig = theConfig;
+  }
+
   /**
    * Search in current dir and working up, looking for the config file
    * 
    * @return
    * @throws IOException
    */
-  private String locateConfigFileName() throws IOException {
-    String configFileName = DEFAULT_CONFIG_FILE_NAME;
+  private String locateConfigFileName(String configDir, String configFileName) throws IOException {
     String curDir = new File(".").getCanonicalPath();
 
     String path = null;
@@ -194,7 +211,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
       path = String.format("%s/%s", curDir, configFileName);
       if (Utils.fileExists(path)) break;
 
-      String dir = String.format("%s/%s", curDir, CONFIG_SEARCH_DIR_NAME);
+      String dir = String.format("%s/%s", curDir, configDir);
       if (Utils.dirExists(dir)) {
         path = String.format("%s/%s", dir, configFileName);
         if (Utils.fileExists(path)) break;
@@ -234,6 +251,7 @@ public class ConfigHandler extends ADDFFunctionalGroupHandler implements IHandle
 
 
   private String mSource;
+
 
   @Override
   public String getSource() {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 import com.google.common.base.Strings;
+import com.google.gson.annotations.Expose;
 import com.google.common.collect.Lists;
 
 /**
@@ -17,8 +18,9 @@ import com.google.common.collect.Lists;
  */
 @SuppressWarnings("serial")
 public class Schema implements Serializable {
-  private String mTableName;
-  private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
+  @Expose private String mTableName;
+  @Expose private List<Column> mColumns = Collections.synchronizedList(new ArrayList<Column>());
+
 
 
   /**
@@ -189,8 +191,9 @@ public class Schema implements Serializable {
    * 
    */
   public static class Column {
-    private String mName;
-    private ColumnType mType;
+    @Expose private String mName;
+    @Expose private ColumnType mType;
+
 
 
     public Column(String name, ColumnType type) {

@@ -1,12 +1,11 @@
 package com.adatao.ddf.util;
 
-import java.util.Map;
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import java.util.Map;
 import com.adatao.ddf.util.ConfigHandler.Config;
 import com.adatao.ddf.util.ConfigHandler.Config.Section;
 
-public interface IHandleConfig extends IHandleDDFFunctionalGroup {
+public interface IHandleConfig {
 
   /**
    * Returns a file name, URI, or some other description of where the configuration info comes from.
@@ -18,12 +17,15 @@ public interface IHandleConfig extends IHandleDDFFunctionalGroup {
   /**
    * Loads/reloads the config file
    * 
+   * @param configDirectory
    * @return the loaded {@link Config} object
    * @throws Exception
    */
   public Config loadConfig() throws Exception;
 
   public Config getConfig();
+
+  public void setConfig(Config theConfig);
 
   public Map<String, Section> getSections();
 
