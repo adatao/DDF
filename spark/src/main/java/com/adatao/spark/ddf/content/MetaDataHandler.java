@@ -24,7 +24,6 @@ public class MetaDataHandler extends AMetaDataHandler {
   protected long getNumRowsImpl() {
     String tableName = this.getDDF().getSchemaHandler().getTableName();
     logger.debug("get NumRows Impl called");
-    tableName = "airline";
     try {
       List<String> rs = this.getManager().sql2txt("select count(*) from " + tableName);
       return Long.parseLong(rs.get(0));
