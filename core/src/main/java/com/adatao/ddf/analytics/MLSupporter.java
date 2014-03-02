@@ -11,9 +11,9 @@ import com.google.gson.annotations.Expose;
 
 /**
  */
-public class AMLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
+public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
 
-  public AMLSupporter(DDF theDDF) {
+  public MLSupporter(DDF theDDF) {
     super(theDDF);
   }
 

@@ -3,7 +3,7 @@ package com.adatao.spark.ddf.analytics
 import org.apache.spark.mllib.clustering.{ KMeans, KMeansModel }
 import com.adatao.ddf.DDF
 import org.apache.spark.rdd.RDD
-import com.adatao.ddf.analytics.AMLSupporter.{ AAlgorithm, Model }
+import com.adatao.ddf.analytics.MLSupporter.{ AAlgorithm, Model }
 import com.adatao.ddf.analytics.ISupportML.{ IAlgorithm, IHyperParameters, IModel }
 
 /**

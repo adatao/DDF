@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDF.ConfigConstant;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.AMLSupporter.Model;
+import com.adatao.ddf.analytics.MLSupporter.Model;
 import com.adatao.ddf.analytics.ISupportML.IModel;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
