@@ -17,80 +17,88 @@ import org.apache.spark.rdd.RDD
  */
 class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) with IHandleViews {
 
-	object ViewFormat extends Enumeration {
-		type ViewFormat = Value
-		val DEFAULT, ARRAY_OBJECT, ARRAY_DOUBLE, TABLE_PARTITION, LABELED_POINT, LABELED_POINTS = Value
-	}
+  object ViewFormat extends Enumeration {
+    type ViewFormat = Value
+    val DEFAULT, ARRAY_OBJECT, ARRAY_DOUBLE, TABLE_PARTITION, LABELED_POINT, LABELED_POINTS = Value
+  }
 
-	import ViewFormat._
+  import ViewFormat._
 
-	/**
-	 * Same as {@link #get(int[], int)}, but accepts a scala.Enumeration for format instead.
-	 *
-	 * @param columns
-	 * @param format
-	 * A scala.Enumeration that will be converted to an integer by calling
-	 * formatEnum.toString()
-	 * @return
-	 */
-	def get(columns: Array[Int], format: ViewFormat): DDF = {
-		format match {
-			case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, mDDF)
-			case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, mDDF)
-			case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, mDDF)
-			case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, mDDF)
-			case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, mDDF)
-			case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, mDDF)
-			case _ ⇒ {}
-		}
-		null
-	}
+  /**
+   * Same as {@link #get(int[], int)}, but accepts a scala.Enumeration for format instead.
+   *
+   * @param columns
+   * @param format
+   * A scala.Enumeration that will be converted to an integer by calling
+   * formatEnum.toString()
+   * @return
+   */
+  def get(columns: Array[Int], format: ViewFormat): DDF = {
+    format match {
+      case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, mDDF)
+      case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, mDDF)
+      case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, mDDF)
+      case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, mDDF)
+      case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, mDDF)
+      case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, mDDF)
+      case _ ⇒ {}
+    }
+    null
+  }
 
-	protected def getImpl(columns: Array[Int], format: String): DDF = {
-		this.get(columns, ViewFormat.withName(format))
-	}
+  protected def getImpl(columns: Array[Int], format: String): DDF = {
+    this.get(columns, ViewFormat.withName(format))
+  }
 
-	val MAX_SAMPLE_SIZE = 1000000;
-	
+  val MAX_SAMPLE_SIZE = 1000000;
+
   override def getRandomSample(numSamples: Int, withReplacement: Boolean, seed: Int): DDF = {
-      if(numSamples > MAX_SAMPLE_SIZE) {
-        throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE));
-      } else {
-        val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
-        val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed);
-        new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
-      } 
+
+    if (numSamples > MAX_SAMPLE_SIZE) {
+      throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE));
+    } else {
+      val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
+      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed);
+      new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+    }
+  }
+
+  override def getRandomSample(percent: Double, withReplacement: Boolean, seed: Int): DDF = {
+
+    val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
+    val sampleRdd = rdd.sample(withReplacement, percent, seed);
+    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
   }
 }
 
 object ViewHandler {
-	def getDefault(cols: Array[Int], theDDF: DDF): DDF = {
+  def getDefault(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 
-	def getArrayObject(cols: Array[Int], theDDF: DDF): DDF = {
+  def getArrayObject(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 
-	def getArrayDouble(cols: Array[Int], theDDF: DDF): DDF = {
+  def getArrayDouble(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 
-	def getTablePartition(cols: Array[Int], theDDF: DDF): DDF = {
+  def getTablePartition(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 
-	def getLabeledPoint(cols: Array[Int], theDDF: DDF): DDF = {
+  def getLabeledPoint(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 
-	def getLabeledPoints(cols: Array[Int], theDDF: DDF): DDF = {
+  def getLabeledPoints(cols: Array[Int], theDDF: DDF): DDF = {
 
-		null
-	}
+    null
+  }
 }

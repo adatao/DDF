@@ -34,6 +34,11 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return null;
   }
 
+  @Override
+  public DDF getRandomSample(double percent, boolean withReplacement, int seed) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
   public static class ElementIterator<R, C> implements Iterator<C> {
 
@@ -123,7 +128,6 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     }
     return null;
   }
-  
-  
+ 
 
 }

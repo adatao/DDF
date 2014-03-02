@@ -78,5 +78,7 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    */
   public DDF getRandomSample(int numSamples, boolean withReplacement, int seed);
   
+  public DDF getRandomSample(double percent, boolean withReplacement, int seed);
+  
   public DDF fetchRows(int numRows);
 }
