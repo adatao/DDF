@@ -364,6 +364,10 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
     return this.getViewHandler().fetchRows(numRows);
   }
   
+  public DDF getRandomSample(int numSamples) {
+    return this.getViewHandler().getRandomSample(numSamples, false, 1);
+  }
+  
   // ///// Aggregate operations
 
   /**

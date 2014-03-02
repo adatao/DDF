@@ -76,7 +76,7 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
-  public DDF getRandomSample(int numSamples);
+  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed);
   
   public DDF fetchRows(int numRows);
 }

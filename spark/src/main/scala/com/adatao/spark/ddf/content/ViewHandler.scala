@@ -6,6 +6,8 @@ package com.adatao.spark.ddf.content
 import com.adatao.ddf.content.IHandleViews
 import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.spark.ddf.SparkDDF
+import org.apache.spark.rdd.RDD
 
 /**
  * RDD-based ViewHandler
@@ -48,11 +50,17 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
 		this.get(columns, ViewFormat.withName(format))
 	}
 
-	override def getRandomSample(numSamples: Int): DDF = {
-
-		//Implementation here
-		null
-	}
+	val MAX_SAMPLE_SIZE = 1000000;
+	
+  override def getRandomSample(numSamples: Int, withReplacement: Boolean, seed: Int): DDF = {
+      if(numSamples > MAX_SAMPLE_SIZE) {
+        throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE));
+      } else {
+        val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
+        val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed);
+        new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+      } 
+  }
 }
 
 object ViewHandler {

@@ -6,7 +6,6 @@ package com.adatao.ddf.content;
 
 import java.util.Iterator;
 import java.util.List;
-import org.jblas.util.Logger;
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
@@ -30,11 +29,10 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
   @Override
-  public DDF getRandomSample(int numSamples) {
+  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
     // TODO Auto-generated method stub
     return null;
   }
-
 
 
   public static class ElementIterator<R, C> implements Iterator<C> {
@@ -119,7 +117,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   public DDF fetchRows(int numRows) {
     String tableName = this.getDDF().getTableName();
     try {
-      return this.getManager().sql2ddf(String.format("SELECT * FROM %s limit %d", tableName, numRows));
+      return this.getManager().sql2ddf(String.format("SELECT * FROM %s LIMIT %d", tableName, numRows));
     } catch (DDFException e) {
       mLog.error(String.format("Unable to fetch %d rows from table %s", numRows, tableName), e);
     }
