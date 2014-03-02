@@ -358,7 +358,12 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
-
+  /////// Generate DDF views
+  
+  public DDF fetchRows(int numRows) {
+    return this.getViewHandler().fetchRows(numRows);
+  }
+  
   // ///// Aggregate operations
 
   /**

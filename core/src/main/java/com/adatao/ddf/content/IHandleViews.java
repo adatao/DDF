@@ -4,7 +4,7 @@
 package com.adatao.ddf.content;
 
 import java.util.Iterator;
-
+import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.IHandleDDFFunctionalGroup;
 
@@ -77,4 +77,6 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
   public DDF getRandomSample(int numSamples);
+  
+  public DDF fetchRows(int numRows);
 }
