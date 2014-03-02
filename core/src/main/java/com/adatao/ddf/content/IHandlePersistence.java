@@ -2,9 +2,9 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
 

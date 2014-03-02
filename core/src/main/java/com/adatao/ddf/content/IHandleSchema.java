@@ -2,8 +2,8 @@ package com.adatao.ddf.content;
 
 import java.util.List;
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 
 public interface IHandleSchema extends IHandleDDFFunctionalGroup {

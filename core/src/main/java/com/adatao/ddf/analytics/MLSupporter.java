@@ -1,11 +1,11 @@
 package com.adatao.ddf.analytics;
 
 
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.local.ddf.LocalObjectDDF;
 import com.google.gson.annotations.Expose;
 

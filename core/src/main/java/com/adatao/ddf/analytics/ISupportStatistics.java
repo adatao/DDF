@@ -1,6 +1,6 @@
 package com.adatao.ddf.analytics;
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface ISupportStatistics extends IHandleDDFFunctionalGroup {
 

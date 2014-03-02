@@ -1,8 +1,10 @@
 /**
  * 
  */
-package com.adatao.ddf;
+package com.adatao.ddf.misc;
 
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 

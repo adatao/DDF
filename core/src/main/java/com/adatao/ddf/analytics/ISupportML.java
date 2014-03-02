@@ -1,8 +1,8 @@
 package com.adatao.ddf.analytics;
 
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.content.IHandlePersistence;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
  * Interface for handling tasks related to Machine Learning
