@@ -3,8 +3,8 @@
  */
 package com.adatao.ddf.content;
 
-import java.util.HashMap;
 
+import java.util.HashMap;
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.types.NA;
@@ -19,8 +19,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     super(theDDF);
   }
 
+
   // The various representations for our DDF
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
+
 
   protected String getKeyFor(Class<?> rowType) {
     return this.getSafeRowType(rowType).toString();
@@ -49,11 +51,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     Object obj = mReps.get(getKeyFor(rowType));
     if (obj == null && doCreate) {
       obj = this.createRepresentation(rowType);
-      this.add(obj, rowType);
+      if (obj != null) this.add(obj, rowType);
     }
 
-    if (obj == null) throw new UnsupportedOperationException();
-    else return obj;
+    return obj;
   }
 
   /**
@@ -89,11 +90,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   /**
-   * Converts from existing representation(s) to the desired representation, which has the specified
-   * rowType.
+   * Converts from existing representation(s) to the desired representation, which has the specified rowType.
    * 
-   * The base representation returns only the default representation if the rowType matches the
-   * default type. Otherwise it returns null.
+   * The base representation returns only the default representation if the rowType matches the default type. Otherwise
+   * it returns null.
    * 
    * @param rowType
    * @return
@@ -115,8 +115,8 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   /**
-   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but
-   * replacing the one that matches the given DDFManagerType, rowType tuple.
+   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but replacing the one that
+   * matches the given DDFManagerType, rowType tuple.
    * 
    * @param rowType
    *          the type of each element in the DDFManager
@@ -168,6 +168,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     // TODO Auto-generated method stub
 
   }
+
 
   public enum RepresentationType {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;

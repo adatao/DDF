@@ -20,9 +20,8 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.content.IBeforeAndAfterSerDes;
+import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.local.ddf.LocalObjectDDF;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -210,14 +209,14 @@ public class Utils {
     public static String serialize(Object obj) throws DDFException {
       if (obj == null) return "null";
 
-      if (obj instanceof IBeforeAndAfterSerDes) ((IBeforeAndAfterSerDes) obj).beforeSerialization();
+      if (obj instanceof ISerializable) ((ISerializable) obj).beforeSerialization();
 
       Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
       String json = gson.toJson(obj);
 
       // Add the bookkeeping fields, e.g., SERDES_CLASS_NAME_FIELD
       JsonObject jObj = toJsonObject(json);
-      jObj.addProperty(SERDES_CLASS_NAME_FIELD, obj.getClass().getCanonicalName());
+      jObj.addProperty(SERDES_CLASS_NAME_FIELD, obj.getClass().getName());
       jObj.addProperty(SERDES_TIMESTAMP_FIELD, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG)
           .format(new Date()));
       jObj.addProperty(SERDES_USER_FIELD, System.getProperty("user.name"));
@@ -227,7 +226,7 @@ public class Utils {
       return json;
     }
 
-    public static JsonObject toJsonObject(String json) {
+    private static JsonObject toJsonObject(String json) {
       JsonElement jElement = new JsonParser().parse(json);
       if (jElement == null) return null;
 
@@ -239,24 +238,15 @@ public class Utils {
       if (Strings.isNullOrEmpty(json)) return null;
 
       try {
-        JsonElement jElement = new JsonParser().parse(json);
-        if (jElement == null) return null;
+        JsonObject jsonObj = toJsonObject(json);
+        if (jsonObj == null) return null;
 
-        JsonObject jObj = jElement.getAsJsonObject();
-        if (jObj == null) return null;
-
-        jElement = jObj.get(SERDES_CLASS_NAME_FIELD);
-        if (jElement == null) return null;
-
-        String className = jElement.getAsString();
-        if (Strings.isNullOrEmpty(className)) return null;
-
-        Class<?> theClass = Class.forName(className);
-        if (theClass == null) return null;
+        String className = jsonObj.get(SERDES_CLASS_NAME_FIELD).getAsString();
+        Class<?> theClass = (!Strings.isNullOrEmpty(className) ? Class.forName(className) : JsonObject.class);
 
         Object obj = new Gson().fromJson(json, theClass);
 
-        if (obj instanceof IBeforeAndAfterSerDes) ((IBeforeAndAfterSerDes) obj).afterDeserialization();
+        if (obj instanceof ISerializable) ((ISerializable) obj).afterDeserialization((Object) jsonObj);
 
         return obj;
 
@@ -265,26 +255,13 @@ public class Utils {
       }
     }
 
-    public static Object loadFromFile(String path) throws IOException {
-      String json = Utils.readFromFile(path);
-
-      // First determine the object's class
-      JsonObject jsonObj = toJsonObject(json);
-
-      String objClassName = jsonObj.get(SERDES_CLASS_NAME_FIELD).getAsString();
-      if (Strings.isNullOrEmpty(objClassName)) objClassName = LocalObjectDDF.class.getName();
-
-      Class<?> objClass = null;
+    public static Object loadFromFile(String path) throws DDFException {
       try {
-        objClass = Class.forName(objClassName);
-      } catch (ClassNotFoundException e) {
-        Utils.sLog.warn(String.format("Unable to load class %s", objClassName), e);
-      }
-      if (objClass == null) objClass = LocalObjectDDF.class;
+        return deserialize(Utils.readFromFile(path));
 
-      // Now deserialize
-      Object obj = new Gson().fromJson(json, objClass);
-      return obj;
+      } catch (IOException e) {
+        throw new DDFException(e);
+      }
     }
   }
 }

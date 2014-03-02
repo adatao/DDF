@@ -8,9 +8,9 @@ import com.adatao.ddf.DDF;
  * @author bhan
  * 
  */
-public abstract class ABasicStatisticsComputer extends ADDFFunctionalGroupHandler implements IComputeBasicStatistics {
+public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler implements ISupportStatistics {
 
-  public ABasicStatisticsComputer(DDF theDDF) {
+  public AStatisticsSupporter(DDF theDDF) {
     super(theDDF);
   }
 

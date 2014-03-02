@@ -24,8 +24,16 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class Vector<T> {
 
-  @SuppressWarnings("unchecked") protected final Class<T> mType = (Class<T>) ((ParameterizedType) getClass()
-      .getGenericSuperclass()).getActualTypeArguments()[0];
+  /**
+   * TODO: test this
+   * 
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  protected Class<T> getParameterizedType() {
+    Class<T> clazz = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    return clazz;
+  }
 
 
   /**
@@ -68,7 +76,7 @@ public class Vector<T> {
     Class<?> rowType = data[0].getClass();
     DDF newDDF = DDFManager.get(engineName) //
         .newDDF(null, (Object) data, rowType, null, name, //
-            new Schema(name, String.format("%s %s", name, mType.getClass().getSimpleName())));
+            new Schema(name, String.format("%s %s", name, this.getParameterizedType().getSimpleName())));
 
     this.initialize(newDDF, name);
   }

@@ -81,7 +81,7 @@ public class PersistenceHandler extends APersistenceHandler {
    * @see com.adatao.ddf.content.IHandlePersistence#save(boolean)
    */
   @Override
-  public PersistenceUri save(boolean doOverwrite) throws DDFException {
+  public PersistenceUri persist(boolean doOverwrite) throws DDFException {
     if (this.getDDF() == null) throw new DDFException("DDF cannot be null");
 
     String dataFile = this.getDataFileName();
@@ -110,7 +110,7 @@ public class PersistenceHandler extends APersistenceHandler {
    * @see com.adatao.ddf.content.IHandlePersistence#delete(java.lang.String, java.lang.String)
    */
   @Override
-  public void delete(String namespace, String name) throws DDFException {
+  public void unpersist(String namespace, String name) throws DDFException {
     Utils.deleteFile(this.getDataFileName(namespace, name));
     Utils.deleteFile(this.getSchemaFileName(namespace, name));
   }
@@ -122,7 +122,7 @@ public class PersistenceHandler extends APersistenceHandler {
    * java.lang.String, boolean)
    */
   @Override
-  public void copy(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
+  public void duplicate(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
       throws DDFException {
     // TODO Auto-generated method stub
 
@@ -130,12 +130,12 @@ public class PersistenceHandler extends APersistenceHandler {
 
 
   @Override
-  public DDF load(String uri) throws DDFException {
-    return this.load(new PersistenceUri(uri));
+  public IPersistible load(String uri) throws DDFException {
+    return (DDF) this.load(new PersistenceUri(uri));
   }
 
   @Override
-  public DDF load(PersistenceUri uri) throws DDFException {
+  public IPersistible load(PersistenceUri uri) throws DDFException {
     PersistenceUri2 uri2 = new PersistenceUri2(uri);
     return this.load(uri2.getNamespace(), uri2.getName());
   }
@@ -146,7 +146,7 @@ public class PersistenceHandler extends APersistenceHandler {
    * @see com.adatao.ddf.content.IHandlePersistence#load(java.lang.String, java.lang.String)
    */
   @Override
-  public DDF load(String namespace, String name) throws DDFException {
+  public IPersistible load(String namespace, String name) throws DDFException {
     Object ddf = null, schema = null;
 
     try {
@@ -157,7 +157,7 @@ public class PersistenceHandler extends APersistenceHandler {
       if (schema == null) throw new DDFException((String.format("Got null for Schema for %s/%s", namespace, name)));
 
     } catch (Exception e) {
-      throw new DDFException((String.format("Unable to load DDF or schema for %s/%s", namespace, name)));
+      throw new DDFException(String.format("Unable to load DDF or schema for %s/%s", namespace, name), e);
     }
 
 
@@ -170,7 +170,7 @@ public class PersistenceHandler extends APersistenceHandler {
       throw new DDFException("Expected object to be DDF, got " + ddf.getClass());
     }
 
-    return (DDF) ddf;
+    return (IPersistible) ddf;
   }
 
   @Override
@@ -180,7 +180,7 @@ public class PersistenceHandler extends APersistenceHandler {
 
 
   @Override
-  public List<String> listDDFs(String namespace) throws DDFException {
+  public List<String> listItems(String namespace) throws DDFException {
     return Utils.listSubdirectories(this.locateOrCreatePersistenceSubdirectory(namespace));
   }
 

@@ -29,9 +29,17 @@ public class LocalDDF extends DDF {
     this.initialize(manager, rows, rowType, namespace, name, schema);
   }
 
-  // @formatter:off
-  /* [ctn] Wondering out loud: do we need to support anything other than List<T> rows?
-  @Deprecated
+  /**
+   * This signature is needed to support {@link DDFManager#newDDF(DDFManager, Object, Class, String, String, Schema)}
+   * 
+   * @param manager
+   * @param rows
+   * @param rowType
+   * @param namespace
+   * @param name
+   * @param schema
+   * @throws DDFException
+   */
   public <T> LocalDDF(DDFManager manager, Object rows, Class<T> rowType, String namespace, String name, Schema schema)
       throws DDFException {
 
@@ -39,8 +47,6 @@ public class LocalDDF extends DDF {
     if (rows == null) throw new DDFException("Non-null rows Object is required to instantiate a new LocalDDF");
     this.initialize(manager, rows, rowType, namespace, name, schema);
   }
-  */
-  // @formatter:on
 
   /**
    * Signature without List, useful for creating a dummy DDF used by DDFManager
@@ -58,10 +64,8 @@ public class LocalDDF extends DDF {
 
 
   @SuppressWarnings("unchecked")
-  public <T> List<T> getList(Class<T> rowType) throws DDFException {
-    Object obj = this.getRepresentationHandler().get(rowType);
-    if (obj instanceof List<?>) return (List<T>) obj;
-    else throw new DDFException("Unable to get List with element type " + rowType);
+  public <T> List<T> getList(Class<T> rowType) {
+    return (List<T>) this.getRepresentationHandler().get(rowType);
   }
 
 }

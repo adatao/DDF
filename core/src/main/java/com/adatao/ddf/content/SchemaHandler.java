@@ -37,11 +37,11 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
    * @return the Schema's table name
    */
   public String getTableName() {
-    return this.mSchema.getTableName();
+    return mSchema != null ? mSchema.getTableName() : null;
   }
 
   public List<Column> getColumns() {
-    return this.mSchema.getColumns();
+    return mSchema != null ? mSchema.getColumns() : null;
   }
 
   public String newTableName() {
@@ -51,12 +51,12 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   public long getNumColumns() {
-    return this.mSchema.getNumColumns();
+    return mSchema != null ? mSchema.getNumColumns() : -1;
   }
 
   @Override
   public int getColumnIndex(String columnName) {
-    return this.getSchema().getColumnIndex(columnName);
+    return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
   }
 
 }

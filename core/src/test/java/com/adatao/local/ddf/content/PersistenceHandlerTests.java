@@ -12,10 +12,13 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDF.ConfigConstant;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.AMLSupporter.Model;
+import com.adatao.ddf.analytics.ISupportML.IModel;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.local.ddf.LocalObjectDDF;
 import com.adatao.local.ddf.content.PersistenceHandler.PersistenceUri2;
+import com.google.common.base.Strings;
 
 
 /**
@@ -32,13 +35,13 @@ public class PersistenceHandlerTests {
     Assert.assertNotNull(namespaces);
 
     for (String namespace : namespaces) {
-      List<String> ddfs = ddf.getPersistenceHandler().listDDFs(namespace);
+      List<String> ddfs = ddf.getPersistenceHandler().listItems(namespace);
       Assert.assertNotNull(ddfs);
     }
   }
 
   @Test
-  public void testSaveDDF() throws Exception {
+  public void testPersistDDF() throws Exception {
     DDF ddf = new LocalObjectDDF<String>("Hello");
 
     PersistenceUri uri = ddf.persist();
@@ -69,5 +72,23 @@ public class PersistenceHandlerTests {
     Assert.assertEquals("Created and loaded DDF names must be equal", ddf4.getName(), ddf1.getName());
 
     ddf1.unpersist();
+  }
+
+  @Test
+  public void testPersistModel() throws DDFException {
+    IModel model = new Model();
+
+    PersistenceUri uri = model.persist();
+    Assert.assertNotNull("Model persistence URI cannot be null", uri);
+    Assert.assertFalse("Model persistence URI cannot be null or empty", Strings.isNullOrEmpty(uri.toString()));
+
+    DDF ddf = DDFManager.doLoad(uri);
+    Assert.assertNotNull(String.format("DDF from doLoad(%s) cannot be null", uri), ddf);
+
+    @SuppressWarnings("unchecked")
+    Model model2 = ((LocalObjectDDF<Model>) ddf).getObject();
+    Assert.assertEquals("Models must be the same before and after persistence", model, model2);
+
+    model.unpersist();
   }
 }
