@@ -2,12 +2,12 @@ package com.adatao.ddf.content;
 
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import scala.actors.threadpool.Arrays;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
@@ -28,10 +28,10 @@ public class Schema implements Serializable {
    * "id string, description string, units integer, unit_price float, total float". This string will be parsed into a
    * {@link List} of {@link Column}s.
    * 
-   * Since the table name is not specified, it is initially set to a random UUID.
-   * 
    * @param columns
    */
+  @Deprecated
+  // Require tableName at all times, even null
   public Schema(String columns) {
     this.initialize(null, this.parseColumnList(columns));
   }
@@ -47,6 +47,8 @@ public class Schema implements Serializable {
     this.initialize(tableName, this.parseColumnList(columns));
   }
 
+  @Deprecated
+  // Require tableName at all times, even null
   public Schema(List<Column> columns) {
     this.initialize(null, columns);
   }
@@ -61,10 +63,8 @@ public class Schema implements Serializable {
   }
 
   private void initialize(String tableName, List<Column> columns) {
-    if (Strings.isNullOrEmpty(tableName)) tableName = UUID.randomUUID().toString();
     this.mTableName = tableName;
     this.mColumns = columns;
-
   }
 
   private List<Column> parseColumnList(String columnList) {
@@ -195,14 +195,13 @@ public class Schema implements Serializable {
     @Expose private ColumnType mType;
 
 
-
     public Column(String name, ColumnType type) {
       this.mName = name;
       this.mType = type;
     }
 
     public Column(String name, String type) {
-      this(name, ColumnType.fromString(type));
+      this(name, ColumnType.get(type));
     }
 
     public String getName() {
@@ -234,7 +233,7 @@ public class Schema implements Serializable {
 
 
     public ColumnWithData(String name, Object[] data) {
-      super(name, ColumnType.fromArray(data));
+      super(name, ColumnType.get(data));
     }
 
     /**
@@ -255,44 +254,64 @@ public class Schema implements Serializable {
 
   public enum ColumnType {
 
-    STRING, INT, LONG, FLOAT, DOUBLE, TIMESTAMP, BLOB;
+    STRING(String.class), INT(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), //
+    TIMESTAMP(Date.class, java.sql.Date.class, Time.class, Timestamp.class), BLOB(Object.class);
 
-    public static ColumnType fromString(String s) {
-      if (s == null || s.length() == 0) return null;
-      s = s.toUpperCase().trim();
-      for (ColumnType t : values()) {
-        if (s.equals(t.name())) return t;
+    private List<Class<?>> mClasses = Lists.newArrayList();
+
+
+    private ColumnType(Class<?>... classes) {
+      if (classes != null && classes.length > 0) {
+        for (Class<?> cls : classes) {
+          mClasses.add(cls);
+        }
       }
+    }
+
+    public List<Class<?>> getClasses() {
+      return mClasses;
+    }
+
+    public static ColumnType get(String s) {
+      if (s == null || s.length() == 0) return null;
+
+      for (ColumnType type : values()) {
+        if (type.name().equalsIgnoreCase(s)) return type;
+
+        for (Class<?> cls : type.getClasses()) {
+          if (cls.getSimpleName().equalsIgnoreCase(s)) return type;
+        }
+      }
+
       return null;
     }
 
-    public static ColumnType fromObject(Object obj) {
-      if (obj == null) return null;
-      Class<?> objClass = obj.getClass();
-      if (String.class.isAssignableFrom(objClass)) return STRING;
-      if (Integer.class.isAssignableFrom(objClass)) return DOUBLE;
-      if (Long.class.isAssignableFrom(objClass)) return LONG;
-      if (Float.class.isAssignableFrom(objClass)) return FLOAT;
-      if (Date.class.isAssignableFrom(objClass)) return TIMESTAMP;
-      if (java.sql.Date.class.isAssignableFrom(objClass)) return TIMESTAMP;
-      if (Timestamp.class.isAssignableFrom(objClass)) return TIMESTAMP;
-      else return BLOB;
+    public static ColumnType get(Object obj) {
+      if (obj != null) {
+        Class<?> objClass = obj.getClass();
+
+        for (ColumnType type : ColumnType.values()) {
+          for (Class<?> cls : type.getClasses()) {
+            if (cls.isAssignableFrom(objClass)) return type;
+          }
+        }
+      }
+
+      return BLOB;
     }
 
-    public static ColumnType fromArray(Object[] elements) {
-      return (elements == null ? null : fromObject(elements[0]));
+    public static ColumnType get(Object[] elements) {
+      return (elements == null || elements.length == 0 ? null : get(elements[0]));
     }
 
     public static boolean isNumeric(ColumnType colType) {
       switch (colType) {
         case INT:
-          return true;
+        case LONG:
         case DOUBLE:
-          return true;
         case FLOAT:
           return true;
-        case LONG:
-          return true;
+
         default:
           return false;
       }

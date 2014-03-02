@@ -4,16 +4,16 @@
 package com.adatao.ddf;
 
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
-
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
 /**
  * A one-dimensional array of values of the same type, e.g., Integer or Double or String.
  * <p>
- * We implement a Vector as simply a reference to a column in a DDF. The DDF may have a single
- * column, or multiple columns.
+ * We implement a Vector as simply a reference to a column in a DDF. The DDF may have a single column, or multiple
+ * columns.
  * <p>
  * The column is referenced by name.
  * 
@@ -25,8 +25,20 @@ import com.adatao.ddf.exception.DDFException;
 public class Vector<T> {
 
   /**
-   * Instantiate a new Vector based on an existing DDF, given a column name. The column name is not
-   * verified for correctness; any errors would only show up on actual usage.
+   * TODO: test this
+   * 
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  protected Class<T> getParameterizedType() {
+    Class<T> clazz = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    return clazz;
+  }
+
+
+  /**
+   * Instantiate a new Vector based on an existing DDF, given a column name. The column name is not verified for
+   * correctness; any errors would only show up on actual usage.
    * 
    * @param theDDF
    * @param theColumnName
@@ -62,7 +74,9 @@ public class Vector<T> {
     if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
 
     Class<?> rowType = data[0].getClass();
-    DDF newDDF = DDFManager.get(engineName).newDDF(null, (Object) data, rowType, null, name, new Schema(name));
+    DDF newDDF = DDFManager.get(engineName) //
+        .newDDF(null, (Object) data, rowType, null, name, //
+            new Schema(name, String.format("%s %s", name, this.getParameterizedType().getSimpleName())));
 
     this.initialize(newDDF, name);
   }
@@ -82,6 +96,7 @@ public class Vector<T> {
    * The name of the DDF column we are pointing to
    */
   private String mDDFColumnName;
+
 
   /**
    * @return the mDDF

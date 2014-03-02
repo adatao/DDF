@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.ABasicStatisticsComputer;
+import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
 import scala.reflect.ClassManifest$;
 
@@ -18,7 +18,7 @@ import scala.reflect.ClassManifest$;
  * @author bhan
  * 
  */
-public class BasicStatisticsComputer extends ABasicStatisticsComputer {
+public class BasicStatisticsComputer extends AStatisticsSupporter {
 
   public BasicStatisticsComputer(DDF theDDF) {
     super(theDDF);

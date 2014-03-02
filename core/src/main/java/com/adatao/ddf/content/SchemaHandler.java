@@ -3,9 +3,9 @@
  */
 package com.adatao.ddf.content;
 
+
 import java.util.List;
 import java.util.UUID;
-
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.Column;
@@ -21,7 +21,9 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     super(theDDF);
   }
 
+
   private Schema mSchema;
+
 
   public Schema getSchema() {
     return mSchema;
@@ -31,25 +33,30 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     this.mSchema = theSchema;
   }
 
+  /**
+   * @return the Schema's table name
+   */
   public String getTableName() {
-    return this.mSchema.getTableName();
+    return mSchema != null ? mSchema.getTableName() : null;
   }
 
   public List<Column> getColumns() {
-    return this.mSchema.getColumns();
+    return mSchema != null ? mSchema.getColumns() : null;
   }
 
   public String newTableName() {
-    return String.format("ddf-%s", UUID.randomUUID());
+    return (this.getDDF() != null) //
+    ? String.format("%s-%s-%s", this.getDDF().getClass().getSimpleName(), this.getDDF().getEngine(), UUID.randomUUID()) //
+        : String.format("DDF-%s", UUID.randomUUID());
   }
 
   public long getNumColumns() {
-    return this.mSchema.getNumColumns();
+    return mSchema != null ? mSchema.getNumColumns() : -1;
   }
 
   @Override
   public int getColumnIndex(String columnName) {
-    return this.getSchema().getColumnIndex(columnName);
+    return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
   }
 
 }

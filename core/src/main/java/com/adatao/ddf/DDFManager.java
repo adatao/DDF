@@ -19,7 +19,8 @@ package com.adatao.ddf;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
-import com.adatao.ddf.analytics.IRunAlgorithms;
+import scala.actors.threadpool.Arrays;
+import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -29,11 +30,13 @@ import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.ddf.DDF.ConfigConstant;
 import com.google.common.base.Strings;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
+import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 
 /**
  * <p>
  * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary to implement various
- * DDF interfaces, such as {@link IHandleRepresentations} and {@link IRunAlgorithms}.
+ * DDF interfaces, such as {@link IHandleRepresentations} and {@link ISupportML}.
  * </p>
  * <p>
  * We use the Dependency Injection, Delegation, and Composite patterns to make it easy for others to provide alternative
@@ -83,7 +86,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   public static DDFManager get(String engineName) throws DDFException {
-    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.getValue();
+    if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.toString();
 
     String className = DDF.getConfigValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
     if (Strings.isNullOrEmpty(className)) return null;
@@ -190,7 +193,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
       return ddf;
 
     } catch (Exception e) {
-      throw new DDFException("While instantiating a new DDF of class " + className, e);
+      throw new DDFException(String.format(
+          "While instantiating a new DDF of class %s with argTypes %s and argValues %s", className,
+          Arrays.toString(argTypes), Arrays.toString(argValues)), e);
     }
   }
 
@@ -229,7 +234,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @throws Exception
    */
   protected String getEngineConfigValue(ConfigConstant key) throws DDFException {
-    return DDF.getConfigValue(this.getEngine(), key.getValue());
+    return DDF.getConfigValue(this.getEngine(), key.toString());
   }
 
 
@@ -274,5 +279,33 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   @Override
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
     return this.getDummyDDF().getSqlHandler().sql2txt(command, dataSource);
+  }
+
+  // //// Persistence handling //////
+
+  public void unpersist(String namespace, String name) throws DDFException {
+    this.getDummyDDF().getPersistenceHandler().unpersist(namespace, name);
+  }
+
+  public static DDF doLoad(String uri) throws DDFException {
+    return doLoad(new PersistenceUri(uri));
+  }
+
+  public static DDF doLoad(PersistenceUri uri) throws DDFException {
+    if (uri == null) throw new DDFException("URI cannot be null");
+    if (Strings.isNullOrEmpty(uri.getEngine())) throw new DDFException("Engine/Protocol in URI cannot be missing");
+    return DDFManager.get(uri.getEngine()).load(uri);
+  }
+
+  public DDF load(String namespace, String name) throws DDFException {
+    IPersistible obj = this.getDummyDDF().getPersistenceHandler().load(namespace, name);
+    if (obj instanceof DDF) return (DDF) obj;
+    else throw new DDFException(String.format("Loaded object is of type %s and not DDF", obj.getClass()));
+  }
+
+  public DDF load(PersistenceUri uri) throws DDFException {
+    IPersistible obj = this.getDummyDDF().getPersistenceHandler().load(uri);
+    if (obj instanceof DDF) return (DDF) obj;
+    else throw new DDFException(String.format("Loaded object is of type %s and not DDF", obj.getClass()));
   }
 }
