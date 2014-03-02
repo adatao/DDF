@@ -73,6 +73,19 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
       throws DDFException;
 
   /**
+   * Same as duplicate followed by unpersist() of the old copy
+   * 
+   * @param fromNamespace
+   * @param fromName
+   * @param toNamespace
+   * @param toName
+   * @param doOverwrite
+   * @throws DDFException
+   */
+  void rename(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
+      throws DDFException;
+
+  /**
    * Loads from default persistent storage into a DDF
    * 
    * @param namespace

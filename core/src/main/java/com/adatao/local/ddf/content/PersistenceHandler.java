@@ -124,10 +124,26 @@ public class PersistenceHandler extends APersistenceHandler {
   @Override
   public void duplicate(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
       throws DDFException {
-    // TODO Auto-generated method stub
 
+    IPersistible from = this.load(fromNamespace, fromName);
+    if (from instanceof DDF) {
+      DDF to = (DDF) from;
+      to.setNamespace(toNamespace);
+      to.setName(toName);
+      to.persist();
+
+    } else {
+      throw new DDFException("Can only duplicate DDFs");
+    }
   }
 
+  @Override
+  public void rename(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
+      throws DDFException {
+
+    this.duplicate(fromNamespace, fromName, toNamespace, toName, doOverwrite);
+    this.unpersist(fromNamespace, fromName);
+  }
 
   @Override
   public IPersistible load(String uri) throws DDFException {
