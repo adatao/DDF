@@ -84,7 +84,9 @@ public class SqlHandler extends ASqlHandler {
     
     if (Strings.isNullOrEmpty(tableName)) tableName = (rdd != null ? rdd.name() : null);
     if (Strings.isNullOrEmpty(tableName)) this.getDDF().getSchemaHandler().newTableName();
-    tablename = tableName.replace("-", "_");
+    if (tableName != null) {
+      tableName = tableName.replace("-", "_");
+    }
     return new SparkDDF(this.getManager(), rdd, Row.class, null, tableName, schema);
   }
 
