@@ -368,6 +368,9 @@ public abstract class DDF extends ALoggable implements ISupportPhantomReference,
     return this.getViewHandler().getRandomSample(numSamples, false, 1);
   }
   
+  public DDF selectColumns(String[] columnNames) {
+    return this.getViewHandler().selectColumns(columnNames);
+  }
   // ///// Aggregate operations
 
   /**

@@ -125,6 +125,10 @@ public class Schema implements Serializable {
 
     return mColumns.get(i);
   }
+  
+  public String getColumnName(int i) {
+    return getColumn(i).getName();
+  }
 
   public Column getColumn(String name) {
     Integer i = getColumnIndex(name);

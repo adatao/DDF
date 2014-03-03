@@ -25,7 +25,7 @@ public class MetaDataHandler extends AMetaDataHandler {
     String tableName = this.getDDF().getSchemaHandler().getTableName();
     logger.debug("get NumRows Impl called");
     try {
-      List<String> rs = this.getManager().sql2txt("select count(*) from " + tableName);
+      List<String> rs = this.getManager().sql2txt("SELECT COUNT(*) FROM " + tableName);
       return Long.parseLong(rs.get(0));
     } catch (DDFException e) {
       logger.error("Unable to query from " + tableName, e);

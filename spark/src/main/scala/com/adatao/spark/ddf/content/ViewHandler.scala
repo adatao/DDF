@@ -73,7 +73,7 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
 
 object ViewHandler {
   def getDefault(cols: Array[Int], theDDF: DDF): DDF = {
-
+    
     null
   }
 

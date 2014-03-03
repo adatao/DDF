@@ -9,6 +9,7 @@ import java.util.List;
 import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
+import com.google.common.base.Joiner;
 
 /**
  * 
@@ -128,6 +129,16 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     }
     return null;
   }
- 
-
+  
+  @Override 
+  public DDF selectColumns(String[] columnNames) {
+    String tableName = this.getDDF().getTableName();
+    String selectedColumns = Joiner.on(",").join(columnNames);
+    try {
+      return this.getManager().sql2ddf(String.format("SELECT %s FROM %s", selectedColumns, tableName));
+    } catch (DDFException e) {
+      mLog.error(String.format("Unable to project columns %s from table %s", selectedColumns, tableName), e);
+    }
+    return null;
+  }
 }
