@@ -1,4 +1,6 @@
-package com.adatao.ddf;
+package com.adatao.ddf.misc;
+
+import com.adatao.ddf.DDF;
 
 
 

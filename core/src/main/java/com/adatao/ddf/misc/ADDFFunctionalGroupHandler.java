@@ -1,14 +1,17 @@
 /**
  * 
  */
-package com.adatao.ddf;
+package com.adatao.ddf.misc;
 
+
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 
 /**
- * Abstract base class for a handler of a group of DDF functionality, e.g., {@link IHandleMetadata},
- * or {@link IHandleViews}.
+ * Abstract base class for a handler of a group of DDF functionality, e.g., {@link IHandleMetadata}, or
+ * {@link IHandleViews}.
  * 
  * @author ctn
  * 
@@ -21,7 +24,9 @@ public abstract class ADDFFunctionalGroupHandler extends ALoggable implements IH
     PhantomReference.register(this);
   }
 
+
   private DDF mDDF;
+
 
   /*
    * (non-Javadoc)
@@ -39,9 +44,12 @@ public abstract class ADDFFunctionalGroupHandler extends ALoggable implements IH
   }
 
   public DDFManager getManager() {
-    return this.getDDF().getManager();
+    return (this.getDDF() != null ? this.getDDF().getManager() : null);
   }
 
+  public String getEngine() {
+    return (this.getManager() != null ? this.getManager().getEngine() : null);
+  }
 
   @Override
   // ISupportPhantomReference

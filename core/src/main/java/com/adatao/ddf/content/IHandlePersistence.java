@@ -2,11 +2,20 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
+
+  interface IPersistible extends ISerializable {
+    PersistenceUri persist(boolean doOverwrite) throws DDFException;
+
+    PersistenceUri persist() throws DDFException;
+
+    void unpersist() throws DDFException;
+  }
+
 
   /**
    * Returns a list of existing namespaces we have in persistent storage
@@ -14,16 +23,16 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * @return
    * @throws DDFException
    */
-  public List<String> listNamespaces() throws DDFException;
+  List<String> listNamespaces() throws DDFException;
 
   /**
-   * Returns a list of existing DDFs we have in the given namespace in persistent storage
+   * Returns a list of existing objects we have in the given namespace in persistent storage
    * 
    * @param namespace
    * @return
    * @throws DDFException
    */
-  public List<String> listDDFs(String namespace) throws DDFException;
+  List<String> listItems(String namespace) throws DDFException;
 
   /**
    * Saves the current DDF to our default persistent storage, at minimum by namespace and name, together with the DDF's
@@ -31,10 +40,11 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * 
    * @param doOverwrite
    *          overwrites if true
+   * @return PersistenceUri of persisted location
    * @throws DDFException
    *           if doOverwrite is false and the destination already exists
    */
-  public void save(boolean doOverwrite) throws DDFException;
+  PersistenceUri persist(boolean doOverwrite) throws DDFException;
 
   /**
    * Deletes the identified DDF "file" from persistent storage. This does not affect any DDF currently loaded in memory
@@ -45,7 +55,7 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * @throws DDFException
    *           if specified target does not exist
    */
-  public void delete(String namespace, String name) throws DDFException;
+  void unpersist(String namespace, String name) throws DDFException;
 
   /**
    * Copies the identified DDF "files" from the specified source to destination.
@@ -59,7 +69,20 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * @throws DDFException
    *           if doOverwrite is false and the destination already exists
    */
-  public void copy(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
+  void duplicate(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
+      throws DDFException;
+
+  /**
+   * Same as duplicate followed by unpersist() of the old copy
+   * 
+   * @param fromNamespace
+   * @param fromName
+   * @param toNamespace
+   * @param toName
+   * @param doOverwrite
+   * @throws DDFException
+   */
+  void rename(String fromNamespace, String fromName, String toNamespace, String toName, boolean doOverwrite)
       throws DDFException;
 
   /**
@@ -71,5 +94,28 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * @throws DDFException
    *           , e.g., if file does not exist
    */
-  public DDF load(String namespace, String name) throws DDFException;
+  IPersistible load(String namespace, String name) throws DDFException;
+
+  /**
+   * Loads DDF from given URI. The URI format should be:
+   * 
+   * <pre>
+   * <engine>://<path>
+   * </pre>
+   * 
+   * e.g.,
+   * 
+   * <pre>
+   * local:///root/ddf/ddf-runtime/local-ddf-db/com.example/MyDDF.dat
+   * </pre>
+   * 
+   * If the engine is not specified, the current DDF's engine is used.
+   * 
+   * @param uri
+   * @return
+   * @throws DDFException
+   */
+  IPersistible load(String uri) throws DDFException;
+
+  IPersistible load(PersistenceUri uri) throws DDFException;
 }

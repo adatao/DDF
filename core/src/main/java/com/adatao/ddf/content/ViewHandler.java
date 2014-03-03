@@ -6,7 +6,7 @@ package com.adatao.ddf.content;
 
 import java.util.Iterator;
 import java.util.List;
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Joiner;

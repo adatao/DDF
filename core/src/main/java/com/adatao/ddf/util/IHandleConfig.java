@@ -2,8 +2,8 @@ package com.adatao.ddf.util;
 
 
 import java.util.Map;
-import com.adatao.ddf.util.ConfigHandler.Config;
-import com.adatao.ddf.util.ConfigHandler.Config.Section;
+import com.adatao.ddf.util.ConfigHandler.Configuration;
+import com.adatao.ddf.util.ConfigHandler.Configuration.Section;
 
 public interface IHandleConfig {
 
@@ -18,14 +18,14 @@ public interface IHandleConfig {
    * Loads/reloads the config file
    * 
    * @param configDirectory
-   * @return the loaded {@link Config} object
+   * @return the loaded {@link Configuration} object
    * @throws Exception
    */
-  public Config loadConfig() throws Exception;
+  public Configuration loadConfig() throws Exception;
 
-  public Config getConfig();
+  public Configuration getConfig();
 
-  public void setConfig(Config theConfig);
+  public void setConfig(Configuration theConfig);
 
   public Map<String, Section> getSections();
 

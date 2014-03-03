@@ -1,16 +1,16 @@
 package com.adatao.ddf.analytics;
 
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
 /**
  * 
  * @author bhan
  * 
  */
-public abstract class ABasicStatisticsComputer extends ADDFFunctionalGroupHandler implements IComputeBasicStatistics {
+public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler implements ISupportStatistics {
 
-  public ABasicStatisticsComputer(DDF theDDF) {
+  public AStatisticsSupporter(DDF theDDF) {
     super(theDDF);
   }
 

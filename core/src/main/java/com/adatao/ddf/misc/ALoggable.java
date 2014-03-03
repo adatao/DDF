@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.adatao.ddf;
+package com.adatao.ddf.misc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
