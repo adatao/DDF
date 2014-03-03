@@ -28,8 +28,7 @@ public class Config {
   }
 
   public static String getLocalPersistenceDir() throws IOException {
-    return String.format("%s/%s", getRuntimeDir(),
-        getGlobalValue(ConfigConstant.FIELD_LOCAL_PERSISTENCE_DIRECTORY));
+    return String.format("%s/%s", getRuntimeDir(), getGlobalValue(ConfigConstant.FIELD_LOCAL_PERSISTENCE_DIRECTORY));
   }
 
 
@@ -42,8 +41,46 @@ public class Config {
   }
 
   public static String getValue(String section, String key) {
-    return Config.getConfigHandler().getValue(section, key);
+    return getConfigHandler().getValue(section, key);
   }
+
+
+  /**
+   * If the named section does not have the value, then try the same key from the "global" section
+   * 
+   * @param section
+   * @param key
+   * @return
+   */
+  public static String getValueWithGlobalDefault(ConfigConstant section, ConfigConstant key) {
+    String value = getValue(section, key);
+    return (Strings.isNullOrEmpty(value) ? getGlobalValue(key) : value);
+  }
+
+  /**
+   * If the named section does not have the value, then try the same key from the "global" section
+   * 
+   * @param section
+   * @param key
+   * @return
+   */
+  public static String getValueWithGlobalDefault(String section, ConfigConstant key) {
+    String value = getValue(section, key);
+    return (Strings.isNullOrEmpty(value) ? getGlobalValue(key) : value);
+  }
+
+  /**
+   * If the named section does not have the value, then try the same key from the "global" section
+   * 
+   * @param section
+   * @param key
+   * @return
+   */
+  public static String getValueWithGlobalDefault(String section, String key) {
+    String value = getValue(section, key);
+    return (Strings.isNullOrEmpty(value) ? getGlobalValue(key) : value);
+  }
+
 
   public static String getGlobalValue(ConfigConstant key) {
     return getValue(ConfigConstant.SECTION_GLOBAL.toString(), key.toString());
@@ -52,6 +89,15 @@ public class Config {
   public static String getGlobalValue(String key) {
     return getValue(ConfigConstant.SECTION_GLOBAL.toString(), key);
   }
+
+
+  public static void set(String section, String key, String value) {
+    getConfigHandler().getSection(section).set(key, value);
+  }
+
+
+  static IHandleConfig sConfigHandler;
+
 
   public static IHandleConfig getConfigHandler() {
     if (sConfigHandler == null) {
@@ -102,14 +148,9 @@ public class Config {
   }
 
 
-  static IHandleConfig sConfigHandler;
-
-
-
-  // ////// Global/Static Fields & Methods ////////
-
-  // //// Global configuration handling //////
-
+  /**
+   * Common constants that all clients can/should use, to avoid spelling errors
+   */
   public enum ConfigConstant {
     // @formatter:off
     

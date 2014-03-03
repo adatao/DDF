@@ -26,8 +26,6 @@ import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.analytics.ISupportML;
-import com.adatao.ddf.analytics.ISupportML.IAlgorithm;
-import com.adatao.ddf.analytics.ISupportML.IModel;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.ISerializable;
@@ -52,6 +50,7 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
+import com.adatao.ddf.misc.MLDelegate;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.local.ddf.LocalDDFManager;
@@ -141,7 +140,6 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
 
   // ////// Global configuration handling ////////
-
 
 
 
@@ -311,18 +309,18 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
 
 
-  public ISupportStatistics getBasicStatisticsComputer() {
-    if (mStatisticsSupporter == null) mStatisticsSupporter = this.createBasicStatisticsComputer();
+  public ISupportStatistics getStatisticsSupporter() {
+    if (mStatisticsSupporter == null) mStatisticsSupporter = this.createStatisticsSupporter();
     if (mStatisticsSupporter == null) throw new UnsupportedOperationException();
     else return mStatisticsSupporter;
   }
 
-  public DDF setBasicStatisticsComputer(ISupportStatistics aBasicStatisticsComputer) {
-    this.mStatisticsSupporter = aBasicStatisticsComputer;
+  public DDF setStatisticsSupporter(ISupportStatistics aStatisticsSupporter) {
+    this.mStatisticsSupporter = aStatisticsSupporter;
     return this;
   }
 
-  protected ISupportStatistics createBasicStatisticsComputer() {
+  protected ISupportStatistics createStatisticsSupporter() {
     return newHandler(ISupportStatistics.class);
   }
 
@@ -533,17 +531,6 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
   }
 
 
-  // Calculate summary statistics of the DDF
-  public Summary[] getSummary() {
-    return this.getBasicStatisticsComputer().getSummary();
-  }
-
-  // Run Algorithms
-  public IModel train(IAlgorithm algorithm) {
-    return this.getMLSupporter().run(algorithm);
-  }
-
-
   public IHandleTimeSeries getTimeSeriesHandler() {
     if (mTimeSeriesHandler == null) mTimeSeriesHandler = this.createTimeSeriesHandler();
     if (mTimeSeriesHandler == null) throw new UnsupportedOperationException();
@@ -610,9 +597,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     String className = null;
 
     try {
-      className = Config.getValue(this.getEngine(), theInterface.getSimpleName());
-
-      if (Strings.isNullOrEmpty(className)) className = Config.getGlobalValue(theInterface.getSimpleName());
+      className = Config.getValueWithGlobalDefault(this.getEngine(), theInterface.getSimpleName());
 
       if (Strings.isNullOrEmpty(className)) {
         mLog.error(String.format("Cannot determine classname for %s from configuration source [%s] %s",
@@ -644,7 +629,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     // @formatter:off
     this
       .setMLSupporter(null)
-      .setBasicStatisticsComputer(null)
+      .setStatisticsSupporter(null)
       .setIndexingHandler(null)
       .setJoinsHandler(null)
       .setMetaDataHandler(null)
@@ -661,6 +646,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
       ;
     // @formatter:on
   }
+
 
 
   // ////// Facade methods ////////
@@ -692,7 +678,21 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
 
 
-  // //// Persistence handling //////
+  // //// ISupportStatistics //////
+
+  // Calculate summary statistics of the DDF
+  public Summary[] getSummary() {
+    return this.getStatisticsSupporter().getSummary();
+  }
+
+
+
+  // //// ISupportML //////
+
+  public final MLDelegate ML = new MLDelegate(this, this.getMLSupporter());
+
+
+  // //// IHandlePersistence //////
 
   public PersistenceUri persist() throws DDFException {
     return this.persist(true);
