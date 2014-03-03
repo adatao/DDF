@@ -39,6 +39,5 @@
 #'ddf
 #'
 #'@import rJava
-#'@import RJSONIO
 #'@import stringr
 NULL

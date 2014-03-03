@@ -1,6 +1,2 @@
 import(rJava)
-import(RJSONIO)
 import(stringr)
-
-export("helloJavaWorld")
-
