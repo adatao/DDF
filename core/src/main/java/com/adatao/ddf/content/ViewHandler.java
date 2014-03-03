@@ -6,9 +6,10 @@ package com.adatao.ddf.content;
 
 import java.util.Iterator;
 import java.util.List;
-
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
+import com.google.common.base.Joiner;
 
 /**
  * 
@@ -29,11 +30,16 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
   @Override
-  public DDF getRandomSample(int numSamples) {
+  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @Override
+  public DDF getRandomSample(double percent, boolean withReplacement, int seed) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 
   public static class ElementIterator<R, C> implements Iterator<C> {
@@ -41,6 +47,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     private Iterator<R> mRowIterator;
     private Class<R> mRowType;
     private int mColumnIndex;
+
 
     public ElementIterator(Iterator<R> rowIterator, Class<R> rowType, int columnIndex) {
       mRowIterator = rowIterator;
@@ -75,6 +82,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       // Not supported
     }
   }
+
 
   /**
    * The base implementation supports the case where the rowType is an Array or List
@@ -114,4 +122,16 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return this.getElementIterator(null, null, this.getDDF().getColumnIndex(columnName));
   }
 
+  @Override
+  public DDF firstNRows(int numRows) throws DDFException {
+    return this.getDDF().executeSqlOnTable(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+        String.format("Unable to fetch %d rows from table %%s", numRows));
+  }
+
+  @Override
+  public DDF project(String[] columnNames) throws DDFException {
+    String selectedColumns = Joiner.on(",").join(columnNames);
+    return this.getDDF().executeSqlOnTable(String.format("SELECT %s FROM %%s", selectedColumns),
+        String.format("Unable to project columns %s from table %%s", selectedColumns));
+  }
 }
