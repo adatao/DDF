@@ -6,6 +6,7 @@ package com.adatao.ddf.content;
 import java.util.Iterator;
 import java.util.List;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -80,7 +81,7 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   
   public DDF getRandomSample(double percent, boolean withReplacement, int seed);
   
-  public DDF fetchRows(int numRows);
+  public DDF firstNRows(int numRows) throws DDFException;
   
-  public DDF selectColumns(String[] columnNames);
+  public DDF project(String[] columnNames) throws DDFException;
 }

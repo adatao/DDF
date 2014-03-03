@@ -51,6 +51,7 @@ import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
 import com.adatao.ddf.misc.MLDelegate;
+import com.adatao.ddf.misc.ViewsDelegate;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.local.ddf.LocalDDFManager;
@@ -259,19 +260,19 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
+  
+  // ///// Execute SQL command // /////
+  public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
   /////// Generate DDF views
-  
-  public DDF fetchRows(int numRows) {
-    return this.getViewHandler().fetchRows(numRows);
-  }
-  
-  public DDF getRandomSample(int numSamples) {
-    return this.getViewHandler().getRandomSample(numSamples, false, 1);
-  }
-  
-  public DDF selectColumns(String[] columnNames) {
-    return this.getViewHandler().selectColumns(columnNames);
-  }
+
+  public final ViewsDelegate Views = new ViewsDelegate(this, this.getViewHandler());
+
   // ///// Aggregate operations
 
   /**

@@ -127,12 +127,15 @@ public class Schema implements Serializable {
   }
   
   public String getColumnName(int i) {
+    if (getColumn(i) == null) {
+      return null;
+    }
     return getColumn(i).getName();
   }
 
   public Column getColumn(String name) {
-    Integer i = getColumnIndex(name);
-    if (i == null) {
+    int i = getColumnIndex(name);
+    if (i == -1) {
       return null;
     }
 

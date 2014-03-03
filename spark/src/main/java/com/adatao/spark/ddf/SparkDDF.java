@@ -1,5 +1,6 @@
 package com.adatao.spark.ddf;
 
+
 import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
@@ -9,7 +10,7 @@ import com.adatao.ddf.exception.DDFException;
 /**
  * An Apache-Spark-based implementation of DDF
  */
-@SuppressWarnings("serial")
+
 public class SparkDDF extends DDF {
 
   private static final long serialVersionUID = 1L;

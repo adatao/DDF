@@ -41,11 +41,13 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return null;
   }
 
+
   public static class ElementIterator<R, C> implements Iterator<C> {
 
     private Iterator<R> mRowIterator;
     private Class<R> mRowType;
     private int mColumnIndex;
+
 
     public ElementIterator(Iterator<R> rowIterator, Class<R> rowType, int columnIndex) {
       mRowIterator = rowIterator;
@@ -80,6 +82,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       // Not supported
     }
   }
+
 
   /**
    * The base implementation supports the case where the rowType is an Array or List
@@ -120,25 +123,15 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
   @Override
-  public DDF fetchRows(int numRows) {
-    String tableName = this.getDDF().getTableName();
-    try {
-      return this.getManager().sql2ddf(String.format("SELECT * FROM %s LIMIT %d", tableName, numRows));
-    } catch (DDFException e) {
-      mLog.error(String.format("Unable to fetch %d rows from table %s", numRows, tableName), e);
-    }
-    return null;
+  public DDF firstNRows(int numRows) throws DDFException {
+    return this.getDDF().executeSqlOnTable(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+        String.format("Unable to fetch %d rows from table %%s", numRows));
   }
-  
-  @Override 
-  public DDF selectColumns(String[] columnNames) {
-    String tableName = this.getDDF().getTableName();
+
+  @Override
+  public DDF project(String[] columnNames) throws DDFException {
     String selectedColumns = Joiner.on(",").join(columnNames);
-    try {
-      return this.getManager().sql2ddf(String.format("SELECT %s FROM %s", selectedColumns, tableName));
-    } catch (DDFException e) {
-      mLog.error(String.format("Unable to project columns %s from table %s", selectedColumns, tableName), e);
-    }
-    return null;
+    return this.getDDF().executeSqlOnTable(String.format("SELECT %s FROM %%s", selectedColumns),
+        String.format("Unable to project columns %s from table %%s", selectedColumns));
   }
 }
