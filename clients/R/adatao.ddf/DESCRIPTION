@@ -4,21 +4,15 @@ Maintainer: ADATAO.INC
 Author: ADATAO.INC
 Version: 1.1
 License: ADATAO
-Title: ADATAO's pAnalytics's R Client
+Title: ADATAO DDF's R interface
 Description: This package is the R interface to ADATAO's DDF API. It
     allows R users to work on data reside on a Hadoop cluster transparently via
     concepts of AdataoDDF, AdataoVector.
 Depends:
     rJava,
-    RJSONIO,
     stringr,
     methods
 Suggests:
     testthat,
     knitr
 VignetteBuilder: knitr
-Collate:
-    'adatao.R'
-    'hello.R'
-    'zzz.R'
-    
