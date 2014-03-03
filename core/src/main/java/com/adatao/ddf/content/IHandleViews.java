@@ -6,7 +6,7 @@ package com.adatao.ddf.content;
 import java.util.Iterator;
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
  *

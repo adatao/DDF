@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -260,6 +263,82 @@ public class Utils {
         return deserialize(Utils.readFromFile(path));
 
       } catch (IOException e) {
+        throw new DDFException(e);
+      }
+    }
+  }
+
+
+  public static class ClassMethod {
+
+    private String mClassHashMethodName;
+    private Object mObject;
+    private Method mMethod;
+
+
+    public String getClassHashMethodName() {
+      return mClassHashMethodName;
+    }
+
+    public Object getObject() {
+      return mObject;
+    }
+
+    public Method getMethod() {
+      return mMethod;
+    }
+
+    public ClassMethod(String classHashMethodName, Object... args) throws DDFException {
+      this.parse(classHashMethodName, args);
+    }
+
+    public ClassMethod(String classHashMethodName, Class<?>... argTypes) throws DDFException {
+      this.parse(classHashMethodName, argTypes);
+    }
+
+    private void parse(String classHashMethodName, Object... args) throws DDFException {
+      if (args == null || args.length == 0) {
+        this.parse(classHashMethodName);
+
+      } else {
+        List<Class<?>> argTypes = Lists.newArrayList();
+        for (Object arg : args) {
+          argTypes.add(arg == null ? Object.class : arg.getClass());
+        }
+
+        this.parse(classHashMethodName, argTypes.toArray());
+      }
+    }
+
+    private void parse(String classHashMethodName, Class<?>... argTypes) throws DDFException {
+      if (Strings.isNullOrEmpty(classHashMethodName)) throw new DDFException("Class#Method name cannot be null");
+      mClassHashMethodName = classHashMethodName;
+
+      String[] parts = mClassHashMethodName.split("#");
+      if (parts.length != 2) throw new DDFException("Invalid class#method name: " + mClassHashMethodName);
+
+      try {
+        this.parse(Class.forName(parts[0]), parts[1], argTypes);
+
+      } catch (Exception e) {
+        throw new DDFException(e);
+      }
+    }
+
+    private void parse(Class<?> theClass, String methodName, Class<?>... argTypes) throws DDFException {
+      try {
+        Constructor<?> cons = null;
+
+        try {
+          cons = theClass.getConstructor(new Class<?>[0]);
+        } catch (NoSuchMethodException nsme) {
+          throw new DDFException(String.format("%s needs to have a default, zero-arg constructor", theClass.getName()));
+        }
+
+        mObject = cons.newInstance(new Object[0]);
+        mMethod = theClass.getMethod(methodName, argTypes);
+
+      } catch (Exception e) {
         throw new DDFException(e);
       }
     }

@@ -26,9 +26,11 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.IHandleSqlLike;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.ALoggable;
+import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.misc.Config.ConfigConstant;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.ddf.DDF.ConfigConstant;
 import com.google.common.base.Strings;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -88,7 +90,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public static DDFManager get(String engineName) throws DDFException {
     if (Strings.isNullOrEmpty(engineName)) engineName = ConfigConstant.ENGINE_NAME_DEFAULT.toString();
 
-    String className = DDF.getConfigValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
+    String className = Config.getValue(engineName, ConfigConstant.FIELD_DDF_MANAGER);
     if (Strings.isNullOrEmpty(className)) return null;
 
     DDFManager manager;
@@ -178,8 +180,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   @SuppressWarnings("unchecked")
   private DDF newDDF(Class<?>[] argTypes, Object[] argValues) throws DDFException {
 
-    String className = this.getEngineConfigValue(ConfigConstant.FIELD_DDF);
-    if (Strings.isNullOrEmpty(className)) className = DDF.getGlobalConfigValue(ConfigConstant.FIELD_DDF);
+    String className = Config.getValueWithGlobalDefault(this.getEngine(), ConfigConstant.FIELD_DDF);
     if (Strings.isNullOrEmpty(className)) throw new DDFException(String.format(
         "Cannot determine class name for [%s] %s", this.getEngine(), "DDF"));
 
@@ -204,8 +205,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
 
   public String getNamespace() throws DDFException {
-    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = this.getEngineConfigValue(ConfigConstant.FIELD_NAMESPACE);
-    if (Strings.isNullOrEmpty(mNamespace)) mNamespace = DDF.getGlobalConfigValue(ConfigConstant.FIELD_NAMESPACE);
+    if (Strings.isNullOrEmpty(mNamespace)) {
+      mNamespace = Config.getValueWithGlobalDefault(this.getEngine(), ConfigConstant.FIELD_NAMESPACE);
+    }
+
     return mNamespace;
   }
 
@@ -222,19 +225,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   // ////// IDDFManager ////////
   public void shutdown() {
     // Do nothing in the base
-  }
-
-
-
-  /**
-   * Convenience method to get a config value from DDF.
-   * 
-   * @param key
-   * @return
-   * @throws Exception
-   */
-  protected String getEngineConfigValue(ConfigConstant key) throws DDFException {
-    return DDF.getConfigValue(this.getEngine(), key.toString());
   }
 
 

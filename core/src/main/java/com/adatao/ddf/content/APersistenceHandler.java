@@ -4,9 +4,9 @@
 package com.adatao.ddf.content;
 
 
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.google.common.base.Strings;
 
 /**

@@ -1,8 +1,9 @@
 package com.adatao.ddf.analytics;
 
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.content.IHandlePersistence;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
  * Interface for handling tasks related to Machine Learning
@@ -14,9 +15,20 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    * 
    * @param algorithm
    * @return
+   * @throws DDFException
    */
-  public IModel run(IAlgorithm algorithm);
+  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException;
 
+  /**
+   * Trains a model, given an algorithm name or className#methodName (e.g., "kmeans" or
+   * "org.apache.spark.mllib.kmeans#train")
+   * 
+   * @param algorithm
+   * @param params
+   * @return
+   * @throws DDFException
+   */
+  public IModel train(String algorithm, Object... params) throws DDFException;
 
 
   interface IAlgorithm {

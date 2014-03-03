@@ -7,10 +7,10 @@ package com.adatao.local.ddf.content;
 import java.io.IOException;
 import java.util.List;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDF.ConfigConstant;
 import com.adatao.ddf.content.APersistenceHandler;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.util.Utils.JsonSerDes;
 import com.google.common.base.Strings;
@@ -29,9 +29,7 @@ public class PersistenceHandler extends APersistenceHandler {
     String result = null, path = null;
 
     try {
-      path = String.format("%s/%s", DDF.getConfigRuntimeDirectory(),
-          DDF.getGlobalConfigValue(ConfigConstant.FIELD_LOCAL_PERSISTENCE_DIRECTORY));
-      result = Utils.locateOrCreateDirectory(path);
+      result = Utils.locateOrCreateDirectory(Config.getLocalPersistenceDir());
 
     } catch (IOException e) {
       throw new DDFException(String.format("Unable to getPersistenceDirectory(%s)", path), e);

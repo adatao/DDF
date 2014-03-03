@@ -5,8 +5,8 @@ package com.adatao.ddf.content;
 
 
 import java.util.HashMap;
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.types.NA;
 
 /**

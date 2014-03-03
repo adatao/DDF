@@ -4,7 +4,6 @@ import com.adatao.spark.ddf.{SparkDDFManager, ATestSuite}
 import com.adatao.ddf.{DDFManager, DDF}
 
 /**
- * author: daoduchuan
  */
 class KmeansSuite extends ATestSuite {
 
@@ -15,7 +14,7 @@ class KmeansSuite extends ATestSuite {
     val ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, " +
       "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
       "securitydelay, lateaircraftdelay from airline")
-    ddf.train(new Kmeans())
+    ddf.ML.train(new Kmeans())
     manager.shutdown()
   }
 }

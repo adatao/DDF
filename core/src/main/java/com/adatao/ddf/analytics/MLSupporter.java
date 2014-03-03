@@ -1,24 +1,58 @@
 package com.adatao.ddf.analytics;
 
 
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.misc.Config.ConfigConstant;
+import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.local.ddf.LocalObjectDDF;
+import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 
 /**
  */
 public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
 
+  private Boolean sIsNonceInitialized = false;
+
+
+  /**
+   * For ML reflection test-case only
+   */
+  @Deprecated
+  public MLSupporter() {
+    super(null);
+  }
+
   public MLSupporter(DDF theDDF) {
     super(theDDF);
+    this.initialize();
+  }
+
+  private void initialize() {
+    if (sIsNonceInitialized) return;
+
+    synchronized (sIsNonceInitialized) {
+      if (sIsNonceInitialized) return;
+      sIsNonceInitialized = true;
+
+      this.initializeConfiguration();
+    }
+  }
+
+  private void initializeConfiguration() {
+    if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans"))) {
+      Config.set(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans",
+          String.format("%s#%s", MLSupporter.class.getName(), "dummyKMeans"));
+    }
   }
 
   @Override
-  public IModel run(IAlgorithm algorithm) {
+  public IModel train(IAlgorithm algorithm, Object... parameters) {
     if (algorithm == null) return null;
 
     Object data = this.getDDF().getRepresentationHandler().get(algorithm.getInputClass());
@@ -26,6 +60,31 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     return algorithm.run(preparedData);
   }
 
+  @Override
+  public IModel train(String algorithm, Object... params) throws DDFException {
+    if (Strings.isNullOrEmpty(algorithm)) throw new DDFException("Algorithm name cannot be null or empty");
+
+    ClassMethod classMethod = null;
+
+    // First try looking up the specified algorithm in the configuration mapping
+    String algoClassHashMethodName = Config.getValueWithGlobalDefault(this.getEngine(), algorithm);
+    if (!Strings.isNullOrEmpty(algoClassHashMethodName)) {
+      try {
+        classMethod = new ClassMethod(algoClassHashMethodName, params);
+      } catch (DDFException e) {
+        mLog.warn(String.format("Unable to load method %s", algoClassHashMethodName), e);
+      }
+    }
+
+    // Next, try treating the algorithm string as literally a class#method specification
+    if (classMethod == null) classMethod = new ClassMethod(algorithm, params);
+
+    try {
+      return (IModel) classMethod.getMethod().invoke(classMethod.getObject(), params);
+    } catch (Exception e) {
+      throw new DDFException(e);
+    }
+  }
 
 
   public static abstract class AAlgorithm implements IAlgorithm {
@@ -121,5 +180,10 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
       return true;
     }
+  }
+
+
+  public IModel dummyKMeans() {
+    return new Model();
   }
 }

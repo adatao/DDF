@@ -4,10 +4,10 @@ package com.adatao.ddf.util;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.util.ConfigHandler.Config;
-import com.adatao.ddf.util.ConfigHandler.Config.Section;
+import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.util.ConfigHandler.Configuration;
+import com.adatao.ddf.util.ConfigHandler.Configuration.Section;
 
 public class ConfigHandlerTests {
 
@@ -15,8 +15,8 @@ public class ConfigHandlerTests {
   public void testLoadConfig() throws Exception {
     DDFManager manager = DDFManager.get("local"); // this will trigger a configuration loading
     Assert.assertEquals("local", manager.getEngine());
-    Assert.assertNotNull(DDF.getConfigHandler());
-    Assert.assertNotNull(DDF.getConfigHandler().loadConfig());
+    Assert.assertNotNull(Config.getConfigHandler());
+    Assert.assertNotNull(Config.getConfigHandler().loadConfig());
   }
 
   @Test
@@ -24,7 +24,7 @@ public class ConfigHandlerTests {
     DDFManager manager = DDFManager.get("local"); // this will trigger a configuration loading
     Assert.assertEquals("local", manager.getEngine());
 
-    Config config = DDF.getConfigHandler().getConfig();
+    Configuration config = Config.getConfigHandler().getConfig();
     Assert.assertNotNull(config);
 
     Map<String, Section> sections = config.getSections();

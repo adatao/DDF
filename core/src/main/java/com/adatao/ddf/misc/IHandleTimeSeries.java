@@ -1,4 +1,5 @@
-package com.adatao.ddf;
+package com.adatao.ddf.misc;
+
 
 public interface IHandleTimeSeries extends IHandleDDFFunctionalGroup {
 

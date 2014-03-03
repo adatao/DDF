@@ -13,9 +13,8 @@ import java.util.Set;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
-import com.adatao.ddf.ALoggable;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.util.ConfigHandler.Config.Section;
+import com.adatao.ddf.misc.ALoggable;
+import com.adatao.ddf.util.ConfigHandler.Configuration.Section;
 import com.google.common.base.Strings;
 
 
@@ -44,11 +43,11 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
   }
 
 
-  private Config mConfig;
+  private Configuration mConfig;
 
 
   @Override
-  public Config getConfig() {
+  public Configuration getConfig() {
     if (mConfig == null) try {
       mConfig = this.loadConfig();
 
@@ -63,7 +62,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
   /**
    * Stores DDF configuration information from ddf.ini
    */
-  public static class Config {
+  public static class Configuration {
 
     public static class Section {
       private Map<String, String> mEntries = new HashMap<String, String>();
@@ -95,7 +94,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
     private Map<String, Section> mSections;
 
 
-    public Config() {
+    public Configuration() {
       this.reset();
     }
 
@@ -148,13 +147,13 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    * 
    * @throws Exception
    * 
-   * @return the default {@link DDFManager} to be used when the user calls static methods of DDF
-   * @throws ConfigurationException
+   * @return the {@link Configuration} object loaded
+   * @throws ConfigurationException, {@link IOException}
    */
   @Override
-  public Config loadConfig() throws Exception {
+  public Configuration loadConfig() throws ConfigurationException, IOException {
 
-    Config resultConfig = new Config();
+    Configuration resultConfig = new Configuration();
 
     if (!Utils.fileExists(this.getConfigFileName())) {
       // String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.getValue());
@@ -172,7 +171,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
     for (String sectionName : sectionNames) {
       SubnodeConfiguration section = config.getSection(sectionName);
       if (section != null) {
-        Config.Section resultSection = resultConfig.getSection(sectionName);
+        Configuration.Section resultSection = resultConfig.getSection(sectionName);
 
         @SuppressWarnings("unchecked")
         Iterator<String> keys = section.getKeys();
@@ -191,7 +190,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
   }
 
   @Override
-  public void setConfig(Config theConfig) {
+  public void setConfig(Configuration theConfig) {
     mConfig = theConfig;
   }
 

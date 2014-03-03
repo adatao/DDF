@@ -6,9 +6,9 @@ package com.adatao.ddf.content;
 
 import java.util.List;
 import java.util.UUID;
-import com.adatao.ddf.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
 /**
  * @author ctn
