@@ -1,6 +1,6 @@
 package com.adatao.ddf.content;
 
-import com.adatao.ddf.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
  * <p>
@@ -27,8 +27,6 @@ import com.adatao.ddf.IHandleDDFFunctionalGroup;
  * constant reference to this DDF, but the underlying data is constantly being updated, such that
  * each query against this DDF would result in different data being returned/aggregated.
  * </p>
- * 
- * @author ctn
  * 
  */
 public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
@@ -80,6 +78,14 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    */
   public void uncacheAll();
 
+  /**
+   * Returns the default representation for this engine
+   * 
+   * @return
+   */
   public Object getDefault();
 
+  public Class<?> getDefaultRowType();
+
+  public Class<?> getDefaultColumnType();
 }
