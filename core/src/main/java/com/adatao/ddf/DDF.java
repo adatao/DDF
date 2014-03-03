@@ -44,13 +44,14 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
-import com.adatao.ddf.misc.MLDelegate;
+import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.local.ddf.LocalDDFManager;
@@ -71,9 +72,10 @@ import com.google.gson.annotations.Expose;
  * @author ctn
  * 
  */
-public abstract class DDF extends ALoggable implements IPersistible, ISupportPhantomReference, ISerializable {
+public abstract class DDF extends ALoggable //
+    implements IGloballyAddressable, IPersistible, ISupportPhantomReference, ISerializable {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -2198317495102277825L;
 
 
   /**
@@ -155,8 +157,15 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @return the namespace this DDF belongs in
    * @throws DDFException
    */
-  public String getNamespace() throws DDFException {
-    if (mNamespace == null) mNamespace = this.getManager().getNamespace();
+  @Override
+  public String getNamespace() {
+    if (mNamespace == null) {
+      try {
+        mNamespace = this.getManager().getNamespace();
+      } catch (DDFException e) {
+        mLog.warn("Cannot retrieve namespace for DDF " + this.getName(), e);
+      }
+    }
     return mNamespace;
   }
 
@@ -164,6 +173,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @param namespace
    *          the namespace to place this DDF in
    */
+  @Override
   public void setNamespace(String namespace) {
     this.mNamespace = namespace;
   }
@@ -173,6 +183,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * 
    * @return the name of this DDF
    */
+  @Override
   public String getName() {
     if (Strings.isNullOrEmpty(mName)) {
       if (!Strings.isNullOrEmpty(this.getSchemaHandler().getTableName())) {
@@ -193,6 +204,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @param name
    *          the DDF name to set
    */
+  @Override
   public void setName(String name) {
     this.mName = name;
   }
@@ -689,7 +701,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
   // //// ISupportML //////
 
-  public final MLDelegate ML = new MLDelegate(this, this.getMLSupporter());
+  public final MLFacade ML = new MLFacade(this, this.getMLSupporter());
 
 
   // //// IHandlePersistence //////

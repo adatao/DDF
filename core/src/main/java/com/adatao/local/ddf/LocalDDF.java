@@ -16,7 +16,7 @@ import com.adatao.ddf.exception.DDFException;
  */
 public class LocalDDF extends DDF {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -4318701865079177594L;
 
   protected static final LocalDDFManager sDummyLocalDDFManager = new LocalDDFManager();
 

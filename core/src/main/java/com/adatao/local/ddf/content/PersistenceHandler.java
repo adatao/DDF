@@ -11,8 +11,10 @@ import com.adatao.ddf.content.APersistenceHandler;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.util.Utils.JsonSerDes;
+import com.adatao.local.ddf.LocalObjectDDF;
 import com.google.common.base.Strings;
 
 /**
@@ -202,7 +204,7 @@ public class PersistenceHandler extends APersistenceHandler {
   /**
    * Like {@link PersistenceUri} but also with namespace and name parsed
    */
-  public static class PersistenceUri2 extends PersistenceUri {
+  public static class PersistenceUri2 extends PersistenceUri implements IGloballyAddressable {
     public PersistenceUri2(String uri) throws DDFException {
       super(uri);
       this.parsePath();
@@ -245,6 +247,7 @@ public class PersistenceHandler extends APersistenceHandler {
     /**
      * @return the namespace
      */
+    @Override
     public String getNamespace() {
       return mNamespace;
     }
@@ -253,13 +256,15 @@ public class PersistenceHandler extends APersistenceHandler {
      * @param namespace
      *          the namespace to set
      */
-    protected void setNamespace(String namespace) {
+    @Override
+    public void setNamespace(String namespace) {
       this.mNamespace = namespace;
     }
 
     /**
      * @return the name
      */
+    @Override
     public String getName() {
       return mName;
     }
@@ -268,8 +273,35 @@ public class PersistenceHandler extends APersistenceHandler {
      * @param name
      *          the name to set
      */
-    protected void setName(String name) {
+    @Override
+    public void setName(String name) {
       this.mName = name;
     }
   }
+
+
+
+  /**
+   * Base class for objects that can persist themselves, via the LocalObjectDDF persistence mechanism
+   * 
+   */
+  public static class LocalObjectDDFPersistible extends ADDFPersistible {
+
+    private static final long serialVersionUID = 5827603466305690244L;
+
+
+    @Override
+    protected DDF newContainerDDFImpl() throws DDFException {
+      return new LocalObjectDDF<LocalObjectDDFPersistible>(this);
+    }
+
+    /**
+     * Override in order to ensure we have a namespace/name
+     */
+    @Override
+    public void beforeSerialization() {
+
+    }
+  }
+
 }

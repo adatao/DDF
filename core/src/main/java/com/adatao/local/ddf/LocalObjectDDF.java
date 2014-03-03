@@ -10,6 +10,8 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config.ConfigConstant;
+import com.adatao.ddf.types.IGloballyAddressable;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,7 +25,7 @@ import com.google.gson.annotations.Expose;
  */
 public class LocalObjectDDF<T> extends LocalDDF {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 8212580667722563775L;
 
   // This is not serializable, so we need to get it from mObjectClassName when deserializing
   private Class<T> mObjectClass;
@@ -68,11 +70,17 @@ public class LocalObjectDDF<T> extends LocalDDF {
     rows.add(object);
     this.setObjectClass((Class<T>) object.getClass());
 
-    if (name == null) name = this.getSchemaHandler().newTableName();
+    if (Strings.isNullOrEmpty(namespace) && object instanceof IGloballyAddressable) {
+      this.setNamespace(((IGloballyAddressable) object).getNamespace());
+    }
+
+    if (Strings.isNullOrEmpty(name)) {
+      if (object instanceof IGloballyAddressable) name = ((IGloballyAddressable) object).getName();
+      else name = this.getSchemaHandler().newTableName();
+    }
 
     this.initialize(manager, rows, this.getObjectClass(), namespace, name, new Schema(name, "object blob"));
   }
-
 
   /**
    * @return the mObjectClass
