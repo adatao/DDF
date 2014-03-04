@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.adatao.ddf.misc;
+package com.adatao.ddf.facades;
 
 
 import com.adatao.ddf.DDF;
@@ -11,13 +11,13 @@ import com.adatao.ddf.exception.DDFException;
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
  */
-public class MLDelegate implements ISupportML {
+public class MLFacade implements ISupportML {
 
   private DDF mDDF;
   private ISupportML mMLSupporter;
 
 
-  public MLDelegate(DDF ddf, ISupportML mlSupporter) {
+  public MLFacade(DDF ddf, ISupportML mlSupporter) {
     mDDF = ddf;
     mMLSupporter = mlSupporter;
   }
