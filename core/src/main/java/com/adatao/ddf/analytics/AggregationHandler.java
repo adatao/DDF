@@ -1,14 +1,11 @@
 package com.adatao.ddf.analytics;
 
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema.Column;
-import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.util.Utils;
