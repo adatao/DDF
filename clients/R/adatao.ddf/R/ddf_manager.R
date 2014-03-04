@@ -1,4 +1,5 @@
 
+#' @exportClass DDFManager
 setClass("DDFManager",
          representation(jdm="jobjRef", engine="character"),
          prototype(jdm=NULL, engine="spark")
@@ -15,11 +16,13 @@ setMethod("initialize",
           }
 )
 
+#' @export
 setGeneric("adatao.sql",
            function(x, sql, ...) {
              standardGeneric("adatao.sql")
            }
 )
+
 
 setMethod("adatao.sql",
           signature("DDFManager", "character"),
@@ -29,6 +32,7 @@ setMethod("adatao.sql",
           }
 )
 
+#' @export
 setGeneric("adatao.sql2ddf",
            function(x, sql, ...) {
              standardGeneric("adatao.sql2ddf")
@@ -43,6 +47,24 @@ setMethod("adatao.sql2ddf",
           }
 )
 
+#' @export
+setGeneric("shutdown",
+           function(x) {
+             standardGeneric("shutdown")
+           }
+)
+
+setMethod("shutdown",
+          signature("DDFManager"),
+          function(x) {
+            jdm <- x@jdm
+            jdm$shutdown()
+            cat('Bye bye\n')
+          }
+)
+
+
+#' @export
 DDFManager <- function(engine="spark") {
-  new("DDFManger", engine=engine)
+  new("DDFManager", engine=engine)
 }
