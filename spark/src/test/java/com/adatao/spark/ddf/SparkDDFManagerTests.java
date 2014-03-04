@@ -62,7 +62,7 @@ public class SparkDDFManagerTests {
 
     DDF ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance, arrdelay, "
         + "depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
-    Assert.assertEquals(16, ddf.getSummary().length);
+    Assert.assertEquals(14, ddf.getSummary().length);
     manager.shutdown();
   }
 }

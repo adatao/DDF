@@ -4,8 +4,8 @@
 package com.adatao.ddf.content;
 
 import java.util.Iterator;
-
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -76,5 +76,11 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
-  public DDF getRandomSample(int numSamples);
+  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed);
+  
+  public DDF getRandomSample(double percent, boolean withReplacement, int seed);
+  
+  public DDF firstNRows(int numRows) throws DDFException;
+  
+  public DDF project(String[] columnNames) throws DDFException;
 }

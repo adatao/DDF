@@ -45,6 +45,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.misc.Config;
@@ -271,6 +272,18 @@ public abstract class DDF extends ALoggable //
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
+  
+  // ///// Execute SQL command // /////
+  public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
+  /////// Generate DDF views
+
+  public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
 
   // ///// Aggregate operations
 

@@ -10,6 +10,7 @@ import com.adatao.ddf.exception.DDFException;
 /**
  * An Apache-Spark-based implementation of DDF
  */
+
 public class SparkDDF extends DDF {
 
   private static final long serialVersionUID = 7466377156065874568L;
