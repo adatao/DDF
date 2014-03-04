@@ -238,7 +238,7 @@ public class Utils {
     }
 
     public static Object deserialize(String json) throws DDFException {
-      if (Strings.isNullOrEmpty(json)) return null;
+      if (Strings.isNullOrEmpty(json) || "null".equalsIgnoreCase(json.trim())) return null;
 
       try {
         JsonObject jsonObj = toJsonObject(json);
@@ -249,7 +249,9 @@ public class Utils {
 
         Object obj = new Gson().fromJson(json, theClass);
 
-        if (obj instanceof ISerializable) ((ISerializable) obj).afterDeserialization((Object) jsonObj);
+        if (obj instanceof ISerializable) {
+          obj = ((ISerializable) obj).afterDeserialization((ISerializable) obj, jsonObj);
+        }
 
         return obj;
 
@@ -330,7 +332,9 @@ public class Utils {
         Constructor<?> cons = null;
 
         try {
-          cons = theClass.getConstructor(new Class<?>[0]);
+          cons = theClass.getDeclaredConstructor(new Class<?>[0]);
+          if (cons != null) cons.setAccessible(true);
+
         } catch (NoSuchMethodException nsme) {
           throw new DDFException(String.format("%s needs to have a default, zero-arg constructor", theClass.getName()));
         }

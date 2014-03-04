@@ -89,12 +89,18 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
    * Base class for objects that can persist themselves, via the DDF persistence mechanism
    * 
    */
-  public static abstract class ADDFPersistible implements IGloballyAddressable, IPersistible {
+  public static abstract class APersistible implements IGloballyAddressable, IPersistible {
 
     private static final long serialVersionUID = -5941712506105779254L;
-    @Expose public final long mSerialVersionUID = serialVersionUID;
 
 
+    /**
+     * Each subclass is expected to instantiate a new DDF, put this {@link APersistible} object inside of it, and return
+     * that DDF for persistence.
+     * 
+     * @return
+     * @throws DDFException
+     */
     protected abstract DDF newContainerDDFImpl() throws DDFException;
 
 
@@ -132,12 +138,6 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
       this.newContainerDDF().unpersist();
     }
 
-    @Override
-    public void beforeSerialization() throws DDFException {}
-
-    @Override
-    public void afterDeserialization(Object data) throws DDFException {}
-
 
     // //// IGloballyAddressable //////
 
@@ -163,6 +163,19 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
     @Override
     public void setName(String name) {
       mName = name;
+    }
+
+
+
+    @Override
+    public void afterSerialization() throws DDFException {}
+
+    @Override
+    public void beforeSerialization() throws DDFException {}
+
+    @Override
+    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+      return deserializedObject;
     }
   }
 }

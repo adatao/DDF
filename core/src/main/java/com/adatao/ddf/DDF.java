@@ -619,7 +619,9 @@ public abstract class DDF extends ALoggable //
 
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
-          .getConstructor(new Class<?>[] { DDF.class });
+          .getDeclaredConstructor(new Class<?>[] { DDF.class });
+
+      if (cons != null) cons.setAccessible(true);
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
@@ -628,6 +630,16 @@ public abstract class DDF extends ALoggable //
           theInterface.getSimpleName(), className), e);
       return null;
     }
+  }
+
+
+  public String getUri() {
+    return String.format("%s://%s/%s", this.getEngine(), this.getNamespace(), this.getName());
+  }
+
+  @Override
+  public String toString() {
+    return this.getUri();
   }
 
 
@@ -704,6 +716,7 @@ public abstract class DDF extends ALoggable //
   public final MLFacade ML = new MLFacade(this, this.getMLSupporter());
 
 
+
   // //// IHandlePersistence //////
 
   public PersistenceUri persist() throws DDFException {
@@ -720,9 +733,18 @@ public abstract class DDF extends ALoggable //
     this.getManager().unpersist(this.getNamespace(), this.getName());
   }
 
+
+
+  // //// ISerializable //////
+
   @Override
   public void beforeSerialization() throws DDFException {}
 
   @Override
-  public void afterDeserialization(Object data) throws DDFException {}
+  public void afterSerialization() throws DDFException {}
+
+  @Override
+  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+    return deserializedObject;
+  }
 }

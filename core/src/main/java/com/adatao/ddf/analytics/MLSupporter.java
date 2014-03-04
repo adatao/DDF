@@ -7,8 +7,9 @@ import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
 import com.adatao.ddf.util.Utils.ClassMethod;
-import com.adatao.local.ddf.content.PersistenceHandler.LocalObjectDDFPersistible;
+import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
+import com.google.gson.annotations.Expose;
 
 /**
  */
@@ -125,11 +126,11 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
   }
 
-  public static class Model extends LocalObjectDDFPersistible implements IModel {
+  public static class Model extends LocalPersistible implements IModel {
 
     private static final long serialVersionUID = 824936593281899283L;
 
-    private IModelParameters mParams;
+    @Expose private IModelParameters mParams;
 
 
     @Override
@@ -142,29 +143,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       mParams = parameters;
     }
 
-    // @formatter:off
-//    @Override
-//    public PersistenceUri persist(boolean doOverwrite) throws DDFException {
-//      mDDF = new LocalObjectDDF<IModel>(this);
-//      return mDDF.persist();
-//    }
-//
-//    @Override
-//    public PersistenceUri persist() throws DDFException {
-//      return this.persist(true);
-//    }
-//
-//    @Override
-//    public void unpersist() throws DDFException {
-//      if (mDDF != null) mDDF.unpersist();
-//    }
-//
-//    @Override
-//    public void beforeSerialization() throws DDFException {}
-//
-//    @Override
-//    public void afterDeserialization(Object data) throws DDFException {}
-    // @formatter:on
 
     /**
      * Override to implement additional equality tests
