@@ -13,3 +13,22 @@ setMethod("initialize",
             .Object
           }
 )
+
+setGeneric("train", function(x, algoName, params) {
+  standardGeneric("train")
+})
+
+setMethod("train", signature(x = "DDF", algoName="character"),
+  function(x, algoName, params) {
+    jmodel = x@jddf$ML$train(algoName, params)
+  }
+)
+
+setGeneric("lm", function(x, formula, ...) {
+  standardGeneric("lm")
+}
+setMethod("lm", signature(x="DDF", formula, regularized="none", lambda=0, ref.levels=NULL),
+  function(x, formula, regularized, lambda, ref.levels) {
+  }
+)
+
