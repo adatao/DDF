@@ -79,7 +79,7 @@ import com.adatao.ddf.exception.DDFException;
  * @author ctn
  * 
  */
-public class Factor extends Vector {
+public class Factor<T> extends Vector<T> {
 
   /**
    * Instantiate a new Factor based on an existing DDF, given a column name. The column name is not
@@ -93,71 +93,25 @@ public class Factor extends Vector {
   }
 
   /**
-   * Instantiate a new Factor with the given Integer array
+   * Instantiate a new Factor with the given T array
    * 
    * @param data
    * @param theColumnName
    * @throws DDFException
    */
-  public Factor(String name, Integer[] data) throws DDFException {
+  public Factor(String name, T[] data) throws DDFException {
     super(name, data);
   }
 
   /**
-   * Instantiate a new Factor with the given Integer array
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Factor(String name, Double[] data) throws DDFException {
-    super(name, data);
-  }
-
-  /**
-   * Instantiate a new Factor with the given String array
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Factor(String name, String[] data) throws DDFException {
-    super(name, data);
-  }
-
-  /**
-   * Instantiate a new Factor with the given Integer array
+   * Instantiate a new Factor with the given T array
    * 
    * @param data
    * @param theColumnName
    * @param engineName
    * @throws DDFException
    */
-  public Factor(String name, Integer[] data, String engineName) throws DDFException {
-    super(name, data, engineName);
-  }
-
-  /**
-   * Instantiate a new Factor with the given Integer array
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Factor(String name, Double[] data, String engineName) throws DDFException {
-    super(name, data, engineName);
-  }
-
-  /**
-   * Instantiate a new Factor with the given Integer array
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Factor(String name, String[] data, String engineName) throws DDFException {
+  public Factor(String name, T[] data, String engineName) throws DDFException {
     super(name, data, engineName);
   }
 

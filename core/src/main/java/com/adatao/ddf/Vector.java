@@ -4,14 +4,16 @@
 package com.adatao.ddf;
 
 
+import java.lang.reflect.ParameterizedType;
+import java.util.Iterator;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
 /**
  * A one-dimensional array of values of the same type, e.g., Integer or Double or String.
  * <p>
- * We implement a Vector as simply a reference to a column in a DDF. The DDF may have a single
- * column, or multiple columns.
+ * We implement a Vector as simply a reference to a column in a DDF. The DDF may have a single column, or multiple
+ * columns.
  * <p>
  * The column is referenced by name.
  * 
@@ -20,11 +22,23 @@ import com.adatao.ddf.exception.DDFException;
  * @author ctn
  * 
  */
-public class Vector {
+public class Vector<T> {
 
   /**
-   * Instantiate a new Vector based on an existing DDF, given a column name. The column name is not
-   * verified for correctness; any errors would only show up on actual usage.
+   * TODO: test this
+   * 
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  protected Class<T> getParameterizedType() {
+    Class<T> clazz = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    return clazz;
+  }
+
+
+  /**
+   * Instantiate a new Vector based on an existing DDF, given a column name. The column name is not verified for
+   * correctness; any errors would only show up on actual usage.
    * 
    * @param theDDF
    * @param theColumnName
@@ -34,80 +48,35 @@ public class Vector {
   }
 
   /**
-   * Instantiate a new Vector with the given Integer array. Uses the default engine.
+   * Instantiate a new Vector with the given T array. Uses the default engine.
    * 
    * @param data
    * @param theColumnName
    * @throws DDFException
    */
-  public Vector(String name, Integer[] data) throws DDFException {
+  public Vector(String name, T[] data) throws DDFException {
     this.initialize(name, data, null);
   }
 
   /**
-   * Instantiate a new Vector with the given Double array. Uses the default engine.
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Vector(String name, Double[] data) throws DDFException {
-    this.initialize(name, data, null);
-  }
-
-  /**
-   * Instantiate a new Vector with the given String array. Uses the default engine.
-   * 
-   * @param data
-   * @param theColumnName
-   * @throws DDFException
-   */
-  public Vector(String name, String[] data) throws DDFException {
-    this.initialize(name, data, null);
-  }
-
-  /**
-   * Instantiate a new Vector with the given Integer array.
+   * Instantiate a new Vector with the given T array. Uses the default engine.
    * 
    * @param data
    * @param theColumnName
    * @param engineName
    * @throws DDFException
    */
-  public Vector(String name, Integer[] data, String engineName) throws DDFException {
+  public Vector(String name, T[] data, String engineName) throws DDFException {
     this.initialize(name, data, engineName);
   }
 
-  /**
-   * Instantiate a new Vector with the given Double array.
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Vector(String name, Double[] data, String engineName) throws DDFException {
-    this.initialize(name, data, engineName);
-  }
-
-  /**
-   * Instantiate a new Vector with the given String array.
-   * 
-   * @param data
-   * @param theColumnName
-   * @param engineName
-   * @throws DDFException
-   */
-  public Vector(String name, String[] data, String engineName) throws DDFException {
-    this.initialize(name, data, engineName);
-  }
-
-
-  private void initialize(String name, Object[] data, String engineName) throws DDFException {
+  private void initialize(String name, T[] data, String engineName) throws DDFException {
     if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
 
     Class<?> rowType = data[0].getClass();
-    DDF newDDF = DDFManager.get(engineName).newDDF(null, data, rowType, null, name, new Schema(name));
+    DDF newDDF = DDFManager.get(engineName) //
+        .newDDF(null, (Object) data, rowType, null, name, //
+            new Schema(name, String.format("%s %s", name, this.getParameterizedType().getSimpleName())));
 
     this.initialize(newDDF, name);
   }
@@ -127,6 +96,7 @@ public class Vector {
    * The name of the DDF column we are pointing to
    */
   private String mDDFColumnName;
+
 
   /**
    * @return the mDDF
@@ -158,4 +128,8 @@ public class Vector {
     this.mDDFColumnName = mDDFColumnName;
   }
 
+  @SuppressWarnings("unchecked")
+  public Iterator<T> iterator() {
+    return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
+  }
 }
