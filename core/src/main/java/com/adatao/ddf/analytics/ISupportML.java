@@ -11,24 +11,42 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 public interface ISupportML extends IHandleDDFFunctionalGroup {
 
   /**
-   * Trains a model using data from this DDF.
+   * Trains a model using data and featureColumns as features from this DDF.
    * 
    * @param algorithm
+   * @param featureColumnIndexes
    * @return
    * @throws DDFException
    */
-  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException;
+  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, Object... params) throws DDFException;
+
+  /**
+   *
+   */
+  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, int targetColumnIndex, Object... params)
+      throws DDFException;
 
   /**
    * Trains a model, given an algorithm name or className#methodName (e.g., "kmeans" or
    * "org.apache.spark.mllib.kmeans#train")
    * 
    * @param algorithm
+   * @param featureColumnIndexes
    * @param params
    * @return
    * @throws DDFException
    */
-  public IModel train(String algorithm, Object... params) throws DDFException;
+  public IModel train(String algorithm, int[] featureColumnIndexes, Object... params) throws DDFException;
+
+  /**
+   * @param algorithm
+   * @param featureColumnIndexes
+   * @param targetColumnIndex
+   * @param params
+   * 
+   */
+  public IModel train(String algorithm, int[] featureColumnIndexes, int targetColumnIndex, Object... params)
+      throws DDFException;
 
 
   interface IAlgorithm {

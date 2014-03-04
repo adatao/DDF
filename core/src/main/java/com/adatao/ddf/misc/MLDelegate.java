@@ -43,16 +43,35 @@ public class MLDelegate implements ISupportML {
   }
 
   @Override
-  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithm, params);
+  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, Object... params) throws DDFException {
+    return this.getMLSupporter().train(algorithm, featureColumnIndexes, params);
   }
 
-  public IModel train(String algorithmNameOrClassName, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithmNameOrClassName, params);
+  @Override
+  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, int targetColumnIndex, Object... params)
+      throws DDFException {
+    return this.getMLSupporter().train(algorithm, featureColumnIndexes, params);
   }
 
-  public IModel kMeans(int numCentroids, int maxIters, int runs, String initMode) throws DDFException {
-    return this.train("kmeans", numCentroids, maxIters, runs, initMode);
+  @Override
+  public IModel train(String algorithmNameOrClassName, int[] featureColumnIndexes, Object... params)
+      throws DDFException {
+    return this.getMLSupporter().train(algorithmNameOrClassName, featureColumnIndexes, params);
   }
 
+  @Override
+  public IModel train(String algorithmNameOrClassName, int[] featureColumnIndexes, int targetColumnIndex,
+      Object... params) throws DDFException {
+    return this.getMLSupporter().train(algorithmNameOrClassName, featureColumnIndexes, targetColumnIndex, params);
+  }
+
+  public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
+      throws DDFException {
+    return this.train("kmeans", featureColumnIndexes, numCentroids, maxIters, runs, initMode);
+  }
+
+  public IModel linearRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
+      double miniBatchFraction) throws DDFException {
+    return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
+  }
 }
