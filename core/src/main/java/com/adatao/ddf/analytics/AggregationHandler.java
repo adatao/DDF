@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.util.Utils;
@@ -22,21 +24,6 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     super(theDDF);
   }
 
-  public static class FiveNumSumary implements Serializable {
-    
-    private double mMin = Double.MAX_VALUE;
-    private double mMax = Double.MIN_VALUE;
-    private double first_quantile;
-    private double median;
-    private double third_quantile;
-    
-  }
-  
-  public FiveNumSumary getFiveNumSumary() {
-    String cmd;
-    return null;
-  }
-  
   @Override
   public double computeCorrelation(String columnA, String columnB) throws DDFException {
     if (!(this.getDDF().getColumn(columnA).isNumeric() || this.getDDF().getColumn(columnB).isNumeric())) throw new DDFException(

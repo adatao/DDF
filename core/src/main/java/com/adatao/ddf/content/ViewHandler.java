@@ -124,14 +124,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
   @Override
   public DDF firstNRows(int numRows) throws DDFException {
-    return this.getDDF().executeSqlOnTable(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+    return this.getDDF().runSql2ddf(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d rows from table %%s", numRows));
   }
 
   @Override
   public DDF project(String[] columnNames) throws DDFException {
     String selectedColumns = Joiner.on(",").join(columnNames);
-    return this.getDDF().executeSqlOnTable(String.format("SELECT %s FROM %%s", selectedColumns),
+    return this.getDDF().runSql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
         String.format("Unable to project columns %s from table %%s", selectedColumns));
   }
 }
