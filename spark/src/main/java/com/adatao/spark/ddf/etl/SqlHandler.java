@@ -95,9 +95,7 @@ public class SqlHandler extends ASqlHandler {
     return scala.collection.JavaConversions.seqAsJavaList(sequence);
   }
 
-
   public static final int MAX_COMMAND_RESULT_ROWS = 1000;
-
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {
