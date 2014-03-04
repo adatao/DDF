@@ -3,24 +3,24 @@
  */
 package com.adatao.spark.ddf.etl;
 
-import java.util.List;
-
-import org.apache.spark.rdd.RDD;
-
-import scala.collection.Seq;
-import shark.SharkContext;
-import shark.api.Row;
-import shark.api.TableRDD;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
 import com.adatao.ddf.etl.ASqlHandler;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.util.Utils;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
 import com.google.common.base.Strings;
+import org.apache.spark.rdd.RDD;
+import scala.collection.Seq;
+import shark.SharkContext;
+import shark.api.Row;
+import shark.api.TableRDD;
+
+import java.util.List;
 
 /**
  * @author ctn
@@ -79,9 +79,10 @@ public class SqlHandler extends ASqlHandler {
     RDD<Row> rdd = (RDD<Row>) tableRdd;
 
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
+    String tableNameFromCommand = Utils.extractTableName(command);
+    if (tableNameFromCommand != null) schema.setTableName(tableNameFromCommand);
+    String tableName = schema != null ? schema.getTableName() : null;
 
-    String tableName = (schema != null ? schema.getTableName() : null);
-    
     if (Strings.isNullOrEmpty(tableName)) tableName = (rdd != null ? rdd.name() : null);
     if (Strings.isNullOrEmpty(tableName)) this.getDDF().getSchemaHandler().newTableName();
     if (tableName != null) {
@@ -94,7 +95,9 @@ public class SqlHandler extends ASqlHandler {
     return scala.collection.JavaConversions.seqAsJavaList(sequence);
   }
 
+
   public static final int MAX_COMMAND_RESULT_ROWS = 1000;
+
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {

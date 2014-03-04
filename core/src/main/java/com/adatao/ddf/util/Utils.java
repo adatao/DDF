@@ -19,6 +19,9 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,6 +202,22 @@ public class Utils {
     } finally {
       writer.close();
     }
+  }
+
+  /**
+   * Extract tableName from command
+   * @return TABLENAME in "create table TABLENAME as select ..."
+   */
+  public static String extractTableName(String command) {
+    String tableNameFromCommand;
+    Pattern p = Pattern.compile("(?<=create\\stable\\s).*(?=\\sas\\sselect)");
+    Matcher m = p.matcher(command);
+    if(m.find()){
+      tableNameFromCommand = m.group();
+    } else {
+      tableNameFromCommand = null;
+    }
+    return tableNameFromCommand;
   }
 
 
