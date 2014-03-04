@@ -174,7 +174,8 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
     public void beforeSerialization() throws DDFException {}
 
     @Override
-    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+        throws DDFException {
       return deserializedObject;
     }
   }

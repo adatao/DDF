@@ -269,7 +269,7 @@ public abstract class DDF extends ALoggable //
     return this.getMetaDataHandler().getNumRows();
   }
 
-  public long getNumColumns() {
+  public int getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
   

@@ -42,28 +42,37 @@ public class MLFacade implements ISupportML {
     mMLSupporter = mlSupporter;
   }
 
+
   @Override
-  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithm, featureColumnIndexes, params);
+  public IModel train(String trainMethodName, Object... params) throws DDFException {
+    return this.getMLSupporter().train(trainMethodName, params);
   }
 
   @Override
-  public IModel train(IAlgorithm algorithm, int[] featureColumnIndexes, int targetColumnIndex, Object... params)
+  public IModel train(String trainMethodName, int[] featureColumnIndexes, Object... params) throws DDFException {
+    return this.getMLSupporter().train(trainMethodName, featureColumnIndexes, params);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, int targetColumnIndex, int[] featureColumnIndexes, Object... params)
       throws DDFException {
-    return this.getMLSupporter().train(algorithm, featureColumnIndexes, params);
+    return this.getMLSupporter().train(trainMethodName, targetColumnIndex, featureColumnIndexes, params);
   }
 
   @Override
-  public IModel train(String algorithmNameOrClassName, int[] featureColumnIndexes, Object... params)
+  public IModel train(String trainMethodName, String[] featureColumnNames, Object... params) throws DDFException {
+    return this.getMLSupporter().train(trainMethodName, featureColumnNames, params);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, String targetColumnName, String[] featureColumnNames, Object... params)
       throws DDFException {
-    return this.getMLSupporter().train(algorithmNameOrClassName, featureColumnIndexes, params);
+    return this.getMLSupporter().train(trainMethodName, targetColumnName, featureColumnNames, params);
   }
 
-  @Override
-  public IModel train(String algorithmNameOrClassName, int[] featureColumnIndexes, int targetColumnIndex,
-      Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithmNameOrClassName, featureColumnIndexes, targetColumnIndex, params);
-  }
+
+
+  // //// Convenient facade ML algorithm names //////
 
   public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
       throws DDFException {
@@ -74,4 +83,5 @@ public class MLFacade implements ISupportML {
       double miniBatchFraction) throws DDFException {
     return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
+
 }

@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 
+import java.lang.reflect.Method;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -9,7 +10,6 @@ import com.adatao.ddf.misc.Config.ConfigConstant;
 import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
-import com.google.gson.annotations.Expose;
 
 /**
  */
@@ -49,42 +49,10 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
   }
 
-  @Override
-  public IModel train(IAlgorithm algorithm, Object... parameters) {
-    if (algorithm == null) return null;
 
-    Object data = this.getDDF().getRepresentationHandler().get(algorithm.getInputClass());
-    Object preparedData = algorithm.prepare(data);
-    return algorithm.run(preparedData);
-  }
-
-  @Override
-  public IModel train(String algorithm, Object... params) throws DDFException {
-    if (Strings.isNullOrEmpty(algorithm)) throw new DDFException("Algorithm name cannot be null or empty");
-
-    ClassMethod classMethod = null;
-
-    // First try looking up the specified algorithm in the configuration mapping
-    String algoClassHashMethodName = Config.getValueWithGlobalDefault(this.getEngine(), algorithm);
-    if (!Strings.isNullOrEmpty(algoClassHashMethodName)) {
-      try {
-        classMethod = new ClassMethod(algoClassHashMethodName, params);
-      } catch (DDFException e) {
-        mLog.warn(String.format("Unable to load method %s", algoClassHashMethodName), e);
-      }
-    }
-
-    // Next, try treating the algorithm string as literally a class#method specification
-    if (classMethod == null) classMethod = new ClassMethod(algorithm, params);
-
-    try {
-      return (IModel) classMethod.getMethod().invoke(classMethod.getObject(), params);
-    } catch (Exception e) {
-      throw new DDFException(e);
-    }
-  }
-
-
+  /**
+   * 
+   */
   public static abstract class AAlgorithm implements IAlgorithm {
     private IHyperParameters mHyperParameters;
     private Class<?> mInputClass;
@@ -126,11 +94,20 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
   }
 
+
+
+  /**
+   * 
+   */
   public static class Model extends LocalPersistible implements IModel {
 
     private static final long serialVersionUID = 824936593281899283L;
 
-    @Expose private IModelParameters mParams;
+    /**
+     * TODO: We can't serialize this directly because we can't deserialize an IModelParameters later, at least not
+     * without some concrete class constructor.
+     */
+    private IModelParameters mParams;
 
 
     @Override
@@ -158,7 +135,222 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
 
-  public IModel dummyKMeans() {
+  public static IModel dummyKMeans() {
     return new Model();
   }
+
+
+
+  // //// ISupportML //////
+
+  /**
+   * Runs an unsupervised (unlabled) training algorithm on the entire DDF dataset.
+   * 
+   * @param trainMethodName
+   * @param args
+   * @return
+   * @throws DDFException
+   */
+  public IModel train(String trainMethodName, Object... args) throws DDFException {
+    int numColumns = (int) this.getDDF().getNumColumns();
+    if (numColumns < 0) numColumns = 0;
+
+    int[] featureColumnIndexes = new int[numColumns];
+    for (int i = 0; i < numColumns; i++) {
+      featureColumnIndexes[i] = i;
+    }
+
+    return this.trainImpl(trainMethodName, null, -1, null, featureColumnIndexes, args);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, int[] featureColumnIndexes, Object... args) throws DDFException {
+    return this.trainImpl(trainMethodName, null, -1, null, featureColumnIndexes, args);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, int targetColumnIndex, int[] featureColumnIndexes, Object... args)
+      throws DDFException {
+
+    return this.trainImpl(trainMethodName, null, targetColumnIndex, null, featureColumnIndexes, args);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, String[] featureColumnNames, Object... args) throws DDFException {
+    return this.trainImpl(trainMethodName, null, -1, featureColumnNames, null, args);
+  }
+
+  @Override
+  public IModel train(String trainMethodName, String targetColumnName, String[] featureColumnNames, Object... args)
+      throws DDFException {
+
+    return this.trainImpl(trainMethodName, targetColumnName, -1, featureColumnNames, null, args);
+  }
+
+
+  public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
+
+
+  private IModel trainImpl(String trainMethodName, String targetColumnName, int targetColumnIndex,
+      String[] featureColumnNames, int[] featureColumnIndexes, Object... args) throws DDFException {
+
+    // Map column names to indices, if necessary
+    if (!Strings.isNullOrEmpty(targetColumnName) && targetColumnIndex != -1) {
+      targetColumnIndex = this.getColumnIndex(targetColumnName);
+    }
+
+    if (featureColumnNames != null && featureColumnIndexes == null) {
+      featureColumnIndexes = this.getColumnIndexes(featureColumnNames);
+    }
+
+    /**
+     * Example signatures we must support:
+     * <p/>
+     * Unsupervised Training
+     * <p/>
+     * <code>
+     * Kmeans.train(data: RDD[Array[Double]], k: Int, maxIterations: Int, runs: Int, initializationMode: String)
+     * </code>
+     * <p/>
+     * Supervised Training
+     * <p/>
+     * <code>
+     * LogisticRegressionWithSGD.train(input: RDD[LabeledPoint], numIterations: Int, stepSize: Double, miniBatchFraction:
+     * Double, initialWeights: Array[Double])
+     * 
+     * SVM.train(input: RDD[LabeledPoint], numIterations: Int, stepSize: Double, regParam: Double, miniBatchFraction:
+     * Double)
+     * </code>
+     */
+    // Build the argument type array
+    if (args == null) args = new Object[0];
+    Class<?>[] argTypes = new Class<?>[args.length];
+    for (int i = 0; i < args.length; i++) {
+      argTypes[i] = (args[i] == null ? null : args[i].getClass());
+    }
+
+    // Locate the training method
+    String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
+    if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
+    
+    MLClassMethod trainMethod = new MLClassMethod(trainMethodName, DEFAULT_TRAIN_METHOD_NAME, argTypes);
+    if (trainMethod.getMethod() == null) {
+      throw new DDFException(String.format("Cannot locate method specified by %s", trainMethodName));
+    }
+
+    // TODO
+    // Invoke the training method
+    Object result = trainMethod.classInvoke(args);
+
+    // Construct the result model parameters
+
+    return null;
+  }
+
+
+  /**
+   * 
+   */
+  private class MLClassMethod extends ClassMethod {
+
+    public MLClassMethod(String classHashMethodName, String defaultMethodName, Object[] args) throws DDFException {
+      super(classHashMethodName, defaultMethodName, args);
+    }
+
+    /**
+     * Override to search for methods that may contain initial arguments that precede our argTypes. These initial
+     * arguments might be feature/target column specifications in a train() method. Thus we do the argType matching from
+     * the end back to the beginning.
+     */
+    @Override
+    protected void findAndSetMethod(Class<?> theClass, String methodName, Class<?>... argTypes)
+        throws NoSuchMethodException, SecurityException {
+
+      Method foundMethod = null;
+
+      // Scan all methods
+      for (Method method : theClass.getDeclaredMethods()) {
+        if (!methodName.equalsIgnoreCase(method.getName())) continue;
+
+        // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
+        Class<?>[] methodArgTypes = method.getParameterTypes();
+        boolean allMatched = true;
+        for (int a = argTypes.length - 1, m = methodArgTypes.length - 1; a >= 0; a--, m--) {
+
+          if ((argTypes[a] != null && !methodArgTypes[m].isAssignableFrom(argTypes[a])) //
+              || //
+              (argTypes[a] == null && !methodArgTypes[m].isAssignableFrom(Object.class)) //
+          ) {
+            allMatched = false;
+            break;
+          }
+
+        }
+
+        if (allMatched) {
+          foundMethod = method;
+          break;
+        }
+      }
+
+      if (foundMethod != null) {
+        foundMethod.setAccessible(true);
+        this.setMethod(foundMethod);
+      }
+    }
+  }
+
+
+  private int getColumnIndex(String columnName) throws DDFException {
+    return this.getColumnIndexes(new String[] { columnName })[0];
+  }
+
+  private int[] getColumnIndexes(String[] columnNames) throws DDFException {
+    if (columnNames == null || columnNames.length == 0) {
+      throw new DDFException("List of column names cannot be null or empty");
+    }
+
+    int[] columnIndexes = new int[columnNames.length];
+
+    for (int i = 0; i < columnNames.length; i++) {
+      columnIndexes[i] = this.getDDF().getColumnIndex(columnNames[i]);
+    }
+
+    return columnIndexes;
+  }
+
+  // @Override
+  // public IModel train(IAlgorithm algorithm, Object... parameters) {
+  // if (algorithm == null) return null;
+  //
+  // Object data = this.getDDF().getRepresentationHandler().get(algorithm.getInputClass());
+  // Object preparedData = algorithm.prepare(data);
+  // return algorithm.run(preparedData);
+  // }
+  //
+  // @Override
+  // public IModel train(String algorithm, Object... args) throws DDFException {
+  // if (Strings.isNullOrEmpty(algorithm)) throw new DDFException("Algorithm name cannot be null or empty");
+  //
+  // ClassMethod classMethod = null;
+  //
+  // // First try looking up the specified algorithm in the configuration mapping
+  // String algoClassHashMethodName = Config.getValueWithGlobalDefault(this.getEngine(), algorithm);
+  // if (!Strings.isNullOrEmpty(algoClassHashMethodName)) {
+  // try {
+  // classMethod = new ClassMethod(algoClassHashMethodName, args);
+  // } catch (DDFException e) {
+  // mLog.warn(String.format("Unable to load method %s", algoClassHashMethodName), e);
+  // }
+  // }
+  //
+  // // Next, try treating the algorithm string as literally a class#method specification
+  // if (classMethod == null) classMethod = new ClassMethod(algorithm, args);
+  //
+  // try {
+  // return (IModel) classMethod.getMethod().invoke(classMethod.getObject(), args);
+  // } catch (Exception e) {
+  // throw new DDFException(e);
+  // }
+  // }
 }

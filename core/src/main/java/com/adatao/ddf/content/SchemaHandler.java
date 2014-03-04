@@ -63,7 +63,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   @Override
-  public long getNumColumns() {
+  public int getNumColumns() {
     return mSchema != null ? mSchema.getNumColumns() : -1;
   }
 

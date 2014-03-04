@@ -16,7 +16,7 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
 
   public List<Column> getColumns();
 
-  public long getNumColumns();
+  public int getNumColumns();
 
   public String newTableName();
 
