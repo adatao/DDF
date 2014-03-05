@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
+import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.ISupportStatistics;
@@ -273,14 +274,6 @@ public abstract class DDF extends ALoggable //
     return this.getSchemaHandler().getNumColumns();
   }
   
-  // ///// Execute SQL command // /////
-  public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
-    }
-  }
   /////// Generate DDF views
 
   public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
@@ -720,6 +713,10 @@ public abstract class DDF extends ALoggable //
   // Calculate summary statistics of the DDF
   public Summary[] getSummary() {
     return this.getStatisticsSupporter().getSummary();
+  }
+  
+  public FiveNumSummary[] getFiveNumSummary() throws DDFException {
+    return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
 
