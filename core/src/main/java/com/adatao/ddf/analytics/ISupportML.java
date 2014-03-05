@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
@@ -49,6 +50,8 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
     IModelParameters getParameters();
 
     void setParameters(IModelParameters parameters);
+
+    public DDF predict(DDF ddf);
   }
 
   interface IHyperParameters {

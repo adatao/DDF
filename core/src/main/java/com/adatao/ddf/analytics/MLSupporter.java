@@ -13,6 +13,8 @@ import com.adatao.local.ddf.LocalObjectDDF;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  */
 public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
@@ -128,7 +130,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
   }
 
-  public static class Model implements IModel, IPersistible {
+  public abstract static class Model implements IModel, IPersistible {
 
     public static final long serialVersionUID = 1L;
     private DDF mDDF;
@@ -136,6 +138,19 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
     private IModelParameters mParams;
 
+    private Class<?> mpredictionInputClass;
+
+    private List<String> mFeatureColumnNames;
+
+    public Model(Class<?> predictionInputClass, IModelParameters params, List<String> featureColumnNames) {
+      mpredictionInputClass = predictionInputClass;
+      mParams = params;
+      mFeatureColumnNames = featureColumnNames;
+    }
+
+    public Class<?> getPredictionInputClass() {
+      return mpredictionInputClass;
+    }
 
     @Override
     public IModelParameters getParameters() {
@@ -145,6 +160,20 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     @Override
     public void setParameters(IModelParameters parameters) {
       mParams = parameters;
+    }
+
+    protected Object prepareData(DDF ddf) {
+      return ddf.getRepresentationHandler().get(this.getPredictionInputClass());
+    }
+
+    protected abstract DDF predictImpl(Object data);
+
+    @Override
+    public DDF predict(DDF ddf) {
+      List<String> columnNames = ddf.getColumnNames();
+
+      Object obj = prepareData(ddf);
+      return predictImpl(obj);
     }
 
     @Override
@@ -183,7 +212,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
 
-  public IModel dummyKMeans() {
-    return new Model();
-  }
+  //public IModel dummyKMeans() {
+  //  return new Model();
+  //}
 }
