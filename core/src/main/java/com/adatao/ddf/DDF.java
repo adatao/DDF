@@ -262,22 +262,6 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     return this.getSchemaHandler().getNumColumns();
   }
   
-  // ///// Execute SQL command // /////
-  public DDF runSql2ddf(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
-    }
-  }
-  
-  public List<String> runSql2txt(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2txt(String.format(sqlCommand, this.getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
-    }
-  }
   /////// Generate DDF views
 
   public final ViewsDelegate Views = new ViewsDelegate(this, this.getViewHandler());

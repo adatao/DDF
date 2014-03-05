@@ -9,8 +9,6 @@ public interface ISupportStatistics extends IHandleDDFFunctionalGroup {
 
   public Summary[] getSummary();
   
-  public FiveNumSummary getColumnFiveNumSummary(String columnName) throws DDFException;
-  
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException;
 
 }

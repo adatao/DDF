@@ -3,11 +3,13 @@ package com.adatao.ddf.analytics;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -20,7 +22,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     super(theDDF);
   }
 
+
   private Summary[] basicStats;
+
 
   protected abstract Summary[] getSummaryImpl();
 
@@ -29,55 +33,63 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     return basicStats;
   }
 
-  @Override
-  public FiveNumSummary getColumnFiveNumSummary(String columnName) throws DDFException {
-    FiveNumSummary fivenum = new FiveNumSummary();
-    ColumnType colType = this.getDDF().getColumn(columnName).getType();
-    String cmdInt = String.format("SELECT PERCENTILE(%s, array(0, 1, 0.25, 0.5, 0.75)) FROM %%s", columnName);
-    String cmdDouble = String.format("SELECT MIN(%s), MAX(%s), PERCENTILE_APPROX(%s, array(0.25, 0.5, 0.75)) FROM %%s",
-        columnName, columnName, columnName);
-    String cmd = "";
-    switch (colType) {
-      case INT:
-        cmd = cmdInt;
-      case LONG:
-        cmd = cmdInt;
-      case DOUBLE:
-        cmd = cmdDouble;
-      case FLOAT:
-        cmd = cmdDouble;
-      default:
-        fivenum = new FiveNumSummary(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
-    }
-    if (!Strings.isNullOrEmpty(cmd)) {
-      // result for cmdInt is in the format "[min, max, 1st_quantile, median, 3rd_quantile]" where each value can be a
-      // NULL
-      // result for cmdDouble is in the format "min \t max \t[1st_quantile, median, 3rd_quantile]" or
-      // "min \t max \t null"
-      String[] rs = this.getDDF()
-          .runSql2txt(cmd, String.format("Unable to get fivenum summary of column %s from table %%s", columnName)).get(0)
-          .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
-      Double[] values = new Double[rs.length];
-      for (int i = 0; i < rs.length; i++) {
-        if ("NULL".equalsIgnoreCase(rs[i])) {
-          values[i] = Double.NaN;
-        } else {
-          values[i] = Double.parseDouble(rs[i]);
-        }
-      }
-
-      fivenum = new FiveNumSummary(values[0], values[1], values[2], values[3], values[4]);
-    }
-    return fivenum;
-  }
-
+  
   @Override
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException {
     FiveNumSummary[] fivenums = new FiveNumSummary[columnNames.size()];
-    for (int i = 0; i < columnNames.size(); i++) {
-      fivenums[i] = getColumnFiveNumSummary(columnNames.get(i));
+
+    List<String> specs = Lists.newArrayList();
+    for (String columnName : columnNames) {
+      specs.add(fiveNumFunction(columnName));
     }
-    return fivenums;
+
+    String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));
+
+    if (!Strings.isNullOrEmpty(command)) {
+      // a fivenumsummary of an Int/Long column is in the format "[min, max, 1st_quantile, median, 3rd_quantile]"
+      // each value can be a NULL
+      // a fivenumsummary of an Double/Float column is in the format "min \t max \t[1st_quantile, median, 3rd_quantile]"
+      // or "min \t max \t null"
+      
+      String[] rs = this.getDDF().getViewHandler()
+          .sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s")).get(0)
+          .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
+      
+     
+      int k = 0;
+      for (int i = 0; i < rs.length; i += 5) {
+        fivenums[k] = new FiveNumSummary(parseDouble(rs[i]), parseDouble(rs[i + 1]), parseDouble(rs[i + 2]),
+            parseDouble(rs[i + 3]), parseDouble(rs[i + 4]));
+        k++;
+      }
+
+      return fivenums;
+    }
+
+    return null;
+  }
+
+  private double parseDouble(String s) {
+    return ("NULL".equalsIgnoreCase(s)) ? Double.NaN : Double.parseDouble(s);
+  }
+
+  private String fiveNumFunction(String columnName) {
+    ColumnType colType = this.getDDF().getColumn(columnName).getType();
+
+    switch (colType) {
+      case INT:
+      case LONG:
+        return String.format("PERCENTILE(%s, array(0, 1, 0.25, 0.5, 0.75))", columnName);
+
+      case DOUBLE:
+      case FLOAT:
+        return String.format("MIN(%s), MAX(%s), PERCENTILE_APPROX(%s, array(0.25, 0.5, 0.75))", columnName, columnName,
+            columnName);
+
+      default:
+        return "";
+    }
+
   }
 
 

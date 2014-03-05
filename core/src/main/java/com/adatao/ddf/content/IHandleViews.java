@@ -6,6 +6,7 @@ package com.adatao.ddf.content;
 import java.util.Iterator;
 import java.util.List;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
@@ -84,4 +85,6 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   public DDF firstNRows(int numRows) throws DDFException;
   
   public DDF project(String[] columnNames) throws DDFException;
+
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
 }
