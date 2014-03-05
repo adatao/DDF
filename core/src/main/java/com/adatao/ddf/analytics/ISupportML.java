@@ -11,7 +11,8 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 public interface ISupportML extends IHandleDDFFunctionalGroup {
 
   /**
-   * Runs an unsupervised (unlabled) training algorithm on the entire DDF dataset.
+   * Runs a training algorithm on the entire DDF dataset. If the algorithm is unsupervised, all columns are considered
+   * to be features. If the algorithm is supervised, the last column is considered to be the target column
    * 
    * @param trainMethodName
    * @param args
@@ -19,51 +20,6 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    * @throws DDFException
    */
   public IModel train(String trainMethodName, Object... args) throws DDFException;
-
-  /**
-   * Trains a model, given an trainMethod name or className#methodName (e.g., "kmeans" or
-   * "org.apache.spark.mllib.kmeans#train"). If #methodName is not specified, it is assumed to be "train"
-   * 
-   * @param trainMethod
-   * @param featureColumnIndexes
-   * @param args
-   * @return
-   * @throws DDFException
-   */
-  public IModel train(String trainMethodName, int[] featureColumnIndexes, Object... args) throws DDFException;
-
-  /**
-   * @param trainMethod
-   * @param featureColumnIndexes
-   * @param targetColumnIndex
-   * @param args
-   * 
-   */
-  public IModel train(String trainMethodName, int targetColumnIndex, int[] featureColumnIndexes, Object... args)
-      throws DDFException;
-
-  /**
-   * Trains a model, given an trainMethod name or className#methodName (e.g., "kmeans" or
-   * "org.apache.spark.mllib.kmeans#train"). If #methodName is not specified, it is assumed to be "train"
-   * 
-   * @param trainMethod
-   * @param featureColumnNames
-   * @param args
-   * @return
-   * @throws DDFException
-   */
-  public IModel train(String trainMethodName, String[] featureColumnNames, Object... args) throws DDFException;
-
-  /**
-   * @param trainMethod
-   * @param featureColumnNames
-   * @param targetColumnIndex
-   * @param args
-   * 
-   */
-  public IModel train(String trainMethodName, String targetColumnName, String[] featureColumnNames, Object... args)
-      throws DDFException;
-
 
 
   /**

@@ -83,8 +83,6 @@ public abstract class DDF extends ALoggable //
    * 
    * @param data
    *          The DDF data
-   * @param rowType
-   *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
    *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
    * @param name
@@ -94,10 +92,10 @@ public abstract class DDF extends ALoggable //
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
+  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema)
       throws DDFException {
 
-    this.initialize(manager, data, rowType, namespace, name, schema);
+    this.initialize(manager, data, namespace, name, schema);
   }
 
   /**
@@ -120,12 +118,12 @@ public abstract class DDF extends ALoggable //
     this(sDummyManager);
   }
 
-  protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
+  protected void initialize(DDFManager manager, Object data, String namespace, String name,
       Schema schema) throws DDFException {
 
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.getRepresentationHandler().set(data, rowType);
+    this.getRepresentationHandler().set(data);
 
     this.getSchemaHandler().setSchema(schema);
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
@@ -690,6 +688,9 @@ public abstract class DDF extends ALoggable //
 
 
   // ////// Facade methods ////////
+
+
+  // //// IHandleViews //////
 
   /**
    * 

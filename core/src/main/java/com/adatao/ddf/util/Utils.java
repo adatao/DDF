@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -412,4 +413,19 @@ public class Utils {
       }
     }
   }
+
+
+  /**
+   * Returns the first element, if any, of an object that may be an {@link Iterable}
+   * 
+   * @param maybeIterable
+   * @return
+   */
+  public static Object getFirstElement(Object maybeIterable) {
+    if (!(maybeIterable instanceof Iterable<?>)) return null;
+    Iterable<?> iterable = (Iterable<?>) maybeIterable;
+    Iterator<?> iterator = iterable.iterator();
+    return iterator.hasNext() ? iterator.next() : null;
+  }
+
 }

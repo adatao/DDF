@@ -81,7 +81,7 @@ public class LocalDDFTests {
     }
 
     @SuppressWarnings("unchecked")
-    Iterator<Object> eleIter = (Iterator<Object>) ddf.getElementIterator("name");
+    Iterator<Object> eleIter = (Iterator<Object>) ddf.getElementIterator("value");
     Assert.assertNotNull("Element iterator cannot be null", eleIter);
     while (eleIter.hasNext()) {
       Object element = eleIter.next();

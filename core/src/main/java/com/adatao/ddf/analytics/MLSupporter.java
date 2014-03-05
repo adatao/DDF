@@ -149,10 +149,15 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     return new Model("Model Paramters");
   }
 
+
+
   // //// ISupportML //////
 
+  public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
+
+
   /**
-   * Runs an unsupervised (unlabled) training algorithm on the entire DDF dataset.
+   * Runs a training algorithm on the entire DDF dataset.
    * 
    * @param trainMethodName
    * @param args
@@ -171,32 +176,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     return this.trainImpl(trainMethodName, null, -1, null, featureColumnIndexes, args);
   }
 
-  @Override
-  public IModel train(String trainMethodName, int[] featureColumnIndexes, Object... args) throws DDFException {
-    return this.trainImpl(trainMethodName, null, -1, null, featureColumnIndexes, args);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, int targetColumnIndex, int[] featureColumnIndexes, Object... args)
-      throws DDFException {
-
-    return this.trainImpl(trainMethodName, null, targetColumnIndex, null, featureColumnIndexes, args);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, String[] featureColumnNames, Object... args) throws DDFException {
-    return this.trainImpl(trainMethodName, null, -1, featureColumnNames, null, args);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, String targetColumnName, String[] featureColumnNames, Object... args)
-      throws DDFException {
-
-    return this.trainImpl(trainMethodName, targetColumnName, -1, featureColumnNames, null, args);
-  }
-
-
-  public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
 
 
   private IModel trainImpl(String trainMethodName, String targetColumnName, int targetColumnIndex,

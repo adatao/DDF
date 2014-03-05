@@ -305,7 +305,7 @@ public class PersistenceHandler extends APersistenceHandler {
       list.add(new Object[] { this, this.getClass().getName() });
       Schema schema = new Schema(this.getName(), "object BLOB, objectClass STRING");
 
-      LocalDDF ddf = new LocalDDF(list, this.getClass(), this.getNamespace(), this.getName(), schema);
+      LocalDDF ddf = new LocalDDF(list, this.getNamespace(), this.getName(), schema);
 
       return ddf;
     }
@@ -328,10 +328,9 @@ public class PersistenceHandler extends APersistenceHandler {
      * @throws DDFException
      */
     public static ISerializable unwrapDeserializedObject(//
-        List<?> dataRows, Class<?> rowType, ISerializable deserializedObject, JsonElement deserializedWrappedObject)
-        throws DDFException {
+        List<?> dataRows, ISerializable deserializedObject, JsonElement deserializedWrappedObject) throws DDFException {
 
-      if (dataRows.size() == 1 && IPersistible.class.isAssignableFrom(rowType)) {
+      if (dataRows.size() == 1) {
         // Now we know there is only one data row, and the rowType is IPersistible
         // which are characteristics of a LocalDDF containing an IPersistible object
 
@@ -351,6 +350,7 @@ public class PersistenceHandler extends APersistenceHandler {
                       Class.forName(objectClass.getAsString()));
 
                   if (embeddedObject instanceof ISerializable) {
+                    // Yep, it's an ISerializable that we need to unwrap
                     deserializedObject = (ISerializable) embeddedObject;
                   }
 

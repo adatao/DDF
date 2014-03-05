@@ -48,28 +48,6 @@ public class MLFacade implements ISupportML {
     return this.getMLSupporter().train(trainMethodName, params);
   }
 
-  @Override
-  public IModel train(String trainMethodName, int[] featureColumnIndexes, Object... params) throws DDFException {
-    return this.getMLSupporter().train(trainMethodName, featureColumnIndexes, params);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, int targetColumnIndex, int[] featureColumnIndexes, Object... params)
-      throws DDFException {
-    return this.getMLSupporter().train(trainMethodName, targetColumnIndex, featureColumnIndexes, params);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, String[] featureColumnNames, Object... params) throws DDFException {
-    return this.getMLSupporter().train(trainMethodName, featureColumnNames, params);
-  }
-
-  @Override
-  public IModel train(String trainMethodName, String targetColumnName, String[] featureColumnNames, Object... params)
-      throws DDFException {
-    return this.getMLSupporter().train(trainMethodName, targetColumnName, featureColumnNames, params);
-  }
-
 
 
   // //// Convenient facade ML algorithm names //////
