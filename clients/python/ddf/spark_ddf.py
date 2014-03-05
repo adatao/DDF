@@ -18,7 +18,6 @@ class DDFManager(object):
         """
         DDFManager._initialized(self)
         self._jdm = jdm
-        self._jsdm = self._jvm.com.adatao.spark.ddf.SparkDDFManager()
         
     @classmethod
     def _initialized(cls, instance = None):
@@ -34,9 +33,9 @@ class DDFManager(object):
     """
     Create a DDF from an sql command.
     """
-    def cmd2txt(self, command):
-        return self._jdm.cmd2txt(command)
+    def sql2txt(self, command):
+        return self._jdm.sql2txt(command)
 
-    def cmd2ddf(self, command):
-        return DDF(self._jdm.cmd2ddf(command))
+    def sql2ddf(self, command):
+        return DDF(self._jdm.sql2ddf(command))
 

@@ -7,8 +7,8 @@ class Summary(object):
     def max(self):
         return self._jsummary.max()
     
-    def variance():
+    def variance(self):
         return self._jsummary.variance()
         
-    def mean():
+    def mean(self):
         return self._jsummary.mean()
