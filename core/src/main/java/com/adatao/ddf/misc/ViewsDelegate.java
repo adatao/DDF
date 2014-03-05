@@ -31,7 +31,7 @@ public class ViewsDelegate implements IHandleViews {
     return mViewHandler;
   }
 
-  public void setMLSupporter(IHandleViews viewHandler) {
+  public void setViewHandler(IHandleViews viewHandler) {
     mViewHandler = viewHandler;
   }
 

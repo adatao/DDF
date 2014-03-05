@@ -52,6 +52,7 @@ import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
 import com.adatao.ddf.misc.MLDelegate;
+import com.adatao.ddf.misc.RSupporter;
 import com.adatao.ddf.misc.ViewsDelegate;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
@@ -291,7 +292,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
-
+  public final RSupporter R = new RSupporter(this, this.getAggregationHandler());
 
   // ////// Function-Group Handlers ////////
 
