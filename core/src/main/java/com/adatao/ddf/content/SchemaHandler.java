@@ -11,8 +11,6 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
 /**
- * @author ctn
- * 
  */
 public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
 
@@ -70,6 +68,19 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   @Override
   public int getColumnIndex(String columnName) {
     return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
+  }
+
+  @Override
+  public Schema generateSchema() {
+    if (this.getSchema() != null) return this.getSchema();
+
+    // Try to infer from the DDF's data
+    Object data = this.getDDF().getRepresentationHandler().getDefault();
+    
+    // TODO: for now, we'll just support the "null" case
+    if (data == null) return new Schema(null, "null BLOB");
+    
+    return null;
   }
 
 }

@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -265,8 +264,9 @@ public class Utils {
       try {
         return deserialize(Utils.readFromFile(path));
 
-      } catch (IOException e) {
-        throw new DDFException(e);
+      } catch (Exception e) {
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
       }
     }
   }
@@ -336,7 +336,8 @@ public class Utils {
         this.parse(Class.forName(parts[0]), parts[1], argTypes);
 
       } catch (Exception e) {
-        throw new DDFException(e);
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
       }
     }
 
@@ -358,15 +359,16 @@ public class Utils {
           cons = theClass.getDeclaredConstructor(new Class<?>[0]);
           if (cons != null) cons.setAccessible(true);
 
-        } catch (NoSuchMethodException nsme) {
+        } catch (Exception e) {
           throw new DDFException(String.format("%s needs to have a default, zero-arg constructor", theClass.getName()),
-              nsme);
+              e);
         }
 
         return cons.newInstance(new Object[0]);
 
       } catch (Exception e) {
-        throw new DDFException(e);
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
       }
     }
 

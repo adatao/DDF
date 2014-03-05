@@ -97,9 +97,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     try {
       manager = (DDFManager) Class.forName(className).newInstance();
 
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new DDFException("Cannot get DDFManager for engine " + engineName, e);
     }
+    
     return manager;
   }
 

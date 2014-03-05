@@ -163,7 +163,7 @@ public abstract class DDF extends ALoggable //
     if (mNamespace == null) {
       try {
         mNamespace = this.getManager().getNamespace();
-      } catch (DDFException e) {
+      } catch (Exception e) {
         mLog.warn("Cannot retrieve namespace for DDF " + this.getName(), e);
       }
     }
@@ -272,18 +272,17 @@ public abstract class DDF extends ALoggable //
   public int getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
-  
+
   // ///// Execute SQL command // /////
   public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
-    }
+    return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
   }
-  /////// Generate DDF views
+
+
+  // ///// Generate DDF views
 
   public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
+
 
   // ///// Aggregate operations
 
@@ -638,11 +637,15 @@ public abstract class DDF extends ALoggable //
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
-    } catch (Exception e) {
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException
+        | InvocationTargetException e) {
+
       mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
           theInterface.getSimpleName(), className), e);
       return null;
     }
+
+
   }
 
 
@@ -747,6 +750,25 @@ public abstract class DDF extends ALoggable //
   }
 
 
+  /**
+   * The base implementation checks if the schema is null, and if so, generate a generic one. This is useful/necessary
+   * before persistence, to avoid the situtation of null schemas being persisted.
+   */
+  @Override
+  public void beforePersisting() {
+    if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
+  }
+
+  @Override
+  public void afterPersisting() {}
+
+  @Override
+  public void beforeUnpersisting() {}
+
+  @Override
+  public void afterUnpersisting() {}
+
+
 
   // //// ISerializable //////
 
@@ -757,7 +779,8 @@ public abstract class DDF extends ALoggable //
   public void afterSerialization() throws DDFException {}
 
   @Override
-  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+      throws DDFException {
     return deserializedObject;
   }
 }

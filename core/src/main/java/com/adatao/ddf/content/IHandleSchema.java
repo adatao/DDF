@@ -29,4 +29,9 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
   public String newTableName(Object forObject);
 
   public int getColumnIndex(String columnName);
+
+  /**
+   * Generate a basic schema for the current DDF
+   */
+  public Schema generateSchema();
 }

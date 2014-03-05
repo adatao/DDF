@@ -75,13 +75,8 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     String sqlCmd = AggregateField.toSql(fields, tableName);
 
-    try {
-      List<String> result = this.getManager().sql2txt(sqlCmd);
-      return AggregationResult.newInstance(result, fields.size());
-
-    } catch (Exception e) {
-      throw new DDFException("Unable to query from " + tableName, e);
-    }
+    List<String> result = this.getManager().sql2txt(sqlCmd);
+    return AggregationResult.newInstance(result, fields.size());
   }
 
 

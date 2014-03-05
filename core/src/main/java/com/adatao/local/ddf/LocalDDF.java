@@ -12,6 +12,8 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -145,13 +147,20 @@ public class LocalDDF extends DDF {
 
       if (mData != null) {
         this.setList(mData, mRowType);
-        deserializedObject = LocalPersistible.parseDeserializedObject(mData, mRowType, deserializedObject);
+
+        // See if we need to "unwrap" this object and return the wrapped object instead
+        JsonElement deserializedWrappedObject = (serializationData instanceof JsonObject ? //
+        ((JsonObject) serializationData).get("mData")
+            : null);
+        deserializedObject = LocalPersistible.unwrapDeserializedObject(mData, mRowType, deserializedObject,
+            (JsonElement) deserializedWrappedObject);
       }
 
       return super.afterDeserialization(deserializedObject, serializationData);
 
     } catch (Exception e) {
-      throw new DDFException(e);
+      if (e instanceof DDFException) throw (DDFException) e;
+      else throw new DDFException(e);
     }
   }
 }

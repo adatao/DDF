@@ -81,7 +81,7 @@ public class PersistenceHandlerTests {
 
   @Test
   public void testPersistModel() throws DDFException {
-    Model model = new Model();
+    Model model = new Model("Sample Parameters");
 
     // model.setParameters(new TestParameters());
 
