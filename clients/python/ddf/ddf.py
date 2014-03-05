@@ -5,5 +5,9 @@ class DDF(object):
         self._jddf = jddf
     
     def getSummary(self):
-        return Summary(self._jddf.getSummary())
+        jsummary = self._jddf.getSummary()
+        psummary = []
+        for s in jsummary:
+            psummary.append(Summary(s))
+        return psummary
 
