@@ -51,7 +51,7 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
 
     void setParameters(IModelParameters parameters);
 
-    public DDF predict(DDF ddf);
+    public DDF predict(DDF ddf) throws DDFException;
   }
 
   interface IHyperParameters {

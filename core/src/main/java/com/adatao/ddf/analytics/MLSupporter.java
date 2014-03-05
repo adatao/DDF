@@ -157,6 +157,9 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       return mParams;
     }
 
+    public List<String> getFeatureColumnNames() {
+      return mFeatureColumnNames;
+    }
     @Override
     public void setParameters(IModelParameters parameters) {
       mParams = parameters;
@@ -166,14 +169,24 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       return ddf.getRepresentationHandler().get(this.getPredictionInputClass());
     }
 
-    protected abstract DDF predictImpl(Object data);
+    protected abstract DDF predictImpl(Object data, String DDFName);
 
     @Override
-    public DDF predict(DDF ddf) {
-      List<String> columnNames = ddf.getColumnNames();
+    public DDF predict(DDF ddf) throws DDFException {
+      List<String> ddfColumnNames = ddf.getColumnNames();
 
-      Object obj = prepareData(ddf);
-      return predictImpl(obj);
+      // if featureColumnNames is not the same as ddf's columnNames
+      // project on ddf with fetureColumnNames to get new DDF
+      // else perform predict on the provided DDF
+      if(!((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
+          (ddfColumnNames.containsAll(this.getFeatureColumnNames())))){
+        DDF newDDF = ddf.getViewHandler().project(ddfColumnNames);
+        Object obj = prepareData(newDDF);
+        return predictImpl(obj, newDDF.getName());
+      } else {
+        Object obj = prepareData(ddf);
+        return predictImpl(obj, ddf.getName());
+      }
     }
 
     @Override
