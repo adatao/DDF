@@ -80,6 +80,7 @@ public class SqlHandler extends ASqlHandler {
                             "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
                                                     tableName, command);
       tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
+      tableRdd = this.getSharkContext().sql2rdd(command);
 
     } else {
       // TODO
