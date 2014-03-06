@@ -75,10 +75,11 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   public Iterator<?> getElementIterator(String columnName);
 
   /**
+   * @param <T>
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
-  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed);
+  public <T> T[] getRandomSample(int numSamples, boolean withReplacement, int seed);
   
   public DDF getRandomSample(double percent, boolean withReplacement, int seed);
   

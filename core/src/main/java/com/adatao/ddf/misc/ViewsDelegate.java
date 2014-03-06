@@ -66,7 +66,7 @@ public class ViewsDelegate implements IHandleViews {
   }
 
   @Override
-  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
+  public <T> T[] getRandomSample(int numSamples, boolean withReplacement, int seed) {
     return mViewHandler.getRandomSample(numSamples, withReplacement, seed);
   }
 
@@ -80,7 +80,7 @@ public class ViewsDelegate implements IHandleViews {
     return mViewHandler.firstNRows(numRows);
   }
 
-  public DDF getRandomSample(int numSamples) {
+  public Object[] getRandomSample(int numSamples) {
     return getRandomSample(numSamples, false, 1);
   }
 
