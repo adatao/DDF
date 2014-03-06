@@ -54,6 +54,7 @@ import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
 import com.adatao.ddf.types.IGloballyAddressable;
+import com.adatao.ddf.misc.RSupporter;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.local.ddf.LocalDDFManager;
@@ -303,7 +304,7 @@ public abstract class DDF extends ALoggable //
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
-
+  public final RSupporter R = new RSupporter(this, this.getAggregationHandler());
 
   // ////// Function-Group Handlers ////////
 
