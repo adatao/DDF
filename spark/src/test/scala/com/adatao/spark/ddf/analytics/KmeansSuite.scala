@@ -11,10 +11,17 @@ class KmeansSuite extends ATestSuite {
     val manager= DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
     createTableAirlineWithNA(sparkManager.getSharkContext)
+    createTableAirline(sparkManager.getSharkContext)
     val ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, " +
       "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
+      "securitydelay, lateaircraftdelay from airlineWithNA")
+    val model = ddf.ML.train(new Kmeans())
+
+    val ddf2 = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, " +
+      "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
       "securitydelay, lateaircraftdelay from airline")
-    ddf.ML.train(new Kmeans())
+    model.predict(ddf2)
+
     manager.shutdown()
   }
 }

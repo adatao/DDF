@@ -59,7 +59,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
     Object data = this.getDDF().getRepresentationHandler().get(algorithm.getInputClass());
     Object preparedData = algorithm.prepare(data);
-    return algorithm.run(preparedData);
+    return algorithm.run(preparedData, this.getDDF().getColumnNames());
   }
 
   @Override
@@ -125,7 +125,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
 
     @Override
-    public IModel run(Object data) {
+    public IModel run(Object data, List<String> featureColumnNames) {
       return null;
     }
   }
@@ -136,13 +136,13 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     private DDF mDDF;
     @Expose public final long mSerialVersionUID = serialVersionUID;
 
-    private IModelParameters mParams;
+    private IHyperParameters mParams;
 
     private Class<?> mpredictionInputClass;
 
     private List<String> mFeatureColumnNames;
 
-    public Model(Class<?> predictionInputClass, IModelParameters params, List<String> featureColumnNames) {
+    public Model(Class<?> predictionInputClass, IHyperParameters params, List<String> featureColumnNames) {
       mpredictionInputClass = predictionInputClass;
       mParams = params;
       mFeatureColumnNames = featureColumnNames;
@@ -153,7 +153,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
 
     @Override
-    public IModelParameters getParameters() {
+    public IHyperParameters getParameters() {
       return mParams;
     }
 
@@ -161,7 +161,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       return mFeatureColumnNames;
     }
     @Override
-    public void setParameters(IModelParameters parameters) {
+    public void setParameters(IHyperParameters parameters) {
       mParams = parameters;
     }
 
@@ -180,7 +180,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       // else perform predict on the provided DDF
       if(!((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
           (ddfColumnNames.containsAll(this.getFeatureColumnNames())))){
-        DDF newDDF = ddf.getViewHandler().project(ddfColumnNames);
+        DDF newDDF = ddf.Views.project(this.getFeatureColumnNames());
         Object obj = prepareData(newDDF);
         return predictImpl(obj, newDDF.getName());
       } else {

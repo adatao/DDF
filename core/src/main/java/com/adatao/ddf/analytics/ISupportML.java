@@ -6,6 +6,8 @@ import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
+import java.util.List;
+
 /**
  * Interface for handling tasks related to Machine Learning
  */
@@ -43,13 +45,13 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
 
     public Object prepare(Object data);
 
-    public IModel run(Object data);
+    public IModel run(Object data, List<String> featureColumnNames);
   }
 
   interface IModel extends IHandlePersistence.IPersistible {
-    IModelParameters getParameters();
+    IHyperParameters getParameters();
 
-    void setParameters(IModelParameters parameters);
+    void setParameters(IHyperParameters parameters);
 
     public DDF predict(DDF ddf) throws DDFException;
   }

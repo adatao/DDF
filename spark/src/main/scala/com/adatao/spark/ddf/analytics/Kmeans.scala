@@ -15,9 +15,9 @@ class Kmeans(params: KmeansParameters) extends AAlgorithm(classOf[Array[Double]]
 
 	def this() = this(new KmeansParameters())
 
-	override def run(data: Object): KmeansModel = {
+	override def run(data: Object, featureColumnNames: JList[String]): KmeansModel = {
 		val model = KMeans.train(data.asInstanceOf[RDD[Array[Double]]], params.numCentroids, params.maxIter, params.runs, params.initMode)
-		new KmeansModel(params, model)
+		new KmeansModel(classOf[Array[Double]], params, featureColumnNames, model)
 	}
 }
 
@@ -25,7 +25,7 @@ class KmeansParameters(val numCentroids: Int = 10,
 	val maxIter: Int = 100,
 	val runs: Int = 10,
 	val initMode: String = "random",
-	val epsilon: Double = 1e-3) extends IModelParameters
+	val epsilon: Double = 1e-3) extends IHyperParameters
 
 class KmeansModel(predictionInputClass: Class[_], val params: KmeansParameters, featureColumnNames: JList[String],
                   val mllibKmeansModel: KMeansModel) extends Model(predictionInputClass, params, featureColumnNames) {
@@ -38,6 +38,6 @@ class KmeansModel(predictionInputClass: Class[_], val params: KmeansParameters, 
     val manager = DDFManager.get("spark")
     val schema = new Schema(String.format("%s_%s", ddfName, "kmeans_prediction"), "clusterID int")
 
-    new SparkDDF(manager, predRDD, classOf[Double], manager.getNamespace, schema.getTableName, schema)
+    new SparkDDF(manager, predRDD, classOf[Int], manager.getNamespace, schema.getTableName, schema)
   }
 }
