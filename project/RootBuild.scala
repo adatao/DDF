@@ -101,6 +101,31 @@ object RootBuild extends Build {
     "com.adatao.unmanaged.net.rforge" % "Rserve" % "1.7.2.compiled"
   )
 
+  val spark_dependencies = Seq(
+    "commons-configuration" % "commons-configuration" % "1.6",
+    "com.google.code.gson"% "gson" % "2.2.2",
+    "javax.jdo" % "jdo2-api" % "2.3-eb",
+    "org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
+    "org.scalatest" %% "scalatest" % "1.9.1" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
+    "com.novocode" % "junit-interface" % "0.9" % "test",
+    "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
+    "org.apache.thrift" % "libthrift" % "0.9.0",
+    "org.apache.thrift" % "libfb303" % "0.9.0",
+    "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+    // needed by Hive
+    "commons-dbcp" % "commons-dbcp" % "1.4",
+    "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
+    "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+    "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
+    "org.datanucleus" % "datanucleus-core" % "2.0.3",
+    "org.apache.derby" % "derby" % "10.4.2.0",
+    "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
+    "org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
+    "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
+  )
+
+
   /////// Common/Shared project settings ///////
 
   def commonSettings = Defaults.defaultSettings ++ Seq(
@@ -108,12 +133,10 @@ object RootBuild extends Build {
     version := rootVersion,
     scalaVersion := theScalaVersion,
     scalacOptions := Seq("-unchecked", "-optimize", "-deprecation"),
-    // See adatao_unmanaged: unmanagedJars in Compile <<= baseDirectory map { base => (base / "lib" ** "*.jar").classpath },
     //retrieveManaged := false, // Do not create a lib_managed, leave dependencies in ~/.ivy2
     retrieveManaged := true, // Do create a lib_managed, so we have one place for all the dependency jars to copy to slaves, if needed
     retrievePattern := "[type]s/[artifact](-[revision])(-[classifier]).[ext]",
     transitiveClassifiers in Scope.GlobalScope := Seq("sources"),
-    ////testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
     // Fork new JVMs for tests and set Java options for those
     fork in Test := true,
@@ -123,14 +146,6 @@ object RootBuild extends Build {
     concurrentRestrictions in Global += Tags.limit(Tags.Test, 1),
 
     conflictManager := ConflictManager.strict,
-
-    /*
-    // For Sonatype publishing
-    resolvers ++= Seq(
-      "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-      "sonatype-staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    ),
-    */
 
     // This goes first for fastest resolution. We need this for com_adatao_unmanaged.
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
@@ -147,52 +162,38 @@ object RootBuild extends Build {
     ),
 
 
-
     publishMavenStyle := true, // generate pom.xml with "sbt make-pom"
 
-    //useGpg in Global := true,
-    /*
-    publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT"))
-        Some("sonatype-snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("sonatype-staging"  at nexus + "service/local/staging/deploy/maven2")
-    },
-    */
 
     libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-api" % slf4jVersion,
+      "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
       "commons-configuration" % "commons-configuration" % "1.6",
+      "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
-      "org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
-      "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark),
-      "javax.jdo" % "jdo2-api" % "2.3-eb",
-      "org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
+      //"javax.jdo" % "jdo2-api" % "2.3-eb",
+      //"org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
       "org.scalatest" %% "scalatest" % "1.9.1" % "test",
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
-      "org.apache.thrift" % "libthrift" % "0.9.0",
-      "org.apache.thrift" % "libfb303" % "0.9.0",
-      "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+      "org.apache.commons" % "commons-io" % "1.3.2",
+      //"org.apache.thrift" % "libthrift" % "0.9.0",
+      //"org.apache.thrift" % "libfb303" % "0.9.0",
+      //"org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
       // needed by Hive
-      "commons-dbcp" % "commons-dbcp" % "1.4",
-      "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
-      "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
-      "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
-      "org.datanucleus" % "datanucleus-core" % "2.0.3",
-      "org.apache.derby" % "derby" % "10.4.2.0",
-      "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
+      //"commons-dbcp" % "commons-dbcp" % "1.4",
+      //"org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
+      //"org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+      //"org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
+      //"org.datanucleus" % "datanucleus-core" % "2.0.3",
+      //"org.apache.derby" % "derby" % "10.4.2.0",
+      //"org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
+      //"org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
+      //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark),
       "org.easymock" % "easymock" % "3.1" % "test"
     ),
 
-
-    /* Already in plugins.sbt
-    addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.8.5"),
-    addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.1.1"),
-    addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0"),
-    addSbtPlugin("io.spray" %% "sbt-twirl" % "0.6.1"),
-    */
 
     otherResolvers := Seq(Resolver.file("dotM2", file(Path.userHome + "/.m2/repository"))),
 
@@ -449,10 +450,10 @@ object RootBuild extends Build {
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
+
   def sparkSettings = commonSettings ++ Seq(
     name := sparkProjectName,
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    //javaOptions in Test <+= baseDirectory map {dir => "-Drserver.jar=" + dir + "/" + targetDir + "/" + sparkJarName},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch spark/" + targetDir + "/*timestamp") },
 
@@ -463,8 +464,12 @@ object RootBuild extends Build {
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
 
-    libraryDependencies ++= com_adatao_unmanaged
+    libraryDependencies ++= com_adatao_unmanaged,
+    libraryDependencies ++= spark_dependencies
+
   ) ++ assemblySettings ++ extraAssemblySettings
+
+
 
   def examplesSettings = commonSettings ++ Seq(
     name := examplesProjectName,
@@ -473,6 +478,8 @@ object RootBuild extends Build {
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
+
+
   def contribSettings = commonSettings ++ Seq(
     name := contribProjectName,
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
@@ -480,24 +487,6 @@ object RootBuild extends Build {
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch contrib/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
-
-  //def enterpriseSettings = commonSettings ++ Seq(
-  //	name := projectName + "_enterprise",
-  //	libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
-  //)
-
-
-  /*
-  def streamingSettings = commonSettings ++ Seq(
-    name := "spark-streaming",
-    libraryDependencies ++= Seq(
-      "org.apache.flume" % "flume-ng-sdk" % "1.2.0" % "compile" excludeAll(excludeNetty),
-      "com.github.sgroschupf" % "zkclient" % "0.1",
-      "org.twitter4j" % "twitter4j-stream" % "3.0.3" excludeAll(excludeNetty),
-      "com.typesafe.akka" % "akka-zeromq" % "2.0.3" excludeAll(excludeNetty)
-    )
-  ) ++ assemblySettings ++ extraAssemblySettings
-  */
 
 
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
@@ -508,4 +497,3 @@ object RootBuild extends Build {
     }
   )
 }
-

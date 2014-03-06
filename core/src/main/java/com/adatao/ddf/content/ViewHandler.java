@@ -124,14 +124,32 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
   @Override
   public DDF firstNRows(int numRows) throws DDFException {
-    return this.getDDF().executeSqlOnTable(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+    return sql2ddf(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d rows from table %%s", numRows));
   }
 
   @Override
   public DDF project(String[] columnNames) throws DDFException {
     String selectedColumns = Joiner.on(",").join(columnNames);
-    return this.getDDF().executeSqlOnTable(String.format("SELECT %s FROM %%s", selectedColumns),
+    return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
         String.format("Unable to project columns %s from table %%s", selectedColumns));
+  }
+  
+  // ///// Execute SQL command // /////
+  private DDF sql2ddf(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2ddf(String.format(sqlCommand, this.getDDF().getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
+    }
+  }
+  
+  @Override
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2txt(String.format(sqlCommand, this.getDDF().getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
+    }
   }
 }
