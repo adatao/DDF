@@ -181,12 +181,12 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
         if (Strings.isNullOrEmpty(spec)) continue;
 
         spec = spec.trim();
-        String[] parts = spec.split("(");
+        String[] parts = spec.split("\\(");
         if (parts.length == 1) {
           fields.add(new AggregateField(parts[0])); // just column name
 
         } else {
-          fields.add(new AggregateField(parts[0].replaceAll(")", ""), parts[1])); // function(columnName)
+          fields.add(new AggregateField(parts[0].replaceAll("\\)", ""), parts[1])); // function(columnName)
         }
       }
 
