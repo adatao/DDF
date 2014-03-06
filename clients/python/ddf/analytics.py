@@ -12,3 +12,29 @@ class Summary(object):
         
     def mean(self):
         return self._jsummary.mean()
+        
+class FiveNumSummary(object):
+    def __init__(self, jFiveNumSummary):
+        self._jFiveNumSummary = jFiveNumSummary
+    
+    def getMin(self):
+        return self._jFiveNumSummary.getMin()
+        
+    def getMax(self):
+        return self._jFiveNumSummary.getMax()
+
+    def getMedian(self):
+        return self._jFiveNumSummary.getMedian()
+
+    def getFirst_quantile(self):
+        return self._jFiveNumSummary.getFirst_quantile()
+
+    def getThird_quantile(self):
+        return self._jFiveNumSummary.getThird_quantile()
+        
+        
+        
+        
+        
+        
+        
