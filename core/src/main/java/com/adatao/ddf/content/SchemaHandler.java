@@ -25,10 +25,12 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   private Schema mSchema;
 
 
+  @Override
   public Schema getSchema() {
     return mSchema;
   }
 
+  @Override
   public void setSchema(Schema theSchema) {
     this.mSchema = theSchema;
   }
@@ -36,20 +38,31 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   /**
    * @return the Schema's table name
    */
+  @Override
   public String getTableName() {
     return mSchema != null ? mSchema.getTableName() : null;
   }
 
+  @Override
   public List<Column> getColumns() {
     return mSchema != null ? mSchema.getColumns() : null;
   }
 
+  @Override
   public String newTableName() {
+    return newTableName(this.getDDF());
+  }
+
+  @Override
+  public String newTableName(Object forObject) {
+    if (forObject == null) forObject = this.getDDF();
+
     return (this.getDDF() != null) //
-    ? String.format("%s-%s-%s", this.getDDF().getClass().getSimpleName(), this.getDDF().getEngine(), UUID.randomUUID()) //
+    ? String.format("%s-%s-%s", forObject.getClass().getSimpleName(), this.getDDF().getEngine(), UUID.randomUUID()) //
         : String.format("DDF-%s", UUID.randomUUID());
   }
 
+  @Override
   public long getNumColumns() {
     return mSchema != null ? mSchema.getNumColumns() : -1;
   }

@@ -4,7 +4,6 @@
 package com.adatao.ddf.content;
 
 import java.util.Iterator;
-import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;

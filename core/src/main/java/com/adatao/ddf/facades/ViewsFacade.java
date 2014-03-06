@@ -1,4 +1,4 @@
-package com.adatao.ddf.misc;
+package com.adatao.ddf.facades;
 
 
 import java.util.Iterator;
@@ -7,12 +7,11 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.exception.DDFException;
 
-public class ViewsDelegate implements IHandleViews {
+public class ViewsFacade implements IHandleViews {
   private DDF mDDF;
   private IHandleViews mViewHandler;
-
-
-  public ViewsDelegate(DDF ddf, IHandleViews mlSupporter) {
+  
+  public ViewsFacade(DDF ddf, IHandleViews mlSupporter) {
     mDDF = ddf;
     mViewHandler = mlSupporter;
   }

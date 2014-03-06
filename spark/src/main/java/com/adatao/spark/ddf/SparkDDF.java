@@ -13,7 +13,7 @@ import com.adatao.ddf.exception.DDFException;
 
 public class SparkDDF extends DDF {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 7466377156065874568L;
 
 
   public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> rowType, String namespace, String name, Schema schema)

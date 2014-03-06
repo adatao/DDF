@@ -67,7 +67,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
   public static class AggregationResult extends HashMap<String, Double[]> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7809562958792876728L;
 
 
     public static AggregationResult newInstance(List<String> sqlResult, int numFields) {
