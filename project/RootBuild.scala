@@ -76,7 +76,7 @@ object RootBuild extends Build {
   val excludeScala = ExclusionRule(organization = "org.scala-lang", name = "scala-library")
   val excludeGuava = ExclusionRule(organization = "com.google.guava", name = "guava-parent")
   val excludeJets3t = ExclusionRule(organization = "net.java.dev.jets3t", name = "jets3t")
-  //val excludeAsm = ExclusionRule(organization = "asm", name = "asm")
+  val excludeAsm = ExclusionRule(organization = "asm", name = "asm")
   val excludeSpark = ExclusionRule(organization = "org.spark-project", name = "spark-core_2.9.3")
   val excludeEverthing = ExclusionRule(organization = "*", name = "*")
   val excludeEverythingHackForMakePom = ExclusionRule(organization = "_MAKE_POM_EXCLUDE_ALL_", name = "_MAKE_POM_EXCLUDE_ALL_")
@@ -116,7 +116,7 @@ object RootBuild extends Build {
     // needed by Hive
     "commons-dbcp" % "commons-dbcp" % "1.4",
     "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
-    "org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
+    "org.datanucleus" % "datanucleus-enhancer" % "2.0.3" excludeAll(excludeAsm),
     "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
     "org.datanucleus" % "datanucleus-core" % "2.0.3",
     "org.apache.derby" % "derby" % "10.4.2.0",
