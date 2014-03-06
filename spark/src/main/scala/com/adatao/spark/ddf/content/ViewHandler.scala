@@ -3,12 +3,11 @@
  */
 package com.adatao.spark.ddf.content
 
-import com.adatao.ddf.content.IHandleViews
-import com.adatao.ddf.DDF
-import com.adatao.spark.ddf.SparkDDFManager
-import com.adatao.spark.ddf.SparkDDF
 import org.apache.spark.rdd.RDD
 
+import com.adatao.ddf.DDF
+import com.adatao.ddf.content.IHandleViews
+import com.adatao.spark.ddf.SparkDDF
 /**
  * RDD-based ViewHandler
  *
@@ -52,23 +51,23 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
 
   val MAX_SAMPLE_SIZE = 1000000;
 
-  override def getRandomSample(numSamples: Int, withReplacement: Boolean, seed: Int): Array[Object] = {
+  override def getRandomSample(numSamples: Int, withReplacement: Boolean, seed: Int): java.util.List[Array[Object]] = {
 
     if (numSamples > MAX_SAMPLE_SIZE) {
-      throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE));
+      throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE))
     } else {
-      val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
-      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed);
+      val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[Array[Object]]]).asInstanceOf[RDD[Array[Object]]]
+      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed).asInstanceOf[java.util.List[Array[Object]]]
       sampleRdd
-      //new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+      //new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
     }
   }
 
   override def getRandomSample(percent: Double, withReplacement: Boolean, seed: Int): DDF = {
 
-    val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
-    val sampleRdd = rdd.sample(withReplacement, percent, seed);
-    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+    val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[Array[Object]]]).asInstanceOf[RDD[Array[Object]]]
+    val sampleRdd = rdd.sample(withReplacement, percent, seed)
+    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Array[Object]]], classOf[Array[Object]], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
   }
 }
 
