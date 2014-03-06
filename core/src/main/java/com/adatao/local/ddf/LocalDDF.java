@@ -66,15 +66,17 @@ public class LocalDDF extends DDF {
    * Signature without List, useful for creating a dummy DDF used by DDFManager
    * 
    * @param manager
+   * @throws DDFException 
    */
-  public LocalDDF(DDFManager manager) {
+  public LocalDDF(DDFManager manager) throws DDFException {
     super(manager, sDummyLocalDDFManager);
   }
 
   /**
    * For serdes only
+   * @throws DDFException 
    */
-  protected LocalDDF() {
+  protected LocalDDF() throws DDFException {
     super(sDummyLocalDDFManager);
   }
 

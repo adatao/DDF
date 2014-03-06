@@ -174,17 +174,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void uncacheAll() {
     // TODO Auto-generated method stub
-
   }
 
 
-  public enum RepresentationType {
+  public enum KnownTypes {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
 
-    public static RepresentationType fromString(String s) {
+    public static KnownTypes fromString(String s) {
       if (s == null || s.length() == 0) return null;
       s = s.toUpperCase().trim();
-      for (RepresentationType t : values()) {
+      for (KnownTypes t : values()) {
         if (s.equals(t.name())) return t;
       }
       return null;

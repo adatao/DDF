@@ -2,14 +2,18 @@ package com.adatao.ddf.analytics;
 
 
 import java.lang.reflect.Method;
+import java.util.List;
+import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
-import com.adatao.ddf.misc.Config.ConfigConstant;
 import com.adatao.ddf.util.Utils.ClassMethod;
+import com.adatao.ddf.util.Utils.MethodInfo;
+import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -43,11 +47,14 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
   }
 
+  /**
+   * Optional: put in any hard-coded mapping configuration here
+   */
   private void initializeConfiguration() {
-    if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans"))) {
-      Config.set(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans",
-          String.format("%s#%s", MLSupporter.class.getName(), "dummyKMeans"));
-    }
+    // if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans"))) {
+    // Config.set(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans",
+    // String.format("%s#%s", MLSupporter.class.getName(), "dummyKMeans"));
+    // }
   }
 
 
@@ -145,11 +152,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
 
-  public static IModel dummyKMeans() {
-    return new Model("Model Paramters");
-  }
-
-
 
   // //// ISupportML //////
 
@@ -164,32 +166,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
    * @return
    * @throws DDFException
    */
-  public IModel train(String trainMethodName, Object... args) throws DDFException {
-    int numColumns = (int) this.getDDF().getNumColumns();
-    if (numColumns < 0) numColumns = 0;
-
-    int[] featureColumnIndexes = new int[numColumns];
-    for (int i = 0; i < numColumns; i++) {
-      featureColumnIndexes[i] = i;
-    }
-
-    return this.trainImpl(trainMethodName, null, -1, null, featureColumnIndexes, args);
-  }
-
-
-
-  private IModel trainImpl(String trainMethodName, String targetColumnName, int targetColumnIndex,
-      String[] featureColumnNames, int[] featureColumnIndexes, Object... paramArgs) throws DDFException {
-
-    // Map column names to indices, if necessary
-    if (!Strings.isNullOrEmpty(targetColumnName) && targetColumnIndex != -1) {
-      targetColumnIndex = this.getColumnIndex(targetColumnName);
-    }
-
-    if (featureColumnNames != null && featureColumnIndexes == null) {
-      featureColumnIndexes = this.getColumnIndexes(featureColumnNames);
-    }
-
+  public IModel train(String trainMethodName, Object... paramArgs) throws DDFException {
     /**
      * Example signatures we must support:
      * <p/>
@@ -211,16 +188,16 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
      */
     // Build the argument type array
     if (paramArgs == null) paramArgs = new Object[0];
-    Class<?>[] argTypes = new Class<?>[paramArgs.length];
-    for (int i = 0; i < paramArgs.length; i++) {
-      argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
-    }
+    // Class<?>[] argTypes = new Class<?>[paramArgs.length];
+    // for (int i = 0; i < paramArgs.length; i++) {
+    // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
+    // }
 
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
 
-    MLClassMethod trainMethod = new MLClassMethod(trainMethodName, DEFAULT_TRAIN_METHOD_NAME, argTypes);
+    MLClassMethod trainMethod = new MLClassMethod(trainMethodName, DEFAULT_TRAIN_METHOD_NAME, paramArgs);
     if (trainMethod.getMethod() == null) {
       throw new DDFException(String.format("Cannot locate method specified by %s", trainMethodName));
     }
@@ -238,8 +215,34 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
 
+  @SuppressWarnings("unchecked")
   private Object[] buildArgsForMethod(Method method, Object[] paramArgs) {
-    return null; // TODO
+    MethodInfo methodInfo = new MethodInfo(method);
+    List<ParamInfo> paramInfos = methodInfo.getParamInfos();
+    if (paramInfos == null || paramInfos.size() == 0) return new Object[0];
+
+    Object firstParam = this.convertDDF(paramInfos.get(0));
+
+    if (paramArgs == null || paramArgs.length == 0) {
+      return new Object[] { firstParam };
+
+    } else {
+      List<Object> result = Lists.newArrayList();
+      result.add(firstParam);
+      result.addAll(Arrays.asList(paramArgs));
+      return result.toArray(new Object[0]);
+    }
+  }
+
+  /**
+   * Override this to return the approriate DDF representation matching that specified in {@link ParamInfo}. The base
+   * implementation simply returns the DDF.
+   * 
+   * @param paramInfo
+   * @return
+   */
+  protected Object convertDDF(ParamInfo paramInfo) {
+    return this.getDDF();
   }
 
 
@@ -261,31 +264,47 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     protected void findAndSetMethod(Class<?> theClass, String methodName, Class<?>... argTypes)
         throws NoSuchMethodException, SecurityException {
 
+      if (argTypes == null) argTypes = new Class<?>[0];
+
       Method foundMethod = null;
 
       // Scan all methods
       for (Method method : theClass.getDeclaredMethods()) {
         if (!methodName.equalsIgnoreCase(method.getName())) continue;
 
+
         // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
         Class<?>[] methodArgTypes = method.getParameterTypes();
-        boolean allMatched = true;
-        for (int a = argTypes.length - 1, m = methodArgTypes.length - 1; a >= 0; a--, m--) {
 
-          if ((argTypes[a] != null && !methodArgTypes[m].isAssignableFrom(argTypes[a])) //
-              || //
-              (argTypes[a] == null && !methodArgTypes[m].isAssignableFrom(Object.class)) //
-          ) {
-            allMatched = false;
-            break;
-          }
+        // Check that the number of args are correct (the # of args in the method must be >= the # of args supplied
+        // here)
+        if (methodArgTypes.length < argTypes.length) continue;
 
-        }
 
-        if (allMatched) {
-          foundMethod = method;
-          break;
-        }
+        foundMethod = method;
+        break;
+
+        // @formatter:off
+        // NB: we don't do this for now because the arg types are hard to match properly, e.g., int or null.
+        // Now check that the arg types match
+//        boolean allMatched = true;
+//        for (int a = argTypes.length - 1, m = methodArgTypes.length - 1; a >= 0; a--, m--) {
+//
+//          if ((argTypes[a] != null && !methodArgTypes[m].isAssignableFrom(argTypes[a])) //
+//              || //
+//              (argTypes[a] == null && !methodArgTypes[m].isAssignableFrom(Object.class)) //
+//          ) {
+//            allMatched = false;
+//            break;
+//          }
+//
+//        }
+//
+//        if (allMatched) {
+//          foundMethod = method;
+//          break;
+//        }
+        // @formatter:on
       }
 
       if (foundMethod != null) {
@@ -293,24 +312,5 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
         this.setMethod(foundMethod);
       }
     }
-  }
-
-
-  private int getColumnIndex(String columnName) throws DDFException {
-    return this.getColumnIndexes(new String[] { columnName })[0];
-  }
-
-  private int[] getColumnIndexes(String[] columnNames) throws DDFException {
-    if (columnNames == null || columnNames.length == 0) {
-      throw new DDFException("List of column names cannot be null or empty");
-    }
-
-    int[] columnIndexes = new int[columnNames.length];
-
-    for (int i = 0; i < columnNames.length; i++) {
-      columnIndexes[i] = this.getDDF().getColumnIndex(columnNames[i]);
-    }
-
-    return columnIndexes;
   }
 }

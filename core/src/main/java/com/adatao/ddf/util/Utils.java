@@ -14,6 +14,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -426,6 +428,116 @@ public class Utils {
     Iterable<?> iterable = (Iterable<?>) maybeIterable;
     Iterator<?> iterator = iterable.iterator();
     return iterator.hasNext() ? iterator.next() : null;
+  }
+
+
+  public static class MethodInfo {
+
+    private Method mMethod;
+    private List<ParamInfo> mParamInfos;
+
+
+    public MethodInfo(Method method) {
+      mMethod = method;
+      this.parse();
+    }
+
+    public Method getMethod() {
+      return mMethod;
+    }
+
+    public List<ParamInfo> getParamInfos() {
+      return mParamInfos;
+    }
+
+    private void parse() {
+      mParamInfos = Lists.newArrayList();
+
+      for (Type type : mMethod.getGenericParameterTypes()) {
+        mParamInfos.add(new ParamInfo(type));
+      }
+    }
+
+
+    public static class ParamInfo {
+      private Type mType;
+      private Type[] mTypeArgs;
+      private boolean bIsParameterizedType;
+
+
+      public ParamInfo(Type methodType) {
+        mType = methodType;
+
+        if (methodType instanceof ParameterizedType) {
+          bIsParameterizedType = true;
+          mType = ((ParameterizedType) methodType).getRawType();
+          mTypeArgs = ((ParameterizedType) methodType).getActualTypeArguments();
+        }
+      }
+
+      public boolean isParameterizedType() {
+        return bIsParameterizedType;
+      }
+
+      public boolean argMatches(Class<?> argType) {
+        return (argType.isAssignableFrom((Class<?>) mType));
+      }
+
+      public boolean argMatches(String argType) {
+        return mType.toString().indexOf(argType) >= 0;
+      }
+
+      public boolean argMatches(Class<?> argType, Class<?>... paramTypes) {
+        if (paramTypes == null) return this.argMatches(argType);
+
+        return (this.argMatches(argType) && this.paramMatches(paramTypes));
+      }
+
+      public boolean argMatches(String argType, String... paramTypes) {
+        if (paramTypes == null) return this.argMatches(argType);
+
+        return (this.argMatches(argType) && this.paramMatches(paramTypes));
+      }
+
+      public boolean paramMatches(Class<?>... paramTypes) {
+        for (int i = 0; i < paramTypes.length; i++) {
+          if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+        }
+
+        return true;
+      }
+
+      public boolean paramMatches(String... paramTypes) {
+        for (int i = 0; i < paramTypes.length; i++) {
+          if (mTypeArgs[i].toString().indexOf(paramTypes[0]) < 0) return false;
+        }
+
+        return true;
+      }
+
+
+      public Type getType() {
+        return mType;
+      }
+
+      public Class<?> getTypeClass() {
+        return (Class<?>) mType;
+      }
+
+      public Type[] getTypeArgs() {
+        return mTypeArgs;
+      }
+
+      @Override
+      public String toString() {
+        if (this.isParameterizedType()) {
+          return String.format("%s<%s>", this.getType(), Arrays.toString(this.getTypeArgs()));
+
+        } else {
+          return mType.toString();
+        }
+      }
+    }
   }
 
 }

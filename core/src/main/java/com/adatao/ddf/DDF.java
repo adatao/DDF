@@ -92,34 +92,38 @@ public abstract class DDF extends ALoggable //
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
     this.initialize(manager, data, namespace, name, schema);
+  }
+
+  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) throws DDFException {
+    this(manager != null ? manager : defaultManagerIfNull, null, null, null, null);
   }
 
   /**
    * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
+   * @throws DDFException 
    */
-  protected DDF(DDFManager manager) {
+  protected DDF(DDFManager manager) throws DDFException {
     this(manager, sDummyManager);
   }
 
-  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) {
-    this.setManager(manager != null ? manager : defaultManagerIfNull);
-  }
-
   /**
-   * Available for serialization by subclasses only.
+   * Available for run-time instantiation only.
+   * @throws DDFException 
    */
-  protected DDF() {
+  protected DDF() throws DDFException {
     this(sDummyManager);
   }
 
-  protected void initialize(DDFManager manager, Object data, String namespace, String name,
-      Schema schema) throws DDFException {
+  /**
+   * Initialization to be done after constructor assignments, such as setting of the all-important DDFManager.
+   */
+  protected void initialize(DDFManager manager, Object data, String namespace, String name, Schema schema)
+      throws DDFException {
 
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
@@ -132,15 +136,11 @@ public abstract class DDF extends ALoggable //
     this.setNamespace(namespace);
 
     this.setName(name);
+
+    // Facades
+    this.ML = new MLFacade(this, this.getMLSupporter());
+
   }
-
-
-
-  // ////// Global/Static Fields & Methods ////////
-
-
-
-  // ////// Global configuration handling ////////
 
 
 
@@ -730,7 +730,7 @@ public abstract class DDF extends ALoggable //
 
   // //// ISupportML //////
 
-  public final MLFacade ML = new MLFacade(this, this.getMLSupporter());
+  public MLFacade ML;
 
 
 

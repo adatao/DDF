@@ -100,7 +100,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     } catch (Exception e) {
       throw new DDFException("Cannot get DDFManager for engine " + engineName, e);
     }
-    
+
     return manager;
   }
 
@@ -131,8 +131,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * @return
    * @throws DDFException
    */
-  public DDF newDDF(DDFManager manager, Object data, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF newDDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
     // @formatter:off
     return this.newDDF(
@@ -167,13 +166,13 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /**
-   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that requires no argument.
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", passing in this DDFManager as the sole argument
    * 
    * @return the newly instantiated DDF
    * @throws DDFException
    */
   public DDF newDDF() throws DDFException {
-    return this.newDDF(new Class<?>[] {}, new Object[] {});
+    return this.newDDF(new Class<?>[] { DDFManager.class }, new Object[] { this });
   }
 
 
