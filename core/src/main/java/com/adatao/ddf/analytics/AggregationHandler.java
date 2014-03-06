@@ -51,12 +51,13 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     String tableName = this.getDDF().getTableName();
 
     String sqlCmd = AggregateField.toSql(fields, tableName);
-
+    mLog.info("SQL Command: " + sqlCmd);
     try {
       List<String> result = this.getManager().sql2txt(sqlCmd);
       return AggregationResult.newInstance(result, fields.size());
 
     } catch (Exception e) {
+      e.printStackTrace();
       throw new DDFException("Unable to query from " + tableName, e);
     }
   }
@@ -75,9 +76,10 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       AggregationResult result = new AggregationResult();
 
       for (String res : sqlResult) {
-        int pos = StringUtils.ordinalIndexOf(res, "\t", numFields);
-        String groupByColNames = res.substring(0, pos).replaceAll("\t", ",");
-        String[] stats = res.substring(pos + 1).split("\t");
+        System.out.println("RESULT " + res);
+        int pos = StringUtils.ordinalIndexOf(res, "\\s", numFields);
+        String groupByColNames = res.substring(0, pos).replaceAll("\\s", ",");
+        String[] stats = res.substring(pos + 1).split("\\s");
 
         Double[] statsDouble = new Double[stats.length];
 
@@ -186,7 +188,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
           fields.add(new AggregateField(parts[0])); // just column name
 
         } else {
-          fields.add(new AggregateField(parts[0].replaceAll("\\)", ""), parts[1])); // function(columnName)
+          fields.add(new AggregateField(parts[0], parts[1].replaceAll("\\)", ""))); // function(columnName)
         }
       }
 
