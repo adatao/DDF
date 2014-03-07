@@ -77,9 +77,9 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
       for (String res : sqlResult) {
         System.out.println("RESULT " + res);
-        int pos = StringUtils.ordinalIndexOf(res, "\\s", numFields);
-        String groupByColNames = res.substring(0, pos).replaceAll("\\s", ",");
-        String[] stats = res.substring(pos + 1).split("\\s");
+        int pos = StringUtils.ordinalIndexOf(res, "\t", numFields - 1);
+        String groupByColNames = res.substring(0, pos).replaceAll("\\t", ",");
+        String[] stats = res.substring(pos + 1).split("\\t");
 
         Double[] statsDouble = new Double[stats.length];
 
