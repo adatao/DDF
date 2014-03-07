@@ -4,6 +4,7 @@ from analytics import FiveNumSummary
 class DDF(object):
     def __init__(self, jddf):
         self._jddf = jddf
+        self.Views = ViewsFacade(self._jddf.getViews())
     
     def getSummary(self):
         jsummary = self._jddf.getSummary()
@@ -30,3 +31,13 @@ class DDF(object):
         
     def aggregate(self, fields):
         return self._jddf.aggregate(fields)
+        
+
+class ViewsFacade(object):
+    def __init__(self, jViewsFacade):
+        self._jViewsFacade = jViewsFacade
+
+    def firstNRows(self, numRows):
+        return DDF(self._jViewsFacade.firstNRows(numRows))
+
+

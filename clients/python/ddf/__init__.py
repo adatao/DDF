@@ -2,8 +2,8 @@
 
 """
 
-from spark_ddf import SparkDDFManager
+from spark_ddf import DDFManager
 
-__all__ = ["SparkDDFManager"]
+__all__ = ["DDFManager"]
 
 

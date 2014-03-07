@@ -279,6 +279,9 @@ public abstract class DDF extends ALoggable //
 
   public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
 
+  public ViewsFacade getViews() {
+    return Views;
+  }
   // ///// Aggregate operations
 
   /**
