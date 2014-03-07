@@ -40,7 +40,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
     List<String> specs = Lists.newArrayList();
     for (String columnName : columnNames) {
-      specs.add(fiveNumFunction(columnName));
+      String fn = fiveNumFunction(columnName);
+      if (fn != null && fn.length() > 0)
+          specs.add(fn);
     }
 
     String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));

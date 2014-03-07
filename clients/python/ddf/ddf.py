@@ -13,8 +13,12 @@ class DDF(object):
         return psummary
 
     def getFiveNumSummary(self):
-        return FiveNumSummary(self._jddf.getFiveNumSummary()
-        
+        jFiveSummary = self._jddf.getFiveNumSummary()
+        pFiveSummary = []
+        for s in jFiveSummary:
+            pFiveSummary.append(FiveNumSummary(s))
+        return pFiveSummary
+
     def getColumnNames(self):
         return self._jddf.getColumnNames()
         
@@ -24,4 +28,5 @@ class DDF(object):
     def getNumColumns(self):
         return self._jddf.getNumColumns()
         
-    
+    def aggregate(self, fields):
+        return self._jddf.aggregate(fields)

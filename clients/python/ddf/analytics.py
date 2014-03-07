@@ -32,9 +32,13 @@ class FiveNumSummary(object):
     def getThird_quantile(self):
         return self._jFiveNumSummary.getThird_quantile()
         
+"""        
+class AggregationResult(object):
+    def __init__(self, jAggregationResult):
+        self._jAggregationResult = jAggregationResult
         
-        
-        
+    
+"""        
         
         
         
