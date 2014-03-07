@@ -51,10 +51,13 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     String tableName = this.getDDF().getTableName();
 
     String sqlCmd = AggregateField.toSql(fields, tableName);
-
+    int numUnaggregatedFields = 0;
+    for (AggregateField field : fields) {
+      if(!field.isAggregated()) numUnaggregatedFields ++;
+    }
     try {
       List<String> result = this.getManager().sql2txt(sqlCmd);
-      return AggregationResult.newInstance(result, fields.size());
+      return AggregationResult.newInstance(result, numUnaggregatedFields);
 
     } catch (Exception e) {
       throw new DDFException("Unable to query from " + tableName, e);
@@ -70,12 +73,12 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     private static final long serialVersionUID = 1L;
 
 
-    public static AggregationResult newInstance(List<String> sqlResult, int numFields) {
+    public static AggregationResult newInstance(List<String> sqlResult, int numUnaggregatedFields) {
 
       AggregationResult result = new AggregationResult();
 
       for (String res : sqlResult) {
-        int pos = StringUtils.ordinalIndexOf(res, "\t", numFields);
+        int pos = StringUtils.ordinalIndexOf(res, "\t", numUnaggregatedFields);
         String groupByColNames = res.substring(0, pos).replaceAll("\t", ",");
         String[] stats = res.substring(pos + 1).split("\t");
 
