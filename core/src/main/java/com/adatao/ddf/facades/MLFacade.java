@@ -42,17 +42,24 @@ public class MLFacade implements ISupportML {
     mMLSupporter = mlSupporter;
   }
 
+
   @Override
-  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithm, params);
+  public IModel train(String trainMethodName, Object... params) throws DDFException {
+    return this.getMLSupporter().train(trainMethodName, params);
   }
 
-  public IModel train(String algorithmNameOrClassName, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithmNameOrClassName, params);
+
+
+  // //// Convenient facade ML algorithm names //////
+
+  public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
+      throws DDFException {
+    return this.train("kmeans", featureColumnIndexes, numCentroids, maxIters, runs, initMode);
   }
 
-  public IModel kMeans(int numCentroids, int maxIters, int runs, String initMode) throws DDFException {
-    return this.train("kmeans", numCentroids, maxIters, runs, initMode);
+  public IModel linearRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
+      double miniBatchFraction) throws DDFException {
+    return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
 
 }

@@ -4,7 +4,6 @@
 package com.adatao.local.ddf.content;
 
 
-import java.io.IOException;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.APersistenceHandler;
@@ -19,7 +18,9 @@ import com.adatao.local.ddf.LocalDDF;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.google.gson.internal.StringMap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 /**
  * This {@link PersistenceHandler} loads and saves from/to a designated local storage area.
@@ -37,7 +38,7 @@ public class PersistenceHandler extends APersistenceHandler {
     try {
       result = Utils.locateOrCreateDirectory(Config.getLocalPersistenceDir());
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new DDFException(String.format("Unable to getPersistenceDirectory(%s)", path), e);
     }
 
@@ -51,7 +52,7 @@ public class PersistenceHandler extends APersistenceHandler {
       path = String.format("%s/%s", this.locateOrCreatePersistenceDirectory(), subdir);
       result = Utils.locateOrCreateDirectory(path);
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new DDFException(String.format("Unable to getPersistenceSubdirectory(%s)", path), e);
     }
 
@@ -96,16 +97,20 @@ public class PersistenceHandler extends APersistenceHandler {
     }
 
     try {
+      this.getDDF().beforePersisting();
+
       Utils.writeToFile(dataFile, JsonSerDes.serialize(this.getDDF()) + '\n');
       Utils.writeToFile(schemaFile, JsonSerDes.serialize(this.getDDF().getSchema()) + '\n');
 
+      this.getDDF().afterPersisting();
+
     } catch (Exception e) {
-      throw new DDFException(e);
+      if (e instanceof DDFException) throw (DDFException) e;
+      else throw new DDFException(e);
     }
 
     return new PersistenceUri(this.getDDF().getEngine(), dataFile);
   }
-
 
 
   /*
@@ -115,8 +120,12 @@ public class PersistenceHandler extends APersistenceHandler {
    */
   @Override
   public void unpersist(String namespace, String name) throws DDFException {
+    this.getDDF().beforeUnpersisting();
+
     Utils.deleteFile(this.getDataFileName(namespace, name));
     Utils.deleteFile(this.getSchemaFileName(namespace, name));
+
+    this.getDDF().afterUnpersisting();
   }
 
   /*
@@ -169,18 +178,14 @@ public class PersistenceHandler extends APersistenceHandler {
   public IPersistible load(String namespace, String name) throws DDFException {
     Object loadedObject = null, schema = null;
 
-    try {
-      loadedObject = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".dat"));
-      if (loadedObject == null) throw new DDFException((String.format("Got null for IPersistible for %s/%s", namespace,
-          name)));
 
-      schema = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".sch"));
-      // NB: schema may be null
-      // if (schema == null) throw new DDFException((String.format("Got null for Schema for %s/%s", namespace, name)));
+    loadedObject = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".dat"));
+    if (loadedObject == null) throw new DDFException((String.format("Got null for IPersistible for %s/%s", namespace,
+        name)));
 
-    } catch (Exception e) {
-      throw new DDFException(String.format("Unable to load IPersistible or schema for %s/%s", namespace, name), e);
-    }
+    schema = JsonSerDes.loadFromFile(this.getFilePath(namespace, name, ".sch"));
+    if (schema == null) throw new DDFException((String.format("Got null for Schema for %s/%s", namespace, name)));
+
 
     if (!(loadedObject instanceof IPersistible)) {
       throw new DDFException("Expected object to be IPersistible, got " + loadedObject.getClass());
@@ -300,7 +305,7 @@ public class PersistenceHandler extends APersistenceHandler {
       list.add(new Object[] { this, this.getClass().getName() });
       Schema schema = new Schema(this.getName(), "object BLOB, objectClass STRING");
 
-      LocalDDF ddf = new LocalDDF(list, this.getClass(), this.getNamespace(), this.getName(), schema);
+      LocalDDF ddf = new LocalDDF(list, this.getNamespace(), this.getName(), schema);
 
       return ddf;
     }
@@ -319,32 +324,41 @@ public class PersistenceHandler extends APersistenceHandler {
      *   LocalDDF ddf = (LocalDDF) ddfManager.load(uri);
      *   Model model = (Model) ddf.getList().get(0);
      * </code>
+     * 
+     * @throws DDFException
      */
-    public static ISerializable parseDeserializedObject(//
-        List<?> dataRows, Class<?> rowType, ISerializable deserializedObject) {
+    public static ISerializable unwrapDeserializedObject(//
+        List<?> dataRows, ISerializable deserializedObject, JsonElement deserializedWrappedObject) throws DDFException {
 
-      if (dataRows.size() == 1 && IPersistible.class.isAssignableFrom(rowType)) {
+      if (dataRows.size() == 1) {
         // Now we know there is only one data row, and the rowType is IPersistible
         // which are characteristics of a LocalDDF containing an IPersistible object
 
-        @SuppressWarnings("unchecked")
-        List<Object> data = (List<Object>) dataRows.get(0);
+        if (deserializedWrappedObject instanceof JsonArray) {
+          JsonElement data = ((JsonArray) deserializedWrappedObject).get(0);
 
-        if (data != null && data.size() == 2) {
-          // Now we know it's very likely a two-column schema (object BLOB, objectClass STRING)
+          if (data instanceof JsonArray) {
+            JsonArray array = (JsonArray) data;
+            if (array.size() == 2) {
+              // Now we know it's very likely a two-column schema (object BLOB, objectClass STRING)
+              JsonElement object = ((JsonArray) data).get(0);
+              JsonElement objectClass = ((JsonArray) data).get(1);
 
-          Object objectJson = data.get(0);
-          Object objectClass = data.get(1);
+              if (objectClass instanceof JsonPrimitive) {
+                try {
+                  Object embeddedObject = new Gson().fromJson(object.toString(),
+                      Class.forName(objectClass.getAsString()));
 
-          if (objectJson instanceof StringMap<?> && objectClass instanceof String) {
-            try {
-              Object embeddedObject = new Gson().fromJson(objectJson.toString(), Class.forName((String) objectClass));
-              if (embeddedObject instanceof ISerializable) {
-                deserializedObject = (ISerializable) embeddedObject;
+                  if (embeddedObject instanceof ISerializable) {
+                    // Yep, it's an ISerializable that we need to unwrap
+                    deserializedObject = (ISerializable) embeddedObject;
+                  }
+
+                } catch (Exception e) {
+                  if (e instanceof DDFException) throw (DDFException) e;
+                  else throw new DDFException(String.format("Unable to unwrap object from %s", object.toString()), e);
+                }
               }
-
-            } catch (Exception e) {
-              e.printStackTrace();
             }
           }
         }

@@ -4,8 +4,8 @@
 package com.adatao.ddf.content;
 
 import java.util.Iterator;
+import java.util.List;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
@@ -35,12 +35,12 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time
    * returning a single element from that column.
    * 
-   * @param rowType
+   * @param dataType
    * @param columnType
    * @param columnIndex
    * @return
    */
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, int columnIndex);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex);
 
 
   /**
@@ -57,12 +57,12 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time
    * returning a single element from that column.
    * 
-   * @param rowType
+   * @param dataType
    * @param columnType
    * @param columnName
    * @return
    */
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName);
 
   /**
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time

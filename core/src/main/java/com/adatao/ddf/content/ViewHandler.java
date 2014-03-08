@@ -22,10 +22,10 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-    if (rowType == null) rowType = (Class<T>) this.getDDF().getRepresentationHandler().getDefaultRowType();
+  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
+    if (dataType == null) dataType = (Class<T>) this.getDDF().getRepresentationHandler().getDefaultDataType();
 
-    Object repr = this.getDDF().getRepresentationHandler().get(rowType);
+    Object repr = this.getDDF().getRepresentationHandler().get(dataType);
     return (repr instanceof Iterable<?>) ? ((Iterable<T>) repr).iterator() : null;
   }
 
@@ -42,16 +42,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
 
-  public static class ElementIterator<R, C> implements Iterator<C> {
+  public static class ElementIterator<C> implements Iterator<C> {
 
-    private Iterator<R> mRowIterator;
-    private Class<R> mRowType;
+    private Iterator<?> mRowIterator;
     private int mColumnIndex;
 
 
-    public ElementIterator(Iterator<R> rowIterator, Class<R> rowType, int columnIndex) {
+    public ElementIterator(Iterator<?> rowIterator, int columnIndex) {
       mRowIterator = rowIterator;
-      mRowType = rowType;
       mColumnIndex = columnIndex;
     }
 
@@ -63,13 +61,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     @SuppressWarnings("unchecked")
     @Override
     public C next() {
-      R row = mRowIterator.next();
+      Object row = mRowIterator.next();
+      if (row == null) return null;
 
-      if (mRowType.isArray()) {
+      if (row.getClass().isArray()) {
         C[] x = (C[]) row;
         return x[mColumnIndex];
 
-      } else if (List.class.isAssignableFrom(mRowType)) {
+      } else if (List.class.isAssignableFrom(row.getClass())) {
         return ((List<C>) row).get(mColumnIndex);
 
       } else {
@@ -85,17 +84,22 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
 
   /**
-   * The base implementation supports the case where the rowType is an Array or List
+   * The base implementation supports the case where the dataType is an Array or List
    */
   @SuppressWarnings("unchecked")
   @Override
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, int columnIndex) {
-    if (rowType == null) rowType = (Class<R>) this.getDDF().getRepresentationHandler().getDefaultRowType();
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
+    if (dataType == null) {
+      Object data = this.getDDF().getRepresentationHandler().getDefault();
+      if (data == null) return null;
+      dataType = data.getClass();
+    }
+
     if (columnType == null) columnType = (Class<C>) this.getDDF().getRepresentationHandler().getDefaultColumnType();
 
-    if (List.class.isAssignableFrom(rowType) || rowType.isArray()) {
-      Iterator<R> rowIterator = this.getRowIterator(rowType);
-      return new ElementIterator<R, C>(rowIterator, rowType, columnIndex);
+    if (Iterable.class.isAssignableFrom(dataType) || dataType.isArray()) {
+      Iterator<?> rowIterator = this.getRowIterator(dataType);
+      return new ElementIterator<C>(rowIterator, columnIndex);
 
     } else {
       return null;
@@ -103,8 +107,8 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
   @Override
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
-    return this.getElementIterator(rowType, columnType, this.getDDF().getColumnIndex(columnName));
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
+    return this.getElementIterator(dataType, columnType, this.getDDF().getColumnIndex(columnName));
   }
 
   @Override
