@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
+import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.ISupportStatistics;
@@ -105,7 +106,7 @@ public abstract class DDF extends ALoggable //
    * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
-   * @throws DDFException 
+   * @throws DDFException
    */
   protected DDF(DDFManager manager) throws DDFException {
     this(manager, sDummyManager);
@@ -113,7 +114,8 @@ public abstract class DDF extends ALoggable //
 
   /**
    * Available for run-time instantiation only.
-   * @throws DDFException 
+   * 
+   * @throws DDFException
    */
   protected DDF() throws DDFException {
     this(sDummyManager);
@@ -139,9 +141,8 @@ public abstract class DDF extends ALoggable //
 
     // Facades
     this.ML = new MLFacade(this, this.getMLSupporter());
-
+    this.Views = new ViewsFacade(this, this.getViewHandler());
   }
-
 
 
   // ////// Instance Fields & Methods ////////
@@ -271,15 +272,12 @@ public abstract class DDF extends ALoggable //
     return this.getSchemaHandler().getNumColumns();
   }
 
-  // ///// Execute SQL command // /////
-  public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
-    return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
-  }
 
 
   // ///// Generate DDF views
 
-  public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
+  public ViewsFacade Views;
+
 
 
   // ///// Aggregate operations
@@ -701,16 +699,16 @@ public abstract class DDF extends ALoggable //
     return this.getSchema().getColumnIndex(columnName);
   }
 
-  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-    return this.getViewHandler().getRowIterator(rowType);
+  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
+    return this.getViewHandler().getRowIterator(dataType);
   }
 
   public Iterator<?> getRowIterator() {
     return this.getViewHandler().getRowIterator();
   }
 
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
-    return this.getViewHandler().getElementIterator(rowType, columnType, columnName);
+  public <D, C> Iterator<C> getElementIterator(Class<D> dataType, Class<C> columnType, String columnName) {
+    return this.getViewHandler().getElementIterator(dataType, columnType, columnName);
   }
 
   public Iterator<?> getElementIterator(String columnName) {
@@ -724,6 +722,10 @@ public abstract class DDF extends ALoggable //
   // Calculate summary statistics of the DDF
   public Summary[] getSummary() throws DDFException{
     return this.getStatisticsSupporter().getSummary();
+  }
+
+  public FiveNumSummary[] getFiveNumSummary() throws DDFException {
+    return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
 
