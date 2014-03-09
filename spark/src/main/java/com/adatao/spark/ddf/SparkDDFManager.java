@@ -1,12 +1,21 @@
 package com.adatao.spark.ddf;
 
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkContext;
+
 import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
+
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
 
@@ -117,6 +126,7 @@ public class SparkDDFManager extends DDFManager {
     { "SPARK_SERIALIZER", "spark.serializer" },
     { "HIVE_HOME", "hive.home" },
     { "HADOOP_HOME", "hadoop.home" },
+    { "DDFLIB_JAR", "ddfspark.jar" },
     { "DDFSPARK_JAR", "ddfspark.jar" } 
     // @formatter:on
   };
@@ -160,7 +170,7 @@ public class SparkDDFManager extends DDFManager {
    */
   private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
     this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
-    String ddfSparkJar = params.get("DDFSPARK_JAR");
+    String ddfSparkJar = params.get("DDFSPARK_JAR") + "," +  listJarFiles(params.get("DDFLIB_JAR"));
     String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
     JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
@@ -169,5 +179,26 @@ public class SparkDDFManager extends DDFManager {
 
 
     return this.getSparkContext();
+  }
+  
+  private String listJarFiles(String path) {
+    File folder = new File(path);
+    
+    List<String> jarFiles = new ArrayList<String>();
+    for (File f: folder.listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        // TODO Auto-generated method stub
+        return pathname.getName().endsWith(".jar");
+      }
+    })) {
+      try {
+        jarFiles.add(f.getCanonicalPath());
+      } catch (IOException ioe) {
+        
+      }
+    }
+    
+    return StringUtils.join(jarFiles, ",");
   }
 }

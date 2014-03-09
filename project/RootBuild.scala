@@ -257,6 +257,7 @@ object RootBuild extends Build {
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
 								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
+								  <DDFLIB_JAR>${{basedir}}/{targetDir}/lib</DDFLIB_JAR>
 								</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
