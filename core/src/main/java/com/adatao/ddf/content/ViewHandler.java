@@ -22,10 +22,10 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
-    if (dataType == null) dataType = (Class<T>) this.getDDF().getRepresentationHandler().getDefaultDataType();
-
-    Object repr = this.getDDF().getRepresentationHandler().get(dataType);
+  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
+    if (rowType == null) rowType = (Class<T>) this.getDDF().getRepresentationHandler().getDefaultUnitType();
+    Class<?> containerType = this.getDDF().getRepresentationHandler().getDefaultContainerType();
+    Object repr = this.getDDF().getRepresentationHandler().get(containerType, rowType);
     return (repr instanceof Iterable<?>) ? ((Iterable<T>) repr).iterator() : null;
   }
 

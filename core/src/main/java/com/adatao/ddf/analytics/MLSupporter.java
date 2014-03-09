@@ -201,7 +201,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     if (trainMethod.getMethod() == null) {
       throw new DDFException(String.format("Cannot locate method specified by %s", trainMethodName));
     }
-
     // Now we need to map the DDF and its column specs to the input format expected by the method we're invoking
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
 
@@ -216,7 +215,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
 
   @SuppressWarnings("unchecked")
-  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) {
+  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) throws DDFException{
     MethodInfo methodInfo = new MethodInfo(method);
     List<ParamInfo> paramInfos = methodInfo.getParamInfos();
     if (paramInfos == null || paramInfos.size() == 0) return new Object[0];
@@ -241,7 +240,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
    * @param paramInfo
    * @return
    */
-  protected Object convertDDF(ParamInfo paramInfo) {
+  protected Object convertDDF(ParamInfo paramInfo) throws DDFException{
     return this.getDDF();
   }
 
@@ -276,13 +275,16 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
         // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
         Class<?>[] methodArgTypes = method.getParameterTypes();
 
-        // Check that the number of args are correct (the # of args in the method must be >= the # of args supplied
-        // here)
-        if (methodArgTypes.length < argTypes.length) continue;
+        // Check that the number of args are correct:
+        // the # of args in the method must be = 1 + the # of args supplied
+        // ASSUMING that one of the args in the method is for input data
 
-
-        foundMethod = method;
-        break;
+        if((methodArgTypes.length - 1) == argTypes.length){
+          foundMethod = method;
+          break;
+        }
+        //foundMethod = method;
+        //break;
 
         // @formatter:off
         // NB: we don't do this for now because the arg types are hard to match properly, e.g., int or null.

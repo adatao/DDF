@@ -18,18 +18,20 @@ public class MLTests {
 
   private void initializeConfiguration() {
     if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_SPARK.toString(), "kmeans"))) {
-      Config.set(ConfigConstant.ENGINE_NAME_SPARK.toString(), "kmeans",
+      Config.set(ConfigConstant.ENGINE_NAME_SPARK.toString(), "kmeans2",
           String.format("%s#%s", this.getClass().getName(), "dummyKMeans"));
     }
   }
 
   public static IModel dummyKMeans(RDD<Object> arg1, int arg2, Double arg3) {
+
     return new Model("Model Paramters");
   }
 
   @Test
   public void testTrain() throws DDFException {
     this.initializeConfiguration();
+
 
     DDF ddf = DDFManager.get("spark").newDDF();
     Assert.assertNotNull("DDF cannot be null", ddf);
@@ -41,7 +43,7 @@ public class MLTests {
     Assert.assertNotNull("Model cannot be null", model);
 
     // This uses the mapping config to go from "kmeans" to "com.adatao.spark.ddf.analytics.MLTests#dummyKMeans"
-    model = ddf.ML.train("kmeans", 1, 2.2);
+    model = ddf.ML.train("kmeans2", 1, 2.2);
     Assert.assertNotNull("Model cannot be null", model);
   }
 

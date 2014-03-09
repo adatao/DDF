@@ -27,21 +27,21 @@ public class LocalDDF extends DDF {
   protected static final LocalDDFManager sDummyLocalDDFManager = new LocalDDFManager();
 
 
-  private Class<?> mDataType;
+  private Class<?> mUnitType;
   @Expose private List<?> mData; // only needed during serialization
-  @Expose private String mDataTypeName; // only needed during serialization
+  @Expose private String mUnitTypeName; // only needed during serialization
 
 
-  public LocalDDF(List<?> rows, String namespace, String name, Schema schema) throws DDFException {
-    this((DDFManager) null, (List<?>) rows, namespace, name, schema);
-    if (rows != null) mDataType = rows.getClass();
+  public LocalDDF(List<?> rows, Class<?> unitType,String namespace, String name, Schema schema) throws DDFException {
+    this((DDFManager) null, (List<?>) rows, unitType,namespace, name, schema);
+    if (rows != null) mUnitType = unitType;
   }
 
-  public LocalDDF(DDFManager manager, List<?> rows, String namespace, String name, Schema schema) throws DDFException {
+  public LocalDDF(DDFManager manager, List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
     super(manager, sDummyLocalDDFManager);
     if (rows == null) throw new DDFException("Non-null rows List is required to instantiate a new LocalDDF");
-    mDataType = rows.getClass();
-    this.initialize(manager, rows, namespace, name, schema);
+    mUnitType = unitType;
+    this.initialize(manager, rows, List.class ,unitType, namespace, name, schema);
   }
 
   /**
@@ -54,12 +54,12 @@ public class LocalDDF extends DDF {
    * @param schema
    * @throws DDFException
    */
-  public LocalDDF(DDFManager manager, Object rows, String namespace, String name, Schema schema) throws DDFException {
+  public LocalDDF(DDFManager manager, Object rows, Class<?> unitType,String namespace, String name, Schema schema) throws DDFException {
 
     super(manager, sDummyLocalDDFManager);
     if (rows == null) throw new DDFException("Non-null rows Object is required to instantiate a new LocalDDF");
-    mDataType = rows.getClass();
-    this.initialize(manager, rows, namespace, name, schema);
+    mUnitType = unitType;
+    this.initialize(manager, rows, rows.getClass(),unitType, namespace, name, schema);
   }
 
   /**
@@ -84,11 +84,11 @@ public class LocalDDF extends DDF {
 
   @SuppressWarnings("unchecked")
   public <T> List<T> getList(Class<T> rowType) {
-    return (List<T>) this.getRepresentationHandler().get(rowType);
+    return (List<T>) this.getRepresentationHandler().get(List.class , rowType);
   }
 
-  public void setList(List<?> data) {
-    this.getRepresentationHandler().set(data);
+  public void setList(List<?> data, Class<?> rowType) {
+    this.getRepresentationHandler().set(data, List.class, rowType);
   }
 
 
@@ -102,8 +102,8 @@ public class LocalDDF extends DDF {
   @Override
   public void beforeSerialization() throws DDFException {
     super.beforeSerialization();
-    mData = this.getList(mDataType);
-    mDataTypeName = (mDataType != null ? mDataType.getName() : null);
+    mData = this.getList(mUnitType);
+    mUnitTypeName = (mUnitType != null ? mUnitType.getName() : null);
   }
 
   /**
@@ -112,7 +112,7 @@ public class LocalDDF extends DDF {
   @Override
   public void afterSerialization() throws DDFException {
     mData = null;
-    mDataTypeName = null;
+    mUnitType = null;
     super.afterSerialization();
   }
 
@@ -136,12 +136,12 @@ public class LocalDDF extends DDF {
       throws DDFException {
 
     try {
-      if (!Strings.isNullOrEmpty(mDataTypeName)) {
-        mDataType = Class.forName(mDataTypeName);
+      if (!Strings.isNullOrEmpty(mUnitTypeName)) {
+        mUnitType = Class.forName(mUnitTypeName);
       }
 
       if (mData != null) {
-        this.setList(mData);
+        this.setList(mData, mUnitType);
 
         // See if we need to "unwrap" this object and return the wrapped object instead
         JsonElement deserializedWrappedObject = (serializationData instanceof JsonObject ? //

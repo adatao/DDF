@@ -5,8 +5,12 @@ package com.adatao.ddf.content;
 
 
 import java.util.HashMap;
+import java.util.List;
+
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.types.NA;
 
 /**
@@ -24,8 +28,8 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?> dataType) {
-    return this.getSafedataType(dataType).toString();
+  protected String getKeyFor(Class<?> containerType, Class<?> unitType) {
+    return String.format("%s_%s", containerType.toString(), unitType.toString());
   }
 
   protected Class<?> getSafedataType(Class<?> dataType) {
@@ -35,46 +39,70 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   /**
    * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
    * 
-   * @param dataType
+   * @param containerType
    *          the type of the DDF data representation
+   * @param unitType
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> dataType) {
-    return this.get(dataType, true);
+  public Object get(Class<?> containerType, Class<?> unitType) {
+    return this.get(containerType, unitType, true);
   }
 
-  private Object get(Class<?> dataType, boolean doCreate) {
-    dataType = this.getSafedataType(dataType);
+  @Override
+  public Object get(Class<?> unitType) throws DDFException {
+    return this.get(this.getDefaultEngineContainerType(), unitType);
+  }
 
-    Object obj = mReps.get(getKeyFor(dataType));
+  private Object get(Class<?> containerType, Class<?> unitType, boolean doCreate) {
+    containerType = this.getSafedataType(containerType);
+    unitType = this.getSafedataType(unitType);
+
+    Object obj = mReps.get(getKeyFor(containerType, unitType));
+
     if (obj == null && doCreate) {
-      obj = this.createRepresentation(dataType);
-      if (obj != null) this.add(obj);
+      obj = this.createRepresentation(containerType, unitType);
+      if (obj != null) this.add(obj, containerType, unitType);
     }
 
     return obj;
   }
 
 
-  private Class<?> mDefaultDataType;
+  private Class<?> mDefaultUnitType;
 
-
+  private Class<?> mDefaultContainerType;
   /**
    * Returns the default dataType for this engine. The base implementation returns Object[][].class.
    * 
    * @return
    */
   @Override
-  public Class<?> getDefaultDataType() {
-    return mDefaultDataType;
+  public Class<?> getDefaultUnitType() {
+    return mDefaultUnitType;
   }
 
-  public void setDefaultDataType(Class<?> dataType) {
-    mDefaultDataType = dataType;
+  public void setDefaultUnitType(Class<?> unitType) {
+    mDefaultUnitType = unitType;
   }
 
+  @Override
+  public Class<?> getDefaultContainerType() {
+    return mDefaultContainerType;
+  }
+
+  private Class<?> getDefaultEngineContainerType() throws DDFException{
+    try {
+      String containerName = Config.getValueWithGlobalDefault(this.getEngine(), "DefaultEngineContainerType");
+      return Class.forName(containerName);
+    } catch(Exception e) {
+      throw new DDFException("Cannot get engine's default ContainerType");
+    }
+  }
+  public void setDefaultContainerType(Class<?> containerType) {
+    mDefaultContainerType = containerType;
+  }
   /**
    * Returns the default columnType for this engine. The base implementation returns Object.class.
    * 
@@ -86,7 +114,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
   @Override
   public Object getDefault() {
-    return this.get(this.getDefaultDataType());
+    return this.get(this.getDefaultContainerType(), getDefaultUnitType());
   }
 
   /**
@@ -95,7 +123,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void reset() {
     mReps.clear();
-    this.setDefaultDataType(null);
+    this.setDefaultUnitType(null);
   }
 
   /**
@@ -104,12 +132,13 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * The base representation returns only the default representation if the dataType matches the default type. Otherwise
    * it returns null.
    * 
-   * @param dataType
+   * @param containerType
    * @return
    */
-  public Object createRepresentation(Class<?> dataType) {
-    return (this.getDefaultDataType() != null && this.getDefaultDataType().equals(dataType)) ? this
-        .get(dataType, false) : null;
+  public Object createRepresentation(Class<?> containerType, Class<?> unitType) {
+    return (this.getDefaultContainerType() != null && this.getDefaultContainerType().equals(containerType) ||
+            this.getDefaultUnitType() != null && this.getDefaultUnitType().equals(unitType)) ? this
+        .get(containerType, unitType, false) : null;
   }
 
   /**
@@ -117,31 +146,38 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * 
    */
   @Override
-  public void set(Object data) {
+  public void set(Object data, Class<?> containerType, Class<?> unitType) {
     this.reset();
-    if (data != null) this.setDefaultDataType(data.getClass());
-    this.add(data);
+    if (data != null) {
+      this.setDefaultContainerType(containerType);
+      this.setDefaultUnitType(unitType);
+    }
+    this.add(data, containerType, unitType);
   }
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but replacing the one that
-   * matches the given DDFManagerType, dataType tuple.
+   * matches the given DDFManagerType, containerType, unitType.
    */
   @Override
-  public void add(Object data) {
+  public void add(Object data, Class<?> containerType, Class<?> unitType) {
     if (data == null) return;
-    if (this.getDefaultDataType() == null) this.setDefaultDataType(data.getClass());
-    mReps.put(getKeyFor(data.getClass()), data);
+    if (this.getDefaultContainerType() == null || this.getDefaultUnitType() == null) {
+      this.setDefaultContainerType(containerType);
+      this.setDefaultUnitType(unitType);
+    }
+    mReps.put(getKeyFor(containerType, unitType), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param dataType
+   * @param containerType
+   * @param unitType
    */
   @Override
-  public void remove(Class<?> dataType) {
-    mReps.remove(getKeyFor(dataType));
+  public void remove(Class<?> containerType, Class<?> unitType) {
+    mReps.remove(getKeyFor(containerType, unitType));
   }
 
   /**

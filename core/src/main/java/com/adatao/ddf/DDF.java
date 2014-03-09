@@ -92,13 +92,13 @@ public abstract class DDF extends ALoggable //
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
+  public DDF(DDFManager manager, Object data, Class<?> containerType, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
 
-    this.initialize(manager, data, namespace, name, schema);
+    this.initialize(manager, data, containerType, unitType, namespace, name, schema);
   }
 
   protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) throws DDFException {
-    this(manager != null ? manager : defaultManagerIfNull, null, null, null, null);
+    this(manager != null ? manager : defaultManagerIfNull, null, null, null, null, null, null);
   }
 
   /**
@@ -122,12 +122,12 @@ public abstract class DDF extends ALoggable //
   /**
    * Initialization to be done after constructor assignments, such as setting of the all-important DDFManager.
    */
-  protected void initialize(DDFManager manager, Object data, String namespace, String name, Schema schema)
+  protected void initialize(DDFManager manager, Object data, Class<?> containerType, Class<?> unitType, String namespace, String name, Schema schema)
       throws DDFException {
 
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.getRepresentationHandler().set(data);
+    this.getRepresentationHandler().set(data, containerType, unitType);
 
     this.getSchemaHandler().setSchema(schema);
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
@@ -722,7 +722,7 @@ public abstract class DDF extends ALoggable //
   // //// ISupportStatistics //////
 
   // Calculate summary statistics of the DDF
-  public Summary[] getSummary() {
+  public Summary[] getSummary() throws DDFException{
     return this.getStatisticsSupporter().getSummary();
   }
 

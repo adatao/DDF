@@ -45,8 +45,8 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
 
   def createTableAirlineWithNA(sharkctx: SharkContext) {
     sharkctx.sql("set shark.test.data.path=../resources")
-    sharkctx.sql("drop table if exists airline")
-    sharkctx.sql("create table airline (Year int,Month int,DayofMonth int," +
+    sharkctx.sql("drop table if exists airlineWithNA")
+    sharkctx.sql("create table airlineWithNA (Year int,Month int,DayofMonth int," +
       "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int," +
       "CRSArrTime int,UniqueCarrier string, FlightNum int, " +
       "TailNum string, ActualElapsedTime int, CRSElapsedTime int, " +

@@ -1,5 +1,6 @@
 package com.adatao.ddf.content;
 
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -34,11 +35,17 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   /**
    * Retrieves a representation of type type.
    * 
-   * @param dataType
+   * @param unitType
    * @return a pointer to the specified
    */
-  public Object get(Class<?> dataType);
+  public Object get(Class<?> containerType, Class<?> unitType);
 
+  /**
+   * Retrieves a default representation for this specific engine
+   * @param unitType
+   * @return
+   */
+  public Object get(Class<?> unitType) throws DDFException;
   /**
    * Clears out all current representations.
    */
@@ -49,14 +56,14 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * 
    * @param data
    */
-  public void set(Object data);
+  public void set(Object data, Class<?> containerType, Class<?> unitType);
 
   /**
    * Adds a representation to the set of existing representations.
    * 
    * @param data
    */
-  public void add(Object data);
+  public void add(Object data, Class<?> containerType, Class<?> unitType);
 
   /**
    * Removes a representation from the set of existing representations.
@@ -64,7 +71,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * @param dataType
    */
 
-  public void remove(Class<?> dataType);
+  public void remove(Class<?> containerType, Class<?> dataType);
 
   /**
    * Cache all representations, e.g., in an in-memory context
@@ -83,7 +90,9 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    */
   public Object getDefault();
 
-  public Class<?> getDefaultDataType();
+  public Class<?> getDefaultUnitType();
+
+  public Class<?> getDefaultContainerType();
 
   public Class<?> getDefaultColumnType();
 }
