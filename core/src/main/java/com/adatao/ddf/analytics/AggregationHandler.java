@@ -22,29 +22,36 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     super(theDDF);
   }
 
+
   public static class FiveNumSumary implements Serializable {
-    
-    private double mMin = Double.MAX_VALUE;
-    private double mMax = Double.MIN_VALUE;
-    private double first_quantile;
-    private double median;
-    private double third_quantile;
-    
+
+    private static final long serialVersionUID = -2810459228746952242L;
+
+    // private double mMin = Double.MAX_VALUE;
+    // private double mMax = Double.MIN_VALUE;
+    // private double first_quantile;
+    // private double median;
+    // private double third_quantile;
+
   }
-  
+
+
   public FiveNumSumary getFiveNumSumary() {
-    String cmd;
+    // String cmd;
     return null;
   }
-  
+
   @Override
   public double computeCorrelation(String columnA, String columnB) throws DDFException {
-    if (!(this.getDDF().getColumn(columnA).isNumeric() || this.getDDF().getColumn(columnB).isNumeric())) throw new DDFException(
-        "Only numeric fields are accepted!");
+    if (!(this.getDDF().getColumn(columnA).isNumeric() || this.getDDF().getColumn(columnB).isNumeric())) {
+      throw new DDFException("Only numeric fields are accepted!");
+    }
+
     String sqlCmd = String.format("SELECT CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF().getTableName());
     try {
       List<String> rs = this.getManager().sql2txt(sqlCmd);
       return Utils.roundUp(Double.parseDouble(rs.get(0)));
+
     } catch (Exception e) {
       throw new DDFException(String.format("Unable to get CORR(%s, %s) FROM %s", columnA, columnB, this.getDDF()
           .getTableName()), e);
@@ -68,13 +75,8 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     String sqlCmd = AggregateField.toSql(fields, tableName);
 
-    try {
-      List<String> result = this.getManager().sql2txt(sqlCmd);
-      return AggregationResult.newInstance(result, fields.size());
-
-    } catch (Exception e) {
-      throw new DDFException("Unable to query from " + tableName, e);
-    }
+    List<String> result = this.getManager().sql2txt(sqlCmd);
+    return AggregationResult.newInstance(result, fields.size());
   }
 
 
@@ -83,7 +85,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
   public static class AggregationResult extends HashMap<String, Double[]> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7809562958792876728L;
 
 
     public static AggregationResult newInstance(List<String> sqlResult, int numFields) {
@@ -174,8 +176,13 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
      * @throws DDFException
      */
     public static String toSql(List<AggregateField> fields, String tableName) throws DDFException {
-      if (fields == null || fields.size() == 0) throw new DDFException("Field array cannot be null or empty");
-      if (Strings.isNullOrEmpty(tableName)) throw new DDFException("Table name cannot be null or empty");
+      if (fields == null || fields.size() == 0) {
+        throw new DDFException(new UnsupportedOperationException("Field array cannot be null or empty"));
+      }
+
+      if (Strings.isNullOrEmpty(tableName)) {
+        throw new DDFException("Table name cannot be null or empty");
+      }
 
       return String.format("SELECT %s FROM %s GROUP BY %s", toSqlFieldSpecs(fields), tableName,
           toSqlGroupBySpecs(fields));
@@ -231,7 +238,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
         if (isFieldSpecs || !field.isAggregated()) specs.add(field.toString());
       }
 
-      return StringUtils.join(specs.toArray(), ',');
+      return StringUtils.join(specs.toArray(new String[0]), ',');
     }
   }
 

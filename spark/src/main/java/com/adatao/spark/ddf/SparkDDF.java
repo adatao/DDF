@@ -13,7 +13,7 @@ import com.adatao.ddf.exception.DDFException;
 
 public class SparkDDF extends DDF {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 7466377156065874568L;
 
 
   public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> rowType, String namespace, String name, Schema schema)
@@ -21,7 +21,7 @@ public class SparkDDF extends DDF {
 
     super(manager);
     if (rdd == null) throw new DDFException("Non-null RDD is required to instantiate a new SparkDDF");
-    this.initialize(manager, rdd, rowType, namespace, name, schema);
+    this.initialize(manager, rdd, namespace, name, schema);
   }
 
   /**
@@ -31,6 +31,14 @@ public class SparkDDF extends DDF {
    */
   public SparkDDF(DDFManager manager) throws DDFException {
     super(manager);
+  }
+
+  /**
+   * Available for run-time instantiation only.
+   * @throws DDFException 
+   */
+  protected SparkDDF() throws DDFException {
+    super();
   }
 
   @SuppressWarnings("unchecked")

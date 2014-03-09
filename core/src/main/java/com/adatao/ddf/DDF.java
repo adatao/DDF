@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
+import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.ISupportStatistics;
@@ -44,14 +45,15 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
-import com.adatao.ddf.misc.MLDelegate;
-import com.adatao.ddf.misc.ViewsDelegate;
+import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.adatao.local.ddf.LocalDDFManager;
@@ -72,17 +74,16 @@ import com.google.gson.annotations.Expose;
  * @author ctn
  * 
  */
-public abstract class DDF extends ALoggable implements IPersistible, ISupportPhantomReference, ISerializable {
+public abstract class DDF extends ALoggable //
+    implements IGloballyAddressable, IPersistible, ISupportPhantomReference, ISerializable {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -2198317495102277825L;
 
 
   /**
    * 
    * @param data
    *          The DDF data
-   * @param rowType
-   *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
    *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
    * @param name
@@ -92,38 +93,43 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
-    this.initialize(manager, data, rowType, namespace, name, schema);
+    this.initialize(manager, data, namespace, name, schema);
+  }
+
+  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) throws DDFException {
+    this(manager != null ? manager : defaultManagerIfNull, null, null, null, null);
   }
 
   /**
    * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
+   * @throws DDFException
    */
-  protected DDF(DDFManager manager) {
+  protected DDF(DDFManager manager) throws DDFException {
     this(manager, sDummyManager);
   }
 
-  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) {
-    this.setManager(manager != null ? manager : defaultManagerIfNull);
-  }
-
   /**
-   * Available for serialization by subclasses only.
+   * Available for run-time instantiation only.
+   * 
+   * @throws DDFException
    */
-  protected DDF() {
+  protected DDF() throws DDFException {
     this(sDummyManager);
   }
 
-  protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
-      Schema schema) throws DDFException {
+  /**
+   * Initialization to be done after constructor assignments, such as setting of the all-important DDFManager.
+   */
+  protected void initialize(DDFManager manager, Object data, String namespace, String name, Schema schema)
+      throws DDFException {
 
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.getRepresentationHandler().set(data, rowType);
+    this.getRepresentationHandler().set(data);
 
     this.getSchemaHandler().setSchema(schema);
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
@@ -132,16 +138,11 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     this.setNamespace(namespace);
 
     this.setName(name);
+
+    // Facades
+    this.ML = new MLFacade(this, this.getMLSupporter());
+    this.Views = new ViewsFacade(this, this.getViewHandler());
   }
-
-
-
-  // ////// Global/Static Fields & Methods ////////
-
-
-
-  // ////// Global configuration handling ////////
-
 
 
   // ////// Instance Fields & Methods ////////
@@ -156,8 +157,15 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @return the namespace this DDF belongs in
    * @throws DDFException
    */
-  public String getNamespace() throws DDFException {
-    if (mNamespace == null) mNamespace = this.getManager().getNamespace();
+  @Override
+  public String getNamespace() {
+    if (mNamespace == null) {
+      try {
+        mNamespace = this.getManager().getNamespace();
+      } catch (Exception e) {
+        mLog.warn("Cannot retrieve namespace for DDF " + this.getName(), e);
+      }
+    }
     return mNamespace;
   }
 
@@ -165,6 +173,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @param namespace
    *          the namespace to place this DDF in
    */
+  @Override
   public void setNamespace(String namespace) {
     this.mNamespace = namespace;
   }
@@ -174,6 +183,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * 
    * @return the name of this DDF
    */
+  @Override
   public String getName() {
     if (Strings.isNullOrEmpty(mName)) {
       if (!Strings.isNullOrEmpty(this.getSchemaHandler().getTableName())) {
@@ -194,6 +204,7 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
    * @param name
    *          the DDF name to set
    */
+  @Override
   public void setName(String name) {
     this.mName = name;
   }
@@ -257,21 +268,17 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     return this.getMetaDataHandler().getNumRows();
   }
 
-  public long getNumColumns() {
+  public int getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
-  
-  // ///// Execute SQL command // /////
-  public DDF executeSqlOnTable(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2ddf(String.format(sqlCommand, this.getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
-    }
-  }
-  /////// Generate DDF views
 
-  public final ViewsDelegate Views = new ViewsDelegate(this, this.getViewHandler());
+
+
+  // ///// Generate DDF views
+
+  public ViewsFacade Views;
+
+
 
   // ///// Aggregate operations
 
@@ -620,15 +627,31 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
       Class<?> clazz = Class.forName(className);
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
-          .getConstructor(new Class<?>[] { DDF.class });
+          .getDeclaredConstructor(new Class<?>[] { DDF.class });
+
+      if (cons != null) cons.setAccessible(true);
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
-    } catch (Exception e) {
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException
+        | InvocationTargetException e) {
+
       mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
           theInterface.getSimpleName(), className), e);
       return null;
     }
+
+
+  }
+
+
+  public String getUri() {
+    return String.format("%s://%s/%s", this.getEngine(), this.getNamespace(), this.getName());
+  }
+
+  @Override
+  public String toString() {
+    return this.getUri();
   }
 
 
@@ -664,6 +687,9 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
 
   // ////// Facade methods ////////
 
+
+  // //// IHandleViews //////
+
   /**
    * 
    * @param columnName
@@ -673,16 +699,16 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     return this.getSchema().getColumnIndex(columnName);
   }
 
-  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-    return this.getViewHandler().getRowIterator(rowType);
+  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
+    return this.getViewHandler().getRowIterator(dataType);
   }
 
   public Iterator<?> getRowIterator() {
     return this.getViewHandler().getRowIterator();
   }
 
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
-    return this.getViewHandler().getElementIterator(rowType, columnType, columnName);
+  public <D, C> Iterator<C> getElementIterator(Class<D> dataType, Class<C> columnType, String columnName) {
+    return this.getViewHandler().getElementIterator(dataType, columnType, columnName);
   }
 
   public Iterator<?> getElementIterator(String columnName) {
@@ -698,11 +724,16 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     return this.getStatisticsSupporter().getSummary();
   }
 
+  public FiveNumSummary[] getFiveNumSummary() throws DDFException {
+    return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
+  }
+
 
 
   // //// ISupportML //////
 
-  public final MLDelegate ML = new MLDelegate(this, this.getMLSupporter());
+  public MLFacade ML;
+
 
 
   // //// IHandlePersistence //////
@@ -721,9 +752,38 @@ public abstract class DDF extends ALoggable implements IPersistible, ISupportPha
     this.getManager().unpersist(this.getNamespace(), this.getName());
   }
 
+
+  /**
+   * The base implementation checks if the schema is null, and if so, generate a generic one. This is useful/necessary
+   * before persistence, to avoid the situtation of null schemas being persisted.
+   */
+  @Override
+  public void beforePersisting() {
+    if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
+  }
+
+  @Override
+  public void afterPersisting() {}
+
+  @Override
+  public void beforeUnpersisting() {}
+
+  @Override
+  public void afterUnpersisting() {}
+
+
+
+  // //// ISerializable //////
+
   @Override
   public void beforeSerialization() throws DDFException {}
 
   @Override
-  public void afterDeserialization(Object data) throws DDFException {}
+  public void afterSerialization() throws DDFException {}
+
+  @Override
+  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+      throws DDFException {
+    return deserializedObject;
+  }
 }

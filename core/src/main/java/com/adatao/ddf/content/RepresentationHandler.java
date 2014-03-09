@@ -24,47 +24,55 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?> rowType) {
-    return this.getSafeRowType(rowType).toString();
+  protected String getKeyFor(Class<?> dataType) {
+    return this.getSafedataType(dataType).toString();
   }
 
-  protected Class<?> getSafeRowType(Class<?> rowType) {
-    return rowType != null ? rowType : NA.class;
+  protected Class<?> getSafedataType(Class<?> dataType) {
+    return dataType != null ? dataType : NA.class;
   }
 
   /**
-   * Gets an existing representation for our {@link DDF} matching the given rowType, if any.
+   * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
    * 
-   * @param rowType
-   *          the type of each unit or element in the DDF
+   * @param dataType
+   *          the type of the DDF data representation
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> rowType) {
-    return this.get(rowType, true);
+  public Object get(Class<?> dataType) {
+    return this.get(dataType, true);
   }
 
-  private Object get(Class<?> rowType, boolean doCreate) {
-    rowType = this.getSafeRowType(rowType);
+  private Object get(Class<?> dataType, boolean doCreate) {
+    dataType = this.getSafedataType(dataType);
 
-    Object obj = mReps.get(getKeyFor(rowType));
+    Object obj = mReps.get(getKeyFor(dataType));
     if (obj == null && doCreate) {
-      obj = this.createRepresentation(rowType);
-      if (obj != null) this.add(obj, rowType);
+      obj = this.createRepresentation(dataType);
+      if (obj != null) this.add(obj);
     }
 
     return obj;
   }
 
+
+  private Class<?> mDefaultDataType;
+
+
   /**
-   * Returns the default rowType for this engine. The base implementation returns Object[].class.
+   * Returns the default dataType for this engine. The base implementation returns Object[][].class.
    * 
    * @return
    */
   @Override
-  public Class<?> getDefaultRowType() {
-    return Object[].class;
+  public Class<?> getDefaultDataType() {
+    return mDefaultDataType;
+  }
+
+  public void setDefaultDataType(Class<?> dataType) {
+    mDefaultDataType = dataType;
   }
 
   /**
@@ -78,7 +86,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
   @Override
   public Object getDefault() {
-    return this.get(this.getDefaultRowType());
+    return this.get(this.getDefaultDataType());
   }
 
   /**
@@ -87,53 +95,53 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void reset() {
     mReps.clear();
+    this.setDefaultDataType(null);
   }
 
   /**
-   * Converts from existing representation(s) to the desired representation, which has the specified rowType.
+   * Converts from existing representation(s) to the desired representation, which has the specified dataType.
    * 
-   * The base representation returns only the default representation if the rowType matches the default type. Otherwise
+   * The base representation returns only the default representation if the dataType matches the default type. Otherwise
    * it returns null.
    * 
-   * @param rowType
+   * @param dataType
    * @return
    */
-  public Object createRepresentation(Class<?> rowType) {
-    return this.getDefaultRowType().equals(rowType) ? this.get(rowType, false) : null;
+  public Object createRepresentation(Class<?> dataType) {
+    return (this.getDefaultDataType() != null && this.getDefaultDataType().equals(dataType)) ? this
+        .get(dataType, false) : null;
   }
 
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
-   * @param rowType
-   *          the type of each element in the DDFManager
    */
   @Override
-  public void set(Object data, Class<?> rowType) {
+  public void set(Object data) {
     this.reset();
-    this.add(data, rowType);
+    if (data != null) this.setDefaultDataType(data.getClass());
+    this.add(data);
   }
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but replacing the one that
-   * matches the given DDFManagerType, rowType tuple.
-   * 
-   * @param rowType
-   *          the type of each element in the DDFManager
+   * matches the given DDFManagerType, dataType tuple.
    */
   @Override
-  public void add(Object data, Class<?> rowType) {
-    mReps.put(getKeyFor(rowType), data);
+  public void add(Object data) {
+    if (data == null) return;
+    if (this.getDefaultDataType() == null) this.setDefaultDataType(data.getClass());
+    mReps.put(getKeyFor(data.getClass()), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param rowType
+   * @param dataType
    */
   @Override
-  public void remove(Class<?> rowType) {
-    mReps.remove(getKeyFor(rowType));
+  public void remove(Class<?> dataType) {
+    mReps.remove(getKeyFor(dataType));
   }
 
   /**
@@ -166,17 +174,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void uncacheAll() {
     // TODO Auto-generated method stub
-
   }
 
 
-  public enum RepresentationType {
+  public enum KnownTypes {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
 
-    public static RepresentationType fromString(String s) {
+    public static KnownTypes fromString(String s) {
       if (s == null || s.length() == 0) return null;
       s = s.toUpperCase().trim();
-      for (RepresentationType t : values()) {
+      for (KnownTypes t : values()) {
         if (s.equals(t.name())) return t;
       }
       return null;

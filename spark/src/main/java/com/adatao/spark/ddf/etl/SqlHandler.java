@@ -4,6 +4,12 @@
 package com.adatao.spark.ddf.etl;
 
 
+import java.util.List;
+import org.apache.spark.rdd.RDD;
+import scala.collection.Seq;
+import shark.SharkContext;
+import shark.api.Row;
+import shark.api.TableRDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -21,6 +27,8 @@ import shark.api.Row;
 import shark.api.TableRDD;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author ctn
@@ -79,7 +87,7 @@ public class SqlHandler extends ASqlHandler {
     RDD<Row> rdd = (RDD<Row>) tableRdd;
 
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
-    String tableNameFromCommand = Utils.extractTableName(command);
+    String tableNameFromCommand = this.extractTableNameFromQuery(command);
     if (tableNameFromCommand != null) schema.setTableName(tableNameFromCommand);
     String tableName = schema != null ? schema.getTableName() : null;
 
@@ -95,7 +103,9 @@ public class SqlHandler extends ASqlHandler {
     return scala.collection.JavaConversions.seqAsJavaList(sequence);
   }
 
+
   public static final int MAX_COMMAND_RESULT_ROWS = 1000;
+
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {
@@ -105,11 +115,22 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
     // TODO: handle other dataSources
-    try {
-      return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+    return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+  }
 
-    } catch (Exception e) {
-      throw new DDFException(e);
+  /**
+   * Extract tableName from command
+   * @return TABLENAME in "create table TABLENAME as select ..."
+   */
+  private String extractTableNameFromQuery(String command) {
+    String tableNameFromQuery;
+    Pattern p = Pattern.compile("(?<=create\\stable\\s).*(?=\\sas\\sselect)");
+    Matcher m = p.matcher(command);
+    if(m.find()){
+      tableNameFromQuery = m.group();
+    } else {
+      tableNameFromQuery = null;
     }
+    return tableNameFromQuery;
   }
 }

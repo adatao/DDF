@@ -3,8 +3,8 @@
  */
 package com.adatao.local.ddf;
 
-import java.util.List;
 
+import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
@@ -22,15 +22,14 @@ public class LocalDDFManager extends DDFManager {
 
 
 
-  public LocalDDFManager() {
-  }
+  public LocalDDFManager() {}
 
 
   public <T> DDF newDDF(List<T> rows, String namespace, String name, Schema schema) throws DDFException {
-    if (rows == null || rows.size() == 0) throw new DDFException(
-        "Non-null/zero-length List is required to instantiate a new LocalDDF");
+    if (rows == null || rows.size() == 0) {
+      throw new DDFException("Non-null/zero-length List is required to instantiate a new LocalDDF");
+    }
 
-    Class<?> rowType = rows.get(0).getClass();
-    return this.newDDF(this, rows, rowType, namespace, name, schema);
+    return this.newDDF(this, rows, namespace, name, schema);
   }
 }

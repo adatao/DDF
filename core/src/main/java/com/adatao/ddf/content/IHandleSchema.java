@@ -1,7 +1,7 @@
 package com.adatao.ddf.content;
 
-import java.util.List;
 
+import java.util.List;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
@@ -16,9 +16,22 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
 
   public List<Column> getColumns();
 
-  public long getNumColumns();
+  public int getNumColumns();
 
   public String newTableName();
 
+  /**
+   * The name will reflect the class name of the given forObject
+   * 
+   * @param forObject
+   * @return
+   */
+  public String newTableName(Object forObject);
+
   public int getColumnIndex(String columnName);
+
+  /**
+   * Generate a basic schema for the current DDF
+   */
+  public Schema generateSchema();
 }

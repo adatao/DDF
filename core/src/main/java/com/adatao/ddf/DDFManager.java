@@ -97,9 +97,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     try {
       manager = (DDFManager) Class.forName(className).newInstance();
 
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new DDFException("Cannot get DDFManager for engine " + engineName, e);
     }
+
     return manager;
   }
 
@@ -124,31 +125,29 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * 
    * @param manager
    * @param data
-   * @param rowType
    * @param namespace
    * @param name
    * @param schema
    * @return
    * @throws DDFException
    */
-  public DDF newDDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF newDDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
-        new Object[]   { manager, data, rowType, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
+        new Object[]   { manager, data, namespace, name, schema }
         );
     // @formatter:on
   }
 
 
-  public DDF newDDF(Object data, Class<?> rowType, String namespace, String name, Schema schema) throws DDFException {
+  public DDF newDDF(Object data, String namespace, String name, Schema schema) throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
-        new Object[]   { this, data, rowType, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
+        new Object[]   { this, data, namespace, name, schema }
         );
     // @formatter:on
   }
@@ -167,13 +166,13 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /**
-   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that requires no argument.
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", passing in this DDFManager as the sole argument
    * 
    * @return the newly instantiated DDF
    * @throws DDFException
    */
   public DDF newDDF() throws DDFException {
-    return this.newDDF(new Class<?>[] {}, new Object[] {});
+    return this.newDDF(new Class<?>[] { DDFManager.class }, new Object[] { this });
   }
 
 
@@ -185,8 +184,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
         "Cannot determine class name for [%s] %s", this.getEngine(), "DDF"));
 
     try {
-      Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getConstructor(argTypes);
+      Constructor<DDF> cons = (Constructor<DDF>) Class.forName(className).getDeclaredConstructor(argTypes);
       if (cons == null) throw new DDFException("Cannot get constructor for " + className);
+
+      cons.setAccessible(true); // make sure we can use it whether it's private, protected, or public
 
       DDF ddf = cons.newInstance(argValues);
       if (ddf == null) throw new DDFException("Cannot instantiate a new instance of " + className);
@@ -277,25 +278,21 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     this.getDummyDDF().getPersistenceHandler().unpersist(namespace, name);
   }
 
-  public static DDF doLoad(String uri) throws DDFException {
+  public static IPersistible doLoad(String uri) throws DDFException {
     return doLoad(new PersistenceUri(uri));
   }
 
-  public static DDF doLoad(PersistenceUri uri) throws DDFException {
+  public static IPersistible doLoad(PersistenceUri uri) throws DDFException {
     if (uri == null) throw new DDFException("URI cannot be null");
     if (Strings.isNullOrEmpty(uri.getEngine())) throw new DDFException("Engine/Protocol in URI cannot be missing");
     return DDFManager.get(uri.getEngine()).load(uri);
   }
 
-  public DDF load(String namespace, String name) throws DDFException {
-    IPersistible obj = this.getDummyDDF().getPersistenceHandler().load(namespace, name);
-    if (obj instanceof DDF) return (DDF) obj;
-    else throw new DDFException(String.format("Loaded object is of type %s and not DDF", obj.getClass()));
+  public IPersistible load(String namespace, String name) throws DDFException {
+    return this.getDummyDDF().getPersistenceHandler().load(namespace, name);
   }
 
-  public DDF load(PersistenceUri uri) throws DDFException {
-    IPersistible obj = this.getDummyDDF().getPersistenceHandler().load(uri);
-    if (obj instanceof DDF) return (DDF) obj;
-    else throw new DDFException(String.format("Loaded object is of type %s and not DDF", obj.getClass()));
+  public IPersistible load(PersistenceUri uri) throws DDFException {
+    return this.getDummyDDF().getPersistenceHandler().load(uri);
   }
 }
