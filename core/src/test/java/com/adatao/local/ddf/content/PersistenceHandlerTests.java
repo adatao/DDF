@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
@@ -26,7 +25,6 @@ import com.google.common.base.Strings;
 public class PersistenceHandlerTests {
 
   @Test
-  @Ignore
   public void testPersistenceDir() throws IOException, DDFException {
     DDFManager manager = DDFManager.get("local");
     DDF ddf = manager.newDDF();
@@ -41,7 +39,6 @@ public class PersistenceHandlerTests {
   }
 
   @Test
-  @Ignore
   public void testPersistDDF() throws Exception {
     DDFManager manager = DDFManager.get("local");
     DDF ddf = manager.newDDF();
@@ -55,7 +52,6 @@ public class PersistenceHandlerTests {
   }
 
   @Test
-  @Ignore
   public void testLoadDDF() throws Exception {
     DDFManager manager = DDFManager.get("local");
     DDF ddf1 = manager.newDDF();
@@ -78,10 +74,26 @@ public class PersistenceHandlerTests {
     ddf1.unpersist();
   }
 
+  public class TestModel extends Model {
+
+    public TestModel(List<String> featureColumns, Class<?> inputPredictionClass) {
+      super(featureColumns, inputPredictionClass);
+    }
+    @Override
+    public boolean isSupervisedAlgorithmModel() {
+      return false;
+    }
+
+    @Override
+    public DDF predict(Object data, DDF ddf) {
+      return null;
+    }
+  }
 
   @Test
   public void testPersistModel() throws DDFException {
-    Model model = new Model();
+
+    Model model = new TestModel(null, null);
 
     // model.setParameters(new TestParameters());
 

@@ -3,15 +3,13 @@
  */
 package com.adatao.spark.ddf.etl;
 
+
 import java.util.List;
-
 import org.apache.spark.rdd.RDD;
-
 import scala.collection.Seq;
 import shark.SharkContext;
 import shark.api.Row;
 import shark.api.TableRDD;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -91,7 +89,7 @@ public class SqlHandler extends ASqlHandler {
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
     /*
     String tableName = (schema != null ? schema.getTableName() : null);
-    
+
     if (Strings.isNullOrEmpty(tableName)) tableName = (rdd != null ? rdd.name() : null);
     if (Strings.isNullOrEmpty(tableName)) tableName = this.getDDF().getSchemaHandler().newTableName();
     i*/
@@ -106,7 +104,9 @@ public class SqlHandler extends ASqlHandler {
     return scala.collection.JavaConversions.seqAsJavaList(sequence);
   }
 
+
   public static final int MAX_COMMAND_RESULT_ROWS = 1000;
+
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {
@@ -116,11 +116,6 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
     // TODO: handle other dataSources
-    try {
-      return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
-
-    } catch (Exception e) {
-      throw new DDFException(e);
-    }
+    return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
   }
 }

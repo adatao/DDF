@@ -1,5 +1,6 @@
 package com.adatao.ddf.content;
 
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -32,13 +33,19 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
 
   /**
-   * Retrieves a representation with elements of rowType.
+   * Retrieves a representation of type type.
    * 
-   * @param rowType
+   * @param unitType
    * @return a pointer to the specified
    */
-  public Object get(Class<?> rowType);
+  public Object get(Class<?> containerType, Class<?> unitType);
 
+  /**
+   * Retrieves a default representation for this specific engine
+   * @param unitType
+   * @return
+   */
+  public Object get(Class<?> unitType) throws DDFException;
   /**
    * Clears out all current representations.
    */
@@ -48,25 +55,23 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * Clears all current representations and set it to the supplied one.
    * 
    * @param data
-   * @param rowType
    */
-  public void set(Object data, Class<?> rowType);
+  public void set(Object data, Class<?> containerType, Class<?> unitType);
 
   /**
    * Adds a representation to the set of existing representations.
    * 
    * @param data
-   * @param rowType
    */
-  public void add(Object data, Class<?> rowType);
+  public void add(Object data, Class<?> containerType, Class<?> unitType);
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param rowType
+   * @param dataType
    */
 
-  public void remove(Class<?> rowType);
+  public void remove(Class<?> containerType, Class<?> dataType);
 
   /**
    * Cache all representations, e.g., in an in-memory context
@@ -85,7 +90,9 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    */
   public Object getDefault();
 
-  public Class<?> getDefaultRowType();
+  public Class<?> getDefaultUnitType();
+
+  public Class<?> getDefaultContainerType();
 
   public Class<?> getDefaultColumnType();
 }

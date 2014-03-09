@@ -1,8 +1,15 @@
 package com.adatao.spark.ddf;
 
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkContext;
 
 import shark.SharkContext;
@@ -21,6 +28,7 @@ public class SparkDDFManager extends DDFManager {
   public String getEngine() {
     return "spark";
   }
+
 
   private static final String DEFAULT_SPARK_APPNAME = "DDFClient";
   private static final String DEFAULT_SPARK_MASTER = "local[4]";
@@ -56,7 +64,9 @@ public class SparkDDFManager extends DDFManager {
     return "spark";
   }
 
+
   private SparkContext mSparkContext;
+
 
   public SparkContext getSparkContext() {
     return mSparkContext;
@@ -68,6 +78,7 @@ public class SparkDDFManager extends DDFManager {
 
 
   private SharkContext mSharkContext;
+
 
   public SharkContext getSharkContext() {
     return mSharkContext;
@@ -83,7 +94,9 @@ public class SparkDDFManager extends DDFManager {
     this.setSparkContext(sharkContext);
   }
 
+
   private Map<String, String> mSparkContextParams;
+
 
   public Map<String, String> getSparkContextParams() {
     return mSparkContextParams;
@@ -113,14 +126,16 @@ public class SparkDDFManager extends DDFManager {
     { "SPARK_SERIALIZER", "spark.serializer" },
     { "HIVE_HOME", "hive.home" },
     { "HADOOP_HOME", "hadoop.home" },
+    { "DDFLIB_JAR", "ddfspark.jar" },
     { "DDFSPARK_JAR", "ddfspark.jar" } 
     // @formatter:on
   };
 
+
   /**
-   * Takes an existing params map, and reads both environment as well as system property settings to
-   * merge into it. The merge priority is as follows: (1) already set in params, (2) in system
-   * properties (e.g., -Dspark.home=xxx), (3) in environment variables (e.g., export SPARK_HOME=xxx)
+   * Takes an existing params map, and reads both environment as well as system property settings to merge into it. The
+   * merge priority is as follows: (1) already set in params, (2) in system properties (e.g., -Dspark.home=xxx), (3) in
+   * environment variables (e.g., export SPARK_HOME=xxx)
    * 
    * @param params
    * @return
@@ -147,27 +162,43 @@ public class SparkDDFManager extends DDFManager {
   }
 
   /**
-   * Side effect: also sets SharkContext and SparkContextParams in case the client wants to examine
-   * or use those.
+   * Side effect: also sets SharkContext and SparkContextParams in case the client wants to examine or use those.
    * 
    * @param params
    * @return
    * @throws DDFException
    */
   private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
-    try {
-      this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
-      String ddfSparkJar = params.get("DDFSPARK_JAR");
-      String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
+    this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
+    String ddfSparkJar = params.get("DDFSPARK_JAR") + "," +  listJarFiles(params.get("DDFLIB_JAR"));
+    String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
-      JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
-          params.get("SPARK_HOME"), jobJars, params);
-      this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
+    JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+        params.get("SPARK_HOME"), jobJars, params);
+    this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
 
-    } catch (Exception e) {
-      throw new DDFException(e);
-    }
 
     return this.getSparkContext();
+  }
+  
+  private String listJarFiles(String path) {
+    File folder = new File(path);
+    
+    List<String> jarFiles = new ArrayList<String>();
+    for (File f: folder.listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        // TODO Auto-generated method stub
+        return pathname.getName().endsWith(".jar");
+      }
+    })) {
+      try {
+        jarFiles.add(f.getCanonicalPath());
+      } catch (IOException ioe) {
+        
+      }
+    }
+    
+    return StringUtils.join(jarFiles, ",");
   }
 }

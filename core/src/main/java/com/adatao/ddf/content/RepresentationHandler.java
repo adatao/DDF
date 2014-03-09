@@ -5,8 +5,12 @@ package com.adatao.ddf.content;
 
 
 import java.util.HashMap;
+import java.util.List;
+
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.types.NA;
 
 /**
@@ -24,49 +28,81 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?> rowType) {
-    return this.getSafeRowType(rowType).toString();
+  protected String getKeyFor(Class<?> containerType, Class<?> unitType) {
+    return String.format("%s_%s", containerType.toString(), unitType.toString());
   }
 
-  protected Class<?> getSafeRowType(Class<?> rowType) {
-    return rowType != null ? rowType : NA.class;
+  protected Class<?> getSafedataType(Class<?> dataType) {
+    return dataType != null ? dataType : NA.class;
   }
 
   /**
-   * Gets an existing representation for our {@link DDF} matching the given rowType, if any.
+   * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
    * 
-   * @param rowType
-   *          the type of each unit or element in the DDF
+   * @param containerType
+   *          the type of the DDF data representation
+   * @param unitType
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> rowType) {
-    return this.get(rowType, true);
+  public Object get(Class<?> containerType, Class<?> unitType) {
+    return this.get(containerType, unitType, true);
   }
 
-  private Object get(Class<?> rowType, boolean doCreate) {
-    rowType = this.getSafeRowType(rowType);
+  @Override
+  public Object get(Class<?> unitType) throws DDFException {
+    return this.get(this.getDefaultEngineContainerType(), unitType);
+  }
 
-    Object obj = mReps.get(getKeyFor(rowType));
+  private Object get(Class<?> containerType, Class<?> unitType, boolean doCreate) {
+    containerType = this.getSafedataType(containerType);
+    unitType = this.getSafedataType(unitType);
+
+    Object obj = mReps.get(getKeyFor(containerType, unitType));
+
     if (obj == null && doCreate) {
-      obj = this.createRepresentation(rowType);
-      if (obj != null) this.add(obj, rowType);
+      obj = this.createRepresentation(containerType, unitType);
+      if (obj != null) this.add(obj, containerType, unitType);
     }
 
     return obj;
   }
 
+
+  private Class<?> mDefaultUnitType;
+
+  private Class<?> mDefaultContainerType;
   /**
-   * Returns the default rowType for this engine. The base implementation returns Object[].class.
+   * Returns the default dataType for this engine. The base implementation returns Object[][].class.
    * 
    * @return
    */
   @Override
-  public Class<?> getDefaultRowType() {
-    return Object[].class;
+  public Class<?> getDefaultUnitType() {
+    return mDefaultUnitType;
   }
 
+  public void setDefaultUnitType(Class<?> unitType) {
+    mDefaultUnitType = unitType;
+  }
+
+  @Override
+  public Class<?> getDefaultContainerType() {
+    return mDefaultContainerType;
+  }
+
+  private Class<?> getDefaultEngineContainerType() throws DDFException{
+    try {
+      String containerName = Config.getValueWithGlobalDefault(this.getEngine(), "DefaultEngineContainerType");
+      return Class.forName(containerName);
+    } catch(Exception e) {
+      throw new DDFException("Cannot get engine's default ContainerType");
+    }
+  }
+  public void setDefaultContainerType(Class<?> containerType) {
+    mDefaultContainerType = containerType;
+  }
   /**
    * Returns the default columnType for this engine. The base implementation returns Object.class.
    * 
@@ -78,7 +114,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
   @Override
   public Object getDefault() {
-    return this.get(this.getDefaultRowType());
+    return this.get(this.getDefaultContainerType(), getDefaultUnitType());
   }
 
   /**
@@ -87,53 +123,61 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void reset() {
     mReps.clear();
+    this.setDefaultUnitType(null);
   }
 
   /**
-   * Converts from existing representation(s) to the desired representation, which has the specified rowType.
+   * Converts from existing representation(s) to the desired representation, which has the specified dataType.
    * 
-   * The base representation returns only the default representation if the rowType matches the default type. Otherwise
+   * The base representation returns only the default representation if the dataType matches the default type. Otherwise
    * it returns null.
    * 
-   * @param rowType
+   * @param containerType
    * @return
    */
-  public Object createRepresentation(Class<?> rowType) {
-    return this.getDefaultRowType().equals(rowType) ? this.get(rowType, false) : null;
+  public Object createRepresentation(Class<?> containerType, Class<?> unitType) {
+    return (this.getDefaultContainerType() != null && this.getDefaultContainerType().equals(containerType) ||
+            this.getDefaultUnitType() != null && this.getDefaultUnitType().equals(unitType)) ? this
+        .get(containerType, unitType, false) : null;
   }
 
   /**
    * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
    * 
-   * @param rowType
-   *          the type of each element in the DDFManager
    */
   @Override
-  public void set(Object data, Class<?> rowType) {
+  public void set(Object data, Class<?> containerType, Class<?> unitType) {
     this.reset();
-    this.add(data, rowType);
+    if (data != null) {
+      this.setDefaultContainerType(containerType);
+      this.setDefaultUnitType(unitType);
+    }
+    this.add(data, containerType, unitType);
   }
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but replacing the one that
-   * matches the given DDFManagerType, rowType tuple.
-   * 
-   * @param rowType
-   *          the type of each element in the DDFManager
+   * matches the given DDFManagerType, containerType, unitType.
    */
   @Override
-  public void add(Object data, Class<?> rowType) {
-    mReps.put(getKeyFor(rowType), data);
+  public void add(Object data, Class<?> containerType, Class<?> unitType) {
+    if (data == null) return;
+    if (this.getDefaultContainerType() == null || this.getDefaultUnitType() == null) {
+      this.setDefaultContainerType(containerType);
+      this.setDefaultUnitType(unitType);
+    }
+    mReps.put(getKeyFor(containerType, unitType), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param rowType
+   * @param containerType
+   * @param unitType
    */
   @Override
-  public void remove(Class<?> rowType) {
-    mReps.remove(getKeyFor(rowType));
+  public void remove(Class<?> containerType, Class<?> unitType) {
+    mReps.remove(getKeyFor(containerType, unitType));
   }
 
   /**
@@ -166,17 +210,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void uncacheAll() {
     // TODO Auto-generated method stub
-
   }
 
 
-  public enum RepresentationType {
+  public enum KnownTypes {
     DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
 
-    public static RepresentationType fromString(String s) {
+    public static KnownTypes fromString(String s) {
       if (s == null || s.length() == 0) return null;
       s = s.toUpperCase().trim();
-      for (RepresentationType t : values()) {
+      for (KnownTypes t : values()) {
         if (s.equals(t.name())) return t;
       }
       return null;

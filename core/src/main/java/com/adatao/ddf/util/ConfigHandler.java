@@ -148,7 +148,8 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    * @throws Exception
    * 
    * @return the {@link Configuration} object loaded
-   * @throws ConfigurationException, {@link IOException}
+   * @throws ConfigurationException
+   *           , {@link IOException}
    */
   @Override
   public Configuration loadConfig() throws ConfigurationException, IOException {

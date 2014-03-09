@@ -35,12 +35,12 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time
    * returning a single element from that column.
    * 
-   * @param rowType
+   * @param dataType
    * @param columnType
    * @param columnIndex
    * @return
    */
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, int columnIndex);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex);
 
 
   /**
@@ -57,12 +57,12 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time
    * returning a single element from that column.
    * 
-   * @param rowType
+   * @param dataType
    * @param columnType
    * @param columnName
    * @return
    */
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName);
 
   /**
    * Gets an iterator that walks through all rows from a particular column in this DDF, each time
@@ -84,7 +84,7 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   
   public DDF firstNRows(int numRows) throws DDFException;
   
-  public DDF project(String[] columnNames) throws DDFException;
+  public DDF project(List<String> columnNames) throws DDFException;
 
   public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
 }

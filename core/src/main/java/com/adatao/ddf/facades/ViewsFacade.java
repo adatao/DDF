@@ -45,8 +45,8 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, int columnIndex) {
-    return mViewHandler.getElementIterator(rowType, columnType, columnIndex);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
+    return mViewHandler.getElementIterator(dataType, columnType, columnIndex);
   }
 
   @Override
@@ -55,8 +55,8 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
-    return mViewHandler.getElementIterator(rowType, columnType, columnName);
+  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
+    return mViewHandler.getElementIterator(dataType, columnType, columnName);
   }
 
   @Override
@@ -84,7 +84,7 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF project(String[] columnNames) throws DDFException {
+  public DDF project(List<String> columnNames) throws DDFException {
     return this.getViewHandler().project(columnNames);
   }
 
