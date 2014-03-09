@@ -25,7 +25,7 @@ public class MLTests {
 
   public static IModel dummyKMeans(RDD<Object> arg1, int arg2, Double arg3) {
 
-    return new Model("Model Paramters");
+    return null;
   }
 
   @Test

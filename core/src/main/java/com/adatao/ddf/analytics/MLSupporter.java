@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 import scala.actors.threadpool.Arrays;
@@ -108,7 +109,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   /**
    * 
    */
-  public static class Model extends LocalPersistible implements IModel {
+  public abstract static class Model extends LocalPersistible implements IModel {
 
     private static final long serialVersionUID = 824936593281899283L;
 
@@ -119,13 +120,40 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       mTrainingResult = trainingResult;
     }
 
-
     /**
      * TODO: We can't serialize this directly because we can't deserialize an IModelParameters later, at least not
      * without some concrete class constructor.
      */
     private IModelParameters mParams;
 
+    private Class<?> mpredictionInputClass;
+
+    private List<String> mFeatureColumnNames;
+
+    public List<String> getFeatureColumnNames() {
+      return this.mFeatureColumnNames;
+    }
+
+    public void setFeatureColumnNames(List<String> featureColumnNames) {
+      this.mFeatureColumnNames = featureColumnNames;
+    }
+
+    public Class<?> getPredictionInputClass() {
+      return this.mpredictionInputClass;
+    }
+
+    public void setPredictionInputClass(Class<?> predictionInputClass) {
+      this.mpredictionInputClass = predictionInputClass;
+    }
+
+    public Model(Class<?> predictionInputClass) {
+      mpredictionInputClass = predictionInputClass;
+    }
+
+    public Model(List<String> featureColumnNames, Class<?> predictionInputClass) {
+      this.setFeatureColumnNames(featureColumnNames);
+      this.setPredictionInputClass(predictionInputClass);
+    }
 
     @Override
     public IModelParameters getParameters() {
@@ -137,6 +165,29 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       mParams = parameters;
     }
 
+    protected Object prepareData(DDF ddf) throws DDFException{
+      return ddf.getRepresentationHandler().get(this.getPredictionInputClass());
+    }
+    public abstract DDF predict(Object data, DDF ddf);
+
+    @Override
+    public DDF predict(DDF ddf) throws DDFException{
+      List<String> ddfColumnNames = ddf.getColumnNames();
+      Object data;
+
+      //if featureColumnNames is not the same as ddf's columnNames
+      //project ddf with featureColumnNames to get new DDF
+      //else perform predict on the provided DDF
+
+      if(!((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
+          (ddfColumnNames.containsAll(this.getFeatureColumnNames())))){
+        DDF projectedDDF = ddf.Views.project(this.getFeatureColumnNames());
+        data = this.prepareData(projectedDDF);
+      } else {
+        data = this.prepareData(ddf);
+      }
+      return this.predict(data, ddf);
+    }
 
     /**
      * Override to implement additional equality tests
@@ -192,7 +243,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // for (int i = 0; i < paramArgs.length; i++) {
     // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
     // }
-
+    String origName = trainMethodName;
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
@@ -207,10 +258,30 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // Invoke the training method
     Object result = trainMethod.classInvoke(allArgs);
 
-    // Construct the result model parameters
-    IModel model = new Model(result);
+    // Construct the result model
+    try{
+      String modelClassName = Config.getValueWithGlobalDefault(origName, "model");
 
-    return model;
+      Class modelClass = Class.forName(modelClassName);
+      Constructor cons = modelClass.getConstructor(result.getClass());
+      IModel model = (IModel) cons.newInstance(result);
+
+      List<String> featureColumns;
+      List<String> ddfColumns = this.getDDF().getColumnNames();
+
+      if(model.isSupervisedAlgorithmModel()){
+        featureColumns = ddfColumns.subList(0, ddfColumns.size() - 1);
+      } else{
+        featureColumns = ddfColumns;
+      }
+      for(String col : featureColumns) {
+        System.out.println(">>>>>>> col = " + col);
+      }
+      model.setFeatureColumnNames(featureColumns);
+      return model;
+    } catch(Exception e){
+      throw new DDFException(e);
+    }
   }
 
 

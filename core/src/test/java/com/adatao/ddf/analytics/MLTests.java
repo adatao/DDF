@@ -22,8 +22,8 @@ public class MLTests {
   }
 
   public static IModel dummyKMeans(DDF arg1, int arg2, Double arg3) {
-    return new Model("Model Paramters");
-  }
+    return null;
+   }
 
   @Test
   public void testTrain() throws DDFException {

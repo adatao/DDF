@@ -1,6 +1,6 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.spark.ddf.{ SparkDDFManager, ATestSuite }
+import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager, ATestSuite}
 import com.adatao.ddf.{ DDFManager, DDF }
 import scala.collection.JavaConverters._
 import org.apache.spark.rdd.RDD
@@ -24,31 +24,25 @@ class KmeansSuite extends ATestSuite {
     val ddf2 = manager.sql2ddf("select " +
       "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
       "securitydelay, lateaircraftdelay, delayed from airline_delayed")
+    val ddf3 = manager.sql2ddf("select " +
+      "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
+      "securitydelay, lateaircraftdelay from airlineWithNA")
 		//ddf.ML.train("kmeans", int2Integer(2), int2Integer(100), int2Integer(10), "random")
+    val predddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, " +
+      "distance,arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, " +
+      "securitydelay, lateaircraftdelay from airlineWithNA")
+    val model = ddf.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
-    ddf.ML.train("kmeans", 2: java.lang.Integer, 100: java.lang.Integer, 10: java.lang.Integer, "random")
-
-    val initialWeight = for{
-      x <- 0 until (ddf.getNumColumns - 1)
-    }yield(math.random)
-
-    val rdd= ddf.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
-
-    val model = ddf.ML.train("linearRegressionLasso", 10: java.lang.Integer,
-     0.1: java.lang.Double, 0.1: java.lang.Double)
-
-    val weight2 = for{
+    val initialWeight2 = for{
       x <- 0 until (ddf2.getNumColumns - 1)
     }yield(math.random)
 
-    val model2= ddf2.ML.train("svmWithSGD", 10: java.lang.Integer,
-       0.1: java.lang.Double, 0.1: java.lang.Double, 0.1: java.lang.Double, weight2.toArray)
+    val mlModel = ddf2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
+      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight2.toArray)
 
-    val model3 = ddf2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
-      0.1: java.lang.Double, 0.1: java.lang.Double, weight2.toArray)
+    val kmeansPred = model.predict(predddf).asInstanceOf[SparkDDF]
+    val lmPred = mlModel.predict(ddf3)
 
-    val model4 = ddf2.ML.train("logisticRegression", 10: java.lang.Integer, 0.1: java.lang.Double)
-
-		manager.shutdown()
+    manager.shutdown()
 	}
 }
