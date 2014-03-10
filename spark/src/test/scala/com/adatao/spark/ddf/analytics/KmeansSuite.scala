@@ -38,13 +38,14 @@ class KmeansSuite extends ATestSuite {
     val initialWeight = for {
       x <- 0 until (ddf2.getNumColumns - 1)
     } yield (math.random)
-
+    /*
     val mlModel = ddf2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
     val kmeansPred = model.predict(ddf4).asInstanceOf[SparkDDF]
     val lmPred = mlModel.predict(ddf3)
-
+    */
+    val kmeansPred = model.predict(ddf4).asInstanceOf[SparkDDF]
     manager.shutdown()
   }
 }
