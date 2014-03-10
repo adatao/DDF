@@ -47,7 +47,7 @@ class KmeansSuite extends ATestSuite {
     */
     val mlModel = ddf2.ML.train("logisticRegression", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
-    val lmPred = mlModel.predict(ddf3)
+    // val lmPred = mlModel.predict(ddf3)
     val kmeansPred = model.predict(ddf4).asInstanceOf[SparkDDF]
     manager.shutdown()
   }
