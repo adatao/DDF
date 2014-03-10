@@ -97,9 +97,10 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     try {
       manager = (DDFManager) Class.forName(className).newInstance();
 
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new DDFException("Cannot get DDFManager for engine " + engineName, e);
     }
+
     return manager;
   }
 
@@ -124,31 +125,29 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * 
    * @param manager
    * @param data
-   * @param rowType
    * @param namespace
    * @param name
    * @param schema
    * @return
    * @throws DDFException
    */
-  public DDF newDDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF newDDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
-        new Object[]   { manager, data, rowType, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
+        new Object[]   { manager, data, namespace, name, schema }
         );
     // @formatter:on
   }
 
 
-  public DDF newDDF(Object data, Class<?> rowType, String namespace, String name, Schema schema) throws DDFException {
+  public DDF newDDF(Object data, String namespace, String name, Schema schema) throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, Class.class, String.class, String.class, Schema.class }, 
-        new Object[]   { this, data, rowType, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
+        new Object[]   { this, data, namespace, name, schema }
         );
     // @formatter:on
   }
@@ -167,13 +166,13 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /**
-   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", using the constructor that requires no argument.
+   * Instantiates a new DDF of the type specified in ddf.ini as "DDF", passing in this DDFManager as the sole argument
    * 
    * @return the newly instantiated DDF
    * @throws DDFException
    */
   public DDF newDDF() throws DDFException {
-    return this.newDDF(new Class<?>[] {}, new Object[] {});
+    return this.newDDF(new Class<?>[] { DDFManager.class }, new Object[] { this });
   }
 
 

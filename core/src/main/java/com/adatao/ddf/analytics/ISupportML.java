@@ -11,26 +11,20 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 public interface ISupportML extends IHandleDDFFunctionalGroup {
 
   /**
-   * Trains a model using data from this DDF.
+   * Runs a training algorithm on the entire DDF dataset. If the algorithm is unsupervised, all columns are considered
+   * to be features. If the algorithm is supervised, the last column is considered to be the target column
    * 
-   * @param algorithm
+   * @param trainMethodName
+   * @param args
    * @return
    * @throws DDFException
    */
-  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException;
+  public IModel train(String trainMethodName, Object... args) throws DDFException;
+
 
   /**
-   * Trains a model, given an algorithm name or className#methodName (e.g., "kmeans" or
-   * "org.apache.spark.mllib.kmeans#train")
    * 
-   * @param algorithm
-   * @param params
-   * @return
-   * @throws DDFException
    */
-  public IModel train(String algorithm, Object... params) throws DDFException;
-
-
   interface IAlgorithm {
     IHyperParameters getHyperParameters();
 
@@ -45,18 +39,29 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
     public IModel run(Object data);
   }
 
+
+
+  /**
+   *
+   */
   interface IModel extends IHandlePersistence.IPersistible {
     IModelParameters getParameters();
 
     void setParameters(IModelParameters parameters);
   }
 
-  interface IHyperParameters {
 
-  }
 
-  interface IModelParameters {
+  /**
+   * 
+   */
+  interface IHyperParameters {}
 
-  }
+
+
+  /**
+   * 
+   */
+  interface IModelParameters {}
 
 }

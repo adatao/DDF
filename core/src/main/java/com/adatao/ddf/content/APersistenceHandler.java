@@ -106,7 +106,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     // //// IPersistible /////
 
-    private DDF newContainerDDF() throws DDFException {
+    private DDF createDDFWrapper() throws DDFException {
       DDF ddf = this.newContainerDDFImpl();
 
       if (ddf == null) throw new DDFException(String.format("Cannot create new container DDF for %s: %s/%s",
@@ -125,7 +125,13 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     @Override
     public PersistenceUri persist(boolean doOverwrite) throws DDFException {
-      return this.newContainerDDF().persist(doOverwrite);
+      this.beforePersisting();
+
+      PersistenceUri uri = this.createDDFWrapper().persist(doOverwrite);
+
+      this.afterPersisting();
+
+      return uri;
     }
 
     @Override
@@ -135,8 +141,28 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     @Override
     public void unpersist() throws DDFException {
-      this.newContainerDDF().unpersist();
+      this.beforeUnpersisting();
+
+      this.createDDFWrapper().unpersist();
+
+      this.afterUnpersisting();
     }
+
+    @Override
+    public void beforePersisting() {}
+
+
+    @Override
+    public void afterPersisting() {}
+
+
+    @Override
+    public void beforeUnpersisting() {}
+
+
+    @Override
+    public void afterUnpersisting() {}
+
 
 
     // //// IGloballyAddressable //////
@@ -174,8 +200,10 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
     public void beforeSerialization() throws DDFException {}
 
     @Override
-    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+        throws DDFException {
       return deserializedObject;
     }
+
   }
 }

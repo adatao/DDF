@@ -32,7 +32,7 @@ class RepresentationHandler(mDDF: DDF) extends com.adatao.ddf.content.Representa
 		rdd
 	}
 
-	override def getDefaultRowType: Class[_] = classOf[Row];
+	override def getDefaultDataType: Class[_] = classOf[RDD[Row]];
 
 	/**
 	 * Creates a specific representation

@@ -85,8 +85,6 @@ public abstract class DDF extends ALoggable //
    * 
    * @param data
    *          The DDF data
-   * @param rowType
-   *          The DDF data is expected to have rows (or columns) of elements with rowType
    * @param namespace
    *          The namespace to place this DDF in. If null, it will be picked up from the DDFManager's current namespace.
    * @param name
@@ -96,38 +94,43 @@ public abstract class DDF extends ALoggable //
    *          The {@link Schema} of the new DDF
    * @throws DDFException
    */
-  public DDF(DDFManager manager, Object data, Class<?> rowType, String namespace, String name, Schema schema)
-      throws DDFException {
+  public DDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
 
-    this.initialize(manager, data, rowType, namespace, name, schema);
+    this.initialize(manager, data, namespace, name, schema);
+  }
+
+  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) throws DDFException {
+    this(manager != null ? manager : defaultManagerIfNull, null, null, null, null);
   }
 
   /**
    * This is intended primarily to provide a dummy DDF only. This signature must be provided by each implementor.
    * 
    * @param manager
+   * @throws DDFException
    */
-  protected DDF(DDFManager manager) {
+  protected DDF(DDFManager manager) throws DDFException {
     this(manager, sDummyManager);
   }
 
-  protected DDF(DDFManager manager, DDFManager defaultManagerIfNull) {
-    this.setManager(manager != null ? manager : defaultManagerIfNull);
-  }
-
   /**
-   * Available for serialization by subclasses only.
+   * Available for run-time instantiation only.
+   * 
+   * @throws DDFException
    */
-  protected DDF() {
+  protected DDF() throws DDFException {
     this(sDummyManager);
   }
 
-  protected void initialize(DDFManager manager, Object data, Class<?> rowType, String namespace, String name,
-      Schema schema) throws DDFException {
+  /**
+   * Initialization to be done after constructor assignments, such as setting of the all-important DDFManager.
+   */
+  protected void initialize(DDFManager manager, Object data, String namespace, String name, Schema schema)
+      throws DDFException {
 
     this.setManager(manager); // this must be done first in case later stuff needs a manager
 
-    this.getRepresentationHandler().set(data, rowType);
+    this.getRepresentationHandler().set(data);
 
     this.getSchemaHandler().setSchema(schema);
     if (Strings.isNullOrEmpty(name) && schema != null) name = schema.getTableName();
@@ -136,16 +139,11 @@ public abstract class DDF extends ALoggable //
     this.setNamespace(namespace);
 
     this.setName(name);
+
+    // Facades
+    this.ML = new MLFacade(this, this.getMLSupporter());
+    this.Views = new ViewsFacade(this, this.getViewHandler());
   }
-
-
-
-  // ////// Global/Static Fields & Methods ////////
-
-
-
-  // ////// Global configuration handling ////////
-
 
 
   // ////// Instance Fields & Methods ////////
@@ -165,7 +163,7 @@ public abstract class DDF extends ALoggable //
     if (mNamespace == null) {
       try {
         mNamespace = this.getManager().getNamespace();
-      } catch (DDFException e) {
+      } catch (Exception e) {
         mLog.warn("Cannot retrieve namespace for DDF " + this.getName(), e);
       }
     }
@@ -271,13 +269,17 @@ public abstract class DDF extends ALoggable //
     return this.getMetaDataHandler().getNumRows();
   }
 
-  public long getNumColumns() {
+  public int getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
-  
-  /////// Generate DDF views
 
-  public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
+
+
+  // ///// Generate DDF views
+
+  public ViewsFacade Views;
+
+
 
   // ///// Aggregate operations
 
@@ -632,11 +634,15 @@ public abstract class DDF extends ALoggable //
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
-    } catch (Exception e) {
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException
+        | InvocationTargetException e) {
+
       mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
           theInterface.getSimpleName(), className), e);
       return null;
     }
+
+
   }
 
 
@@ -682,6 +688,9 @@ public abstract class DDF extends ALoggable //
 
   // ////// Facade methods ////////
 
+
+  // //// IHandleViews //////
+
   /**
    * 
    * @param columnName
@@ -691,16 +700,16 @@ public abstract class DDF extends ALoggable //
     return this.getSchema().getColumnIndex(columnName);
   }
 
-  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-    return this.getViewHandler().getRowIterator(rowType);
+  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
+    return this.getViewHandler().getRowIterator(dataType);
   }
 
   public Iterator<?> getRowIterator() {
     return this.getViewHandler().getRowIterator();
   }
 
-  public <R, C> Iterator<C> getElementIterator(Class<R> rowType, Class<C> columnType, String columnName) {
-    return this.getViewHandler().getElementIterator(rowType, columnType, columnName);
+  public <D, C> Iterator<C> getElementIterator(Class<D> dataType, Class<C> columnType, String columnName) {
+    return this.getViewHandler().getElementIterator(dataType, columnType, columnName);
   }
 
   public Iterator<?> getElementIterator(String columnName) {
@@ -715,7 +724,7 @@ public abstract class DDF extends ALoggable //
   public Summary[] getSummary() {
     return this.getStatisticsSupporter().getSummary();
   }
-  
+
   public FiveNumSummary[] getFiveNumSummary() throws DDFException {
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
@@ -724,7 +733,7 @@ public abstract class DDF extends ALoggable //
 
   // //// ISupportML //////
 
-  public final MLFacade ML = new MLFacade(this, this.getMLSupporter());
+  public MLFacade ML;
 
 
 
@@ -745,6 +754,25 @@ public abstract class DDF extends ALoggable //
   }
 
 
+  /**
+   * The base implementation checks if the schema is null, and if so, generate a generic one. This is useful/necessary
+   * before persistence, to avoid the situtation of null schemas being persisted.
+   */
+  @Override
+  public void beforePersisting() {
+    if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
+  }
+
+  @Override
+  public void afterPersisting() {}
+
+  @Override
+  public void beforeUnpersisting() {}
+
+  @Override
+  public void afterUnpersisting() {}
+
+
 
   // //// ISerializable //////
 
@@ -755,7 +783,8 @@ public abstract class DDF extends ALoggable //
   public void afterSerialization() throws DDFException {}
 
   @Override
-  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+      throws DDFException {
     return deserializedObject;
   }
 }

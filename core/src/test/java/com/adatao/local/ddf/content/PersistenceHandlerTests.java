@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
@@ -26,7 +25,6 @@ import com.google.common.base.Strings;
 public class PersistenceHandlerTests {
 
   @Test
-  @Ignore
   public void testPersistenceDir() throws IOException, DDFException {
     DDFManager manager = DDFManager.get("local");
     DDF ddf = manager.newDDF();
@@ -41,7 +39,6 @@ public class PersistenceHandlerTests {
   }
 
   @Test
-  @Ignore
   public void testPersistDDF() throws Exception {
     DDFManager manager = DDFManager.get("local");
     DDF ddf = manager.newDDF();
@@ -55,7 +52,6 @@ public class PersistenceHandlerTests {
   }
 
   @Test
-  @Ignore
   public void testLoadDDF() throws Exception {
     DDFManager manager = DDFManager.get("local");
     DDF ddf1 = manager.newDDF();
@@ -81,7 +77,7 @@ public class PersistenceHandlerTests {
 
   @Test
   public void testPersistModel() throws DDFException {
-    Model model = new Model();
+    Model model = new Model("Sample Parameters");
 
     // model.setParameters(new TestParameters());
 
