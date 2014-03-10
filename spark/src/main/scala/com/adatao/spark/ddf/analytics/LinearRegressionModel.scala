@@ -15,6 +15,8 @@ class LinearRegressionModel(mllibLinearModel: MLlibLinearRegressionModel, featur
 
   def this(mllibLinearModel: MLlibLinearRegressionModel) = this(mllibLinearModel, null)
 
+  def getMllibLinearModel() = this.mllibLinearModel
+
   override  def isSupervisedAlgorithmModel(): Boolean = true
 
   override def predict(data: Object, ddf: DDF): DDF = {

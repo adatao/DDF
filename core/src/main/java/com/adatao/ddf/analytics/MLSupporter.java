@@ -3,6 +3,7 @@ package com.adatao.ddf.analytics;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
@@ -124,14 +125,13 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
      * TODO: We can't serialize this directly because we can't deserialize an IModelParameters later, at least not
      * without some concrete class constructor.
      */
-    private IModelParameters mParams;
 
     private Class<?> mpredictionInputClass;
 
     private List<String> mFeatureColumnNames;
 
     public List<String> getFeatureColumnNames() {
-      return this.mFeatureColumnNames;
+      return new ArrayList<String>(this.mFeatureColumnNames);
     }
 
     public void setFeatureColumnNames(List<String> featureColumnNames) {
@@ -153,16 +153,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     public Model(List<String> featureColumnNames, Class<?> predictionInputClass) {
       this.setFeatureColumnNames(featureColumnNames);
       this.setPredictionInputClass(predictionInputClass);
-    }
-
-    @Override
-    public IModelParameters getParameters() {
-      return mParams;
-    }
-
-    @Override
-    public void setParameters(IModelParameters parameters) {
-      mParams = parameters;
     }
 
     protected Object prepareData(DDF ddf) throws DDFException{
@@ -187,18 +177,6 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
         data = this.prepareData(ddf);
       }
       return this.predict(data, ddf);
-    }
-
-    /**
-     * Override to implement additional equality tests
-     */
-    @Override
-    public boolean equals(Object other) {
-      if (!(other instanceof Model)) return false;
-
-      if (this.getParameters() != ((Model) other).getParameters()) return false;
-
-      return true;
     }
   }
 
@@ -260,7 +238,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
     // Construct the result model
     try{
-      String modelClassName = Config.getValueWithGlobalDefault(origName, "model");
+      String modelClassName = Config.getValueWithGlobalDefault(this.getEngine(), String.format("%s_model", origName));
 
       Class modelClass = Class.forName(modelClassName);
       Constructor cons = modelClass.getConstructor(result.getClass());
@@ -274,9 +252,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       } else{
         featureColumns = ddfColumns;
       }
-      for(String col : featureColumns) {
-        System.out.println(">>>>>>> col = " + col);
-      }
+
       model.setFeatureColumnNames(featureColumns);
       return model;
     } catch(Exception e){
