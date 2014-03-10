@@ -53,9 +53,11 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     String sqlCmd = AggregateField.toSql(fields, tableName);
     mLog.info("SQL Command: " + sqlCmd);
     int numUnaggregatedFields = 0;
+    
     for (AggregateField field : fields) {
       if(!field.isAggregated()) numUnaggregatedFields ++;
     }
+    
     try {
       List<String> result = this.getManager().sql2txt(sqlCmd);
       return AggregationResult.newInstance(result, numUnaggregatedFields);
@@ -80,12 +82,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       AggregationResult result = new AggregationResult();
 
       for (String res : sqlResult) {
-        /*
-        System.out.println("RESULT " + res);
-        int pos = StringUtils.ordinalIndexOf(res, "\t", numFields - 1);
-        String groupByColNames = res.substring(0, pos).replaceAll("\\t", ",");
-        String[] stats = res.substring(pos + 1).split("\\t");
-        */
+        
         int pos = StringUtils.ordinalIndexOf(res, "\t", numUnaggregatedFields);
         String groupByColNames = res.substring(0, pos).replaceAll("\t", ",");
         String[] stats = res.substring(pos + 1).split("\t");
@@ -93,12 +90,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
         Double[] statsDouble = new Double[stats.length];
 
         for (int i = 0; i < stats.length; i++) {
-          if (!"null".equalsIgnoreCase(stats[i])) {
-            statsDouble[i] = Double.NaN;
-
-          } else {
-            statsDouble[i] = Utils.roundUp(Double.parseDouble(stats[i]));
-          }
+          statsDouble[i] = "null".equalsIgnoreCase(stats[i]) ? Double.NaN : Utils.roundUp(Double.parseDouble(stats[i]));
         }
 
         result.put(groupByColNames, statsDouble);
