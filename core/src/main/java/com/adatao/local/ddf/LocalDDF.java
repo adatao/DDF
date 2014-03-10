@@ -41,7 +41,7 @@ public class LocalDDF extends DDF {
     super(manager, sDummyLocalDDFManager);
     if (rows == null) throw new DDFException("Non-null rows List is required to instantiate a new LocalDDF");
     mUnitType = unitType;
-    this.initialize(manager, rows, List.class ,unitType, namespace, name, schema);
+    this.initialize(manager, rows, List.class, unitType, namespace, name, schema);
   }
 
   /**

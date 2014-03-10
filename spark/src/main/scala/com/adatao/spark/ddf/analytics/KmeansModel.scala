@@ -13,9 +13,9 @@ import java.util.{List => JList}
 class KmeansModel(mllibKmeansModel: MLlibKmeansModel, featureColumnNames: JList[String]) extends
   Model(featureColumnNames, classOf[Array[Double]]) {
 
-  def getMllibKmeansModel() = this.mllibKmeansModel;
-
   def this(mllibKmeansModel: MLlibKmeansModel) = this(mllibKmeansModel, null)
+
+  def getMllibKmeansModel() = this.mllibKmeansModel
 
   override def isSupervisedAlgorithmModel(): Boolean = false
 

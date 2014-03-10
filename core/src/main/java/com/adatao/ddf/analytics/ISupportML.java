@@ -48,9 +48,6 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    *
    */
   interface IModel extends IHandlePersistence.IPersistible {
-    IModelParameters getParameters();
-
-    void setParameters(IModelParameters parameters);
 
     public void setFeatureColumnNames(List<String> featureColumnNames);
 
