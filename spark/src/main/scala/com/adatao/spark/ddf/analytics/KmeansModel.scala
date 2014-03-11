@@ -27,4 +27,8 @@ class KmeansModel(mllibKmeansModel: MLlibKmeansModel, featureColumnNames: JList[
 
     new SparkDDF(ddf.getManager, predRDD, classOf[Int], ddf.getManager.getNamespace, schema.getTableName, schema)
   }
+
+  override def predictImpl(point: Array[Double]): Double = {
+    mllibKmeansModel.predict(point).toDouble
+  }
 }

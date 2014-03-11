@@ -26,4 +26,8 @@ class LinearRegressionModel(mllibLinearModel: MLlibLinearRegressionModel, featur
     val schema = new Schema(String.format("%s_%s", ddf.getTableName, "linearRegression_prediction"), "yPredict double")
     new SparkDDF(ddf.getManager, predRDD, classOf[Double], ddf.getManager.getNamespace, schema.getTableName, schema)
   }
+
+  override def predictImpl(point: Array[Double]): Double = {
+    mllibLinearModel.predict(point)
+  }
 }

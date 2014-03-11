@@ -56,6 +56,10 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
     public boolean isSupervisedAlgorithmModel();
 
     DDF predict(DDF ddf) throws DDFException;
+
+    public double[] predict(double[][] points) throws DDFException;
+
+    public double predict(double[] point) throws DDFException;
   }
 
 

@@ -32,8 +32,6 @@ class KmeansSuite extends ATestSuite {
     val ddfPredict2 = manager.sql2ddf("select " +
       "distance,arrdelay, depdelay from airlineWithNA")
 
-
-
     val model = ddfTrain.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
     val initialWeight = for {
@@ -45,6 +43,9 @@ class KmeansSuite extends ATestSuite {
 
     val kmeansPred = model.predict(ddfPredict)
     val lmPred = mlModel.predict(ddfPredict2)
+
+    model.predict(Array(1,2,3,4.0, 5, 6, 7,8))
+    mlModel.predict(Array(1, 2, 3.0))
 
     manager.shutdown()
   }

@@ -179,6 +179,26 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       }
       return this.predict(data, ddf);
     }
+
+    protected abstract double predictImpl(double[] point);
+
+    @Override
+    public double predict(double[] point) throws DDFException {
+      if(this.getFeatureColumnNames().size() != point.length){
+        throw new DDFException("Point's size must be the same size as number features used to train the model");
+      } else{
+        return this.predictImpl(point);
+      }
+    }
+
+    @Override
+    public double[] predict(double[][] points) throws DDFException {
+      double[] predictions = new double[points.length];
+      for(int i = 0; i < points.length; i++) {
+        predictions[i] = this.predict(points[i]);
+      }
+      return predictions;
+    }
   }
 
 

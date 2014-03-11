@@ -88,6 +88,11 @@ public class PersistenceHandlerTests {
     public DDF predict(Object data, DDF ddf) {
       return null;
     }
+
+    @Override
+    public double predictImpl(double[] point) {
+      return 0.0;
+    }
   }
 
   @Test
