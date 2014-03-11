@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.base.Joiner;
 import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
@@ -166,15 +168,14 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       Object data;
 
       //if featureColumnNames is not the same as ddf's columnNames
-      //project ddf with featureColumnNames to get new DDF
-      //else perform predict on the provided DDF
-
-      if(!((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
-          (ddfColumnNames.containsAll(this.getFeatureColumnNames())))){
-        DDF projectedDDF = ddf.Views.project(this.getFeatureColumnNames());
-        data = this.prepareData(projectedDDF);
-      } else {
+      //throw Exception
+      if((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
+          (ddfColumnNames.containsAll(this.getFeatureColumnNames()))){
         data = this.prepareData(ddf);
+      } else{
+        String cols = Joiner.on(", ").join(ddfColumnNames);
+        throw new DDFException(String.format("Please project the ddf to the same columns " +
+            "as feature columns that used to train this model: %s.", cols));
       }
       return this.predict(data, ddf);
     }
@@ -221,7 +222,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // for (int i = 0; i < paramArgs.length; i++) {
     // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
     // }
-    String origName = trainMethodName;
+    String originalTrainMethodName = trainMethodName;
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
@@ -238,7 +239,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
     // Construct the result model
     try{
-      String modelClassName = Config.getValueWithGlobalDefault(this.getEngine(), String.format("%s_model", origName));
+      String modelClassName = Config.getValueWithGlobalDefault(this.getEngine(), String.format("%s_model", originalTrainMethodName));
 
       Class modelClass = Class.forName(modelClassName);
       Constructor cons = modelClass.getConstructor(result.getClass());
