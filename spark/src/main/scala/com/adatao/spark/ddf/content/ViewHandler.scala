@@ -59,7 +59,8 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
     } else {
       val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
       val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed);
-      new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+      new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object],
+        mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
     }
   }
 
@@ -67,7 +68,8 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
 
     val rdd = mDDF.getRepresentationHandler().get(classOf[Object]).asInstanceOf[RDD[Object]];
     val sampleRdd = rdd.sample(withReplacement, percent, seed);
-    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
+    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object],
+      mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema());
   }
 }
 

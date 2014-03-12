@@ -305,7 +305,7 @@ public class PersistenceHandler extends APersistenceHandler {
       list.add(new Object[] { this, this.getClass().getName() });
       Schema schema = new Schema(this.getName(), "object BLOB, objectClass STRING");
 
-      LocalDDF ddf = new LocalDDF(list, this.getNamespace(), this.getName(), schema);
+      LocalDDF ddf = new LocalDDF(list, Object[].class,this.getNamespace(), this.getName(), schema);
 
       return ddf;
     }
