@@ -83,7 +83,7 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF project(String[] columnNames) throws DDFException {
+  public DDF project(List<String> columnNames) throws DDFException {
     return this.getViewHandler().project(columnNames);
   }
 

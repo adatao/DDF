@@ -41,6 +41,12 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   Object get(Class<?>... typeSpecs);
 
   /**
+   * Retrieves a default representation for this specific engine
+   * @param unitType
+   * @return
+   */
+  public Object get(Class<?> unitType) throws DDFException;
+  /**
    * Clears out all current representations.
    */
   void reset();

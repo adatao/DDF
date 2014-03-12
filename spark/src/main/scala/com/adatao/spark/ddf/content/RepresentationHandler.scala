@@ -25,10 +25,10 @@ import com.adatao.ddf.exception.DDFException
 class RepresentationHandler(mDDF: DDF) extends com.adatao.ddf.content.RepresentationHandler(mDDF) {
 	protected def getDefaultRepresentationImpl(): RDD[Row] = {
 
-		if (mDDF.getRepresentationHandler.get(classOf[Row]) == null) {
-			throw new Exception("Please load theDDFManager representation")
+		if (mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]) == null) {
+			throw new DDFException("Please load theDDFManager representation")
 		}
-		val rdd = mDDF.getRepresentationHandler.get(classOf[Row]).asInstanceOf[RDD[Row]]
+		val rdd = mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
 		rdd
 	}
 
@@ -67,7 +67,7 @@ class RepresentationHandler(mDDF: DDF) extends com.adatao.ddf.content.Representa
 	/**
 	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
 	 */
-	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, m.erasure)
+	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, classOf[RDD[_]],m.erasure)
 
 	private def forAllReps[T](f: RDD[_] ⇒ Any) {
 		mReps.foreach {
