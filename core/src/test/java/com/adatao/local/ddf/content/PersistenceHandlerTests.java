@@ -75,6 +75,7 @@ public class PersistenceHandlerTests {
   }
 
   public class TestModel extends Model {
+    private static final long serialVersionUID = 6451873623219190370L;
 
     public TestModel(List<String> featureColumns, Class<?> inputPredictionClass) {
       super(featureColumns, inputPredictionClass);
