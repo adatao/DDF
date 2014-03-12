@@ -7,11 +7,9 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.types.NA;
 
 /**
- * @author ctn
- * 
+ *
  */
 public class RepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
@@ -24,33 +22,40 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?> dataType) {
-    return this.getSafedataType(dataType).toString();
+  protected String getKeyFor(Class<?>[] typeSpecs) {
+    if (typeSpecs == null || typeSpecs.length == 0) return "null";
+
+    StringBuilder sb = new StringBuilder();
+    for (Class<?> c : typeSpecs) {
+      sb.append(c.getName());
+      sb.append(':');
+    }
+
+    return sb.toString();
   }
 
-  protected Class<?> getSafedataType(Class<?> dataType) {
-    return dataType != null ? dataType : NA.class;
-  }
+  // protected Class<?>[] getSafedataType(Class<?>[] typeSpecs) {
+  // if (typeSpecs == null || typeSpecs.length == 0) return
+  // return typeSpecs != null ? typeSpecs : NA.class;
+  // }
 
   /**
    * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
    * 
-   * @param dataType
-   *          the type of the DDF data representation
+   * @param typeSpecs
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> dataType) {
-    return this.get(dataType, true);
+  public Object get(Class<?>... typeSpecs) {
+    return this.get(typeSpecs, true);
   }
 
-  private Object get(Class<?> dataType, boolean doCreate) {
-    dataType = this.getSafedataType(dataType);
+  private Object get(Class<?>[] typeSpecs, boolean doCreate) {
+    Object obj = mReps.get(getKeyFor(typeSpecs));
 
-    Object obj = mReps.get(getKeyFor(dataType));
     if (obj == null && doCreate) {
-      obj = this.createRepresentation(dataType);
+      obj = this.createRepresentation(typeSpecs);
       if (obj != null) this.add(obj);
     }
 
@@ -58,7 +63,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
 
-  private Class<?> mDefaultDataType;
+  private Class<?>[] mDefaultTypeSpecs;
 
 
   /**
@@ -67,21 +72,13 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @return
    */
   @Override
-  public Class<?> getDefaultDataType() {
-    return mDefaultDataType;
+  public Class<?>[] getDefaultDataType() {
+    return mDefaultTypeSpecs;
   }
 
-  public void setDefaultDataType(Class<?> dataType) {
-    mDefaultDataType = dataType;
-  }
-
-  /**
-   * Returns the default columnType for this engine. The base implementation returns Object.class.
-   * 
-   * @return
-   */
-  public Class<?> getDefaultColumnType() {
-    return Object.class;
+  @Override
+  public void setDefaultDataType(Class<?>... typeSpecs) {
+    mDefaultTypeSpecs = typeSpecs;
   }
 
   @Override
@@ -95,8 +92,13 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void reset() {
     mReps.clear();
-    this.setDefaultDataType(null);
+    this.setDefaultDataType((Class<?>[]) null);
   }
+
+  private boolean equalsDefaultDataType(Class<?>... typeSpecs) {
+    return this.getKeyFor(typeSpecs).equals(this.getKeyFor(this.getDefaultDataType()));
+  }
+
 
   /**
    * Converts from existing representation(s) to the desired representation, which has the specified dataType.
@@ -107,9 +109,18 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @param dataType
    * @return
    */
-  public Object createRepresentation(Class<?> dataType) {
-    return (this.getDefaultDataType() != null && this.getDefaultDataType().equals(dataType)) ? this
-        .get(dataType, false) : null;
+  public Object createRepresentation(Class<?>[] dataType) {
+    if (this.getKeyFor(dataType).equals(this.getKeyFor(this.getDefaultDataType()))) {
+      return this.get(dataType, false);
+
+    } else {
+      return null;
+    }
+  }
+
+  protected Class<?>[] determineTypeSpecs(Object data, Class<?>... typeSpecs) {
+    if (typeSpecs != null && typeSpecs.length > 0) return typeSpecs;
+    return (data == null ? null : new Class<?>[] { data.getClass() });
   }
 
   /**
@@ -117,10 +128,9 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * 
    */
   @Override
-  public void set(Object data) {
+  public void set(Object data, Class<?>... typeSpecs) {
     this.reset();
-    if (data != null) this.setDefaultDataType(data.getClass());
-    this.add(data);
+    this.add(data, typeSpecs);
   }
 
   /**
@@ -128,10 +138,13 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * matches the given DDFManagerType, dataType tuple.
    */
   @Override
-  public void add(Object data) {
+  public void add(Object data, Class<?>... typeSpecs) {
     if (data == null) return;
-    if (this.getDefaultDataType() == null) this.setDefaultDataType(data.getClass());
-    mReps.put(getKeyFor(data.getClass()), data);
+
+    typeSpecs = this.determineTypeSpecs(data, typeSpecs);
+    if (this.getDefaultDataType() == null) this.setDefaultDataType(typeSpecs);
+
+    mReps.put(this.getKeyFor(typeSpecs), data);
   }
 
   /**
@@ -140,8 +153,9 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @param dataType
    */
   @Override
-  public void remove(Class<?> dataType) {
-    mReps.remove(getKeyFor(dataType));
+  public void remove(Class<?>... typeSpecs) {
+    mReps.remove(this.getKeyFor(typeSpecs));
+    if (this.equalsDefaultDataType(typeSpecs)) this.reset();
   }
 
   /**
@@ -177,16 +191,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
 
-  public enum KnownTypes {
-    DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
-
-    public static KnownTypes fromString(String s) {
-      if (s == null || s.length() == 0) return null;
-      s = s.toUpperCase().trim();
-      for (KnownTypes t : values()) {
-        if (s.equals(t.name())) return t;
-      }
-      return null;
-    }
-  }
+  // public enum KnownTypes {
+  // DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
+  //
+  // public static KnownTypes fromString(String s) {
+  // if (s == null || s.length() == 0) return null;
+  // s = s.toUpperCase().trim();
+  // for (KnownTypes t : values()) {
+  // if (s.equals(t.name())) return t;
+  // }
+  // return null;
+  // }
+  // }
 }

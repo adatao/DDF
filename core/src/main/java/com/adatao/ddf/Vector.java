@@ -5,7 +5,6 @@ package com.adatao.ddf;
 
 
 import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
@@ -127,8 +126,8 @@ public class Vector<T> {
     this.mDDFColumnName = mDDFColumnName;
   }
 
-  @SuppressWarnings("unchecked")
-  public Iterator<T> iterator() {
-    return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
-  }
+//  @SuppressWarnings("unchecked")
+//  public Iterator<T> iterator() {
+//    return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
+//  }
 }
