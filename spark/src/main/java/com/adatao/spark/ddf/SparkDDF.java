@@ -7,7 +7,6 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
-import java.lang.reflect.ParameterizedType;
 
 /**
  * An Apache-Spark-based implementation of DDF

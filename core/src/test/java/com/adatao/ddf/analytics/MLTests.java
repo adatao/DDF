@@ -6,7 +6,6 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.ISupportML.IModel;
-import com.adatao.ddf.analytics.MLSupporter.Model;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;

@@ -261,8 +261,8 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     try{
       String modelClassName = Config.getValueWithGlobalDefault(this.getEngine(), String.format("%s_model", originalTrainMethodName));
 
-      Class modelClass = Class.forName(modelClassName);
-      Constructor cons = modelClass.getConstructor(result.getClass());
+      Class<?> modelClass = Class.forName(modelClassName);
+      Constructor<?> cons = modelClass.getConstructor(result.getClass());
       IModel model = (IModel) cons.newInstance(result);
 
       List<String> featureColumns;

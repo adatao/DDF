@@ -20,6 +20,7 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
    * @param paramInfo
    * @return
    */
+  @SuppressWarnings("unchecked")
   @Override
   protected Object convertDDF(ParamInfo paramInfo) throws DDFException{
     if (paramInfo.argMatches(RDD.class)) {

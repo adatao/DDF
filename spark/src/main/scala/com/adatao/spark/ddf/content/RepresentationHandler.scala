@@ -32,25 +32,25 @@ class RepresentationHandler(mDDF: DDF) extends com.adatao.ddf.content.Representa
 		rdd
 	}
 
-	override def getDefaultUnitType: Class[_] = classOf[Row];
+	override def getDefaultDataType: Array[Class[_]] = Array(classOf[RDD[Row]])
 
 	/**
 	 * Creates a specific representation
 	 */
-	override def createRepresentation(containerType: Class[_], rowType: Class[_]): Object = {
+	override def createRepresentation(typeSpecs: Array[Class[_]]): Object = {
 		val schema = mDDF.getSchemaHandler
 		val numCols = schema.getNumColumns.toInt
 
 		val extractors = schema.getColumns().map(colInfo ⇒ doubleExtractor(colInfo.getType)).toArray
 
 		val rdd = getDefaultRepresentationImpl();
-		rowType match {
+		typeSpecs match { // TODO
 
-			case ARRAY_OBJECT ⇒ getRDDArrayObject(rdd, numCols)
-
-			case ARRAY_DOUBLE ⇒ getRDDArrayDouble(rdd, numCols, extractors)
-
-			case LABELED_POINT ⇒ getRDDLabeledPoint(rdd, numCols, extractors)
+//			case ARRAY_OBJECT ⇒ getRDDArrayObject(rdd, numCols)
+//
+//			case ARRAY_DOUBLE ⇒ getRDDArrayDouble(rdd, numCols, extractors)
+//
+//			case LABELED_POINT ⇒ getRDDLabeledPoint(rdd, numCols, extractors)
 
 			case _ ⇒ throw new DDFException("rowType not supported")
 		}
