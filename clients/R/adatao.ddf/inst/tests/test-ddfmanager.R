@@ -14,7 +14,4 @@ test_that("sql2ddf works", {
   adatao.sql(dm, "LOAD DATA LOCAL INPATH '/home/nhanitvn/adatao/BigR/server/resources/mtcars' INTO TABLE mtcars")
   ddf <- adatao.sql2ddf(dm, "select * from mtcars")
   expect_is(ddf, "DDF")
-  ncol(ddf)
-  nrow(ddf)
-  summary(ddf)
 })
