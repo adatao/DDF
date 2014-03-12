@@ -280,6 +280,14 @@ public abstract class DDF extends ALoggable //
   public ViewsFacade Views;
 
 
+  // ///// Execute a sqlcmd
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2txt(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
 
   // ///// Aggregate operations
 

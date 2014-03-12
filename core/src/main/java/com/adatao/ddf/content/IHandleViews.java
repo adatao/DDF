@@ -86,5 +86,5 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   
   public DDF project(String[] columnNames) throws DDFException;
 
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
+  //public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
 }

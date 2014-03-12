@@ -75,7 +75,7 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF firstNRows(int numRows) throws DDFException {
+  public List<String> firstNRows(int numRows) throws DDFException {
     return mViewHandler.firstNRows(numRows);
   }
 
@@ -88,8 +88,8 @@ public class ViewsFacade implements IHandleViews {
     return this.getViewHandler().project(columnNames);
   }
 
-  @Override
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
-    return this.getViewHandler().sql2txt(sqlCommand, errorMessage);
-  }
+//  @Override
+//  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+//    return this.getViewHandler().sql2txt(sqlCommand, errorMessage);
+//  }
 }

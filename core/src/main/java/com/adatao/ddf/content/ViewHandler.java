@@ -128,7 +128,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
   @Override
   public List<String> firstNRows(int numRows) throws DDFException {
-    return sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+    return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d rows from table %%s", numRows));
   }
 
@@ -148,12 +148,12 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     }
   }
   
-  @Override
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2txt(String.format(sqlCommand, this.getDDF().getTableName()));
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
-    }
-  }
+//  @Override
+//  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+//    try {
+//      return this.getManager().sql2txt(String.format(sqlCommand, this.getDDF().getTableName()));
+//    } catch (Exception e) {
+//      throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
+//    }
+//  }
 }
