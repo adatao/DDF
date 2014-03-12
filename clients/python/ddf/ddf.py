@@ -31,7 +31,9 @@ class DDF(object):
         
     def aggregate(self, fields):
         return self._jddf.aggregate(fields)
-        
+       
+    def correlation(self, columnA, columnB):
+        return self._jddf.correlation(columnA, columnB)
 
 class ViewsFacade(object):
     def __init__(self, jViewsFacade):
@@ -39,5 +41,11 @@ class ViewsFacade(object):
 
     def firstNRows(self, numRows):
         return DDF(self._jViewsFacade.firstNRows(numRows))
+
+    def project(self, columnNames):
+        return DDF(self._jViewsFacade.project(columnNames))
+
+    def getRandomSample(self, percent, withReplacement, seed):
+        return DDF(self._jViewsFacade.getRandomSample(percent, withReplacement, seed))
 
 
