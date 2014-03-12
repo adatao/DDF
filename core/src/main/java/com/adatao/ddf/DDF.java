@@ -19,7 +19,6 @@ package com.adatao.ddf;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.List;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
@@ -699,21 +698,21 @@ public abstract class DDF extends ALoggable //
     return this.getSchema().getColumnIndex(columnName);
   }
 
-  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
-    return this.getViewHandler().getRowIterator(dataType);
-  }
-
-  public Iterator<?> getRowIterator() {
-    return this.getViewHandler().getRowIterator();
-  }
-
-  public <D, C> Iterator<C> getElementIterator(Class<D> dataType, Class<C> columnType, String columnName) {
-    return this.getViewHandler().getElementIterator(dataType, columnType, columnName);
-  }
-
-  public Iterator<?> getElementIterator(String columnName) {
-    return this.getViewHandler().getElementIterator(columnName);
-  }
+//  public <T> Iterator<T> getRowIterator(Class<T> dataType) {
+//    return this.getViewHandler().getRowIterator(dataType);
+//  }
+//
+//  public Iterator<?> getRowIterator() {
+//    return this.getViewHandler().getRowIterator();
+//  }
+//
+//  public <D, C> Iterator<C> getElementIterator(Class<D> dataType, Class<C> columnType, String columnName) {
+//    return this.getViewHandler().getElementIterator(dataType, columnType, columnName);
+//  }
+//
+//  public Iterator<?> getElementIterator(String columnName) {
+//    return this.getViewHandler().getElementIterator(columnName);
+//  }
 
 
 

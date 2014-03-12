@@ -5,17 +5,11 @@ package com.adatao.ddf.content;
 
 
 import java.util.HashMap;
-import java.util.List;
-
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
-import com.adatao.ddf.misc.Config;
-import com.adatao.ddf.types.NA;
 
 /**
- * @author ctn
- * 
+ *
  */
 public class RepresentationHandler extends ADDFFunctionalGroupHandler implements IHandleRepresentations {
 
@@ -28,93 +22,68 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?> containerType, Class<?> unitType) {
-    return String.format("%s_%s", containerType.toString(), unitType.toString());
+  protected String getKeyFor(Class<?>[] typeSpecs) {
+    if (typeSpecs == null || typeSpecs.length == 0) return "null";
+
+    StringBuilder sb = new StringBuilder();
+    for (Class<?> c : typeSpecs) {
+      sb.append(c.getName());
+      sb.append(':');
+    }
+
+    return sb.toString();
   }
 
-  protected Class<?> getSafedataType(Class<?> dataType) {
-    return dataType != null ? dataType : NA.class;
-  }
+  // protected Class<?>[] getSafedataType(Class<?>[] typeSpecs) {
+  // if (typeSpecs == null || typeSpecs.length == 0) return
+  // return typeSpecs != null ? typeSpecs : NA.class;
+  // }
 
   /**
    * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
    * 
-   * @param containerType
-   *          the type of the DDF data representation
-   * @param unitType
+   * @param typeSpecs
    * 
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?> containerType, Class<?> unitType) {
-    return this.get(containerType, unitType, true);
+  public Object get(Class<?>... typeSpecs) {
+    return this.get(typeSpecs, true);
   }
 
-  @Override
-  public Object get(Class<?> unitType) throws DDFException {
-    return this.get(this.getDefaultEngineContainerType(), unitType);
-  }
-
-  private Object get(Class<?> containerType, Class<?> unitType, boolean doCreate) {
-    containerType = this.getSafedataType(containerType);
-    unitType = this.getSafedataType(unitType);
-
-    Object obj = mReps.get(getKeyFor(containerType, unitType));
+  private Object get(Class<?>[] typeSpecs, boolean doCreate) {
+    Object obj = mReps.get(getKeyFor(typeSpecs));
 
     if (obj == null && doCreate) {
-      obj = this.createRepresentation(containerType, unitType);
-      if (obj != null) this.add(obj, containerType, unitType);
+      obj = this.createRepresentation(typeSpecs);
+      if (obj != null) this.add(obj);
     }
 
     return obj;
   }
 
 
-  private Class<?> mDefaultUnitType;
+  private Class<?>[] mDefaultTypeSpecs;
 
-  private Class<?> mDefaultContainerType;
+
   /**
    * Returns the default dataType for this engine. The base implementation returns Object[][].class.
    * 
    * @return
    */
   @Override
-  public Class<?> getDefaultUnitType() {
-    return mDefaultUnitType;
-  }
-
-  public void setDefaultUnitType(Class<?> unitType) {
-    mDefaultUnitType = unitType;
+  public Class<?>[] getDefaultDataType() {
+    return mDefaultTypeSpecs;
   }
 
   @Override
-  public Class<?> getDefaultContainerType() {
-    return mDefaultContainerType;
-  }
-
-  private Class<?> getDefaultEngineContainerType() throws DDFException{
-    try {
-      String containerName = Config.getValueWithGlobalDefault(this.getEngine(), "DefaultEngineContainerType");
-      return Class.forName(containerName);
-    } catch(Exception e) {
-      throw new DDFException("Cannot get engine's default ContainerType");
-    }
-  }
-  public void setDefaultContainerType(Class<?> containerType) {
-    mDefaultContainerType = containerType;
-  }
-  /**
-   * Returns the default columnType for this engine. The base implementation returns Object.class.
-   * 
-   * @return
-   */
-  public Class<?> getDefaultColumnType() {
-    return Object.class;
+  public void setDefaultDataType(Class<?>... typeSpecs) {
+    mDefaultTypeSpecs = typeSpecs;
   }
 
   @Override
   public Object getDefault() {
-    return this.get(this.getDefaultContainerType(), getDefaultUnitType());
+    return this.get(this.getDefaultDataType());
   }
 
   /**
@@ -123,8 +92,13 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void reset() {
     mReps.clear();
-    this.setDefaultUnitType(null);
+    this.setDefaultDataType((Class<?>[]) null);
   }
+
+  private boolean equalsDefaultDataType(Class<?>... typeSpecs) {
+    return this.getKeyFor(typeSpecs).equals(this.getKeyFor(this.getDefaultDataType()));
+  }
+
 
   /**
    * Converts from existing representation(s) to the desired representation, which has the specified dataType.
@@ -132,13 +106,21 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * The base representation returns only the default representation if the dataType matches the default type. Otherwise
    * it returns null.
    * 
-   * @param containerType
+   * @param dataType
    * @return
    */
-  public Object createRepresentation(Class<?> containerType, Class<?> unitType) {
-    return (this.getDefaultContainerType() != null && this.getDefaultContainerType().equals(containerType) ||
-            this.getDefaultUnitType() != null && this.getDefaultUnitType().equals(unitType)) ? this
-        .get(containerType, unitType, false) : null;
+  public Object createRepresentation(Class<?>[] dataType) {
+    if (this.getKeyFor(dataType).equals(this.getKeyFor(this.getDefaultDataType()))) {
+      return this.get(dataType, false);
+
+    } else {
+      return null;
+    }
+  }
+
+  protected Class<?>[] determineTypeSpecs(Object data, Class<?>... typeSpecs) {
+    if (typeSpecs != null && typeSpecs.length > 0) return typeSpecs;
+    return (data == null ? null : new Class<?>[] { data.getClass() });
   }
 
   /**
@@ -146,38 +128,34 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * 
    */
   @Override
-  public void set(Object data, Class<?> containerType, Class<?> unitType) {
+  public void set(Object data, Class<?>... typeSpecs) {
     this.reset();
-    if (data != null) {
-      this.setDefaultContainerType(containerType);
-      this.setDefaultUnitType(unitType);
-    }
-    this.add(data, containerType, unitType);
+    this.add(data, typeSpecs);
   }
 
   /**
    * Adds a new and unique representation for our {@link DDF}, keeping any existing ones but replacing the one that
-   * matches the given DDFManagerType, containerType, unitType.
+   * matches the given DDFManagerType, dataType tuple.
    */
   @Override
-  public void add(Object data, Class<?> containerType, Class<?> unitType) {
+  public void add(Object data, Class<?>... typeSpecs) {
     if (data == null) return;
-    if (this.getDefaultContainerType() == null || this.getDefaultUnitType() == null) {
-      this.setDefaultContainerType(containerType);
-      this.setDefaultUnitType(unitType);
-    }
-    mReps.put(getKeyFor(containerType, unitType), data);
+
+    typeSpecs = this.determineTypeSpecs(data, typeSpecs);
+    if (this.getDefaultDataType() == null) this.setDefaultDataType(typeSpecs);
+
+    mReps.put(this.getKeyFor(typeSpecs), data);
   }
 
   /**
    * Removes a representation from the set of existing representations.
    * 
-   * @param containerType
-   * @param unitType
+   * @param dataType
    */
   @Override
-  public void remove(Class<?> containerType, Class<?> unitType) {
-    mReps.remove(getKeyFor(containerType, unitType));
+  public void remove(Class<?>... typeSpecs) {
+    mReps.remove(this.getKeyFor(typeSpecs));
+    if (this.equalsDefaultDataType(typeSpecs)) this.reset();
   }
 
   /**
@@ -213,16 +191,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
 
-  public enum KnownTypes {
-    DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
-
-    public static KnownTypes fromString(String s) {
-      if (s == null || s.length() == 0) return null;
-      s = s.toUpperCase().trim();
-      for (KnownTypes t : values()) {
-        if (s.equals(t.name())) return t;
-      }
-      return null;
-    }
-  }
+  // public enum KnownTypes {
+  // DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
+  //
+  // public static KnownTypes fromString(String s) {
+  // if (s == null || s.length() == 0) return null;
+  // s = s.toUpperCase().trim();
+  // for (KnownTypes t : values()) {
+  // if (s.equals(t.name())) return t;
+  // }
+  // return null;
+  // }
+  // }
 }
