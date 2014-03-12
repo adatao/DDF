@@ -7,6 +7,7 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.types.IGloballyAddressable;
 
 /**
  *
@@ -22,12 +23,12 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   protected HashMap<String, Object> mReps = new HashMap<String, Object>();
 
 
-  protected String getKeyFor(Class<?>[] typeSpecs) {
+  public static String getKeyFor(Class<?>[] typeSpecs) {
     if (typeSpecs == null || typeSpecs.length == 0) return "null";
 
     StringBuilder sb = new StringBuilder();
     for (Class<?> c : typeSpecs) {
-      sb.append(c.getName());
+      sb.append(c == null ? "null" : c.getName());
       sb.append(':');
     }
 
@@ -96,7 +97,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   private boolean equalsDefaultDataType(Class<?>... typeSpecs) {
-    return this.getKeyFor(typeSpecs).equals(this.getKeyFor(this.getDefaultDataType()));
+    return getKeyFor(typeSpecs).equals(getKeyFor(this.getDefaultDataType()));
   }
 
 
@@ -110,7 +111,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @return
    */
   public Object createRepresentation(Class<?>[] dataType) {
-    if (this.getKeyFor(dataType).equals(this.getKeyFor(this.getDefaultDataType()))) {
+    if (getKeyFor(dataType).equals(getKeyFor(this.getDefaultDataType()))) {
       return this.get(dataType, false);
 
     } else {
@@ -118,7 +119,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     }
   }
 
-  protected Class<?>[] determineTypeSpecs(Object data, Class<?>... typeSpecs) {
+  public static Class<?>[] determineTypeSpecs(Object data, Class<?>... typeSpecs) {
     if (typeSpecs != null && typeSpecs.length > 0) return typeSpecs;
     return (data == null ? null : new Class<?>[] { data.getClass() });
   }
@@ -141,10 +142,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   public void add(Object data, Class<?>... typeSpecs) {
     if (data == null) return;
 
-    typeSpecs = this.determineTypeSpecs(data, typeSpecs);
+    typeSpecs = determineTypeSpecs(data, typeSpecs);
     if (this.getDefaultDataType() == null) this.setDefaultDataType(typeSpecs);
 
-    mReps.put(this.getKeyFor(typeSpecs), data);
+    mReps.put(getKeyFor(typeSpecs), data);
   }
 
   /**
@@ -154,7 +155,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    */
   @Override
   public void remove(Class<?>... typeSpecs) {
-    mReps.remove(this.getKeyFor(typeSpecs));
+    mReps.remove(getKeyFor(typeSpecs));
     if (this.equalsDefaultDataType(typeSpecs)) this.reset();
   }
 
@@ -190,6 +191,43 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     // TODO Auto-generated method stub
   }
 
+
+  /**
+   * A special class representing a Table that's native to the engine, e.g., Shark Table for the Spark engine.
+   */
+  public static class NativeTable implements IGloballyAddressable {
+    private String mNamespace;
+    private String mName;
+
+
+    public NativeTable(String namespace, String name) {
+      mNamespace = namespace;
+      mName = name;
+    }
+
+    @Override
+    public String getNamespace() {
+      return mNamespace;
+    }
+
+    @Override
+    public void setNamespace(String namespace) {
+      mNamespace = namespace;
+    }
+
+    @Override
+    public String getName() {
+      return mName;
+    }
+
+    @Override
+    public void setName(String name) {
+      mName = name;
+    }
+  }
+
+
+  protected final String NATIVE_TABLE = getKeyFor(new Class<?>[] { NativeTable.class });
 
   // public enum KnownTypes {
   // DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
