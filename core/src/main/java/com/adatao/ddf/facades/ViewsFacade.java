@@ -1,7 +1,6 @@
 package com.adatao.ddf.facades;
 
 
-import java.util.Iterator;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleViews;
@@ -34,35 +33,35 @@ public class ViewsFacade implements IHandleViews {
     mViewHandler = viewHandler;
   }
 
-  @Override
-  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-    return mViewHandler.getRowIterator(rowType);
-  }
-
-  @Override
-  public Iterator<?> getRowIterator() {
-    return mViewHandler.getRowIterator();
-  }
-
-  @Override
-  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
-    return mViewHandler.getElementIterator(dataType, columnType, columnIndex);
-  }
-
-  @Override
-  public Iterator<?> getElementIterator(int columnIndex) {
-    return mViewHandler.getElementIterator(columnIndex);
-  }
-
-  @Override
-  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
-    return mViewHandler.getElementIterator(dataType, columnType, columnName);
-  }
-
-  @Override
-  public Iterator<?> getElementIterator(String columnName) {
-    return mViewHandler.getElementIterator(columnName);
-  }
+//  @Override
+//  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
+//    return mViewHandler.getRowIterator(rowType);
+//  }
+//
+//  @Override
+//  public Iterator<?> getRowIterator() {
+//    return mViewHandler.getRowIterator();
+//  }
+//
+//  @Override
+//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
+//    return mViewHandler.getElementIterator(dataType, columnType, columnIndex);
+//  }
+//
+//  @Override
+//  public Iterator<?> getElementIterator(int columnIndex) {
+//    return mViewHandler.getElementIterator(columnIndex);
+//  }
+//
+//  @Override
+//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
+//    return mViewHandler.getElementIterator(dataType, columnType, columnName);
+//  }
+//
+//  @Override
+//  public Iterator<?> getElementIterator(String columnName) {
+//    return mViewHandler.getElementIterator(columnName);
+//  }
 
   @Override
   public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
