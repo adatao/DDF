@@ -57,11 +57,11 @@ object RootBuild extends Build {
 	val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
 	val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, enterprise, pa, examples, contrib)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
-	lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core,spark)
-	lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core,spark)
+	lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
+	lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
 	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
 	lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
 
