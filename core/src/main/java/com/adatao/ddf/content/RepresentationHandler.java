@@ -227,18 +227,5 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
 
-  protected final String NATIVE_TABLE = getKeyFor(new Class<?>[] { NativeTable.class });
-
-  // public enum KnownTypes {
-  // DEFAULT_TYPE, ARRAY_OBJECT, ARRAY_DOUBLE, ARRAY_LABELEDPOINT;
-  //
-  // public static KnownTypes fromString(String s) {
-  // if (s == null || s.length() == 0) return null;
-  // s = s.toUpperCase().trim();
-  // for (KnownTypes t : values()) {
-  // if (s.equals(t.name())) return t;
-  // }
-  // return null;
-  // }
-  // }
+  public static final String NATIVE_TABLE = getKeyFor(new Class<?>[] { NativeTable.class });
 }

@@ -40,7 +40,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 			case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd, numCols)
 			case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, numCols)
 			case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, numCols)
-			case NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
+			case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
 			case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported", RH.getKeyFor(typeSpecs)))
 		}
 	}
