@@ -1,16 +1,16 @@
 /**
  * 
  */
-package com.adatao.local.ddf;
+package com.adatao.basic.ddf;
 
 
 import java.util.List;
+import com.adatao.basic.ddf.content.PersistenceHandler.BasicPersistible;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,11 +20,11 @@ import com.google.gson.annotations.Expose;
  * An implementation of DDF with local memory and local storage
  * 
  */
-public class LocalDDF extends DDF {
+public class BasicDDF extends DDF {
 
   private static final long serialVersionUID = -4318701865079177594L;
 
-  protected static final LocalDDFManager sDummyLocalDDFManager = new LocalDDFManager();
+  protected static final BasicDDFManager sDummyBasicDDFManager = new BasicDDFManager();
 
 
   private Class<?> mUnitType;
@@ -32,16 +32,16 @@ public class LocalDDF extends DDF {
   @Expose private String mUnitTypeName; // only needed during serialization
 
 
-  public LocalDDF(List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
+  public BasicDDF(List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
     this((DDFManager) null, (List<?>) rows, unitType, namespace, name, schema);
     if (rows != null) mUnitType = unitType;
   }
 
-  public LocalDDF(DDFManager manager, List<?> rows, Class<?> unitType, String namespace, String name, Schema schema)
+  public BasicDDF(DDFManager manager, List<?> rows, Class<?> unitType, String namespace, String name, Schema schema)
       throws DDFException {
 
-    super(manager, sDummyLocalDDFManager);
-    if (rows == null) throw new DDFException("Non-null rows List is required to instantiate a new LocalDDF");
+    super(manager, sDummyBasicDDFManager);
+    if (rows == null) throw new DDFException("Non-null rows List is required to instantiate a new BasicDDF");
     mUnitType = unitType;
     this.initialize(manager, rows, new Class[] { List.class, unitType }, namespace, name, schema);
   }
@@ -57,11 +57,11 @@ public class LocalDDF extends DDF {
    * @param schema
    * @throws DDFException
    */
-  public LocalDDF(DDFManager manager, Object rows, Class<?>[] typeSpecs, String namespace, String name, Schema schema)
+  public BasicDDF(DDFManager manager, Object rows, Class<?>[] typeSpecs, String namespace, String name, Schema schema)
       throws DDFException {
 
-    super(manager, sDummyLocalDDFManager);
-    if (rows == null) throw new DDFException("Non-null rows Object is required to instantiate a new LocalDDF");
+    super(manager, sDummyBasicDDFManager);
+    if (rows == null) throw new DDFException("Non-null rows Object is required to instantiate a new BasicDDF");
     mUnitType = (typeSpecs != null && typeSpecs.length > 0) ? typeSpecs[1] : null;
     this.initialize(manager, rows, typeSpecs, namespace, name, schema);
   }
@@ -72,8 +72,8 @@ public class LocalDDF extends DDF {
    * @param manager
    * @throws DDFException
    */
-  public LocalDDF(DDFManager manager) throws DDFException {
-    super(manager, sDummyLocalDDFManager);
+  public BasicDDF(DDFManager manager) throws DDFException {
+    super(manager, sDummyBasicDDFManager);
   }
 
   /**
@@ -81,8 +81,8 @@ public class LocalDDF extends DDF {
    * 
    * @throws DDFException
    */
-  protected LocalDDF() throws DDFException {
-    super(sDummyLocalDDFManager);
+  protected BasicDDF() throws DDFException {
+    super(sDummyBasicDDFManager);
   }
 
 
@@ -132,7 +132,7 @@ public class LocalDDF extends DDF {
    * </code> instead of having to do this:<br/>
    * <code>
    *   PersistenceUri uri = model.persist();
-   *   LocalDDF ddf = (LocalDDF) ddfManager.load(uri);
+   *   BasicDDF ddf = (BasicDDF) ddfManager.load(uri);
    *   Model model = (Model) ddf.getList().get(0);
    * </code>
    */
@@ -153,7 +153,7 @@ public class LocalDDF extends DDF {
         ((JsonObject) serializationData).get("mData")
             : null);
 
-        deserializedObject = LocalPersistible.unwrapDeserializedObject(mData, deserializedObject,
+        deserializedObject = BasicPersistible.unwrapDeserializedObject(mData, deserializedObject,
             (JsonElement) deserializedWrappedObject);
       }
 

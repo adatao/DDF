@@ -20,6 +20,7 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
@@ -55,7 +56,6 @@ import com.adatao.ddf.misc.IHandleTimeSeries;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.local.ddf.LocalDDFManager;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 
@@ -214,7 +214,7 @@ public abstract class DDF extends ALoggable //
   /**
    * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    */
-  private static final DDFManager sDummyManager = new LocalDDFManager();
+  private static final DDFManager sDummyManager = new BasicDDFManager();
 
   private DDFManager mManager;
 

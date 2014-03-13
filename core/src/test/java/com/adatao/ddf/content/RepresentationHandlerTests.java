@@ -34,7 +34,7 @@ public class RepresentationHandlerTests {
 
   @Test
   public void testRepresentDDF() throws DDFException {
-    DDFManager manager = DDFManager.get("local");
+    DDFManager manager = DDFManager.get("basic");
     DDF ddf = manager.newDDF();
 
     IHandleRepresentations handler = ddf.getRepresentationHandler();

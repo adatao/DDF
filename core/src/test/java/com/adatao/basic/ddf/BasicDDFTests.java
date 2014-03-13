@@ -1,22 +1,23 @@
-package com.adatao.local.ddf;
+package com.adatao.basic.ddf;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
+import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
-public class LocalDDFTests {
+public class BasicDDFTests {
 
   DDFManager mManager;
 
 
   private DDFManager getDDFManager() throws DDFException {
-    if (mManager == null) mManager = DDFManager.get("local");
+    if (mManager == null) mManager = DDFManager.get("basic");
     return mManager;
   }
 
@@ -27,7 +28,7 @@ public class LocalDDFTests {
     String namespace = null; // use default
     String name = this.getClass().getSimpleName();
     Schema schema = new Schema(name, "name string, value string");
-    DDF ddf = ((LocalDDFManager) this.getDDFManager()).newDDF(list, Object[].class, namespace, name, schema);
+    DDF ddf = ((BasicDDFManager) this.getDDFManager()).newDDF(list, Object[].class, namespace, name, schema);
     return ddf;
   }
 
