@@ -13,8 +13,10 @@ import scala.sys.process._
 object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
-	val SPARK_VERSION = "0.8.2-incubating-adatao"
+	//val SPARK_VERSION = "0.8.1-incubating-adatao"
+	val SPARK_VERSION = "0.8.1-SNAPSHOT"
 	val SHARK_VERSION = "0.8.1-SNAPSHOT"
+	val MLLIB_VERSION = "0.8.1-SNAPSHOT"
 	
 	//val theScalaVersion = "2.10.0"
 	val theScalaVersion = "2.9.3"
@@ -89,7 +91,7 @@ object RootBuild extends Build {
   val excludeGuava = ExclusionRule(organization = "com.google.guava", name = "guava-parent")
   val excludeJets3t = ExclusionRule(organization = "net.java.dev.jets3t", name = "jets3t")
   val excludeAsm = ExclusionRule(organization = "asm", name = "asm")
-  val excludeSpark = ExclusionRule(organization = "org.spark-project", name = "spark-core_2.9.3")
+  val excludeSpark = ExclusionRule(organization = "org.apache.spark", name = "spark-core_2.9.3")
   val excludeEverthing = ExclusionRule(organization = "*", name = "*")
   val excludeEverythingHackForMakePom = ExclusionRule(organization = "_MAKE_POM_EXCLUDE_ALL_", name = "_MAKE_POM_EXCLUDE_ALL_")
 
@@ -132,7 +134,7 @@ object RootBuild extends Build {
     "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
     "org.datanucleus" % "datanucleus-core" % "2.0.3",
     "org.apache.derby" % "derby" % "10.4.2.0",
-    "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
+    "org.apache.spark" % "spark-mllib_2.9.3" % MLLIB_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
     "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
   )
