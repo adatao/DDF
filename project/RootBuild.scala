@@ -13,7 +13,7 @@ import scala.sys.process._
 object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
-	val SPARK_VERSION = "0.8.1-incubating"
+	val SPARK_VERSION = "0.8.2-incubating-adatao"
 	val SHARK_VERSION = "0.8.1-SNAPSHOT"
 	
 	//val theScalaVersion = "2.10.0"
@@ -270,7 +270,8 @@ object RootBuild extends Build {
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
 								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
-								</environmentVariables>
+<RSERVER_JAR>${{basedir}}/{targetDir}/{paJarName},${{basedir}}/{targetDir}/{paTestJarName}</RSERVER_JAR>							
+	</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
