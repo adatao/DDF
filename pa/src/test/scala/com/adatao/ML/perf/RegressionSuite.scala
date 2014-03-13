@@ -17,18 +17,18 @@
 /**
  *
  */
-package adatao.ML.perf
+package com.adatao.ML.perf
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import adatao.ML.AAlgorithmTest
-import adatao.ML.LinearRegression
-import adatao.ML.LogisticRegression
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML.AAlgorithmTest
+import com.adatao.ML.LinearRegression
+import com.adatao.ML.LogisticRegression
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import adatao.ML.ATimedAlgorithmTest
+import com.adatao.ML.ATimedAlgorithmTest
 
 /**
  * @author ctn

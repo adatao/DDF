@@ -1,6 +1,6 @@
 package com.adatao.pa.spark.execution
 
-import adatao.ML.{KmeansModel, AAlgorithmTest}
+import com.adatao.ML.{KmeansModel, AAlgorithmTest}
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.GetFactor.GetFactorResult

@@ -5,10 +5,10 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import com.adatao.pa.spark.execution.LoadTable
-import adatao.ML.TTestCanLog
+import com.adatao.ML.TTestCanLog
 import com.adatao.pa.spark.types.BigRClientTestUtils
 import com.adatao.pa.spark.types.BigRClient
-import adatao.ML.ATestSuite
+import com.adatao.ML.ATestSuite
 import com.adatao.pa.thrift.Server
 
 /*

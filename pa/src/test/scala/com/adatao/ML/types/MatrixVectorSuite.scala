@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package adatao.ML.types
+package com.adatao.ML.types
 
-import adatao.ML.ATestSuite
-import adatao.ML.AAlgorithmTest
-import adatao.ML.ALossFunction
+import com.adatao.ML.ATestSuite
+import com.adatao.ML.AAlgorithmTest
+import com.adatao.ML.ALossFunction
 import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
 import org.junit.Assert.assertEquals

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML.spark
+package com.adatao.ML.spark
 
 // this is somewhat unfortunate deps but let's just live with it for now
 import com.adatao.pa.spark.SparkThread

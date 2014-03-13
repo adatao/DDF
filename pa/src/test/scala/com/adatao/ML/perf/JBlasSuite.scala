@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package adatao.ML.perf
+package com.adatao.ML.perf
 
 import org.scalatest.Engine
-import adatao.ML.ATimedAlgorithmTest
+import com.adatao.ML.ATimedAlgorithmTest
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.junit.runner.RunWith

@@ -16,9 +16,9 @@
 
 package com.adatao.pa.spark.types
 
-import adatao.ML.ATestSuite
+import com.adatao.ML.ATestSuite
 import com.google.gson.GsonBuilder
-import adatao.ML.LogisticRegressionModel
+import com.adatao.ML.LogisticRegressionModel
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -27,7 +27,7 @@ class SerializationSuite extends ATestSuite {
 	test("Deserialization of ExecutionResult[LogisticRegressionModel]] with 'resultType' works") {
 		val json = "{'success':true,'result':{'weights':[-3.0251478542873445,1.4117674848394235,-0.9493392810289571]," +
 			"'trainingLosses':[0.6490607068850122,0.6158131123188525], 'numSamples': 10},'persistenceID':'9d44cc4c-4919-4e12-b096-432fcf052962'," +
-			"'resultType':'adatao.ML.LogisticRegressionModel'}"
+			"'resultType':'com.adatao.ML.LogisticRegressionModel'}"
 
 		val result = ExecutionResult.fromJson[LogisticRegressionModel](json)
 
@@ -38,7 +38,7 @@ class SerializationSuite extends ATestSuite {
 	test("Deserialization of ExecutionResult[LogisticRegressionModel]] WITHOUT 'resultType' works") {
 		val json = "{'success':true,'result':{'weights':[-3.0251478542873445,1.4117674848394235,-0.9493392810289571]," +
 			"'trainingLosses':[0.6490607068850122,0.6158131123188525], 'numSamples': 10},'persistenceID':'9d44cc4c-4919-4e12-b096-432fcf052962'," +
-			"'WITHOUT_resultType':'adatao.ML.LogisticRegressionModel'}"
+			"'WITHOUT_resultType':'com.adatao.ML.LogisticRegressionModel'}"
 
 		val result = ExecutionResult.fromJson[LogisticRegressionModel](json)
 

@@ -46,7 +46,7 @@ public class ClientUtils {
 		JsonCommand jcmd = new JsonCommand().setCmdName(cmdName).setSid(sid);
 		
 		JsonResult jres = client.execJsonCommand(jcmd);
-		return (ExecutorResult) gson.fromJson(jres.getResult(), Class.forName("adatao.bigr.spark.types.ExecutorResult"));
+		return (ExecutorResult) gson.fromJson(jres.getResult(), Class.forName("com.adatao.pa.spark.types.ExecutorResult"));
 	}
 
 	

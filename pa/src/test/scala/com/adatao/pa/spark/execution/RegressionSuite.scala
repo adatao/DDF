@@ -22,8 +22,8 @@ package com.adatao.pa.spark.execution
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import adatao.ML.LinearRegressionModel
-import adatao.ML.LogisticRegressionModel
+import com.adatao.ML.LinearRegressionModel
+import com.adatao.ML.LogisticRegressionModel
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.types.ExecutionResult
 import java.util.HashMap

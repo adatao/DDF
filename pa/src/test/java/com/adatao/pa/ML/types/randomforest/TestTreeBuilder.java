@@ -12,7 +12,7 @@ import com.adatao.pa.ML.types.randomforest.data.DataFormat;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
 import com.adatao.pa.ML.types.randomforest.tree.TreeBuilder;
 import com.adatao.pa.spark.DataManager.MetaInfo;
-import adatao.ML.types.randomforest.node.Node;
+import com.adatao.ML.types.randomforest.node.Node;
 
 public class TestTreeBuilder {
 

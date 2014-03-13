@@ -14,12 +14,12 @@
  *  limitations under the License.
  */
 
-package adatao.ML.spark
+package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
-import adatao.ML.{ Utils ⇒ MLUtils, _ }
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 import org.junit.Assert._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

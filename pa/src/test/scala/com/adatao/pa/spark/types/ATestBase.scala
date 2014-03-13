@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.junit.JUnitRunner
 
-import adatao.ML.ATimedAlgorithmTest
+import com.adatao.ML.ATimedAlgorithmTest
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
 

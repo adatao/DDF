@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML.spark
+package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
 

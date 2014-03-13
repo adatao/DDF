@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.types.ABigRClientTest
-import adatao.ML.RandomForestModel
+import com.adatao.ML.RandomForestModel
 import com.adatao.pa.spark.execution.RandomForest.RandomForestResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 

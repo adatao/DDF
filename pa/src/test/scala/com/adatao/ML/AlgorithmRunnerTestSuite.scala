@@ -1,4 +1,4 @@
-package adatao.ML
+package com.adatao.ML
 
 import scala.collection.JavaConversions._
 

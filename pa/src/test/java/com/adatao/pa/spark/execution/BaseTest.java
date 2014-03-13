@@ -26,7 +26,7 @@ import org.apache.thrift.transport.TTransportException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import adatao.bigr.spark.types.ExecutionResult;
+import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.spark.execution.Sql2DataFrame;
 import com.adatao.pa.spark.execution.Sql2ListString;
 import com.adatao.pa.thrift.Server;

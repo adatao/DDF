@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package adatao.ML.types
+package com.adatao.ML.types
 
-import adatao.ML.ATestSuite
+import com.adatao.ML.ATestSuite
 import com.google.gson.GsonBuilder
 import com.google.gson.Gson
-import adatao.ML.ATimedAlgorithmTest
-import adatao.ML.AAlgorithmTest
-import adatao.ML.LinearRegressionModel
+import com.adatao.ML.ATimedAlgorithmTest
+import com.adatao.ML.AAlgorithmTest
+import com.adatao.ML.LinearRegressionModel
 
 private class AJsonSerializable extends TJsonSerializable {
 	val aField = "someValue"
@@ -86,7 +86,7 @@ class SerializationSuite extends ATestSuite {
 			"{\"tuple\":[1,2,3,4,5,6,7,8,9],\"types\":[\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\",\"java.lang.Integer\"]}")
 
 		assert(specialGson.toJson((1, "two", new LinearRegressionModel(weights = Vector(1, 2), trainingLosses = Vector(0, 0), 10))) ===
-			"{\"tuple\":[1,\"two\",{\"trainingLosses\":[0.0,0.0],\"weights\":[1.0,2.0],\"numSamples\":10,\"dummyColumnMapping\":{},\"mapReferenceLevel\":{}}],\"types\":[\"java.lang.Integer\",\"java.lang.String\",\"adatao.ML.LinearRegressionModel\"]}")
+			"{\"tuple\":[1,\"two\",{\"trainingLosses\":[0.0,0.0],\"weights\":[1.0,2.0],\"numSamples\":10,\"dummyColumnMapping\":{},\"mapReferenceLevel\":{}}],\"types\":[\"java.lang.Integer\",\"java.lang.String\",\"com.adatao.ML.LinearRegressionModel\"]}")
 	}
 
 	test("Can deserialize tuples") {
@@ -108,7 +108,7 @@ class SerializationSuite extends ATestSuite {
 				classOf[Tuple9[_, _, _, _, _, _, _, _, _]]))
 
 		val a = ((1, "two", new LinearRegressionModel(weights = Vector(1, 2), trainingLosses = Vector(0, 0), numSamples= 10)))
-		val b = specialGson.fromJson("{\"tuple\":[1,\"two\",{\"weights\":[1.0,2.0],\"trainingLosses\":[0.0,0.0]}],\"types\":[\"java.lang.Integer\",\"java.lang.String\",\"adatao.ML.LinearRegressionModel\"]}",
+		val b = specialGson.fromJson("{\"tuple\":[1,\"two\",{\"weights\":[1.0,2.0],\"trainingLosses\":[0.0,0.0]}],\"types\":[\"java.lang.Integer\",\"java.lang.String\",\"com.adatao.ML.LinearRegressionModel\"]}",
 			classOf[Tuple3[_, _, _]])
 		assert(a._1 === b._1)
 		assert(a._2 === b._2)

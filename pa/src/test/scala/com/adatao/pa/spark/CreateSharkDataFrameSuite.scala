@@ -7,7 +7,7 @@ import java.util.{HashMap => JMap}
 import scala.collection.JavaConverters._
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult
 import org.junit.Assert.assertEquals
-import adatao.ML.KmeansModel
+import com.adatao.ML.KmeansModel
 
 /**
  * Created with IntelliJ IDEA.

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter

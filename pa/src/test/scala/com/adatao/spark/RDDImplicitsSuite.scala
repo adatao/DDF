@@ -1,14 +1,14 @@
 /**
  *
  */
-package adatao.spark
+package com.adatao.spark
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import adatao.ML.ATestSuite
-import adatao.ML.spark.SharedSparkContext
-import adatao.spark.RDDImplicits._
+import com.adatao.ML.ATestSuite
+import com.adatao.ML.spark.SharedSparkContext
+import com.adatao.spark.RDDImplicits._
 
 /**
  * @author ctn

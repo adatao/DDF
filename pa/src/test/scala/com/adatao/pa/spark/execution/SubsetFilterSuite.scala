@@ -5,7 +5,7 @@ import  org.junit.Assert.assertEquals;
 import  org.junit.Assert.assertFalse;
 import  org.junit.Assert.assertTrue;
 
-import adatao.ML.ATestSuite
+import com.adatao.ML.ATestSuite
  import com.adatao.pa.spark.execution.SubsetFilterSuite._
 import com.adatao.pa.spark.execution.Subset.{ExprDeserializer, FilterMapper}
 ;
