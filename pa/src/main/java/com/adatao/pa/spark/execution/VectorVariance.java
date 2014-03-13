@@ -34,8 +34,8 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
-import adatao.ML.types.TJsonSerializable;
-import adatao.ML.types.TJsonSerializable$class;
+import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 import java.io.Serializable;
 import java.util.List;
 /**
@@ -81,7 +81,7 @@ public class VectorVariance implements IExecutor, Serializable {
 	      return clazz;
 	    }
 
-		public void adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com.adatao.ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 		  clazz = Aclass;
 		}
 

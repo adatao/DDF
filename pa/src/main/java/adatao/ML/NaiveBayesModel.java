@@ -1,4 +1,4 @@
-package adatao.ML;
+package com.adatao.ML;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import adatao.ML.TModel;
+import com.adatao.ML.TModel;
 
 @SuppressWarnings("serial")
 /**

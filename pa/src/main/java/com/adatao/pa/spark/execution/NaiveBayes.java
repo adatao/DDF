@@ -25,9 +25,9 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
-import adatao.ML.NaiveBayesModel;
-import adatao.ML.types.TJsonSerializable;
-import adatao.ML.types.TJsonSerializable$class;
+import com.adatao.ML.NaiveBayesModel;
+import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 
 @SuppressWarnings("serial")
 public class NaiveBayes implements IExecutor, Serializable {
@@ -194,7 +194,7 @@ public class NaiveBayes implements IExecutor, Serializable {
 			return clazz;
 		}
 
-		public void adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com.adatao.ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 			clazz = Aclass;
 		}
 
