@@ -28,10 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
-import adatao.bigr.spark.execution.ExecutionContext;
-import adatao.bigr.spark.execution.TExecutor;
-import adatao.bigr.spark.types.ExecutionResult;
-import adatao.bigr.spark.types.FailedResult;
+import com.adatao.pa.spark.execution.ExecutionContext;
+import com.adatao.pa.spark.execution.TExecutor;
+import com.adatao.pa.spark.types.ExecutionResult;
+import com.adatao.pa.spark.types.FailedResult;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.DataContainer;
@@ -118,7 +118,7 @@ public class SparkThread extends ASessionThread {
 //			resQueue.put(res);
 //		} else {
 			
-			Object exec = gson.fromJson(jsCmd.params, Class.forName("adatao.bigr.spark.execution." + jsCmd.getCmdName()));
+			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
 			LOG.info("Created Executor: " + exec.toString());
 
 			ExecutionResult<?> execRes = null;
@@ -143,7 +143,7 @@ public class SparkThread extends ASessionThread {
 	}
 	
 	public ExecutionResult processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
-			Object exec = gson.fromJson(jsCmd.params, Class.forName("adatao.bigr.spark.execution." + jsCmd.getCmdName()));
+			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
 			LOG.info("Created Executor: " + exec.toString());
 
 			ExecutionResult<?> execRes = null;

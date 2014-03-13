@@ -19,7 +19,7 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import javax.script.ScriptException;
-import adatao.bigr.spark.types.*;
+import com.adatao.pa.spark.types.*;
 import scala.Tuple2;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;

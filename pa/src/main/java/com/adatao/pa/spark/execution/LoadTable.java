@@ -672,7 +672,7 @@ public class LoadTable implements IExecutor {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see adatao.bigr.spark.execution.Executor#run()
+	 * @see com.adatao.pa.spark.execution.Executor#run()
 	 */
 	@Override
 	public ExecutorResult run(SparkThread sparkThread) {

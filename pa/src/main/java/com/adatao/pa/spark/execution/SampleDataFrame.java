@@ -30,7 +30,7 @@ import com.adatao.pa.spark.DataManager.DataContainer.ContainerType;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
-import adatao.bigr.spark.SharkUtils;
+import com.adatao.pa.spark.SharkUtils;
 import shark.api.JavaSharkContext;
 
 public class SampleDataFrame implements IExecutor {

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ML.types.randomforest.node.Node;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 import com.adatao.pa.ML.types.randomforest.data.DataFormat;
 import com.adatao.pa.ML.types.randomforest.data.DataUtils;
 import com.adatao.pa.ML.types.randomforest.data.Instance;

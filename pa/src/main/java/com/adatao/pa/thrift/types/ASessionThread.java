@@ -1,7 +1,7 @@
 package com.adatao.pa.thrift.types;
 
-import adatao.bigr.thrift.Session;
-import adatao.bigr.thrift.SessionManager;
+import com.adatao.pa.thrift.Session;
+import com.adatao.pa.thrift.SessionManager;
 
 public abstract class ASessionThread extends Thread {
 	protected String clientID;

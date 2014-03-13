@@ -109,7 +109,7 @@ public class QuickSummary extends CExecutor {
 
     public DataframeStatsResult setDataContainerID(String dataContainerID) {
       this.dataContainerID = dataContainerID;
-			this.com.adatao.ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
+			this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
   }

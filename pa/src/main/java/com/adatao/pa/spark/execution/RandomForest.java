@@ -36,7 +36,7 @@ import com.adatao.ML.RandomForestModel;
 import com.adatao.ML.spark.CrossValidation;
 import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
-import com.adatao.ML.types.randomforest.node.Node;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 
 /***
  * Training executor for Random Forest

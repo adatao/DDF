@@ -8,7 +8,7 @@ import com.adatao.ML.ALossFunction
 import com.adatao.pa.spark.execution.LinearRegression
 import com.adatao.pa.spark.execution.LogisticRegression
 import com.adatao.ML.spark.RocObject
-import com.adatao.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
+import com.adatao.pa.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
 import com.adatao.ML.KmeansModel
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel

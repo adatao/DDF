@@ -69,7 +69,7 @@ public class Subset extends CExecutor {
 
 			try {
 				Expr expression = (Expr) gson.fromJson(json.toString(),
-					Class.forName("adatao.bigr.spark.execution.Subset$"+type));
+					Class.forName("com.adatao.pa.spark.execution.Subset$"+type));
 
 				return expression;
 
