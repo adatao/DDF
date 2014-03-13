@@ -1,7 +1,7 @@
-package adatao.ML.types
+package com.adatao.ML.types
 
 import no.uib.cipr.matrix.sparse.CompRowMatrix
-import adatao.ML.types._
+import com.adatao.ML.types._
 import org.jblas.DoubleMatrix
 import no.uib.cipr.matrix.sparse.FlexCompRowMatrix
 import no.uib.cipr.matrix.DenseVector

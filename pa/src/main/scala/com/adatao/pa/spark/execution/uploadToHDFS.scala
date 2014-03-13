@@ -1,4 +1,4 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.conf.Configuration

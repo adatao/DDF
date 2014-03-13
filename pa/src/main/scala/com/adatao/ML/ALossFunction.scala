@@ -18,12 +18,12 @@
  * @author ctn
  *
  */
-package adatao.ML
+package com.adatao.ML
 
 import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 
 /**
  * Useful functions such as sigmoid() are defined here
@@ -99,8 +99,8 @@ abstract class ALossFunction extends Serializable {
 	 * This is the key to decoupling of the algorithm from the execution environment's data representation, since
 	 * [[XYDataType]] is parameterized. Each implementation can provide its own [[ALossFunction]] that knows how to take
 	 * source data of type [[XYDataType]], and provides a way to compute the loss function value out of it.
-	 * See, e.g., [[adatao.ML.LinearRegression.LossFunction]] and compare it with
-	 * [[adatao.bigr.spark.execution.LinearRegression.LossFunction]].
+	 * See, e.g., [[com.adatao.ML.LinearRegression.LossFunction]] and compare it with
+	 * [[com.adatao.pa.spark.execution.LinearRegression.LossFunction]].
 	 */
 	def compute: Vector ⇒ ALossFunction
 }

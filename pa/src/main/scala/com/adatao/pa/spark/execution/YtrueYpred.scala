@@ -1,11 +1,11 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.DataManager.{DataFrame, MetaInfo}
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
-import adatao.bigr.spark.{SharkUtils, DataManager}
-import adatao.ML.{TModel, ALinearModel, TPredictiveModel}
-import adatao.ML.types.Vector
-import adatao.ML.spark.RddUtils
+import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
+import com.adatao.pa.spark.{SharkUtils, DataManager}
+import com.adatao.ML.{TModel, ALinearModel, TPredictiveModel}
+import com.adatao.ML.types.Vector
+import com.adatao.ML.spark.RddUtils
 
 import org.apache.spark.api.java.JavaRDD
 import shark.api.JavaSharkContext

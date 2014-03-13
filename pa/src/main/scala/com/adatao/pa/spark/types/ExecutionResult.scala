@@ -17,7 +17,7 @@
 /**
  *
  */
-package adatao.bigr.spark.types
+package com.adatao.pa.spark.types
 
 import scala.Array.canBuildFrom
 import scala.annotation.implicitNotFound
@@ -29,10 +29,10 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import adatao.ML.TCanLog
-import adatao.ML.TModel
-import adatao.ML.types.TJsonSerializable
-import adatao.ML.types.TJsonSerializable
+import com.adatao.ML.TCanLog
+import com.adatao.ML.TModel
+import com.adatao.ML.types.TJsonSerializable
+import com.adatao.ML.types.TJsonSerializable
 import java.util.Arrays
 
 /**
@@ -152,14 +152,14 @@ private class ExecutionResultDeserializer extends JsonDeserializer[ExecutionResu
 	/**
 	 * Example JSON result:
 	 * {{{
-	 * 2013-07-27 02:08:13,001 [pool-4-thread-1] INFO  adatao.bigr.thrift.RCommandsHandler -
+	 * 2013-07-27 02:08:13,001 [pool-4-thread-1] INFO  com.adatao.pa.thrift.RCommandsHandler -
 	 * Returning result: JsonResult(
 	 *   sid:c44bc99c-0de9-4118-a9f3-43bb8b1ed57f,
 	 *   result:{
 	 *     "success":true,
 	 *     "result":{"weights":{"rows":2,"columns":1,"length":2,"data":[37.285,-5.344]},"trainingLosses":{"rows":2,"columns":1,"length":2,"data":[4.34878134468,4.34878134468]}},
 	 *     "persistenceID":"1058251b-7c3b-4f20-a6f4-805170868a01",
-	 *     "resultType":"adatao.ML.LinearRegressionModel"
+	 *     "resultType":"com.adatao.ML.LinearRegressionModel"
 	 *  }
 	 * )
 	 * }}}

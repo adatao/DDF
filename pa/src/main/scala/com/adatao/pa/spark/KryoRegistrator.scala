@@ -1,17 +1,17 @@
-package adatao.bigr.spark
+package com.adatao.pa.spark
 
 import com.esotericsoftware.kryo.Kryo
 import shark.{KryoRegistrator => SharkKryoRegistrator}
 import com.esotericsoftware.kryo.serializers.{JavaSerializer => KryoJavaSerializer, FieldSerializer}
-import adatao.ML.types.{Vector, Matrix}
-import adatao.ML.ALossFunction
-import adatao.bigr.spark.execution.LinearRegression
-import adatao.bigr.spark.execution.LogisticRegression
-import adatao.ML.spark.RocObject
-import adatao.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
-import adatao.ML.KmeansModel
-import adatao.ML.LinearRegressionModel
-import adatao.ML.LogisticRegressionModel
+import com.adatao.ML.types.{Vector, Matrix}
+import com.adatao.ML.ALossFunction
+import com.adatao.pa.spark.execution.LinearRegression
+import com.adatao.pa.spark.execution.LogisticRegression
+import com.adatao.ML.spark.RocObject
+import com.adatao.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
+import com.adatao.ML.KmeansModel
+import com.adatao.ML.LinearRegressionModel
+import com.adatao.ML.LogisticRegressionModel
 import org.rosuda.REngine.{RList, REXP}
 import org.jblas.DoubleMatrix
 

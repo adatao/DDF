@@ -14,20 +14,20 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.google.gson.Gson
 
 /**
- * ATTN: adatao.ML must not depend on classes from execution-environment-specific packages.
+ * ATTN: com.adatao.ML must not depend on classes from execution-environment-specific packages.
  *
- * "Pure" algorithms belong to the package `adatao.bigr.ML`. In particular, the
+ * "Pure" algorithms belong to the package `com.adatao.pa.ML`. In particular, the
  * class hierarchy and interfaces are defined such that they are not bothered with
  * the requirements of the execution environment. To see how the particulars of
  * the execution environment (e.g, BigR over Spark) are handled, see the
- * corresponding classes in the package `adatao.bigr.spark.execution`.
+ * corresponding classes in the package `com.adatao.pa.spark.execution`.
  *
  * Here's a class hierarchy overview. Any ML algorithm is comprised of two key
  * classes, the algorithm itself (TAlgorithm), and the trained model (TModel).

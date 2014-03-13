@@ -1,12 +1,12 @@
-package adatao.bigr.thrift
+package com.adatao.pa.thrift
 
 import java.util.UUID
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.SynchronizedMap
 
-import adatao.ML.TCanLog
-import adatao.bigr.thrift.types.ASessionThread
+import com.adatao.ML.TCanLog
+import com.adatao.pa.thrift.types.ASessionThread
 
 class Session(val sessionThread: ASessionThread, val sessionID: String, val clientID: String, val thriftPort: Int, 
 		val uiPort: Int, val driverPort: Int) {

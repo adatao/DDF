@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import org.jblas.DoubleMatrix
-import adatao.ML.types.Vector
+import com.adatao.ML.types.Vector
 import java.util.HashMap
 
 /**

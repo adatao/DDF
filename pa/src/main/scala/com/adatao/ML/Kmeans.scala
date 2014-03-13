@@ -1,8 +1,8 @@
-package adatao.ML
+package com.adatao.ML
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.Accumulator
-import adatao.ML.types.{Vector, Matrix}
+import com.adatao.ML.types.{Vector, Matrix}
 import org.jblas.{DoubleMatrix, Geometry}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
@@ -10,10 +10,10 @@ import scala.collection.{Map, mutable}
 import scala.collection.JavaConverters._
 import org.apache.spark.SparkContext._
 import java.util
-import adatao.bigr.spark.types.SuccessResult
-import adatao.bigr.spark.DataManager
+import com.adatao.pa.spark.types.SuccessResult
+import com.adatao.pa.spark.DataManager
 import shark.api.Row
-import adatao.ML.Kmeans.DataPoint
+import com.adatao.ML.Kmeans.DataPoint
 
 /**
  * Created with IntelliJ IDEA.

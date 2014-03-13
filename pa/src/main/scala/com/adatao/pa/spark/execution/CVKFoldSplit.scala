@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.ML.spark.CrossValidation
-import adatao.bigr.spark.DataManager.DataFrame
-import adatao.bigr.spark.SharkUtils
+import com.adatao.ML.spark.CrossValidation
+import com.adatao.pa.spark.DataManager.DataFrame
+import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 
 //  @author aht

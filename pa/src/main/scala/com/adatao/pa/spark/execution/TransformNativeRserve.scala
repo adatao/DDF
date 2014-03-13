@@ -1,9 +1,9 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.DataManager.{DataFrame, SharkDataFrame}
+import com.adatao.pa.spark.DataManager.{DataFrame, SharkDataFrame}
 import org.rosuda.REngine.Rserve.RConnection
 import scala.Some
-import adatao.bigr.spark.{SharkUtils, RserveUtils}
+import com.adatao.pa.spark.{SharkUtils, RserveUtils}
 import org.apache.spark.storage.StorageLevel
 import shark.api.JavaSharkContext
 import adatao.AdataoException

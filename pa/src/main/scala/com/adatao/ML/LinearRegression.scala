@@ -14,12 +14,12 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import org.jblas.DoubleMatrix
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.ML.spark.TransformDummyCoding
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.ML.spark.TransformDummyCoding
 import java.util.HashMap
 
 /**
@@ -78,7 +78,7 @@ class LinearRegressionModel(weights: Vector, trainingLosses: Vector,  numSamples
  * A base for LinearGradientLossFunctions supporting different XYDataTypes.
  * We don't provide the compute() hyper-function, because derived classes have to provide
  * the implementation that's unique to each XYDataType. For an example implementation, see
- * adatao.ML.LinearGradientLossFunction.
+ * com.adatao.ML.LinearGradientLossFunction.
  */
 abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
 		extends ALossFunction {

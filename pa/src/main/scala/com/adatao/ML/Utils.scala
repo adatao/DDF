@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import java.util.HashMap
 import java.util.HashMap
@@ -22,19 +22,19 @@ import java.util.HashMap
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.bigr.spark.DataManager
-import adatao.bigr.spark.DataManager
-import adatao.bigr.spark.DataManager.DataContainer
-import adatao.bigr.spark.DataManager.DataFrame
-import adatao.bigr.spark.DataManager.MetaInfo
-import adatao.bigr.spark.DataManager.SharkDataFrame
-import adatao.bigr.spark.DataManager.SharkDataFrame
-import adatao.bigr.spark.execution.GetFactor
-import adatao.bigr.spark.execution.GetFactor.FactorMapper
-import adatao.bigr.spark.execution.GetFactor.FactorReducer
-import adatao.bigr.spark.execution.GetMultiFactor.{MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer}
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.pa.spark.DataManager
+import com.adatao.pa.spark.DataManager
+import com.adatao.pa.spark.DataManager.DataContainer
+import com.adatao.pa.spark.DataManager.DataFrame
+import com.adatao.pa.spark.DataManager.MetaInfo
+import com.adatao.pa.spark.DataManager.SharkDataFrame
+import com.adatao.pa.spark.DataManager.SharkDataFrame
+import com.adatao.pa.spark.execution.GetFactor
+import com.adatao.pa.spark.execution.GetFactor.FactorMapper
+import com.adatao.pa.spark.execution.GetFactor.FactorReducer
+import com.adatao.pa.spark.execution.GetMultiFactor.{MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer}
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import java.util
@@ -132,7 +132,7 @@ object Utils {
 		//get categorical column map with its column values 
 		//example {16={ISP=1.0, IAD=1.0, IND=1.0}}
 		var metaInfo = dataContainer.getMetaInfo()
-		var mapColumnToDouble = adatao.ML.Utils.getMultipleFactor(dataContainer, metaInfo, arrCategoricalIndex)
+		var mapColumnToDouble = com.adatao.ML.Utils.getMultipleFactor(dataContainer, metaInfo, arrCategoricalIndex)
 		mapColumnToDouble
 	}
 

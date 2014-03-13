@@ -1,17 +1,17 @@
-package adatao.ML.spark
+package com.adatao.ML.spark
 
 import java.util.ArrayList
 import java.util.HashMap
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.bigr.spark.DataManager.MetaInfo
-import adatao.bigr.spark.DataManager.DataContainer
-import adatao.ML.Utils
-import adatao.bigr.spark.DataManager
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.pa.spark.DataManager.MetaInfo
+import com.adatao.pa.spark.DataManager.DataContainer
+import com.adatao.ML.Utils
+import com.adatao.pa.spark.DataManager
 import org.apache.spark.rdd.RDD
-import adatao.ML.ALinearModel
-import adatao.ML.TModel
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
+import com.adatao.ML.ALinearModel
+import com.adatao.ML.TModel
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import scala.collection.mutable.ListBuffer
 import org.jblas.DoubleMatrix
 

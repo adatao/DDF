@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML.types
+package com.adatao.ML.types
 
 import java.lang.reflect.Type
 import com.google.gson.Gson

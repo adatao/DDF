@@ -1,6 +1,6 @@
-package adatao.bigr.spark.execution.tm.reader
+package com.adatao.pa.spark.execution.tm.reader
 
-import adatao.bigr.spark.execution.tm.{Document, TextDataSource}
+import com.adatao.pa.spark.execution.tm.{Document, TextDataSource}
 
 /**
  * An abstract class for all kinds of corpus reader.

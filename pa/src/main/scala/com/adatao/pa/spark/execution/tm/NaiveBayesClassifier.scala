@@ -1,16 +1,16 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
-import adatao.ML.types.TJsonSerializable
-import adatao.bigr.spark.execution.ExecutionContext
-import adatao.bigr.spark.execution.AExecutor
-import adatao.bigr.spark.execution.tm.TextCategorizationTrainer.TextCategorizationTrainerResult
+import com.adatao.ML.types.TJsonSerializable
+import com.adatao.pa.spark.execution.ExecutionContext
+import com.adatao.pa.spark.execution.AExecutor
+import com.adatao.pa.spark.execution.tm.TextCategorizationTrainer.TextCategorizationTrainerResult
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
 import scala.math._
-import adatao.ML.tm.{NaiveBayesModel, CategoryModel, ATextCategorizationModel}
+import com.adatao.ML.tm.{NaiveBayesModel, CategoryModel, ATextCategorizationModel}
 
 /**
  * An executor to train a text classifier from a given training data set (corpus).

@@ -14,16 +14,16 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import java.lang.String
-import adatao.ML
-import adatao.ML.ALossFunction
-import adatao.ML.LinearRegressionModel
-import adatao.ML.Utils
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.spark.RDDImplicits._
+import com.adatao.ML
+import com.adatao.ML.ALossFunction
+import com.adatao.ML.LinearRegressionModel
+import com.adatao.ML.Utils
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
 

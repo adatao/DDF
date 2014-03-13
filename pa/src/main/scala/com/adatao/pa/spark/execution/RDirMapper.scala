@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import scala.sys.process._
 import scala.None
@@ -28,7 +28,7 @@ import org.apache.hadoop.hdfs._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.SerializableWritable
 import java.util.Arrays
-import adatao.bigr.spark.types.FailedResult
+import com.adatao.pa.spark.types.FailedResult
 
 class RDirMapper(val mapScript: String, val inputPath: String, val outputPath: String) extends AExecutor[Unit] {
 	//TODO: broadcast mapScript and reduceScript

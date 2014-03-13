@@ -1,9 +1,9 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
-import adatao.ML.types.TJsonSerializable
-import adatao.bigr.spark.execution.ExecutionContext
-import adatao.bigr.spark.execution.AExecutor
-import adatao.bigr.spark.execution.tm.InspectDistributedCorpus.InspectDistributedCorpusResult
+import com.adatao.ML.types.TJsonSerializable
+import com.adatao.pa.spark.execution.ExecutionContext
+import com.adatao.pa.spark.execution.AExecutor
+import com.adatao.pa.spark.execution.tm.InspectDistributedCorpus.InspectDistributedCorpusResult
 
 /**
  * An executor that inspects a subset of a distributed corpus with the uuid (dataContainerID),

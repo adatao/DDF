@@ -1,7 +1,7 @@
 /**
  *
  */
-package adatao.spark
+package com.adatao.spark
 
 import org.apache.spark.rdd.RDD
 

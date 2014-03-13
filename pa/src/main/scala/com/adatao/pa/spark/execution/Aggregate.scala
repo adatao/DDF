@@ -14,22 +14,22 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import adatao.bigr.spark.{DataManager, SparkThread}
-import adatao.bigr.spark.DataManager.{SharkDataFrame, DataContainer}
-import adatao.bigr.spark.SparkThread
-import adatao.bigr.spark.types.{ExecutorResult, SuccessResult}
-import adatao.bigr.spark.execution.Aggregate._
+import com.adatao.pa.spark.{DataManager, SparkThread}
+import com.adatao.pa.spark.DataManager.{SharkDataFrame, DataContainer}
+import com.adatao.pa.spark.SparkThread
+import com.adatao.pa.spark.types.{ExecutorResult, SuccessResult}
+import com.adatao.pa.spark.execution.Aggregate._
 
 import shark.api.JavaSharkContext
 import scala.Array._
 import scala.Serializable
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import adatao.ML.types.TJsonSerializable
+import com.adatao.ML.types.TJsonSerializable
 
 //import scala.collection.mutable.Map
 

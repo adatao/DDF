@@ -1,4 +1,4 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
 import org.apache.spark.rdd.RDD
 

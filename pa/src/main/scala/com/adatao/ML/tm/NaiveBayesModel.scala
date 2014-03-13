@@ -1,7 +1,7 @@
-package adatao.ML.tm
+package com.adatao.ML.tm
 
 import scala.collection.mutable.HashMap
-import adatao.bigr.spark.execution.tm.DistributedCorpus
+import com.adatao.pa.spark.execution.tm.DistributedCorpus
 import scala.collection.mutable.ListBuffer
 import scala.math._
 

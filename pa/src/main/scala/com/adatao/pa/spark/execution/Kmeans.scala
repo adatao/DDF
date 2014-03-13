@@ -1,15 +1,15 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.ML
-import adatao.ML.KmeansModel
-import adatao.ML.types.{Matrix, Vector}
-import adatao.bigr.spark.DataManager.{DataFrame, DataContainer, SharkDataFrame}
+import com.adatao.ML
+import com.adatao.ML.KmeansModel
+import com.adatao.ML.types.{Matrix, Vector}
+import com.adatao.pa.spark.DataManager.{DataFrame, DataContainer, SharkDataFrame}
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConversions._
-import adatao.ML.Kmeans.{ParsePoint, SharkParsePoint, DataPoint}
+import com.adatao.ML.Kmeans.{ParsePoint, SharkParsePoint, DataPoint}
 
 /**
  * Created with IntelliJ IDEA.

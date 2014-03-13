@@ -1,6 +1,6 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
-import adatao.ML.types.TJsonSerializable
+import com.adatao.ML.types.TJsonSerializable
 
 /**
  * @author Cuong Kien Bui

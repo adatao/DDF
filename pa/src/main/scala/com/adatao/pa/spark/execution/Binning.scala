@@ -1,12 +1,12 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import shark.api.{JavaSharkContext, Row}
 ;
-import adatao.bigr.spark.DataManager.{SharkColumnVector, SharkDataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{SharkColumnVector, SharkDataFrame, MetaInfo}
 import scala.collection.mutable
 import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import scala.annotation.tailrec
-import adatao.bigr.spark.execution.Binning.{getIntervalsFromNumBins, getQuantilesFromNumBins, ColReducer, Intervals, ColMapper, MAX_LEVEL_SIZE}
+import com.adatao.pa.spark.execution.Binning.{getIntervalsFromNumBins, getQuantilesFromNumBins, ColReducer, Intervals, ColMapper, MAX_LEVEL_SIZE}
 import java.text.DecimalFormat
 
 class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])

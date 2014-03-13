@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.ML.types
+package com.adatao.ML.types
 
 import org.jblas.DoubleMatrix
 import com.google.gson.Gson

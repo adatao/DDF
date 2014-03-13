@@ -1,8 +1,8 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.DataManager.{DataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
 import org.apache.spark.api.java.JavaRDD
-import adatao.bigr.spark.SharkUtils
+import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 
 /**

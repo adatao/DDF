@@ -1,15 +1,15 @@
-package adatao.bigr.spark
+package com.adatao.pa.spark
 
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import adatao.ML.TCanLog
-import adatao.bigr.spark.types.ExecutionResult
-import adatao.bigr.spark.types.SuccessfulResult
-import adatao.bigr.thrift.types.ASessionThread
+import com.adatao.ML.TCanLog
+import com.adatao.pa.spark.types.ExecutionResult
+import com.adatao.pa.spark.types.SuccessfulResult
+import com.adatao.pa.thrift.types.ASessionThread
 import java.util.concurrent.ArrayBlockingQueue
-import adatao.bigr.spark.types.FailedResult
+import com.adatao.pa.spark.types.FailedResult
 import java.net.ServerSocket
 import java.net.Socket
 import java.io.BufferedReader
@@ -44,7 +44,7 @@ class MultiContextThread(val host: String, val resQueue: ArrayBlockingQueue[Exec
 		val runScript = new File(sparkHome, script).getCanonicalPath
 		Seq(runScript, "-Dname=BigRWorker-%s".format(clientID), 
 			"-Duser.name=%s".format(clientID),
-			"adatao.bigr.thrift.BigRWorker",
+			"com.adatao.pa.thrift.BigRWorker",
 			session.thriftPort.toString, session.uiPort.toString, session.driverPort.toString, 
 			session.clientID, session.sessionID)
 	}

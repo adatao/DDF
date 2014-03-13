@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.DataManager.{ SharkColumnVector, DataFrame }
+import com.adatao.pa.spark.DataManager.{ SharkColumnVector, DataFrame }
 import shark.api.JavaSharkContext
-import adatao.bigr.spark.types.NumericHistogram
+import com.adatao.pa.spark.types.NumericHistogram
 import org.apache.spark.rdd.RDD
 import java.util.regex.Pattern
 import scala.collection.mutable.{ArrayBuffer, Map, HashMap}

@@ -17,42 +17,42 @@
 /**
  *
  */
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 import scala.Array.canBuildFrom
 import com.google.gson.Gson
-import adatao.ML.types.Matrix
-import adatao.ML._
-import adatao.ML.types.Vector
-import adatao.bigr.spark.SparkThread
+import com.adatao.ML.types.Matrix
+import com.adatao.ML._
+import com.adatao.ML.types.Vector
+import com.adatao.pa.spark.SparkThread
 import org.apache.spark.rdd.RDD
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
-import adatao.bigr.spark.DataManager
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
+import com.adatao.pa.spark.DataManager
 
-import adatao.bigr.spark.DataManager.{SharkDataFrame, DataFrame}
-import adatao.bigr.spark.types.ExecutionResult
-import adatao.bigr.spark.types.SuccessfulResult
-import adatao.bigr.spark.types.FailedResult
+import com.adatao.pa.spark.DataManager.{SharkDataFrame, DataFrame}
+import com.adatao.pa.spark.types.ExecutionResult
+import com.adatao.pa.spark.types.SuccessfulResult
+import com.adatao.pa.spark.types.FailedResult
 
-import adatao.ML.Kmeans.ParsePoint
+import com.adatao.ML.Kmeans.ParsePoint
 import scala.Some
-import adatao.bigr.spark.types.ExecutionException
+import com.adatao.pa.spark.types.ExecutionException
 import scala.reflect.Manifest
 import scala.collection.JavaConversions._
-import adatao.ML.spark.Predictions
-import adatao.ML.spark.TransformDummyCoding
+import com.adatao.ML.spark.Predictions
+import com.adatao.ML.spark.TransformDummyCoding
 import adatao.AdataoException
 import adatao.AdataoException.AdataoExceptionCode
 import java.util.HashMap
 
 /**
- * These classes belong to the package [[adatao.bigr.spark.execution]], which concern
+ * These classes belong to the package [[com.adatao.pa.spark.execution]], which concern
  * themselves with how to execute algorithms within the BigR Spark environment.
- * "Pure" algorithms belong to the package [[adatao.spark.ML]]. In particular, the
+ * "Pure" algorithms belong to the package [[com.adatao.spark.ML]]. In particular, the
  * class hierarchy and interfaces are defined such that they are not bothered with
  * the requirements of the execution environment.
  *
- * There is an [[adatao.bigr.spark.execution.LinearRegression]] corresponding to
- * an [[adatao.spark.ML.LinearRegression]]. The [[execution.LinearRegression]] is the abstract [[AExecutor]]
+ * There is an [[com.adatao.pa.spark.execution.LinearRegression]] corresponding to
+ * an [[com.adatao.spark.ML.LinearRegression]]. The [[execution.LinearRegression]] is the abstract [[AExecutor]]
  * interface that will be called by the Spark execution environment, via the
  * method `run()`. It also handles any data processing that is needed to map data from
  * the execution environment to the format expected by the pure algorithm.

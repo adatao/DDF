@@ -14,20 +14,20 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import java.lang.String
-import adatao.ML
-import adatao.ML.ALossFunction
-import adatao.ML.Utils
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.spark.RDDImplicits._
+import com.adatao.ML
+import com.adatao.ML.ALossFunction
+import com.adatao.ML.Utils
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
-import adatao.bigr.spark.DataManager._
-import adatao.ML.ALinearModel
+import com.adatao.pa.spark.DataManager._
+import com.adatao.ML.ALinearModel
 import java.util.HashMap
 import scala.collection.mutable.ListBuffer
 import org.jblas.exceptions.LapackArgumentException
@@ -38,7 +38,7 @@ import scala.collection.Iterator
 import scala.collection.immutable.List
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.api.java.JavaRDD
-import adatao.bigr.spark.SharkUtils
+import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 
 /**

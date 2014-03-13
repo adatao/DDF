@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import java.lang.String
 import java.util.Arrays
@@ -23,12 +23,12 @@ import scala.Array.canBuildFrom
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-import adatao.bigr.spark.DataManager
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
-import adatao.bigr.spark.DataManager.SharkDataFrame
-import adatao.bigr.spark.SparkThread
-import adatao.bigr.spark.types.ExecutorResult
-import adatao.bigr.spark.types.SuccessResult
+import com.adatao.pa.spark.DataManager
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
+import com.adatao.pa.spark.DataManager.SharkDataFrame
+import com.adatao.pa.spark.SparkThread
+import com.adatao.pa.spark.types.ExecutorResult
+import com.adatao.pa.spark.types.SuccessResult
 import shark.api.Row
 import org.apache.spark.rdd.RDD
 

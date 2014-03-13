@@ -1,14 +1,14 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
-import adatao.ML.types.TJsonSerializable
-import adatao.bigr.spark.execution.ExecutionContext
-import adatao.bigr.spark.execution.AExecutor
-import adatao.bigr.spark.execution.tm.LoadDistributedCorpus.LoadDistributedCorpusResult
+import com.adatao.ML.types.TJsonSerializable
+import com.adatao.pa.spark.execution.ExecutionContext
+import com.adatao.pa.spark.execution.AExecutor
+import com.adatao.pa.spark.execution.tm.LoadDistributedCorpus.LoadDistributedCorpusResult
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.fs.FileSystem
-import adatao.bigr.spark.execution.tm.reader.CategorizedByFolderReader
-import adatao.bigr.spark.execution.tm.{TextDataSource, DirectoryDataSource}
+import com.adatao.pa.spark.execution.tm.reader.CategorizedByFolderReader
+import com.adatao.pa.spark.execution.tm.{TextDataSource, DirectoryDataSource}
 import java.util.HashMap
 
 /**

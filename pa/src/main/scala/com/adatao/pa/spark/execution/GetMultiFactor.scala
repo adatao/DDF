@@ -1,12 +1,12 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 
 import scala.collection.JavaConversions._
 import java.util.{HashMap => JMap}
 import java.util
 import java.lang.{Integer => JInt}
-import adatao.bigr.spark.execution.GetMultiFactor.{MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer}
-import adatao.bigr.spark.DataManager.{MetaInfo, DataFrame, SharkDataFrame}
+import com.adatao.pa.spark.execution.GetMultiFactor.{MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer}
+import com.adatao.pa.spark.DataManager.{MetaInfo, DataFrame, SharkDataFrame}
 import shark.memstore2.TablePartition
 import org.apache.hadoop.io.{LongWritable, FloatWritable, IntWritable, Text}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable

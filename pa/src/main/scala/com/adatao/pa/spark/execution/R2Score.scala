@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.ML.{ Utils ⇒ MLUtils, _ }
-import adatao.ML.spark.{ Metrics, RddUtils }
+import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
+import com.adatao.ML.spark.{ Metrics, RddUtils }
 import scala.Some
 
 /**

@@ -1,9 +1,9 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
 import org.renjin.script.RenjinScriptEngineFactory
 
 import org.apache.spark.rdd.RDD
-import adatao.bigr.spark.DataManager.{DataFrame, SharkDataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{DataFrame, SharkDataFrame, MetaInfo}
 import org.renjin.sexp._
 import scala.Some
 import scala.collection.mutable

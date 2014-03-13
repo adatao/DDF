@@ -1,11 +1,11 @@
-package adatao.bigr.spark.execution.tm.reader
+package com.adatao.pa.spark.execution.tm.reader
 
-import adatao.bigr.spark.execution.tm.{TextFile,Document,TextDataSource,DirectoryDataSource}
+import com.adatao.pa.spark.execution.tm.{TextFile,Document,TextDataSource,DirectoryDataSource}
 import org.apache.hadoop.fs.FileSystem
-import adatao.bigr.spark.execution.ExecutionContext
+import com.adatao.pa.spark.execution.ExecutionContext
 import org.apache.hadoop.fs.Path
 import scala.collection.mutable.ListBuffer
-import adatao.bigr.spark.execution.tm.DocumentMetaData
+import com.adatao.pa.spark.execution.tm.DocumentMetaData
 
 /**
  * A CategorizedByFolderReader object will load the data from a HDFS path with

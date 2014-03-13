@@ -1,11 +1,11 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.ML.{TModel, ALinearModel, TPredictiveModel}
-import adatao.ML.types.Vector
-import adatao.ML.spark.{Metrics, RddUtils}
+import com.adatao.ML.{TModel, ALinearModel, TPredictiveModel}
+import com.adatao.ML.types.Vector
+import com.adatao.ML.spark.{Metrics, RddUtils}
 import org.apache.spark.rdd.RDD
-import adatao.bigr.spark.DataManager
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
+import com.adatao.pa.spark.DataManager
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 
 /**
  * Compute the confusion matrix for a binary classification model, given a threshold.

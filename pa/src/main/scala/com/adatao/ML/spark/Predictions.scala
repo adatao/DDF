@@ -1,12 +1,12 @@
-package adatao.ML.spark
+package com.adatao.ML.spark
 
-import adatao.ML._
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML._
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 import org.apache.spark.rdd.RDD
-import adatao.bigr.spark.DataManager.SharkDataFrame
-import adatao.bigr.spark.DataManager.DataContainer
-import adatao.ML.Kmeans.{ ParsePoint, DataPoint }
+import com.adatao.pa.spark.DataManager.SharkDataFrame
+import com.adatao.pa.spark.DataManager.DataContainer
+import com.adatao.ML.Kmeans.{ ParsePoint, DataPoint }
 
 /**
  * @author aht

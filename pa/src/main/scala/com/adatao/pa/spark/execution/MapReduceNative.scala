@@ -1,7 +1,7 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.DataManager.{DataFrame, SharkDataFrame}
-import adatao.bigr.spark.{SharkUtils, RserveUtils}
+import com.adatao.pa.spark.DataManager.{DataFrame, SharkDataFrame}
+import com.adatao.pa.spark.{SharkUtils, RserveUtils}
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine._
 import scala.Some
@@ -125,8 +125,8 @@ class MapReduceNative(val dataContainerID: String,
 				errMsgHeader="fail to eval combine.func definition")
 
 			// pre-amble to define internal functions
-			// copied from: https://github.com/adatao/RClient/blob/master/adatao.bigr/R/mapreduce.R
-			// tests: https://github.com/adatao/RClient/blob/mapreduce/adatao.bigr/inst/tests/test-mapreduce.r#L106
+			// copied from: https://github.com/adatao/RClient/blob/master/com.adatao.pa/R/mapreduce.R
+			// tests: https://github.com/adatao/RClient/blob/mapreduce/com.adatao.pa/inst/tests/test-mapreduce.r#L106
 			// should consider some packaging to synchroncize code
 			rconn.voidEval(
 				"""
@@ -264,8 +264,8 @@ class MapReduceNative(val dataContainerID: String,
 			val rconn = new RConnection()
 
 			// pre-amble
-			// copied from: https://github.com/adatao/RClient/blob/master/adatao.bigr/R/mapreduce.R
-			// tests: https://github.com/adatao/RClient/blob/mapreduce/adatao.bigr/inst/tests/test-mapreduce.r#L238
+			// copied from: https://github.com/adatao/RClient/blob/master/com.adatao.pa/R/mapreduce.R
+			// tests: https://github.com/adatao/RClient/blob/mapreduce/com.adatao.pa/inst/tests/test-mapreduce.r#L238
 			// should consider some packaging to synchronize code
 			rconn.voidEval(
 				"""

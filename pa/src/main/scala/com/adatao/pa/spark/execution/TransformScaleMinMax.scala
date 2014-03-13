@@ -1,8 +1,8 @@
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.bigr.spark.execution.QuickSummary.DataframeStatsResult
-import adatao.bigr.spark.DataManager.DataContainer.ContainerType
-import adatao.bigr.spark.DataManager
+import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
+import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
+import com.adatao.pa.spark.DataManager
 import shark.api.JavaSharkContext
 import org.apache.spark.api.java.function.Function
 

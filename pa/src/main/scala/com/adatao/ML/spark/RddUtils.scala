@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package adatao.ML.spark
+package com.adatao.ML.spark
 
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.spark.RDDImplicits._
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 
 // @author: aht

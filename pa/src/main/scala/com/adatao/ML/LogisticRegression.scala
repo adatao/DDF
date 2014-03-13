@@ -14,15 +14,15 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
 import java.lang.String
 import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 import java.util.HashMap
 
 /**
@@ -84,7 +84,7 @@ class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, n
  * A base for LogisticGradientLossFunctions supporting different XYDataTypes.
  * We don't provide the compute() hyper-function, because derived classes have to provide
  * the implementation that's unique to each XYDataType. For an example implementation, see
- * adatao.ML.LogisticGradientLossFunction.
+ * com.adatao.ML.LogisticGradientLossFunction.
  */
 abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
 		extends ALinearGradientLossFunction[XYDataType](XYData, ridgeLambda) {

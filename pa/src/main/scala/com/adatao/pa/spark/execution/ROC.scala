@@ -14,22 +14,22 @@
  *  limitations under the License.
  */
 
-package adatao.bigr.spark.execution
+package com.adatao.pa.spark.execution
 
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
-import adatao.ML.TModel
-import adatao.ML.LogisticRegressionModel
-import adatao.ML.{Utils => MLUtils}
-import adatao.ML.spark.RddUtils
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
+import com.adatao.ML.TModel
+import com.adatao.ML.LogisticRegressionModel
+import com.adatao.ML.{Utils => MLUtils}
+import com.adatao.ML.spark.RddUtils
 import java.util.ArrayList
 import org.jblas.DoubleMatrix
 import org.apache.spark.rdd.RDD
-import adatao.ML.spark.RocObject
-import adatao.ML.spark.Metrics
+import com.adatao.ML.spark.RocObject
+import com.adatao.ML.spark.Metrics
 import scala.collection.mutable.ListBuffer
-import adatao.ML.ALinearModel
-import adatao.ML.LinearRegressionModel
+import com.adatao.ML.ALinearModel
+import com.adatao.ML.LinearRegressionModel
 import java.util.HashMap
 import adatao.AdataoException
 import adatao.AdataoException.AdataoExceptionCode

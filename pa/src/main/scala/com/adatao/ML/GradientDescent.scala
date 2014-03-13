@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package adatao.ML
+package com.adatao.ML
 
-import adatao.ML.types.Matrix
-import adatao.ML.types.Vector
+import com.adatao.ML.types.Matrix
+import com.adatao.ML.types.Vector
 
 /**
  * @author ctn

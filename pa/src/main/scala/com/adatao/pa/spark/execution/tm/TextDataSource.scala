@@ -1,4 +1,4 @@
-package adatao.bigr.spark.execution.tm
+package com.adatao.pa.spark.execution.tm
 
 class TextDataSource {
 

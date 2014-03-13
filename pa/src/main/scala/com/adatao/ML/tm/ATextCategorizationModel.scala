@@ -1,7 +1,7 @@
-package adatao.ML.tm
+package com.adatao.ML.tm
 
-import adatao.bigr.spark.execution.tm.DistributedCorpus
-import adatao.ML.TPredictiveModel
+import com.adatao.pa.spark.execution.tm.DistributedCorpus
+import com.adatao.ML.TPredictiveModel
 
 /**
  * @author Cuong Kien Bui

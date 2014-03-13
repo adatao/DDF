@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package adatao.bigr.spark
+package com.adatao.pa.spark
 
 import java.util.{ArrayList => JavaArrayList, HashSet => JavaHashSet}
 import scala.collection.JavaConversions._
@@ -27,7 +27,7 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema
 
 import org.apache.hadoop.hive.ql.exec.DDLTask
 import org.apache.hadoop.hive.conf.HiveConf
-import adatao.bigr.spark.DataManager.{SharkDataFrame, DataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{SharkDataFrame, DataFrame, MetaInfo}
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory
 import shark.memstore2.{TablePartitionBuilder, TablePartitionStats, TablePartition}

@@ -1,13 +1,13 @@
-package adatao.bigr.spark
+package com.adatao.pa.spark
 
 import org.apache.spark.rdd.RDD
 import shark.memstore2.TablePartition
-import adatao.bigr.spark.DataManager.MetaInfo
+import com.adatao.pa.spark.DataManager.MetaInfo
 import org.rosuda.REngine._
 import scala.collection.mutable
 import org.apache.hadoop.io.{Text, IntWritable}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
-import adatao.ML.TCanLog
+import com.adatao.ML.TCanLog
 import org.rosuda.REngine.Rserve.RConnection
 import adatao.AdataoException
 import adatao.AdataoException.AdataoExceptionCode
