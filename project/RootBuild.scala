@@ -137,6 +137,9 @@ object RootBuild extends Build {
     "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
   )
 
+  val pa_dependencies = Seq(
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14"
+  )
 
   /////// Common/Shared project settings ///////
 
@@ -487,7 +490,8 @@ object RootBuild extends Build {
     name := paProjectName,
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") }
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
+    libraryDependencies ++= pa_dependencies
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
