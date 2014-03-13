@@ -32,41 +32,45 @@ public class LocalDDF extends DDF {
   @Expose private String mUnitTypeName; // only needed during serialization
 
 
-  public LocalDDF(List<?> rows, Class<?> unitType,String namespace, String name, Schema schema) throws DDFException {
-    this((DDFManager) null, (List<?>) rows, unitType,namespace, name, schema);
+  public LocalDDF(List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
+    this((DDFManager) null, (List<?>) rows, unitType, namespace, name, schema);
     if (rows != null) mUnitType = unitType;
   }
 
-  public LocalDDF(DDFManager manager, List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
+  public LocalDDF(DDFManager manager, List<?> rows, Class<?> unitType, String namespace, String name, Schema schema)
+      throws DDFException {
+
     super(manager, sDummyLocalDDFManager);
     if (rows == null) throw new DDFException("Non-null rows List is required to instantiate a new LocalDDF");
     mUnitType = unitType;
-    this.initialize(manager, rows, List.class, unitType, namespace, name, schema);
+    this.initialize(manager, rows, new Class[] { List.class, unitType }, namespace, name, schema);
   }
 
   /**
-   * This signature is needed to support {@link DDFManager#newDDF(DDFManager, Object, Class, String, String, Schema)}
+   * This signature is needed to support {@link DDFManager#newDDF(DDFManager, Object, Class[], String, String, Schema)}
    * 
    * @param manager
    * @param rows
+   * @param typeSpecs
    * @param namespace
    * @param name
    * @param schema
    * @throws DDFException
    */
-  public LocalDDF(DDFManager manager, Object rows, Class<?> unitType,String namespace, String name, Schema schema) throws DDFException {
+  public LocalDDF(DDFManager manager, Object rows, Class<?>[] typeSpecs, String namespace, String name, Schema schema)
+      throws DDFException {
 
     super(manager, sDummyLocalDDFManager);
     if (rows == null) throw new DDFException("Non-null rows Object is required to instantiate a new LocalDDF");
-    mUnitType = unitType;
-    this.initialize(manager, rows, rows.getClass(),unitType, namespace, name, schema);
+    mUnitType = (typeSpecs != null && typeSpecs.length > 0) ? typeSpecs[1] : null;
+    this.initialize(manager, rows, typeSpecs, namespace, name, schema);
   }
 
   /**
    * Signature without List, useful for creating a dummy DDF used by DDFManager
    * 
    * @param manager
-   * @throws DDFException 
+   * @throws DDFException
    */
   public LocalDDF(DDFManager manager) throws DDFException {
     super(manager, sDummyLocalDDFManager);
@@ -74,7 +78,8 @@ public class LocalDDF extends DDF {
 
   /**
    * For serdes only
-   * @throws DDFException 
+   * 
+   * @throws DDFException
    */
   protected LocalDDF() throws DDFException {
     super(sDummyLocalDDFManager);
@@ -84,7 +89,7 @@ public class LocalDDF extends DDF {
 
   @SuppressWarnings("unchecked")
   public <T> List<T> getList(Class<T> rowType) {
-    return (List<T>) this.getRepresentationHandler().get(List.class , rowType);
+    return (List<T>) this.getRepresentationHandler().get(List.class, rowType);
   }
 
   public void setList(List<?> data, Class<?> rowType) {
@@ -147,7 +152,7 @@ public class LocalDDF extends DDF {
         JsonElement deserializedWrappedObject = (serializationData instanceof JsonObject ? //
         ((JsonObject) serializationData).get("mData")
             : null);
-        
+
         deserializedObject = LocalPersistible.unwrapDeserializedObject(mData, deserializedObject,
             (JsonElement) deserializedWrappedObject);
       }
