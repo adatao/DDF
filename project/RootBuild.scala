@@ -13,10 +13,10 @@ import scala.sys.process._
 object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
-	//val SPARK_VERSION = "0.8.1-incubating-adatao"
-	val SPARK_VERSION = "0.8.1-SNAPSHOT"
+	val SPARK_VERSION = "0.8.1-incubating"
+	//val SPARK_VERSION = "0.8.1-SNAPSHOT"
 	val SHARK_VERSION = "0.8.1-SNAPSHOT"
-	val MLLIB_VERSION = "0.8.1-SNAPSHOT"
+	val MLLIB_VERSION = "0.8.1-incubating"
 	
 	//val theScalaVersion = "2.10.0"
 	val theScalaVersion = "2.9.3"
