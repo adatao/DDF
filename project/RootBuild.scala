@@ -460,7 +460,8 @@ object RootBuild extends Build {
     name := coreProjectName,
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") }
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2"
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
@@ -470,17 +471,14 @@ object RootBuild extends Build {
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch spark/" + targetDir + "/*timestamp") },
-
     resolvers ++= Seq(
       //"JBoss Repository" at "http://repository.jboss.org/nexus/content/repositories/releases/",
       //"Spray Repository" at "http://repo.spray.cc/",
       //"Twitter4J Repository" at "http://twitter4j.org/maven2/"
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
-
     libraryDependencies ++= com_adatao_unmanaged,
     libraryDependencies ++= spark_dependencies
-
   ) ++ assemblySettings ++ extraAssemblySettings
 
 

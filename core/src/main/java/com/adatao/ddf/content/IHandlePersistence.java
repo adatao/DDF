@@ -114,7 +114,7 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
    * e.g.,
    * 
    * <pre>
-   * local:///root/ddf/ddf-runtime/local-ddf-db/com.example/MyDDF.dat
+   * basic:///root/ddf/ddf-runtime/basic-ddf-db/com.example/MyDDF.dat
    * </pre>
    * 
    * If the engine is not specified, the current DDF's engine is used.
