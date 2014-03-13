@@ -64,8 +64,8 @@ class MultiContextThread(val host: String, val resQueue: ArrayBlockingQueue[Exec
 			val fname = System.getProperty("java.io.tmpdir") + "/bigr." + clientID + ".out"
 			LOG.info("Child stdout/stderr will be redirected to: {}", fname)
 			val logFile = new File(fname)
-			builder.redirectOutput(ProcessBuilder.Redirect.appendTo(logFile))
-			builder.redirectError(ProcessBuilder.Redirect.appendTo(logFile))
+			// FIXME: currently shows mysterious compile error: builder.redirectOutput(ProcessBuilder.Redirect.appendTo(logFile))
+			// FIXME: builder.redirectError(ProcessBuilder.Redirect.appendTo(logFile))
 
 			LOG.info("BigRWorker execution command: "+command.toString)
 				

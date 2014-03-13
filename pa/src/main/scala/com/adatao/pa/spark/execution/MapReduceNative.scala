@@ -356,8 +356,9 @@ class MapReduceNative(val dataContainerID: String,
 			rconn.voidEval("reductions <- list()")
 			rconn.voidEval("options(stringsAsFactors = F)")
 
-			// we do this in a loop because each of the seqv could potentially be very large
-			input.zipWithIndex.foreach { case ((k: String , seqv: Seq[REXP]), i: Int) =>
+		// we do this in a loop because each of the seqv could potentially be very large
+		input.zipWithIndex.foreach {
+			case ((k: String, seqv: Seq[_]), i: Int) ⇒
 				println("AHT !!! processing k = " + k + ", len(seqv) = " + seqv.length)
 
 				// send data to R to compute reductions
