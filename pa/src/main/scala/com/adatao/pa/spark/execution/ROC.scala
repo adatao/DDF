@@ -31,8 +31,8 @@ import scala.collection.mutable.ListBuffer
 import com.adatao.ML.ALinearModel
 import com.adatao.ML.LinearRegressionModel
 import java.util.HashMap
-import adatao.AdataoException
-import adatao.AdataoException.AdataoExceptionCode
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * From ctn: What is the intended API for ROC? Are we passing in a model and have it generate predictions, then compute

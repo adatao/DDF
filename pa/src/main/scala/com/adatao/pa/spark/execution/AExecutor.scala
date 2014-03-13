@@ -40,8 +40,8 @@ import scala.reflect.Manifest
 import scala.collection.JavaConversions._
 import com.adatao.ML.spark.Predictions
 import com.adatao.ML.spark.TransformDummyCoding
-import adatao.AdataoException
-import adatao.AdataoException.AdataoExceptionCode
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
 
 /**

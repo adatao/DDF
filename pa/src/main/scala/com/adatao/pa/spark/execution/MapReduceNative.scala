@@ -9,8 +9,8 @@ import scala.collection.JavaConversions._
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 import shark.api.JavaSharkContext
-import adatao.AdataoException
-import adatao.AdataoException.AdataoExceptionCode
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 // @formatter:off
 

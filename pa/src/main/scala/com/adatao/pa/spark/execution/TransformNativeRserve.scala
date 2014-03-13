@@ -6,8 +6,8 @@ import scala.Some
 import com.adatao.pa.spark.{SharkUtils, RserveUtils}
 import org.apache.spark.storage.StorageLevel
 import shark.api.JavaSharkContext
-import adatao.AdataoException
-import adatao.AdataoException.AdataoExceptionCode
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * This executor performs transformation of BigDataFrame using a native R function:

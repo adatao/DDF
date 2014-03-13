@@ -9,8 +9,8 @@ import org.apache.hadoop.io.{Text, IntWritable}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ML.TCanLog
 import org.rosuda.REngine.Rserve.RConnection
-import adatao.AdataoException
-import adatao.AdataoException.AdataoExceptionCode
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * @author aht
