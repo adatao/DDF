@@ -41,8 +41,8 @@ class KmeansSuite extends ATestSuite {
     val mlModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-    val kmeansPred = model.predict(ddfPredict)
-    val lmPred = mlModel.predict(ddfPredict2)
+    //val kmeansPred = model.predict(ddfPredict)
+    //val lmPred = mlModel.predict(ddfPredict2)
 
     model.predict(Array(1,2,3,4.0, 5, 6, 7,8))
     mlModel.predict(Array(1, 2, 3.0))
