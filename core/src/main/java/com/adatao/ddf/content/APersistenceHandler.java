@@ -31,7 +31,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
    * e.g.,
    * 
    * <pre>
-   * local:///root/ddf/ddf-runtime/local-ddf-db/com.example/MyDDF.dat
+   * basic:///root/ddf/ddf-runtime/basic-ddf-db/com.example/MyDDF.dat
    * </pre>
    * 
    * @param uri
