@@ -3,7 +3,7 @@
 # Run once to set up a new dev environment
 #
 
-PROJECTS="core spark contrib examples"
+PROJECTS="core spark enterprise pa contrib examples"
 ME=`basename $0 .sh`
 DIR="`dirname $0`"
 cd "$DIR/.."

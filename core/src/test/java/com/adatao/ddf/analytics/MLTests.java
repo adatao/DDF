@@ -6,7 +6,6 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.ISupportML.IModel;
-import com.adatao.ddf.analytics.MLSupporter.Model;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
@@ -22,8 +21,8 @@ public class MLTests {
   }
 
   public static IModel dummyKMeans(DDF arg1, int arg2, Double arg3) {
-    return new Model("Model Paramters");
-  }
+    return null;
+   }
 
   @Test
   public void testTrain() throws DDFException {

@@ -1,5 +1,6 @@
 package com.adatao.spark.ddf.analytics;
 
+import com.adatao.ddf.exception.DDFException;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
@@ -26,7 +27,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Summary[] getSummaryImpl() {
+  public Summary[] getSummaryImpl()  throws DDFException {
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
 
     JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));

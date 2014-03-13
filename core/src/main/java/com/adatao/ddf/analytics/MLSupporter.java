@@ -1,8 +1,12 @@
 package com.adatao.ddf.analytics;
 
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.base.Joiner;
 import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
@@ -108,7 +112,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   /**
    * 
    */
-  public static class Model extends LocalPersistible implements IModel {
+  public abstract static class Model extends LocalPersistible implements IModel {
 
     private static final long serialVersionUID = 824936593281899283L;
 
@@ -119,35 +123,81 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       mTrainingResult = trainingResult;
     }
 
-
     /**
      * TODO: We can't serialize this directly because we can't deserialize an IModelParameters later, at least not
      * without some concrete class constructor.
      */
-    private IModelParameters mParams;
 
+    private Class<?> mpredictionInputClass;
+
+    private List<String> mFeatureColumnNames;
+
+    public List<String> getFeatureColumnNames() {
+      return new ArrayList<String>(this.mFeatureColumnNames);
+    }
+
+    public void setFeatureColumnNames(List<String> featureColumnNames) {
+      this.mFeatureColumnNames = featureColumnNames;
+    }
+
+    public Class<?> getPredictionInputClass() {
+      return this.mpredictionInputClass;
+    }
+
+    public void setPredictionInputClass(Class<?> predictionInputClass) {
+      this.mpredictionInputClass = predictionInputClass;
+    }
+
+    public Model(Class<?> predictionInputClass) {
+      mpredictionInputClass = predictionInputClass;
+    }
+
+    public Model(List<String> featureColumnNames, Class<?> predictionInputClass) {
+      this.setFeatureColumnNames(featureColumnNames);
+      this.setPredictionInputClass(predictionInputClass);
+    }
+
+    protected Object prepareData(DDF ddf) throws DDFException{
+      return ddf.getRepresentationHandler().get(this.getPredictionInputClass());
+    }
+    public abstract DDF predict(Object data, DDF ddf);
 
     @Override
-    public IModelParameters getParameters() {
-      return mParams;
+    public DDF predict(DDF ddf) throws DDFException{
+      List<String> ddfColumnNames = ddf.getColumnNames();
+      Object data;
+
+      //if featureColumnNames is not the same as ddf's columnNames
+      //throw Exception
+      if((ddfColumnNames.size() == this.getFeatureColumnNames().size()) &&
+          (ddfColumnNames.containsAll(this.getFeatureColumnNames()))){
+        data = this.prepareData(ddf);
+      } else{
+        String cols = Joiner.on(", ").join(ddfColumnNames);
+        throw new DDFException(String.format("Please project the ddf to the same columns " +
+            "as feature columns that used to train this model: %s.", cols));
+      }
+      return this.predict(data, ddf);
+    }
+
+    protected abstract double predictImpl(double[] point);
+
+    @Override
+    public double predict(double[] point) throws DDFException {
+      if(this.getFeatureColumnNames().size() != point.length){
+        throw new DDFException("Point's size must be the same size as number features used to train the model");
+      } else{
+        return this.predictImpl(point);
+      }
     }
 
     @Override
-    public void setParameters(IModelParameters parameters) {
-      mParams = parameters;
-    }
-
-
-    /**
-     * Override to implement additional equality tests
-     */
-    @Override
-    public boolean equals(Object other) {
-      if (!(other instanceof Model)) return false;
-
-      if (this.getParameters() != ((Model) other).getParameters()) return false;
-
-      return true;
+    public double[] predict(double[][] points) throws DDFException {
+      double[] predictions = new double[points.length];
+      for(int i = 0; i < points.length; i++) {
+        predictions[i] = this.predict(points[i]);
+      }
+      return predictions;
     }
   }
 
@@ -192,7 +242,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // for (int i = 0; i < paramArgs.length; i++) {
     // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
     // }
-
+    String originalTrainMethodName = trainMethodName;
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
@@ -201,22 +251,39 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     if (trainMethod.getMethod() == null) {
       throw new DDFException(String.format("Cannot locate method specified by %s", trainMethodName));
     }
-
     // Now we need to map the DDF and its column specs to the input format expected by the method we're invoking
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
 
     // Invoke the training method
     Object result = trainMethod.classInvoke(allArgs);
 
-    // Construct the result model parameters
-    IModel model = new Model(result);
+    // Construct the result model
+    try{
+      String modelClassName = Config.getValueWithGlobalDefault(this.getEngine(), String.format("%s_model", originalTrainMethodName));
 
-    return model;
+      Class<?> modelClass = Class.forName(modelClassName);
+      Constructor<?> cons = modelClass.getConstructor(result.getClass());
+      IModel model = (IModel) cons.newInstance(result);
+
+      List<String> featureColumns;
+      List<String> ddfColumns = this.getDDF().getColumnNames();
+
+      if(model.isSupervisedAlgorithmModel()){
+        featureColumns = ddfColumns.subList(0, ddfColumns.size() - 1);
+      } else{
+        featureColumns = ddfColumns;
+      }
+
+      model.setFeatureColumnNames(featureColumns);
+      return model;
+    } catch(Exception e){
+      throw new DDFException(e);
+    }
   }
 
 
   @SuppressWarnings("unchecked")
-  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) {
+  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) throws DDFException{
     MethodInfo methodInfo = new MethodInfo(method);
     List<ParamInfo> paramInfos = methodInfo.getParamInfos();
     if (paramInfos == null || paramInfos.size() == 0) return new Object[0];
@@ -241,7 +308,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
    * @param paramInfo
    * @return
    */
-  protected Object convertDDF(ParamInfo paramInfo) {
+  protected Object convertDDF(ParamInfo paramInfo) throws DDFException{
     return this.getDDF();
   }
 
@@ -276,13 +343,16 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
         // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
         Class<?>[] methodArgTypes = method.getParameterTypes();
 
-        // Check that the number of args are correct (the # of args in the method must be >= the # of args supplied
-        // here)
-        if (methodArgTypes.length < argTypes.length) continue;
+        // Check that the number of args are correct:
+        // the # of args in the method must be = 1 + the # of args supplied
+        // ASSUMING that one of the args in the method is for input data
 
-
-        foundMethod = method;
-        break;
+        if((methodArgTypes.length - 1) == argTypes.length){
+          foundMethod = method;
+          break;
+        }
+        //foundMethod = method;
+        //break;
 
         // @formatter:off
         // NB: we don't do this for now because the arg types are hard to match properly, e.g., int or null.

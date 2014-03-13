@@ -39,14 +39,14 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
         "CancellationCode string, Diverted string, CarrierDelay int, " +
         "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
     )
-    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/airline.csv' " +
+    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/airlineBig.csv' " +
       "INTO TABLE airline")
   }
 
   def createTableAirlineWithNA(sharkctx: SharkContext) {
     sharkctx.sql("set shark.test.data.path=../resources")
-    sharkctx.sql("drop table if exists airline")
-    sharkctx.sql("create table airline (Year int,Month int,DayofMonth int," +
+    sharkctx.sql("drop table if exists airlineWithNA")
+    sharkctx.sql("create table airlineWithNA (Year int,Month int,DayofMonth int," +
       "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int," +
       "CRSArrTime int,UniqueCarrier string, FlightNum int, " +
       "TailNum string, ActualElapsedTime int, CRSElapsedTime int, " +
@@ -56,7 +56,7 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
       "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
     )
     sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/airlineWithNA.csv' " +
-      "INTO TABLE airline")
+      "INTO TABLE airlineWithNA")
   }
 }
 

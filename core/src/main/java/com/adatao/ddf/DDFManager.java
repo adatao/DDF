@@ -125,29 +125,32 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * 
    * @param manager
    * @param data
+   * @param typeSpecs
    * @param namespace
    * @param name
    * @param schema
    * @return
    * @throws DDFException
    */
-  public DDF newDDF(DDFManager manager, Object data, String namespace, String name, Schema schema) throws DDFException {
+  public DDF newDDF(DDFManager manager, Object data, Class<?>[] typeSpecs, String namespace, String name, Schema schema)
+      throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
-        new Object[]   { manager, data, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, Class[].class, String.class, String.class, Schema.class }, 
+        new Object[]   { manager, data, typeSpecs, namespace, name, schema }
         );
     // @formatter:on
   }
 
 
-  public DDF newDDF(Object data, String namespace, String name, Schema schema) throws DDFException {
+  public DDF newDDF(Object data, Class<?>[] typeSpecs, String namespace, String name, Schema schema)
+      throws DDFException {
 
     // @formatter:off
     return this.newDDF(
-        new Class<?>[] { DDFManager.class, Object.class, String.class, String.class, Schema.class }, 
-        new Object[]   { this, data, namespace, name, schema }
+        new Class<?>[] { DDFManager.class, Object.class, Class[].class, String.class, String.class, Schema.class }, 
+        new Object[]   { this, data, typeSpecs, namespace, name, schema }
         );
     // @formatter:on
   }
@@ -196,8 +199,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
     } catch (Exception e) {
       throw new DDFException(String.format(
-          "While instantiating a new DDF of class %s with argTypes %s and argValues %s", className,
-          Arrays.toString(argTypes), Arrays.toString(argValues)), e);
+          "While instantiating a new %s DDF of class %s with argTypes %s and argValues %s", this.getEngine(),
+          className, Arrays.toString(argTypes), Arrays.toString(argValues)), e);
     }
   }
 

@@ -74,10 +74,32 @@ public class PersistenceHandlerTests {
     ddf1.unpersist();
   }
 
+  public class TestModel extends Model {
+    private static final long serialVersionUID = 6451873623219190370L;
+
+    public TestModel(List<String> featureColumns, Class<?> inputPredictionClass) {
+      super(featureColumns, inputPredictionClass);
+    }
+    @Override
+    public boolean isSupervisedAlgorithmModel() {
+      return false;
+    }
+
+    @Override
+    public DDF predict(Object data, DDF ddf) {
+      return null;
+    }
+
+    @Override
+    public double predictImpl(double[] point) {
+      return 0.0;
+    }
+  }
 
   @Test
   public void testPersistModel() throws DDFException {
-    Model model = new Model("Sample Parameters");
+
+    Model model = new TestModel(null, null);
 
     // model.setParameters(new TestParameters());
 

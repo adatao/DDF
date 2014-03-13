@@ -25,11 +25,13 @@ public class LocalDDFManager extends DDFManager {
   public LocalDDFManager() {}
 
 
-  public <T> DDF newDDF(List<T> rows, String namespace, String name, Schema schema) throws DDFException {
+  public <T> DDF newDDF(List<T> rows, Class<T> unitType, String namespace, String name, Schema schema)
+      throws DDFException {
+
     if (rows == null || rows.size() == 0) {
       throw new DDFException("Non-null/zero-length List is required to instantiate a new LocalDDF");
     }
 
-    return this.newDDF(this, rows, namespace, name, schema);
+    return this.newDDF(this, rows, new Class[] { List.class, unitType }, namespace, name, schema);
   }
 }

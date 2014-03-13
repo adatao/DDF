@@ -4,8 +4,8 @@
 package com.adatao.ddf;
 
 
+import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
@@ -74,7 +74,8 @@ public class Vector<T> {
     if (data == null || data.length == 0) throw new DDFException("Cannot initialize a null or zero-length Vector");
 
     DDF newDDF = DDFManager.get(engineName) //
-        .newDDF(null, (Object) data, null, name, //
+        .newDDF(null, (Object) data, new Class[] { Array.class, this.getParameterizedType() }, //
+            null /* namespace */, name, //
             new Schema(name, String.format("%s %s", name, this.getParameterizedType().getSimpleName())));
 
     this.initialize(newDDF, name);
@@ -127,8 +128,8 @@ public class Vector<T> {
     this.mDDFColumnName = mDDFColumnName;
   }
 
-  @SuppressWarnings("unchecked")
-  public Iterator<T> iterator() {
-    return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
-  }
+  // @SuppressWarnings("unchecked")
+  // public Iterator<T> iterator() {
+  // return (Iterator<T>) this.getDDF().getElementIterator(this.getDDFColumnName());
+  // }
 }

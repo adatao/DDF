@@ -1,9 +1,12 @@
 package com.adatao.ddf.analytics;
 
 
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
+
+import java.util.List;
 
 /**
  * Interface for handling tasks related to Machine Learning
@@ -45,9 +48,18 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    *
    */
   interface IModel extends IHandlePersistence.IPersistible {
-    IModelParameters getParameters();
 
-    void setParameters(IModelParameters parameters);
+    public void setFeatureColumnNames(List<String> featureColumnNames);
+
+    public void setPredictionInputClass(Class<?> predictionInputClass);
+
+    public boolean isSupervisedAlgorithmModel();
+
+    DDF predict(DDF ddf) throws DDFException;
+
+    public double[] predict(double[][] points) throws DDFException;
+
+    public double predict(double[] point) throws DDFException;
   }
 
 
