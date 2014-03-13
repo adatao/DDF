@@ -21,6 +21,6 @@ public class AggregationTest {
     
     String rAggregateFormula = "cbind(mpg,hp) ~ vs + am, mtcars, FUN=mean";
     assertTrue(rAggregateFormula.matches("^\\s*cbind\\((.+)\\)\\s*~\\s*(.+),(.+),(.+)"));    
-    Assert.assertEquals("vs,am,MEAN(mpg),MEAN(hp)", RSupporter.parseRAggregateFormula(rAggregateFormula));    
+    Assert.assertEquals("vs,am,mean(mpg),mean(hp)", RSupporter.parseRAggregateFormula(rAggregateFormula));    
   }
 }

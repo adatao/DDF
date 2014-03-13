@@ -53,7 +53,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       // a fivenumsummary of an Double/Float column is in the format "min \t max \t[1st_quantile, median, 3rd_quantile]"
       // or "min \t max \t null"
       
-      String[] rs = this.getDDF().getViewHandler()
+      String[] rs = this.getDDF()
           .sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s")).get(0)
           .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
       

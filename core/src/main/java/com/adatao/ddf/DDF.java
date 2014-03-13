@@ -151,9 +151,11 @@ public abstract class DDF extends ALoggable //
   // ////// Instance Fields & Methods ////////
 
 
-  @Expose private String mNamespace;
+  @Expose
+  private String mNamespace;
 
-  @Expose private String mName;
+  @Expose
+  private String mName;
 
 
   /**
@@ -274,10 +276,21 @@ public abstract class DDF extends ALoggable //
   public long getNumColumns() {
     return this.getSchemaHandler().getNumColumns();
   }
-  
-  /////// Generate DDF views
+
+
+  // ///// Generate DDF views
 
   public final ViewsFacade Views = new ViewsFacade(this, this.getViewHandler());
+
+
+  // ///// Execute a sqlcmd
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2txt(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
 
   // ///// Aggregate operations
 
@@ -304,6 +317,8 @@ public abstract class DDF extends ALoggable //
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
+
+
   public final RSupporter R = new RSupporter(this, this.getAggregationHandler());
 
   // ////// Function-Group Handlers ////////
@@ -715,7 +730,7 @@ public abstract class DDF extends ALoggable //
   public Summary[] getSummary() {
     return this.getStatisticsSupporter().getSummary();
   }
-  
+
   public FiveNumSummary[] getFiveNumSummary() throws DDFException {
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
@@ -755,7 +770,8 @@ public abstract class DDF extends ALoggable //
   public void afterSerialization() throws DDFException {}
 
   @Override
-  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+  public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+      throws DDFException {
     return deserializedObject;
   }
 }

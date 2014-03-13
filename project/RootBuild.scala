@@ -191,7 +191,8 @@ object RootBuild extends Build {
       //"org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
       //"org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
       //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark),
-      "org.easymock" % "easymock" % "3.1" % "test"
+      "org.easymock" % "easymock" % "3.1" % "test",
+      "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
 
@@ -256,7 +257,7 @@ object RootBuild extends Build {
                 <reuseForks>false</reuseForks>
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
-								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName},${{basedir}}/{targetDir}/lib/{coreJarName}</DDFSPARK_JAR>
+								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
 								</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>

@@ -70,7 +70,7 @@ public class RSupporter implements IHandleAggregation {
 
     String[] parts = rAggregateFormula.split("~");
 
-    String[] rParts = parts[1].split(",");
+    String[] rParts = parts[1].trim().split(",");
 
     if (parts[0].contains("cbind")) { // multiple aggregated fields
       Matcher matcher = Pattern.compile("^\\s*cbind\\((.+)\\)").matcher(parts[0].trim());
@@ -78,7 +78,7 @@ public class RSupporter implements IHandleAggregation {
       if (matcher.matches()) {
         String[] aggregatedFieldArr = matcher.group(1).split(",");
         for (String field : aggregatedFieldArr) {
-          aggregatedFields.add(new AggregateField(rParts[2].split("=")[1].trim(), field).toString());
+          aggregatedFields.add(String.format("%s(%s)", rParts[2].split("=")[1].trim(), field));
         }
       }
     } else { // one aggregated fields

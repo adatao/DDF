@@ -148,8 +148,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     @Override
     public String toString() {
-      return this.isAggregated() ? String.format("%s(%s)", this.getAggregateFunction().toString(), this.getColumn())
-          : this.getColumn();
+      return this.isAggregated() ? this.getAggregateFunction().toString(this.getColumn()) : this.getColumn();
     }
 
     /**

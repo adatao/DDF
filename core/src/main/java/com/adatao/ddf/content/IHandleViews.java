@@ -82,9 +82,8 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   
   public DDF getRandomSample(double percent, boolean withReplacement, int seed);
   
-  public DDF firstNRows(int numRows) throws DDFException;
+  public List<String> firstNRows(int numRows) throws DDFException;
   
   public DDF project(String[] columnNames) throws DDFException;
 
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
 }
