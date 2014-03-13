@@ -28,13 +28,24 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
       RDD<?> rdd = null;
 
       if (paramInfo.paramMatches(LabeledPoint.class)) {
-        rdd = (RDD<LabeledPoint>)this.getDDF().getRepresentationHandler().get(LabeledPoint.class);
+        Class<?>[] typeSpecs = new Class<?>[2];
+        typeSpecs[0] = RDD.class;
+        typeSpecs[1] = LabeledPoint.class;
+        rdd = (RDD<LabeledPoint>)this.getDDF().getRepresentationHandler().get(typeSpecs);
         System.out.println("RDD<LabeledPoint>");
-      } else if (paramInfo.paramMatches(double[].class)) {
-        rdd = (RDD<double[]>)this.getDDF().getRepresentationHandler().get(double[].class);
+      }
+      else if (paramInfo.paramMatches(double[].class)) {
+        Class<?>[] typeSpecs = new Class<?>[2];
+        typeSpecs[0] = RDD.class;
+        typeSpecs[1] = double[].class;
+        rdd = (RDD<double[]>)this.getDDF().getRepresentationHandler().get(typeSpecs);
         System.out.println("RDD<Double[]>");
-      } else if (paramInfo.paramMatches(Object.class)) {
-        rdd= (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+      }
+      else if (paramInfo.paramMatches(Object.class)) {
+        Class<?>[] typeSpecs = new Class<?>[2];
+        typeSpecs[0] = RDD.class;
+        typeSpecs[1] = Object[].class;
+        rdd= (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(typeSpecs);
         System.out.println("RDD<Object>");
       }
       return rdd;
