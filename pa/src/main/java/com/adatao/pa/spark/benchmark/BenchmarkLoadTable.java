@@ -46,7 +46,7 @@ public class BenchmarkLoadTable implements Serializable {
 		JavaRDD<String> fileRDD = sc.textFile(fileURL);
 
 		Method getMetaInfo = Class.forName(
-				"adatao.bigr.spark.execution.LoadTable").getDeclaredMethod(
+				"com.adatao.pa.spark.execution.LoadTable").getDeclaredMethod(
 				"getMetaInfo", JavaRDD.class);
 		getMetaInfo.setAccessible(true);
 		MetaInfo[] metaInfoArray = (MetaInfo[]) getMetaInfo.invoke(lt
@@ -55,13 +55,13 @@ public class BenchmarkLoadTable implements Serializable {
 		System.out.println(Arrays.toString(metaInfoArray));
 
 		Field bcMetaInfo = Class.forName(
-				"adatao.bigr.spark.execution.LoadTable").getDeclaredField(
+				"com.adatao.pa.spark.execution.LoadTable").getDeclaredField(
 				"broadcastMetaInfo");
 		bcMetaInfo.setAccessible(true);
 		bcMetaInfo.set(lt, sc.broadcast(metaInfoArray));
 
 		Method getDataFrame = Class.forName(
-				"adatao.bigr.spark.execution.LoadTable").getDeclaredMethod(
+				"com.adatao.pa.spark.execution.LoadTable").getDeclaredMethod(
 				"getDataFrame", JavaRDD.class);
 		getDataFrame.setAccessible(true);
 		@SuppressWarnings("unchecked")

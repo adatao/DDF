@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import adatao.bigr.spark.types.ExecutionResult;
+import com.adatao.pa.spark.types.ExecutionResult;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;

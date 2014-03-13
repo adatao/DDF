@@ -152,7 +152,7 @@ public class TestLoadTable {
 //		String fileURL = "resources/table.csv";
 //		JavaRDD<String> fileRDD = sc.textFile(fileURL);
 //		
-//		Method getMetaInfo = Class.forName("adatao.bigr.spark.execution.LoadTable")
+//		Method getMetaInfo = Class.forName("com.adatao.pa.spark.execution.LoadTable")
 //				.getDeclaredMethod("getMetaInfo", JavaRDD.class);
 //		getMetaInfo.setAccessible(true);
 //		MetaInfo[] metaInfoArray = 
@@ -162,12 +162,12 @@ public class TestLoadTable {
 //						fileRDD);
 //		LOG.info(Arrays.toString(metaInfoArray));		
 //		
-//		Field bcMetaInfo = Class.forName("adatao.bigr.spark.execution.LoadTable")
+//		Field bcMetaInfo = Class.forName("com.adatao.pa.spark.execution.LoadTable")
 //				.getDeclaredField("broadcastMetaInfo");
 //		bcMetaInfo.setAccessible(true); 
 //		bcMetaInfo.set(lt, sc.broadcast(metaInfoArray));
 //		
-//		Method getDataFrame = Class.forName("adatao.bigr.spark.execution.LoadTable")
+//		Method getDataFrame = Class.forName("com.adatao.pa.spark.execution.LoadTable")
 //				.getDeclaredMethod("getDataFrame", JavaRDD.class);
 //		getDataFrame.setAccessible(true);
 //		JavaRDD<Object[]> dataFrame = 

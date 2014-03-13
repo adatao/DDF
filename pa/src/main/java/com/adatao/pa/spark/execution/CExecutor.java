@@ -43,7 +43,7 @@ public abstract class CExecutor implements IExecutor, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see adatao.bigr.spark.types.IExecutor#run(adatao.bigr.spark.SparkThread)
+	 * @see com.adatao.pa.spark.types.IExecutor#run(com.adatao.pa.spark.SparkThread)
 	 */
 	@Override
 	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {

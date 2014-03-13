@@ -16,7 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
-import adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shark.api.JavaSharkContext;
@@ -38,7 +38,7 @@ import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import adatao.ML.types.TJsonSerializable$class;
+import com.adatao.ML.types.TJsonSerializable$class;
 import java.io.Serializable;
 import java.util.List;
 
@@ -83,7 +83,7 @@ public class VectorMean implements IExecutor, Serializable {
 	      return clazz;
 	    }
 
-		public void adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 		  clazz = Aclass;
 		}
 

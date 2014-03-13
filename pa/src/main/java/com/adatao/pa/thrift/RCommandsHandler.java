@@ -20,7 +20,7 @@ import java.io.FileNotFoundException;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import adatao.bigr.spark.types.FailedResult;
+import com.adatao.pa.spark.types.FailedResult;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;

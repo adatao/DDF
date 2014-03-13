@@ -18,8 +18,8 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import adatao.ML.types.TJsonSerializable;
-import adatao.ML.types.TJsonSerializable$class;
+import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.spark.api.java.function.Function;
@@ -29,7 +29,7 @@ import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import adatao.ML.Utils;
+import com.adatao.ML.Utils;
 
 /**
  * @author bachbui Implement summary function for both vector and dataframe
@@ -60,7 +60,7 @@ public class QuickSummary extends CExecutor {
       return clazz;
     }
 
-		public void adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 			clazz = Aclass;
 		}
 
@@ -109,7 +109,7 @@ public class QuickSummary extends CExecutor {
 
     public DataframeStatsResult setDataContainerID(String dataContainerID) {
       this.dataContainerID = dataContainerID;
-			this.adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
+			this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
   }

@@ -28,7 +28,7 @@ import com.adatao.pa.ML.types.randomforest.data.Instance;
 import com.adatao.pa.ML.types.randomforest.node.CategoricalNode;
 import com.adatao.pa.ML.types.randomforest.node.Leaf;
 import com.adatao.pa.ML.types.randomforest.node.NumericalNode;
-import adatao.ML.types.randomforest.node.Node;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 
 /**
  * Builds a classification tree or regression tree<br>

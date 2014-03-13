@@ -18,10 +18,10 @@ package com.adatao.pa.spark.types;
 
 import org.junit.Test;
 
-import adatao.ML.LinearRegressionModel;
-import adatao.ML.types.Vector;
-import adatao.bigr.spark.types.ExecutionResult;
-import adatao.bigr.spark.types.SuccessfulResult;
+import com.adatao.ML.LinearRegressionModel;
+import com.adatao.ML.types.Vector;
+import com.adatao.pa.spark.types.ExecutionResult;
+import com.adatao.pa.spark.types.SuccessfulResult;
 
 /**
  * To test our various serdes support, as a Java client

@@ -19,11 +19,11 @@ package com.adatao.pa.spark.execution;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import adatao.bigr.spark.MultiContextConnectResult;
-import adatao.bigr.spark.MultiContextThread;
-import adatao.bigr.spark.types.ExecutionResult;
-import adatao.bigr.thrift.Session;
-import adatao.bigr.thrift.SessionManager;
+import com.adatao.pa.spark.MultiContextConnectResult;
+import com.adatao.pa.spark.MultiContextThread;
+import com.adatao.pa.spark.types.ExecutionResult;
+import com.adatao.pa.thrift.Session;
+import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.annotations.Expose;
 
@@ -52,7 +52,7 @@ public class MultiContextConnect {
 			String sessionID = sessionManager.getSessionID(clientID);
 			Session session = sessionManager.getSession(sessionID);
 			// fixed, however, this is a error-prone way to construct the json string, :((((((((
-			String res = String.format("{\"success\":true, \"result\":{\"host\":%s, \"thriftPort\":%s, \"uiPort\":%s, \"clientID\":\"%s\", \"sessionID\":\"%s\"}, \"resultType\":\"adatao.bigr.spark.MultiContextConnectResult\"}", 
+			String res = String.format("{\"success\":true, \"result\":{\"host\":%s, \"thriftPort\":%s, \"uiPort\":%s, \"clientID\":\"%s\", \"sessionID\":\"%s\"}, \"resultType\":\"com.adatao.pa.spark.MultiContextConnectResult\"}", 
 					null, session.thriftPort(), session.uiPort(), session.clientID(), session.sessionID());
 			
 			return new JsonResult().setResult(res).setSid(sessionID);

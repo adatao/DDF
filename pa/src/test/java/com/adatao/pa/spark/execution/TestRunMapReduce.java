@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.adatao.pa.spark.execution.RunMapReduce.RunMapReduceResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
-import adatao.bigr.spark.types.ExecutionResult;
+import com.adatao.pa.spark.types.ExecutionResult;
 
 public class TestRunMapReduce extends BaseTest {
 	public static Logger LOG = LoggerFactory.getLogger(TestRunMapReduce.class);

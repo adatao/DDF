@@ -33,10 +33,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.Partition;
-import adatao.ML.spark.CrossValidation;
-import adatao.ML.types.TJsonSerializable;
-import adatao.ML.types.TJsonSerializable$class;
-import adatao.ML.types.randomforest.node.Node;
+import com.adatao.ML.RandomForestModel;
+import com.adatao.ML.spark.CrossValidation;
+import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 
 /***
  * Training executor for Random Forest
@@ -368,7 +369,7 @@ public class RandomForest implements IExecutor, Serializable {
 			return clazz;
 		}
 
-		public void adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 			clazz = Aclass;
 		}
 

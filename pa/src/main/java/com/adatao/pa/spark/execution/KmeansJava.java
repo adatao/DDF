@@ -15,7 +15,7 @@ package com.adatao.pa.spark.execution;
 // *  limitations under the License.
 // */
 //
-//package adatao.bigr.spark.execution;
+//package com.adatao.pa.spark.execution;
 //
 //import java.io.Serializable;
 //
@@ -37,13 +37,13 @@ package com.adatao.pa.spark.execution;
 //import spark.api.java.function.Function;
 //import spark.api.java.function.Function2;
 //import spark.broadcast.Broadcast;
-//import adatao.bigr.spark.DataManager;
-//import adatao.bigr.spark.SparkThread;
-//import adatao.bigr.spark.DataManager.DataContainer;
-//import adatao.bigr.spark.DataManager.SharkDataFrame;
-//import adatao.bigr.spark.types.ExecutorResult;
-//import adatao.bigr.spark.types.IExecutor;
-//import adatao.bigr.spark.types.SuccessResult;
+//import com.adatao.pa.spark.DataManager;
+//import com.adatao.pa.spark.SparkThread;
+//import com.adatao.pa.spark.DataManager.DataContainer;
+//import com.adatao.pa.spark.DataManager.SharkDataFrame;
+//import com.adatao.pa.spark.types.ExecutorResult;
+//import com.adatao.pa.spark.types.IExecutor;
+//import com.adatao.pa.spark.types.SuccessResult;
 //
 //
 //import java.util.ArrayList;
