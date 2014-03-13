@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.google.common.base.Joiner;
 import scala.actors.threadpool.Arrays;
+import com.adatao.basic.ddf.content.PersistenceHandler.BasicPersistible;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -15,7 +16,6 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.ddf.util.Utils.MethodInfo;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
-import com.adatao.local.ddf.content.PersistenceHandler.LocalPersistible;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
@@ -55,8 +55,8 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
    * Optional: put in any hard-coded mapping configuration here
    */
   private void initializeConfiguration() {
-    // if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans"))) {
-    // Config.set(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans",
+    // if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_BASIC.toString(), "kmeans"))) {
+    // Config.set(ConfigConstant.ENGINE_NAME_BASIC.toString(), "kmeans",
     // String.format("%s#%s", MLSupporter.class.getName(), "dummyKMeans"));
     // }
   }
@@ -112,7 +112,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   /**
    * 
    */
-  public abstract static class Model extends LocalPersistible implements IModel {
+  public abstract static class Model extends BasicPersistible implements IModel {
 
     private static final long serialVersionUID = 824936593281899283L;
 

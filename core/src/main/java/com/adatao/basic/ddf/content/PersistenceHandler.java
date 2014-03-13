@@ -1,10 +1,11 @@
 /**
  * 
  */
-package com.adatao.local.ddf.content;
+package com.adatao.basic.ddf.content;
 
 
 import java.util.List;
+import com.adatao.basic.ddf.BasicDDF;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.APersistenceHandler;
 import com.adatao.ddf.content.ISerializable;
@@ -14,7 +15,6 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.util.Utils.JsonSerDes;
-import com.adatao.local.ddf.LocalDDF;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -23,7 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 /**
- * This {@link PersistenceHandler} loads and saves from/to a designated local storage area.
+ * This {@link PersistenceHandler} loads and saves from/to a designated storage area.
  */
 public class PersistenceHandler extends APersistenceHandler {
 
@@ -36,7 +36,7 @@ public class PersistenceHandler extends APersistenceHandler {
     String result = null, path = null;
 
     try {
-      result = Utils.locateOrCreateDirectory(Config.getLocalPersistenceDir());
+      result = Utils.locateOrCreateDirectory(Config.getBasicPersistenceDir());
 
     } catch (Exception e) {
       throw new DDFException(String.format("Unable to getPersistenceDirectory(%s)", path), e);
@@ -291,10 +291,10 @@ public class PersistenceHandler extends APersistenceHandler {
 
 
   /**
-   * Base class for objects that can persist themselves, via the LocalObjectDDF persistence mechanism
+   * Base class for objects that can persist themselves, via the BasicObjectDDF persistence mechanism
    * 
    */
-  public static class LocalPersistible extends APersistible {
+  public static class BasicPersistible extends APersistible {
 
     private static final long serialVersionUID = 5827603466305690244L;
 
@@ -305,7 +305,7 @@ public class PersistenceHandler extends APersistenceHandler {
       list.add(new Object[] { this, this.getClass().getName() });
       Schema schema = new Schema(this.getName(), "object BLOB, objectClass STRING");
 
-      LocalDDF ddf = new LocalDDF(list, Object[].class,this.getNamespace(), this.getName(), schema);
+      BasicDDF ddf = new BasicDDF(list, Object[].class,this.getNamespace(), this.getName(), schema);
 
       return ddf;
     }
@@ -321,7 +321,7 @@ public class PersistenceHandler extends APersistenceHandler {
      * </code> instead of having to do this:<br/>
      * <code>
      *   PersistenceUri uri = model.persist();
-     *   LocalDDF ddf = (LocalDDF) ddfManager.load(uri);
+     *   BasicDDF ddf = (BasicDDF) ddfManager.load(uri);
      *   Model model = (Model) ddf.getList().get(0);
      * </code>
      * 
@@ -332,7 +332,7 @@ public class PersistenceHandler extends APersistenceHandler {
 
       if (dataRows.size() == 1) {
         // Now we know there is only one data row, and the rowType is IPersistible
-        // which are characteristics of a LocalDDF containing an IPersistible object
+        // which are characteristics of a BasicDDF containing an IPersistible object
 
         if (deserializedWrappedObject instanceof JsonArray) {
           JsonElement data = ((JsonArray) deserializedWrappedObject).get(0);

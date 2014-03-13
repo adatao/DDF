@@ -14,8 +14,8 @@ import com.google.common.base.Strings;
 public class MLTests {
 
   private void initializeConfiguration() {
-    if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans"))) {
-      Config.set(ConfigConstant.ENGINE_NAME_LOCAL.toString(), "kmeans",
+    if (Strings.isNullOrEmpty(Config.getValue(ConfigConstant.ENGINE_NAME_BASIC.toString(), "kmeans"))) {
+      Config.set(ConfigConstant.ENGINE_NAME_BASIC.toString(), "kmeans",
           String.format("%s#%s", this.getClass().getName(), "dummyKMeans"));
     }
   }
@@ -28,7 +28,7 @@ public class MLTests {
   public void testTrain() throws DDFException {
     this.initializeConfiguration();
 
-    DDF ddf = DDFManager.get("local").newDDF();
+    DDF ddf = DDFManager.get("basic").newDDF();
     Assert.assertNotNull("DDF cannot be null", ddf);
 
     IModel model = ddf.ML.train("kmeans", 1, 2.2);
