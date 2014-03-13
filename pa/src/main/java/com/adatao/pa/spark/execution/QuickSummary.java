@@ -60,7 +60,7 @@ public class QuickSummary extends CExecutor {
       return clazz;
     }
 
-		public void com.adatao.ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+		public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
 			clazz = Aclass;
 		}
 
