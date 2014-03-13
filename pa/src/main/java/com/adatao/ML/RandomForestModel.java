@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package adatao.ML;
+package com.adatao.ML;
 
 import java.io.Serializable;
 import java.util.List;

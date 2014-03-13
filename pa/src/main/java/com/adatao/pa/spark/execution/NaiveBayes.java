@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.adatao.ML.NaiveBayesModel;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
@@ -25,7 +26,6 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
-import adatao.ML.NaiveBayesModel;
 import adatao.ML.types.TJsonSerializable;
 import adatao.ML.types.TJsonSerializable$class;
 
