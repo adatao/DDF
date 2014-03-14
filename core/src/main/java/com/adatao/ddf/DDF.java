@@ -633,14 +633,24 @@ public abstract class DDF extends ALoggable //
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException
-        | InvocationTargetException e) {
-
+    } catch (ClassNotFoundException cnfe) {
       mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
-          theInterface.getSimpleName(), className), e);
-      return null;
+          theInterface.getSimpleName(), className), cnfe);
+    } catch (NoSuchMethodException nsme) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), nsme);
+    } catch (IllegalAccessException iae) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), iae);
+    } catch (InstantiationException ie) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), ie);
+    } catch (InvocationTargetException ite) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), ite);
     }
 
+    return null;
 
   }
 

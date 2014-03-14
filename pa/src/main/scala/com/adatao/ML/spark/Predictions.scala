@@ -38,11 +38,11 @@ object Predictions {
       }
 
     model match {
-      case m: ALinearModel[Double] ⇒ {
+      case m: ALinearModel[_] ⇒ {
         var trDummyCoding = new TransformDummyCoding(model, xCols)
         var (dataPartition, dcm) = trDummyCoding.transform(dataframe, yCol)
 
-        Predictions.yTrueYpred(m, dataPartition)
+        Predictions.yTrueYpred(m.asInstanceOf[ALinearModel[Double]], dataPartition)
       }
       case m: RandomForestModel ⇒ {                
         // cannot use getDataTable, we must go throw object boxing here

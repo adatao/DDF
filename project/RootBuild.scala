@@ -44,7 +44,8 @@ object RootBuild extends Build {
 	val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
 	val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
 
-	val paProjectName = projectName + "_pa"
+	//val paProjectName = projectName + "_pa"
+	val paProjectName = "adatao_pa"
 	val paVersion = rootVersion
 	val paJarName = paProjectName + "-" + sparkVersion + ".jar"
 	val paTestJarName = paProjectName + "-" + sparkVersion + "-tests.jar"
