@@ -22,58 +22,9 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    * @return
    * @throws DDFException
    */
-  public IModel train(String trainMethodName, Object... args) throws DDFException;
+  public Object train(String trainMethodName, Object... args) throws DDFException;
 
+  public DDF predict(Object model) throws DDFException;
 
-  /**
-   * 
-   */
-  interface IAlgorithm {
-    IHyperParameters getHyperParameters();
-
-    void setHyperParameters(IHyperParameters params);
-
-    Class<?> getInputClass();
-
-    void setInputClass(Class<?> inputClass);
-
-    public Object prepare(Object data);
-
-    public IModel run(Object data);
-  }
-
-
-
-  /**
-   *
-   */
-  interface IModel extends IHandlePersistence.IPersistible {
-
-    public void setFeatureColumnNames(List<String> featureColumnNames);
-
-    public void setPredictionInputClass(Class<?> predictionInputClass);
-
-    public boolean isSupervisedAlgorithmModel();
-
-    DDF predict(DDF ddf) throws DDFException;
-
-    public double[] predict(double[][] points) throws DDFException;
-
-    public double predict(double[] point) throws DDFException;
-  }
-
-
-
-  /**
-   * 
-   */
-  interface IHyperParameters {}
-
-
-
-  /**
-   * 
-   */
-  interface IModelParameters {}
-
+  public Object predict(Object model, double[] point) throws DDFException;
 }

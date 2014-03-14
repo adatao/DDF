@@ -6,7 +6,6 @@ import org.apache.spark.rdd.RDD;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.ISupportML.IModel;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
@@ -22,7 +21,7 @@ public class MLTests {
     }
   }
 
-  public static IModel dummyKMeans(RDD<Object> arg1, int arg2, Double arg3) {
+  public static Object dummyKMeans(RDD<Object> arg1, int arg2, Double arg3) {
 
     return null;
   }
@@ -38,7 +37,7 @@ public class MLTests {
     // @huan, see {@link MLSupporter#convertDDF}
 
     // This uses the fully qualified class#method mechanism
-    IModel model = ddf.ML.train("com.adatao.spark.ddf.analytics.MLTests#dummyKMeans", 1, 2.2);
+    Object model = ddf.ML.train("com.adatao.spark.ddf.analytics.MLTests#dummyKMeans", 1, 2.2);
     Assert.assertNotNull("Model cannot be null", model);
 
     // This uses the mapping config to go from "kmeans" to "com.adatao.spark.ddf.analytics.MLTests#dummyKMeans"

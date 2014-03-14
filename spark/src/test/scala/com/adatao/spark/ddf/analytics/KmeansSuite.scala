@@ -5,6 +5,7 @@ import com.adatao.ddf.DDFManager
 import org.apache.spark.rdd.RDD
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri
 import scala.collection.JavaConversions._
+import org.apache.spark.mllib.regression.LinearRegressionWithSGD
 
 /**
   */
@@ -30,7 +31,7 @@ class KmeansSuite extends ATestSuite {
       "distance, arrdelay, depdelay, delayed from airline_delayed")
 
     val ddfPredict2 = manager.sql2ddf("select " +
-      "distance,arrdelay, depdelay from airlineWithNA")
+      "distance,arrdelay, depdelay from airline")
 
     val model = ddfTrain.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
@@ -41,12 +42,16 @@ class KmeansSuite extends ATestSuite {
     val mlModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
+    val result1 = ddfTrain.ML.predict(model)
+    val result2 = ddfPredict2.ML.predict(mlModel)
+    val rdd= result1.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Integer])
+    rdd.foreach{
+      point => println(">>>>>>>>> " + point)
+    }
+    ddfTrain.ML.predict(model)
     //val kmeansPred = model.predict(ddfPredict)
     //val lmPred = mlModel.predict(ddfPredict2)
-
-    model.predict(Array(1,2,3,4.0, 5, 6, 7,8))
-    mlModel.predict(Array(1, 2, 3.0))
-
+    LinearRegressionWithSGD
     manager.shutdown()
   }
 }
