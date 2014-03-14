@@ -10,11 +10,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
+import com.adatao.ML.RandomForestModel;
+import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.pa.ML.types.randomforest.data.Data;
 import com.adatao.pa.ML.types.randomforest.data.DataFormat;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 import com.adatao.pa.ML.types.randomforest.tree.TreeBuilder;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
@@ -22,14 +29,7 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
-import scala.Tuple2;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
-import com.adatao.ML.RandomForestModel;
-import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
-import com.adatao.pa.ML.types.randomforest.node.Node;
 
 /***
  * Training executor for Random Forest

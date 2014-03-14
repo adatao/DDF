@@ -28,15 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
+import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.execution.ExecutionContext;
+import com.adatao.pa.spark.execution.Subset;
 import com.adatao.pa.spark.execution.TExecutor;
 import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.spark.types.FailedResult;
-import com.adatao.pa.AdataoException;
-import com.adatao.pa.AdataoException.AdataoExceptionCode;
-import com.adatao.pa.spark.DataManager.DataContainer;
-import com.adatao.pa.spark.DataManager.SharkDataFrame;
-import com.adatao.pa.spark.execution.Subset;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
@@ -47,7 +45,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-@SuppressWarnings({ "deprecation" })
 public class SparkThread extends ASessionThread {
 
 	public static Logger LOG = LoggerFactory.getLogger(SparkThread.class);
@@ -96,6 +93,7 @@ public class SparkThread extends ASessionThread {
 		this.resQueue = resQueue;
 	}
 
+	@SuppressWarnings("unused")
 	private void processJsonCommand(JsonCommand jsCmd) throws JsonSyntaxException, InterruptedException, ClassNotFoundException, AdataoException {
 //		if (jsCmd.getCmdName().equals("disconnect")) {
 //			LOG.info("Closing SparkContext sessionID: " + sessionID);
@@ -142,7 +140,7 @@ public class SparkThread extends ASessionThread {
 
 	}
 	
-	public ExecutionResult processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
+	public ExecutionResult<?> processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
 			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
 			LOG.info("Created Executor: " + exec.toString());
 
@@ -165,14 +163,14 @@ public class SparkThread extends ASessionThread {
 			return execRes;
 	}
 
-	private void deleteTempHiveTables() {
-		HashMap<String, DataContainer> dcMap = dataManager.getDataContainers();
-		for (DataContainer dc : dcMap.values()) {
-			if (dc.getType() == DataContainer.ContainerType.SharkDataFrame) {
-				((JavaSharkContext) sparkContext).sql2console("drop table if exists " + ((SharkDataFrame) dc).getTableName());
-			}
-		}
-	}
+//	private void deleteTempHiveTables() {
+//		HashMap<String, DataContainer> dcMap = dataManager.getDataContainers();
+//		for (DataContainer dc : dcMap.values()) {
+//			if (dc.getType() == DataContainer.ContainerType.SharkDataFrame) {
+//				((JavaSharkContext) sparkContext).sql2console("drop table if exists " + ((SharkDataFrame) dc).getTableName());
+//			}
+//		}
+//	}
 
 	private static Map<String, String> getEnvironment() {
 		Map<String, String> result = new HashMap<String, String>();
@@ -267,7 +265,7 @@ public class SparkThread extends ASessionThread {
 		} catch (Exception e) {
 			LOG.error("Exception while starting SharkContext: ", e);
 			LOG.error(AdataoExceptionCode.ERR_GENERAL.name());
-			JsonResult res = new JsonResult().setResult(new FailedResult(AdataoExceptionCode.ERR_GENERAL.getMessage()).toJson());
+			JsonResult res = new JsonResult().setResult(new FailedResult<Object>(AdataoExceptionCode.ERR_GENERAL.getMessage()).toJson());
 			try {
 				resQueue.put(res);
 			} catch (InterruptedException e1){

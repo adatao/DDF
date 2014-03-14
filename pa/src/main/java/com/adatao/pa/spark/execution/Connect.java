@@ -19,8 +19,8 @@ package com.adatao.pa.spark.execution;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.spark.SparkThread;
+import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.annotations.Expose;
 

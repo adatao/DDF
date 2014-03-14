@@ -24,7 +24,6 @@ import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
 /**

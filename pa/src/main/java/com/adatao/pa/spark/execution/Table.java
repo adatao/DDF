@@ -18,13 +18,13 @@ package com.adatao.pa.spark.execution;
 
 import java.util.ArrayList;
 import java.util.List;
-import scala.Tuple2;
-import shark.api.JavaSharkContext;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
-import com.adatao.pa.spark.SparkThread;
+import scala.Tuple2;
+import shark.api.JavaSharkContext;
 import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.DataManager.SharkColumnVector;
+import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;

@@ -19,11 +19,10 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import javax.script.ScriptException;
-import com.adatao.pa.spark.types.*;
-import scala.Tuple2;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import scala.Tuple2;
 import com.adatao.pa.spark.MapReduce;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;

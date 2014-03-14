@@ -1,12 +1,11 @@
 package com.adatao.pa;
 
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
     
 public class AdataoException extends Exception {
-  private static final long serialVersionUID = -5206587599931933131L;
+  private static final long serialVersionUID = 1L;
   public static Logger LOG = LoggerFactory.getLogger(AdataoException.class);
     
 	public enum AdataoExceptionCode {
@@ -48,9 +47,13 @@ public class AdataoException extends Exception {
 //    		mDescription = description;
     	}
     	
-    	public String getMessage() {
-    		return mMessage != null ? mMessage : "";
-    	}
+      public String getMessage() {
+        return mMessage != null ? mMessage : "";
+      }
+      
+      public String getDescription() {
+        return mDescription != null ? mDescription : "";
+      }
     	
     }
     

@@ -5,21 +5,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
+import com.adatao.ML.NaiveBayesModel;
+import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
-import scala.Tuple2;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
-import com.adatao.ML.NaiveBayesModel;
-import com.adatao.ML.types.TJsonSerializable;
-import com.adatao.ML.types.TJsonSerializable$class;
 
 @SuppressWarnings("serial")
 public class NaiveBayes implements IExecutor, Serializable {
