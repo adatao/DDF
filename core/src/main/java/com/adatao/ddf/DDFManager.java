@@ -77,9 +77,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
   
-  public void addDDF(DDF data) {
-    
+  public String addDDF(DDF data) {
     mDDFs.put(data.getName(), data);
+    return data.getName();
   }
 
   public DDF getDDF(String ddfName) {
