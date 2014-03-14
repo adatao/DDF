@@ -17,32 +17,25 @@
 package com.adatao.pa.spark;
 
 import java.io.Serializable;
-import java.util.*;
-import com.adatao.ML.Kmeans;
-import org.apache.hadoop.hive.metastore.api.FieldSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import scala.Function1;
-import scala.Int;
-import scala.Tuple2;
-import scala.Unit;
-import scala.collection.mutable.ArrayBuffer;
-import scala.reflect.ClassManifest$;
-import shark.SharkConfVars;
-import shark.SharkEnv;
-import shark.api.JavaSharkContext;
-import shark.api.JavaTableRDD;
-import shark.api.ColumnDesc;
-import shark.api.Row;
-import shark.memstore2.TablePartition;
-import org.apache.spark.rdd.RDD;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.rdd.RDD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.Tuple2;
+import scala.reflect.ClassManifest$;
+import shark.api.ColumnDesc;
+import shark.api.JavaSharkContext;
+import shark.api.JavaTableRDD;
+import shark.api.Row;
+import shark.memstore2.TablePartition;
+import com.adatao.ML.Kmeans;
 import com.adatao.ML.types.Matrix;
 import com.adatao.ML.types.Vector;
-import org.apache.spark.api.java.function.VoidFunction;
-import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult;
 
 @SuppressWarnings("serial")
@@ -386,6 +379,7 @@ public class DataManager {
 			}
 		}
 		
+    @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTable(int[] xCols, int yCol){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
 			RDD<Tuple2<Matrix, Vector>> result = (RDD<Tuple2<Matrix, Vector>>) cache.get(key);
@@ -397,6 +391,8 @@ public class DataManager {
 			}
 			return result;
 		}
+		
+		@SuppressWarnings("unchecked")
 		public RDD<double[]> getDataPointTable(int[] xCols){
 			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
 			RDD<double[]> result =(RDD<double[]>) cache.get(key);
@@ -412,6 +408,7 @@ public class DataManager {
 			return result;
 		}
 
+    @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTableCategorical(int[] xCols, int yCol, Map<Integer, HashMap<String, Double>> hm){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
 			RDD<Tuple2<Matrix, Vector>> result = (RDD<Tuple2<Matrix, Vector>>) cache.get(key);

@@ -56,7 +56,7 @@ class RandomForestSuite extends ABigRClientTest {
     LOG.info("R2 Score = " + r2.result)
     
     // assertion
-    assert(Math.abs(0.9790220492182647 - r2.result) < 1E-5)
+    assert(math.abs(0.9790220492182647 - r2.result) < 1E-5)
   }
 
   test("test Random Forest classification") {

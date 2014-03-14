@@ -167,7 +167,8 @@ public class GetFactor extends CExecutor {
 		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
 
 		// TODO: we only support SharkDataFrame for now
-		JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
+		@SuppressWarnings("deprecation")
+    JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
 
 		/*
 		 * Do mapPartition here to avoid mapping each row element to an String

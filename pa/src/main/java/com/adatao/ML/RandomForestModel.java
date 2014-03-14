@@ -41,7 +41,8 @@ import com.google.common.base.Preconditions;
 @SuppressWarnings("serial")
 public class RandomForestModel implements TModel, Serializable {
 	private List<Node> trees; // list of decision trees
-	private Random random;
+	@SuppressWarnings("unused")
+  private Random random;
 	private long seed;
 	public DataFormat dataFormat;
 

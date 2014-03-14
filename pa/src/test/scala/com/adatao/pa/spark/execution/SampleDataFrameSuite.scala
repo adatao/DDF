@@ -39,7 +39,7 @@ class SampleDataFrameSuite extends ABigRClientTest {
 		val cmd1 = new SampleDataFrame().setDataContainerID(dcID).setSize(2).setReplace(false).setGetPercent(false)
 		val res1 = bigRClient.execute[SampleDataFrameSizeResult](cmd1)
 		assert(res1.isSuccess == true)
-		assert(Math.abs(res1.result.data.get(0)(0).asInstanceOf[Double] - 13.3) < 0.01)
+		assert(math.abs(res1.result.data.get(0)(0).asInstanceOf[Double] - 13.3) < 0.01)
 		
 		val cmd2 = new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
 		val res2 = bigRClient.execute[SampleDataFramePercentResult](cmd2)
@@ -47,7 +47,7 @@ class SampleDataFrameSuite extends ABigRClientTest {
 		val cmd3 = new FetchRows().setDataContainerID(res2.result.dataContainerID).setLimit(10)
 		val res3 = bigRClient.execute[FetchRowsResult](cmd3)
 		assert(res3.isSuccess == true)
-		assert(Math.abs(res3.result.data.get(0)(0).asInstanceOf[Double] - 21) < 0.01)
+		assert(math.abs(res3.result.data.get(0)(0).asInstanceOf[Double] - 21) < 0.01)
 		
 	}
 }

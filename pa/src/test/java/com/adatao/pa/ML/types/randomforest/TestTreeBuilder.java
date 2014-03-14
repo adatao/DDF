@@ -1,18 +1,18 @@
 package com.adatao.pa.ML.types.randomforest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.Test;
 import com.adatao.pa.ML.types.randomforest.data.Data;
 import com.adatao.pa.ML.types.randomforest.data.DataFormat;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
+import com.adatao.pa.ML.types.randomforest.node.Node;
 import com.adatao.pa.ML.types.randomforest.tree.TreeBuilder;
 import com.adatao.pa.spark.DataManager.MetaInfo;
-import com.adatao.pa.ML.types.randomforest.node.Node;
 
 public class TestTreeBuilder {
 

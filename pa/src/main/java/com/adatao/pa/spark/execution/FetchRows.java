@@ -16,12 +16,10 @@
 
 package com.adatao.pa.spark.execution;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import com.adatao.pa.spark.DataManager;
-import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.DataManager.DataContainer;
+import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
