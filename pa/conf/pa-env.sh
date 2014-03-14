@@ -45,7 +45,7 @@ define TMP_DIR "/tmp"
 define SPARK_HOME "${PA_HOME}/exe"
 define RLIBS "${PA_HOME}/rlibs" 
 define RSERVE_LIB_DIR "${RLIBS}/Rserve/libs/"
-define RSERVER_JAR "`find ${PA_HOME}/target/scala-*/adatao_pa_*.jar | grep -v tests`"
+define RSERVER_JAR "`find ${PA_HOME}/target/scala-*/ddf_pa_*.jar | grep -v tests`"
 define PA_PORT 7911
 SPARK_CLASSPATH=$RSERVER_JAR
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
