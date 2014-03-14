@@ -59,7 +59,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
     public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName();
+      this.dataContainerID = ddf.getName().substring(15);
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 
@@ -67,7 +67,7 @@ public class Sql2DataFrame extends CExecutor {
       List<Column> columns = schema.getColumns();
       MetaInfo[] metaInfo = new MetaInfo[columns.size()];
       for (int i = 0; i < columns.size(); i++) {
-        metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString());
+        metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
       }
       return metaInfo;
     }
