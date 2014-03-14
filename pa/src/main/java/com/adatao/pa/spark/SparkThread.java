@@ -333,6 +333,9 @@ public class SparkThread extends ASessionThread {
 
 	}
 
+	public DDFManager getDDFManager() {
+	  return ddfManager;
+	}
 	public JavaSparkContext getSparkContext() {
 		return sparkContext;
 	}
