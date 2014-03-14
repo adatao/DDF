@@ -23,6 +23,7 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
@@ -53,12 +54,12 @@ public class Sql2DataFrame extends CExecutor {
     // this.dataContainerID = dataContainerID;
     // this.metaInfo = df.getMetaInfo();
     // }
-    public String ddfName;
+    public String dataContainerID;
     public MetaInfo[] metaInfo;
 
 
     public Sql2DataFrameResult(DDF ddf) {
-      this.ddfName = ddf.getName();
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 
@@ -99,7 +100,10 @@ public class Sql2DataFrame extends CExecutor {
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
       if (e instanceof shark.api.QueryExecutionException) {
         throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else throw e;
-    }
+      } else {
+        LOG.error("Cannot create a ddf from the sql command", e);
+        return null;
+      }
+      }
   }
 }
