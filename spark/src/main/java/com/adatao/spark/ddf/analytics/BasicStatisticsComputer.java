@@ -16,8 +16,6 @@ import scala.reflect.ClassManifest$;
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
- * @author bhan
- * 
  */
 public class BasicStatisticsComputer extends AStatisticsSupporter {
 
@@ -28,7 +26,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl()  throws DDFException {
-    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
     JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
@@ -36,7 +34,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   }
 
   /**
-   * Mapper function
+   * Mapper function to accumulate summary data from each row
    */
   @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {
