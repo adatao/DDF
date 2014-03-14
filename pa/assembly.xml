@@ -1,0 +1,73 @@
+<assembly>
+    <id>bin</id>
+    <!-- Generates a zip package containing the needed files -->
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+
+    <!-- Adds dependencies to zip package under lib directory -->
+
+    <fileSets>
+        <!--
+           Adds startup scripts to the root directory of zip package. The startup
+           scripts are located to src/main/scripts directory as stated by Maven
+           conventions.
+        -->
+        <fileSet>
+            <directory>conf/distribution/linux/</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>exe/</directory>
+            <outputDirectory>exe</outputDirectory>
+            <includes>
+                <include>RELEASE</include>
+                <include>spark-executor</include>
+                <include>spark-class</include>
+                <include>start-rserve.sh</include>
+                <include>start-pa-server.sh</include>
+                <include>start-spark-cluster.sh</include>
+                <include>stop-pa-server.sh</include>
+                <include>stop-spark-cluster.sh</include>
+                <include>mem-size-detection.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../lib_managed/</directory>
+            <outputDirectory>libs</outputDirectory>
+            <includes>
+                <include>*/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/test/R</directory>
+            <outputDirectory>examples/R</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>resources/</directory>
+            <outputDirectory>resources</outputDirectory>
+            <includes>
+                <include>mtcars</include>
+                <include>adult.data</include>
+            </includes>
+        </fileSet>
+        <!-- adds jar package to the root directory of zip package -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>libs/jars</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <excludes>
+            	<exclude>*tests.jar</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

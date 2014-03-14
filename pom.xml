@@ -65,6 +65,8 @@
 	<modules>
 	  <module>core</module>
 	  <module>spark</module>
+          <module>pa</module>
+          <module>enterprise</module>
 	  <module>contrib</module>
 	  <module>examples</module>
 	</modules>
