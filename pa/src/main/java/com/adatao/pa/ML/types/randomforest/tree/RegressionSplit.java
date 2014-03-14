@@ -137,7 +137,8 @@ public class RegressionSplit extends IgSplit {
 	 * @param attr
 	 * @return
 	 */
-	private Split numericalSplit1(Data data, int attr) {		
+	@SuppressWarnings("unused")
+  private Split numericalSplit1(Data data, int attr) {		
 		int labelId = data.getDataFormat().getLabelId();
 		// Instance sort
 		Instance[] instances = new Instance[data.size()];

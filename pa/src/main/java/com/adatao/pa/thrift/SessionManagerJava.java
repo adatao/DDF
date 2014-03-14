@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.thrift.types.ASessionThread;
 
+@SuppressWarnings("unused")
 public class SessionManagerJava {
 	ConcurrentHashMap<String, ASessionThread> sidThreadMap = new ConcurrentHashMap<String, ASessionThread>();
 	ConcurrentHashMap<String, ASessionThread> cidThreadMap = new ConcurrentHashMap<String, ASessionThread>();

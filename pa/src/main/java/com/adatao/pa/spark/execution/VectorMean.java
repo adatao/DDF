@@ -16,31 +16,26 @@
 
 package com.adatao.pa.spark.execution;
 
-import com.adatao.ML.types.TJsonSerializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import shark.api.JavaSharkContext;
+import java.io.Serializable;
 import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.DoubleFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.util.StatCounter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import shark.api.JavaSharkContext;
+import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
-import com.adatao.pa.spark.SharkQueryUtils;
-import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.DataManager.DataFrame;
 import com.adatao.pa.spark.DataManager.SharkColumnVector;
+import com.adatao.pa.spark.SharkQueryUtils;
+import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.adatao.ML.types.TJsonSerializable$class;
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author ngonpham Get mean for both vector and dataframe

@@ -2,32 +2,23 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.pa.ML.types.randomforest.data.Instance;
+import scala.Tuple2;
+import com.adatao.ML.NaiveBayesModel;
+import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import scala.Tuple2;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
-import org.apache.spark.api.java.function.PairFunction;
-import com.adatao.ML.NaiveBayesModel;
-import com.adatao.ML.types.TJsonSerializable;
-import com.adatao.ML.types.TJsonSerializable$class;
 
 @SuppressWarnings("serial")
 public class NaiveBayes implements IExecutor, Serializable {
@@ -43,7 +34,6 @@ public class NaiveBayes implements IExecutor, Serializable {
 		this.yCol = yCol;
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	public ExecutorResult run(SparkThread sparkThread) {
 		DataManager.DataContainer df = sparkThread.getDataManager().get(dataContainerID);
@@ -199,7 +189,7 @@ public class NaiveBayes implements IExecutor, Serializable {
 		}
 
 		public TJsonSerializable fromJson(String jsonString) {
-			return TJsonSerializable$class.fromJson(this, jsonString);
+			return TJsonSerializable$.fromJson(this, jsonString);
 		}
 	}
 }

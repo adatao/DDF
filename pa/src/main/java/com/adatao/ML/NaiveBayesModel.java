@@ -2,13 +2,8 @@ package com.adatao.ML;
 
 import java.io.Serializable;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-
-import com.adatao.ML.TModel;
 
 @SuppressWarnings("serial")
 /**
@@ -126,4 +121,7 @@ public class NaiveBayesModel implements TModel, Serializable {
 		return null;
 	}
 
+  public int getYCol() {
+    return yCol;
+  }
 }

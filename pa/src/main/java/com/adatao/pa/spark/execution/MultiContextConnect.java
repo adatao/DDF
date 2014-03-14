@@ -27,7 +27,6 @@ import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.annotations.Expose;
 
-@SuppressWarnings("serial")
 public class MultiContextConnect {
 	public static Logger LOG = LoggerFactory.getLogger(MultiContextConnect.class);
 
