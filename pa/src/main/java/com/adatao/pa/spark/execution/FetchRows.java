@@ -16,8 +16,6 @@
 
 package com.adatao.pa.spark.execution;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;

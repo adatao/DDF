@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.junit.Test;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

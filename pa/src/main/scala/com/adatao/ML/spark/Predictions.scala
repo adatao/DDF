@@ -7,9 +7,9 @@ import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.DataManager.DataContainer
 import com.adatao.ML.Kmeans.{ ParsePoint, DataPoint }
+import java.lang.Integer
 
 /**
- * @author aht
  */
 object Predictions {
 

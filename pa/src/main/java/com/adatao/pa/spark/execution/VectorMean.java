@@ -33,14 +33,10 @@ import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.DataManager.DataFrame;
 import com.adatao.pa.spark.DataManager.SharkColumnVector;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.adatao.ML.types.TJsonSerializable$class;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author ngonpham Get mean for both vector and dataframe

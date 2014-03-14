@@ -16,7 +16,6 @@
 
 package com.adatao.pa.spark.execution;
 
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

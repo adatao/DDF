@@ -16,7 +16,6 @@
 
 package com.adatao.pa.spark.execution;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.spark.api.java.JavaRDD;
 import com.adatao.pa.AdataoException;

@@ -1,13 +1,13 @@
 package com.adatao.pa;
 
 
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
     
 public class AdataoException extends Exception {
-	public static Logger LOG = LoggerFactory.getLogger(AdataoException.class);
+  private static final long serialVersionUID = -5206587599931933131L;
+  public static Logger LOG = LoggerFactory.getLogger(AdataoException.class);
     
 	public enum AdataoExceptionCode {
 		ERR_GENERAL("Unable to execute the command",
@@ -41,11 +41,11 @@ public class AdataoException extends Exception {
 		ERR_UNSUPPORTED_CONTAINER_TYPE("Unsupported data container type", "Unsupported data container type");
 		
     	private final String mMessage;
-    	private final String mDescription;
+//    	private final String mDescription;
     	
     	private AdataoExceptionCode(String message, String description) {
     		mMessage = message;
-    		mDescription = description;
+//    		mDescription = description;
     	}
     	
     	public String getMessage() {

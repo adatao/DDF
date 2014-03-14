@@ -167,7 +167,7 @@ class LogisticRegressionIRLS(
 		//println("Iter " + iter + ": (lastDev: " + lastDev + ",currentDev: " + currentDev + "), eps: " + Math.abs((lastDev - currentDev) / currentDev))
 		//println("Iter " + iter + ":" + weights.toString())
 
-		while (Math.abs((lastDev - currentDev) / (Math.abs(currentDev) + 0.1)) >= eps && iter < numIters) {
+		while (math.abs((lastDev - currentDev) / (math.abs(currentDev) + 0.1)) >= eps && iter < numIters) {
 			val ret = data.mapPartitions(handlePartition(lossFunction, weights))
 				.reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3))
 
@@ -188,7 +188,7 @@ class LogisticRegressionIRLS(
 			iter += 1
 			//println("Iter " + iter + ": XtWXlambda " + XtWXlambda.toString())
 			//println("Iter " + iter + ": XtWz " + ret._2.toString())
-			//println("Iter " + iter + ": (lastDev: " + lastDev + ",currentDev: " + currentDev + "), eps: " + Math.abs((lastDev - currentDev) / currentDev))
+			//println("Iter " + iter + ": (lastDev: " + lastDev + ",currentDev: " + currentDev + "), eps: " + math.abs((lastDev - currentDev) / currentDev))
 			//println("Iter " + iter + ":" + weights.toString())
 
 			if (currentDev.isNaN()) {
