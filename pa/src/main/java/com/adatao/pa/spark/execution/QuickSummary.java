@@ -25,19 +25,22 @@ import org.slf4j.LoggerFactory;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.util.StatCounter;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.Summary;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
+import com.adatao.ddf.util.Utils;
 import com.adatao.ML.Utils;
-
 /**
  * @author bachbui Implement summary function for both vector and dataframe
  */
 @SuppressWarnings("serial")
 public class QuickSummary extends CExecutor {
   private String dataContainerID;
-  DataManager dm;
+  DDFManager ddfManager;
 
   public static Logger LOG = LoggerFactory.getLogger(QuickSummary.class);
 
@@ -49,7 +52,7 @@ public class QuickSummary extends CExecutor {
     public double[] sum;
     public double[] stdev;
     public double[] var;
-    public int[] cNA;
+    public long[] cNA;
     public long[] count;
     public double[] min;
     public double[] max;
@@ -69,36 +72,27 @@ public class QuickSummary extends CExecutor {
 			return TJsonSerializable$class.fromJson(this, jsonString);
 		}
 
-    public void setStats(StatCounterExt[] stats) {
+    public void setStats(Summary[] stats) {
       int dim = stats.length;
       mean = new double[dim];
       sum = new double[dim];
       stdev = new double[dim];
       var = new double[dim];
-      cNA = new int[dim];
+      cNA = new long[dim];
       count = new long[dim];
-
       min = new double[dim];
       max = new double[dim];
 
-      // by default is x.xx
-      DecimalFormat df = new DecimalFormat("#.##");
-
       for (int i = 0; i < stats.length; i++) {
         if (stats[i] != null) {
-          mean[i] = Utils.toJavaDouble(df.format(stats[i].mean()));
-          sum[i] = Utils.toJavaDouble(df.format(stats[i].sum()));
-          stdev[i] = Utils.toJavaDouble(df.format(stats[i].sampleStdev()));
-          var[i] = Utils.toJavaDouble(df.format(stats[i].variance()));
-          cNA[i] = stats[i].cNA();
+          mean[i] = Utils.roundUp(stats[i].mean());
+          sum[i] = Utils.roundUp(stats[i].sum());
+          stdev[i] = Utils.roundUp(stats[i].stdev());
+          var[i] = Utils.roundUp(stats[i].variance());
+          cNA[i] = stats[i].NACount();
           count[i] = stats[i].count();
-
-          min[i] = Utils.toJavaDouble(df.format(stats[i].min()));
-          max[i] = Utils.toJavaDouble(df.format(stats[i].max()));
-
-          // LOG.info(mean[i] + ";" + sum[i] + ";" + stdev[i] + ";"
-          // + var[i] + ";" + cNA[i] + ";" + count[i] + ";"
-          // + min[i] + ";" + max[i]);
+          min[i] = Utils.roundUp(stats[i].min());
+          max[i] = Utils.roundUp(stats[i].max());
         }
       }
     }
@@ -278,23 +272,19 @@ public class QuickSummary extends CExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
-    // first get dataframe
-    dm = sparkThread.getDataManager();
-      DataManager.DataContainer df = dm.get(dataContainerID);
-		DataframeStatsResult dfs = df.getQuickSummary();
-
-    if (dfs == null) {
-      StatCounterExt[] res = df.getRDD().map(new GetMeanMapper()).reduce(new GetMeanReducer());
-
-			dfs = new DataframeStatsResult();
-      dfs.setStats(res);
-      dfs.setDataContainerID(dataContainerID);
-      df.putQuickSummary(dfs);
-      return dfs;
-    } else {
-      LOG.info("QuickSummary cache hit !!!");
-      return dfs;
-    }
+    // first get the ddf
+    ddfManager = sparkThread.getDDFManager();
+    DDF ddf = ddfManager.getDDF(dataContainerID);
+    
+    Summary[] ddfSummary = ddf.getSummary();
+		
+    DataframeStatsResult dfs = new DataframeStatsResult();
+    // TODO cache summary in ddf's cahcedObjects 
+		dfs.setStats(ddfSummary);
+		dfs.setDataContainerID(ddf.getName());
+      
+		return dfs;
+    
   }
 
   public String getDataContainerID() {
