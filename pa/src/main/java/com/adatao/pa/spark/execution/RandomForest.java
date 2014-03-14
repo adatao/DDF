@@ -29,6 +29,7 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
+import com.adatao.ML.types.TJsonSerializable$class;
 
 /***
  * Training executor for Random Forest

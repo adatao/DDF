@@ -25,6 +25,7 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.util.StatCounter;
 import shark.api.JavaSharkContext;
 import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.DataContainer;

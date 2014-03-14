@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import com.adatao.ML.NaiveBayesModel;
 import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.ML.types.TJsonSerializable$class;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
@@ -189,7 +190,7 @@ public class NaiveBayes implements IExecutor, Serializable {
 		}
 
 		public TJsonSerializable fromJson(String jsonString) {
-			return TJsonSerializable$.fromJson(this, jsonString);
+			return TJsonSerializable$class.fromJson(this, jsonString);
 		}
 	}
 }
