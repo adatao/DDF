@@ -22,22 +22,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-
-import org.renjin.script.RenjinScriptEngineFactory;
-import org.renjin.sexp.ListVector;
-import org.renjin.sexp.StringArrayVector;
-
-import scala.Tuple2;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
-import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.renjin.script.RenjinScriptEngineFactory;
+import org.renjin.sexp.ListVector;
+import org.renjin.sexp.StringArrayVector;
+import scala.Tuple2;
 
 @SuppressWarnings("serial")
 public class MapReduce implements Serializable {

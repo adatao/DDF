@@ -20,14 +20,14 @@ import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.junit.Test;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 import shark.api.JavaTableRDD;
@@ -35,9 +35,6 @@ import shark.api.Row;
 import shark.memstore2.ColumnarStruct;
 import shark.memstore2.TablePartition;
 import shark.memstore2.TablePartitionIterator;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.Function2;
 
 @SuppressWarnings("serial")
 @Ignore("This is performance benchmark - only for benchmarking")

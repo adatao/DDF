@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -35,28 +36,31 @@ import shark.api.JavaSharkContext;
 // This executor returns the FULL result of a query as List<String>
 @SuppressWarnings("serial")
 public class Sql2ListString extends CExecutor {
-	String sqlCmd;
-	
-	public static Logger LOG = LoggerFactory.getLogger(Sql2ListString.class);
-	
-	public static class Sql2ListStringResult extends SuccessResult {
-		List<String> results;
+  String sqlCmd;
 
-		public Sql2ListStringResult setResults(List<String> results) {
-			this.results = results;
-			return this;
-		}
+  public static Logger LOG = LoggerFactory.getLogger(Sql2ListString.class);
 
-		public List<String> getResults() {
-			return results;
-		}
-	}
 
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		if (sqlCmd == null) {
-			return new FailResult().setMessage("Sql command string is empty");
-		}
+  public static class Sql2ListStringResult extends SuccessResult {
+    List<String> results;
+
+
+    public Sql2ListStringResult setResults(List<String> results) {
+      this.results = results;
+      return this;
+    }
+
+    public List<String> getResults() {
+      return results;
+    }
+  }
+
+
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+    if (sqlCmd == null) {
+      return new FailResult().setMessage("Sql command string is empty");
+    }
 
 		DDFManager dm = sparkThread.getDDFManager();
 		try {
@@ -81,8 +85,9 @@ public class Sql2ListString extends CExecutor {
 		}
 	}
 
-	public Sql2ListString setSqlCmd(String sqlCmd) {
-		this.sqlCmd = sqlCmd;
-		return this;
-	}
+
+  public Sql2ListString setSqlCmd(String sqlCmd) {
+    this.sqlCmd = sqlCmd;
+    return this;
+  }
 }

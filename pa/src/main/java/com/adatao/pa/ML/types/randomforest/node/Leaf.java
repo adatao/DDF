@@ -23,8 +23,6 @@ package com.adatao.pa.ML.types.randomforest.node;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import com.adatao.pa.ML.types.randomforest.node.Node;
-import com.adatao.pa.ML.types.randomforest.node.Node.Type;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
 
 @SuppressWarnings("serial")

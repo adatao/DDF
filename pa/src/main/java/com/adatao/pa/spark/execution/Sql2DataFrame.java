@@ -16,7 +16,11 @@
 
 package com.adatao.pa.spark.execution;
 
+<<<<<<< HEAD
 import java.util.List;
+=======
+
+>>>>>>> 03780bab31447a9defd610dd3d440b5e3b169208
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
@@ -48,16 +52,20 @@ public class Sql2DataFrame extends CExecutor {
 
 
   static public class Sql2DataFrameResult extends SuccessResult {
+<<<<<<< HEAD
     // public String dataContainerID;
     // public MetaInfo[] metaInfo;
     // public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
     // this.dataContainerID = dataContainerID;
     // this.metaInfo = df.getMetaInfo();
     // }
+=======
+>>>>>>> 03780bab31447a9defd610dd3d440b5e3b169208
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 
 
+<<<<<<< HEAD
     public Sql2DataFrameResult(DDF ddf) {
       this.dataContainerID = ddf.getName().substring(15);
       this.metaInfo = generateMetaInfo(ddf.getSchema());
@@ -70,6 +78,11 @@ public class Sql2DataFrame extends CExecutor {
         metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
       }
       return metaInfo;
+=======
+    public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = df.getMetaInfo();
+>>>>>>> 03780bab31447a9defd610dd3d440b5e3b169208
     }
   }
 

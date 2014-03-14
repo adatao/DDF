@@ -17,13 +17,11 @@
 package com.adatao.pa.spark.execution;
 
 import static org.junit.Assert.assertEquals;
-import com.adatao.pa.spark.types.ExecutionResult;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.pa.spark.execution.HadoopFsShell;
 import com.adatao.pa.spark.execution.HadoopFsShell.HadoopFsShellResult;
+import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.Gson;

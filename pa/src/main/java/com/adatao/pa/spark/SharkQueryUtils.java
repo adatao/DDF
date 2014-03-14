@@ -36,8 +36,7 @@ public class SharkQueryUtils {
 			// most probably because of the problem explained in this
 			// http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
 			LOG.error("Exception: ", e);
-			if(e instanceof shark.api.QueryExecutionException) throw new AdataoException(adaExceptionCode, e);
-			else throw e;
+			throw new AdataoException(adaExceptionCode, e);
 		}
 	}
 	
