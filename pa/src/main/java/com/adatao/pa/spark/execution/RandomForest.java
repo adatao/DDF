@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import com.adatao.ML.RandomForestModel;
-import com.adatao.ML.types.TJsonSerializable;
+import com.adatao.pa.ML.types.randomforest.data.Bagging;
 import com.adatao.pa.ML.types.randomforest.data.Data;
 import com.adatao.pa.ML.types.randomforest.data.DataFormat;
 import com.adatao.pa.ML.types.randomforest.data.Instance;
@@ -29,6 +29,7 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
+import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
 
 /***

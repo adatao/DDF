@@ -14,6 +14,7 @@ import scala.Tuple2;
 import com.adatao.ML.NaiveBayesModel;
 import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
+import com.adatao.pa.ML.types.randomforest.data.Instance;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;

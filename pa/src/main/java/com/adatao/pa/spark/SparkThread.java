@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.execution.ExecutionContext;
@@ -56,6 +58,7 @@ public class SparkThread extends ASessionThread {
 
 	JavaSparkContext sparkContext;
 	DataManager dataManager = new DataManager();
+	DDFManager ddfManager;
 
 	int driverPort = 20001;
 	int uiPort = 30001;
@@ -225,7 +228,7 @@ public class SparkThread extends ASessionThread {
 	}
 
 	// @SuppressWarnings("rawtypes")
-	public JavaSparkContext startSparkContext(Boolean isShark) throws IOException, FileNotFoundException {
+	public JavaSparkContext startSparkContext(Boolean isShark) throws IOException, FileNotFoundException, DDFException {
 		Map<String, String> env = SparkThread.getEnvironment();
 		String[] jobJars = env.get("RSERVER_JAR").split(",");
 
@@ -233,13 +236,16 @@ public class SparkThread extends ASessionThread {
 		System.setProperty("spark.ui.port", Integer.toString(uiPort));
 
 		JavaSparkContext sc = null;
-
+		
+		ddfManager = DDFManager.get("spark");
+/*
 		if (!isShark) {
 			sc = new JavaSparkContext(env.get("SPARK_MASTER"), "BigR", env.get("SPARK_HOME"), jobJars, env);
 		} else {
 			sc = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(env.get("SPARK_MASTER"), "BigR", env.get("SPARK_HOME"), jobJars, env));
 		}
-
+*/
+		
 		return sc;
 	}
 
@@ -325,6 +331,9 @@ public class SparkThread extends ASessionThread {
 
 	}
 
+	public DDFManager getDDFManager() {
+	  return ddfManager;
+	}
 	public JavaSparkContext getSparkContext() {
 		return sparkContext;
 	}

@@ -44,11 +44,10 @@ object RootBuild extends Build {
 	val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
 	val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
 
-	//val paProjectName = projectName + "_pa"
-	val paProjectName = "adatao_pa"
+	val paProjectName = projectName + "_pa"
 	val paVersion = rootVersion
-	val paJarName = paProjectName + "-" + sparkVersion + ".jar"
-	val paTestJarName = paProjectName + "-" + sparkVersion + "-tests.jar"
+	val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+	val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
 	val examplesProjectName = projectName + "_examples"
 	val examplesVersion = rootVersion
@@ -60,7 +59,7 @@ object RootBuild extends Build {
 	val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
 	val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, enterprise, pa, examples, contrib)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
 	lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
@@ -281,7 +280,7 @@ object RootBuild extends Build {
 	</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
-                  <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
+                  <spark.kryo.registrator>com.adatao.pa.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                   <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>

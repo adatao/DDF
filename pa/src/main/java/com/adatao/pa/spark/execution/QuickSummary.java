@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import com.adatao.ML.types.TJsonSerializable;
@@ -25,11 +26,17 @@ import org.slf4j.LoggerFactory;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.util.StatCounter;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.Summary;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import com.adatao.ML.Utils;
+import com.adatao.ddf.util.Utils;
 
 /**
  * @author bachbui Implement summary function for both vector and dataframe
@@ -37,11 +44,12 @@ import com.adatao.ML.Utils;
 @SuppressWarnings("serial")
 public class QuickSummary extends CExecutor {
   private String dataContainerID;
-  DataManager dm;
+  DDFManager ddfManager;
 
   public static Logger LOG = LoggerFactory.getLogger(QuickSummary.class);
 
-	public static class DataframeStatsResult extends SuccessResult implements TJsonSerializable, Serializable {
+
+  public static class DataframeStatsResult extends SuccessResult implements TJsonSerializable, Serializable {
 
     String dataContainerID;
     // StatCounter
@@ -49,7 +57,7 @@ public class QuickSummary extends CExecutor {
     public double[] sum;
     public double[] stdev;
     public double[] var;
-    public int[] cNA;
+    public long[] cNA;
     public long[] count;
     public double[] min;
     public double[] max;
@@ -60,45 +68,36 @@ public class QuickSummary extends CExecutor {
       return clazz;
     }
 
-		public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
-			clazz = Aclass;
-		}
+    public void com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(java.lang.String Aclass) {
+      clazz = Aclass;
+    }
 
 
-		public TJsonSerializable fromJson(String jsonString) {
-			return TJsonSerializable$class.fromJson(this, jsonString);
-		}
+    public TJsonSerializable fromJson(String jsonString) {
+      return TJsonSerializable$class.fromJson(this, jsonString);
+    }
 
-    public void setStats(StatCounterExt[] stats) {
+    public void setStats(Summary[] stats) {
       int dim = stats.length;
       mean = new double[dim];
       sum = new double[dim];
       stdev = new double[dim];
       var = new double[dim];
-      cNA = new int[dim];
+      cNA = new long[dim];
       count = new long[dim];
-
       min = new double[dim];
       max = new double[dim];
 
-      // by default is x.xx
-      DecimalFormat df = new DecimalFormat("#.##");
-
       for (int i = 0; i < stats.length; i++) {
         if (stats[i] != null) {
-          mean[i] = Utils.toJavaDouble(df.format(stats[i].mean()));
-          sum[i] = Utils.toJavaDouble(df.format(stats[i].sum()));
-          stdev[i] = Utils.toJavaDouble(df.format(stats[i].sampleStdev()));
-          var[i] = Utils.toJavaDouble(df.format(stats[i].variance()));
-          cNA[i] = stats[i].cNA();
+          mean[i] = Utils.roundUp(stats[i].mean());
+          sum[i] = Utils.roundUp(stats[i].sum());
+          stdev[i] = Utils.roundUp(stats[i].stdev());
+          var[i] = Utils.roundUp(stats[i].variance());
+          cNA[i] = stats[i].NACount();
           count[i] = stats[i].count();
-
-          min[i] = Utils.toJavaDouble(df.format(stats[i].min()));
-          max[i] = Utils.toJavaDouble(df.format(stats[i].max()));
-
-          // LOG.info(mean[i] + ";" + sum[i] + ";" + stdev[i] + ";"
-          // + var[i] + ";" + cNA[i] + ";" + count[i] + ";"
-          // + min[i] + ";" + max[i]);
+          min[i] = Utils.roundUp(stats[i].min());
+          max[i] = Utils.roundUp(stats[i].max());
         }
       }
     }
@@ -109,7 +108,7 @@ public class QuickSummary extends CExecutor {
 
     public DataframeStatsResult setDataContainerID(String dataContainerID) {
       this.dataContainerID = dataContainerID;
-			this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
+      this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
   }
@@ -122,6 +121,7 @@ public class QuickSummary extends CExecutor {
 
     boolean isNA = false;
     boolean ignore = false;
+
 
     public StatCounterExt merge(double values) {
       if (values == Double.NaN) countNA++;
@@ -160,8 +160,7 @@ public class QuickSummary extends CExecutor {
    * Mapper function
    */
   static class GetMeanMapper extends Function<Object[], StatCounterExt[]> {
-    public GetMeanMapper() {
-    }
+    public GetMeanMapper() {}
 
     public StatCounterExt[] call(Object[] p) {
       int dim = p.length;
@@ -183,7 +182,7 @@ public class QuickSummary extends CExecutor {
               // LOG.debug("after paarse Double = \t" + a);
 
             } else if (p[j] instanceof Integer) {
-              Double a = Utils.toJavaDouble(p[j].toString());
+              Double a = com.adatao.ML.Utils.toJavaDouble(p[j].toString());
 
               result[j] = s.merge(a);
               // LOG.debug("after parse Integer\t = " + "\t" + a);
@@ -200,7 +199,7 @@ public class QuickSummary extends CExecutor {
               } else {
                 double test = 0.0;
                 try {
-                  test = Utils.toJavaDouble(current);
+                  test = com.adatao.ML.Utils.toJavaDouble(current);
                   s.merge(test);
                   result[j] = s;
                   // LOG.debug("catch \t" + test);
@@ -276,25 +275,29 @@ public class QuickSummary extends CExecutor {
     }
   }
 
+
   @Override
-  public ExecutorResult run(SparkThread sparkThread) {
-    // first get dataframe
-    dm = sparkThread.getDataManager();
-      DataManager.DataContainer df = dm.get(dataContainerID);
-		DataframeStatsResult dfs = df.getQuickSummary();
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+    // first get the ddf
+    ddfManager = sparkThread.getDDFManager();
+    DDF ddf = ddfManager.getDDF(dataContainerID);
+    try {
+      Summary[] ddfSummary = ddf.getSummary();
 
-    if (dfs == null) {
-      StatCounterExt[] res = df.getRDD().map(new GetMeanMapper()).reduce(new GetMeanReducer());
+      DataframeStatsResult dfs = new DataframeStatsResult();
+      // TODO cache summary in ddf's cahcedObjects
+      dfs.setStats(ddfSummary);
+      dfs.setDataContainerID(ddf.getName());
 
-			dfs = new DataframeStatsResult();
-      dfs.setStats(res);
-      dfs.setDataContainerID(dataContainerID);
-      df.putQuickSummary(dfs);
       return dfs;
-    } else {
-      LOG.info("QuickSummary cache hit !!!");
-      return dfs;
+    } catch (DDFException e) {
+      // I cannot catch shark.api.QueryExecutionException directly
+      // most probably because of the problem explained in this
+      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
+      throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
+
     }
+
   }
 
   public String getDataContainerID() {
