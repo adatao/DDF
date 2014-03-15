@@ -30,6 +30,8 @@ import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.execution.ExecutionContext;
 import com.adatao.pa.spark.execution.Subset;
 import com.adatao.pa.spark.execution.TExecutor;
