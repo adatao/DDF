@@ -33,8 +33,9 @@ import com.adatao.pa.spark.types.SuccessResult;
 
 @SuppressWarnings("serial")
 public class NRow extends CExecutor {
-  //private String dataContainerID;
-  private String ddfName;
+  private String dataContainerID;
+  
+  // private String ddfName;
 
   public static Logger LOG = LoggerFactory.getLogger(NRow.class);
 
@@ -62,17 +63,17 @@ public class NRow extends CExecutor {
      * AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_CONTAINER_TYPE,
      * String.format("unssuported container type: %s", dc.getType()), null); }
      */
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(ddfName);
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     if (ddf == null) {
-      LOG.info("Cannot find the DDF " + ddfName);
+      LOG.info("Cannot find the DDF " + dataContainerID);
     } else {
-      LOG.info("Found the DDF " + ddfName);
+      LOG.info("Found the DDF " + dataContainerID);
     }
     return new NRowResult(ddf.getNumRows());
   }
 
   public NRow setDataContainerID(String ddfName) {
-    this.ddfName = ddfName;
+    // this.ddfName = ddfName;
     return this;
   }
 
