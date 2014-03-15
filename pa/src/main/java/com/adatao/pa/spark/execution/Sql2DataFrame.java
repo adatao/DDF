@@ -90,6 +90,7 @@ public class Sql2DataFrame extends CExecutor {
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.sql2ddf(sqlCmd);
       String ddfName = ddfManager.addDDF(ddf);
+      LOG.info("DDF Name: " + ddfName);
 
       return new Sql2DataFrameResult(ddf);
 
