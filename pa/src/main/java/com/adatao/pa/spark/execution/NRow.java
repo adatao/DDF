@@ -63,7 +63,7 @@ public class NRow extends CExecutor {
      * AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_CONTAINER_TYPE,
      * String.format("unssuported container type: %s", dc.getType()), null); }
      */
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF("SparkDDF-spark-" + dataContainerID);
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     if (ddf == null) {
       LOG.info("Cannot find the DDF " + dataContainerID);
     } else {
