@@ -43,6 +43,7 @@ import com.adatao.ML.spark.TransformDummyCoding
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
+import org.apache.spark.api.java.JavaSparkContext
 
 /**
  * These classes belong to the package [[com.adatao.pa.spark.execution]], which concern
@@ -182,8 +183,10 @@ trait TExecutor[ResultType] {
  * Context info to be passed into to TExecutor.run(), e.g., SparkThread, etc.
  */
 class ExecutionContext(val sparkThread: SparkThread) {
-	val hadoopConfig = sparkThread.getSparkContext().hadoopConfiguration
-	val sparkContext = sparkThread.getSparkContext()
+	// val hadoopConfig = sparkThread.getSparkContext().hadoopConfiguration
+	val hadoopConfig = null
+	// val sparkContext = sparkThread.getSparkContext()
+	val sparkContext: JavaSparkContext = null
 }
 
 abstract class AModelTrainer[T <: TModel](

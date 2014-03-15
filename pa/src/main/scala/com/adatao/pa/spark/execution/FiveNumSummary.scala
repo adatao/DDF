@@ -28,6 +28,7 @@ import shark.api.JavaSharkContext
 import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
+import com.adatao.ddf.DDF
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,67 +45,14 @@ import scala.annotation.tailrec
 class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]] {
 
 	protected override def runImpl(context: ExecutionContext): Array[ASummary] = {
-		val df = context.sparkThread.getDataManager.get(dataContainerID) match {
-			case x: SharkDataFrame ⇒ x
-			case _ ⇒ throw new IllegalArgumentException("Only accept SharkDataFrame")
+	    val ddfManager = context.sparkThread.getDDFManager();
+		val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+			case x: DDF ⇒ x
+			case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
 		}
-		val sc: JavaSharkContext = context.sparkThread.getSparkContext.asInstanceOf[JavaSharkContext]
-		getResult(df, sc)
-	}
-
-	def getResult(df: SharkDataFrame, sc: JavaSharkContext): Array[ASummary] = {
-		val tableName = df.getTableName
-		val metaInfo: List[MetaInfo] = df.getMetaInfo.toList
-		var cmd = ""
-
-		//helper function to put tmpArray[Double] into proper format for Array[Asummary]
-		//plus NaN result for column that's not numeric
-		@tailrec
-		def helperFunction(result: Array[ASummary], tmpResult: Array[Double], metaInfos: List[MetaInfo]): Array[ASummary] = metaInfos match{
-			case Nil => result
-			case x :: xs => x.getType match {
-				case "int"      => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case "double"   => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case "float"    => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case "bigint"   => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case "tinyint"  => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case "smallint" => helperFunction(result :+ new ASummary(tmpResult take 5),tmpResult drop 5, xs)
-				case z: String  => helperFunction(result :+ new ASummary(),tmpResult, xs)
-				case _          => throw new Exception("Error matching result")
-			}
-		}
-		//only compute for non-String column
-		for (x ← metaInfo) {
-			val aType = x.getType
-			if(aType == "int" || aType == "bigint" || aType == "smallint" || aType == "tinyint"){
-				cmd = cmd + String.format(" percentile(%s, array(0, 1, 0.25, 0.5, 0.75)),", x.getHeader)
-			}
-			else if(aType == "double" || aType == "float"){
-				cmd = cmd + String.format(" min(%s), max(%s), percentile_approx(%s, array(0.25, 0.5, 0.75)),",
-					x.getHeader, x.getHeader, x.getHeader)
-			}
-		}
-		//parse the last ","
-		cmd = cmd take (cmd.length -1)
-		val resultStr = sc.sql("select" + cmd + "from " + tableName)(0)
-		LOG.info("resultStr = " + resultStr)
-		val tmp:Array[Double] = resultStr.replace("[", "").replace("]", "").replace(",", "\t").split("\t").flatMap(x ⇒
-			x match {
-				//"null" is a result of percentile_approx(v, array(0.25, 0.75, 0.5))
-				//so must expand it too NaN, NaN, NaN
-				case "null" => List(Double.NaN, Double.NaN, Double.NaN)
-				case "NULL" => List(Double.NaN)
-				case a =>	List(a.toDouble)
-			}).toArray
-
-		LOG.info("tmp.size = " + tmp.size)
-		LOG.info("metaInfo.size = " + metaInfo.size)
-		try{
-			helperFunction(Array[ASummary](), tmp, metaInfo)
-		}
-		catch{
-			case e => throw new Exception("Error parsing result: Array[Double]= " + tmp.mkString(","))
-		}
+		val fiveNums = ddf.getFiveNumSummary
+		val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)
+		return fiveNumsResult
 	}
 }
 
