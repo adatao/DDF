@@ -18,8 +18,9 @@ package com.adatao.ddf;
 
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -72,6 +73,26 @@ import com.google.common.base.Strings;
  */
 public abstract class DDFManager extends ALoggable implements IDDFManager, IHandleSqlLike, ISupportPhantomReference {
 
+  /**
+   * List of existing DDFs 
+   */
+  protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
+  
+  public String addDDF(DDF data) {
+    mDDFs.put(data.getName(), data);
+    return data.getName();
+  }
+
+  public DDF getDDF(String ddfName) {
+    
+    DDF data = mDDFs.get(ddfName);
+    return data;
+  }
+
+  public HashMap<String, DDF> getDDFs() {
+    return mDDFs;
+  }
+  
   public DDFManager() {
     this.startup();
   }
