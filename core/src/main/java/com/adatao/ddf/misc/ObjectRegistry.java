@@ -9,7 +9,8 @@ import com.adatao.ddf.types.IGloballyAddressable;
 import com.google.common.base.Strings;
 
 /**
- * Convenience class to hold a global registry of all registered objects in our system
+ * Convenience class to hold a global registry of all registered objects in our system. TODO: Provide some kind of
+ * persistence/garbage collection for long-running processes.
  */
 public class ObjectRegistry implements IGloballyAddressableObjectRegistry {
   private final Map<String, IGloballyAddressable> mRegistryMap = new ConcurrentHashMap<String, IGloballyAddressable>();
