@@ -17,16 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 import static org.junit.Assert.assertEquals;
-import com.adatao.pa.spark.types.ExecutionResult;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.actors.threadpool.Arrays;
-import com.adatao.pa.spark.execution.LoadTable;
-import com.adatao.pa.spark.execution.Sql2DataFrame;
-import com.adatao.pa.spark.execution.Subset;
-import com.adatao.pa.spark.execution.VectorVariance;
 import com.adatao.pa.spark.execution.LoadTable.LoadTableResult;
 import com.adatao.pa.spark.execution.Subset.SubsetResult;
 import com.adatao.pa.spark.execution.VectorCorrelation.VectorCorrelationResult;
@@ -34,6 +28,7 @@ import com.adatao.pa.spark.execution.VectorCovariance.VectorCovarianceResult;
 import com.adatao.pa.spark.execution.VectorHistogram.VectorHistogramResult;
 import com.adatao.pa.spark.execution.VectorMean.VectorMeanResult;
 import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult;
+import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.Gson;

@@ -29,7 +29,7 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		//check dimension
 		if(numCols != other.getRows()) {
 			System.err.println(">>>>>>>>>>> Wrong dimension: matrix: " + numRows + " * "  + numCols)
-			exit(1)
+			sys.exit(1)
 		}
 		
 		//convert to DenseMatrix, n rows, 1 column

@@ -67,7 +67,17 @@ public class SqlHandler extends ASqlHandler {
 
     // TODO: handle other dataSources and dataFormats
 
+    String tableName = this.getDDF().getSchemaHandler().newTableName();
+    if (tableName != null) {
+      tableName = tableName.replace("-", "_");
+    }
     if (dataSource == null) {
+      String sqlCmd;
+
+      sqlCmd = String.format(
+                            "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
+                                                    tableName, command);
+      tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
       tableRdd = this.getSharkContext().sql2rdd(command);
 
     } else {
@@ -77,14 +87,16 @@ public class SqlHandler extends ASqlHandler {
     RDD<Row> rdd = (RDD<Row>) tableRdd;
 
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
-
+    /*
     String tableName = (schema != null ? schema.getTableName() : null);
 
     if (Strings.isNullOrEmpty(tableName)) tableName = (rdd != null ? rdd.name() : null);
-    if (Strings.isNullOrEmpty(tableName)) this.getDDF().getSchemaHandler().newTableName();
+    if (Strings.isNullOrEmpty(tableName)) tableName = this.getDDF().getSchemaHandler().newTableName();
+    i*/
     if (tableName != null) {
-      tableName = tableName.replace("-", "_");
+      schema.setTableName(tableName);
     }
+    
     return new SparkDDF(this.getManager(), rdd, Row.class, null, tableName, schema);
   }
 

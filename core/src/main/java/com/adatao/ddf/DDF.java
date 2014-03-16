@@ -19,7 +19,9 @@ package com.adatao.ddf;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
@@ -112,6 +114,38 @@ public abstract class DDF extends ALoggable //
     this(manager, sDummyManager);
   }
 
+  /**
+   * cache for data computed from the DDF,
+   * e.g., ML models, DDF summary
+   */
+  protected HashMap<String, Object> cachedObjects = new HashMap<String, Object>();
+  
+  /**
+   * Save a given object in memory for later (quick server-side) retrieval
+   * 
+   * @param obj
+   * @return
+   */
+  public String putObject(Object obj) {
+    String objectId = UUID.randomUUID().toString();
+    cachedObjects.put(objectId, obj);
+    return objectId;
+  }
+  
+  public String putObject(String objectId, Object obj) {
+    cachedObjects.put(objectId, obj);
+    return objectId;
+  }
+
+  /**
+   * Retrieve an earlier saved object given its ID
+   * 
+   * @param objectId
+   * @return
+   */
+  public Object getObject(String objectId) {
+    return cachedObjects.get(objectId);
+  }
   /**
    * Available for run-time instantiation only.
    * 

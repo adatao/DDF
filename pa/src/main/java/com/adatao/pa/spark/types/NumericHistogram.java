@@ -17,11 +17,9 @@
 package com.adatao.pa.spark.types;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 
@@ -35,10 +33,13 @@ import java.util.Random;
  * of histogram bins.
  */
 public class NumericHistogram implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   /**
    * The Coord class defines a histogram bin, which is just an (x,y) pair.
    */
-  static class Coord implements Comparable, Serializable {
+  static class Coord implements Comparable<Object>, Serializable {
+    private static final long serialVersionUID = 1L;
     double x;
     double y;
 
