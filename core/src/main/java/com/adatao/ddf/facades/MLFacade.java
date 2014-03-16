@@ -44,12 +44,17 @@ public class MLFacade implements ISupportML {
 
 
   @Override
-  public Object train(String trainMethodName, Object... params) throws DDFException {
+  public IModel train(String trainMethodName, Object... params) throws DDFException {
     return this.getMLSupporter().train(trainMethodName, params);
   }
 
   @Override
-  public DDF predict(Object model) throws DDFException {
+  public DDF getYTrueYPred(IModel model) throws DDFException {
+    return this.getMLSupporter().getYTrueYPred(model);
+  }
+
+  @Override
+  public DDF predict(IModel model) throws DDFException {
     return this.getMLSupporter().predict(model);
   }
   // //// Convenient facade ML algorithm names //////

@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -540,4 +541,41 @@ public class Utils {
     }
   }
 
+  public static class MLPredictMethod {
+
+    private Object mModel;
+
+    private Method mPredictMethod;
+
+    private static final String DEFAUL_PREDICT_METHOD_NAME = "predict";
+
+    private static final Class<?> DEFAULT_PREDICT_TYPE_PARAM = double[].class;
+
+    public MLPredictMethod(Object model) throws DDFException {
+      mModel = model;
+      mPredictMethod = this.getPredictMethod();
+    }
+
+    private Method getPredictMethod() throws DDFException {
+      Method theMethod = null;
+      try {
+        theMethod = this.mModel.getClass().getMethod(DEFAUL_PREDICT_METHOD_NAME, DEFAULT_PREDICT_TYPE_PARAM);
+      } catch(NoSuchMethodException e) {
+        throw new DDFException(String.format("Error: Cannot get predict method for %s", mModel.getClass().getName()));
+      }
+      return theMethod;
+    }
+
+    public Method getMethod() {
+      return mPredictMethod;
+    }
+
+    public Class<?> getPredictReturnType() {
+      Class<?> returnType = this.getMethod().getReturnType();
+
+      if(returnType == double.class) return Double.class;
+      else if(returnType == int.class) return Integer.class;
+      else return returnType;
+    }
+  }
 }

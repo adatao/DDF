@@ -1,13 +1,16 @@
 package com.adatao.ddf.analytics;
 
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.adatao.basic.ddf.BasicDDF;
 import com.adatao.ddf.content.APersistenceHandler;
 import com.adatao.ddf.content.ISerializable;
+import com.adatao.ddf.util.Utils;
 import com.google.common.base.Joiner;
 import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
@@ -66,7 +69,6 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
 
   public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
 
-  public static final String DEFAULT_PREDICT_METHOD_NAME = "predict";
   /**
    * Runs a training algorithm on the entire DDF dataset.
    * 
@@ -75,7 +77,8 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
    * @return
    * @throws DDFException
    */
-  public Object train(String trainMethodName, Object... paramArgs) throws DDFException {
+  @Override
+  public IModel train(String trainMethodName, Object... paramArgs) throws DDFException {
     /**
      * Example signatures we must support:
      * <p/>
@@ -115,21 +118,21 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
 
     // Invoke the training method
     Object result = trainMethod.classInvoke(allArgs);
-    return result;
+    return new Model(result);
   }
 
-  protected abstract <T, U> DDF predictImpl(DDF ddf,Class<T> returnType, Class<U> predictInputType, Object model)
-      throws DDFException;
+  protected abstract DDF getYTrueYPredImpl(IModel model) throws DDFException;
 
   @Override
-  public DDF predict(Object model) throws DDFException {
-    DDF ddf = this.getDDF();
-    MLPredictMethod mlPredictMethod = new MLPredictMethod(model);
+  public DDF getYTrueYPred(IModel model) throws DDFException {
+    return this.getYTrueYPredImpl(model.copy());
+  }
 
-    Class<?> predictInputType = mlPredictMethod.getInputType();
+  protected abstract DDF predictImpl(IModel model) throws DDFException;
 
-    Class<?> predictReturnType = mlPredictMethod.getPredictReturnType();
-    return this.predictImpl(ddf, predictReturnType, predictInputType, model);
+  @Override
+  public DDF predict(IModel model) throws DDFException {
+    return this.predictImpl(model.copy());
   }
 
   @SuppressWarnings("unchecked")
@@ -189,7 +192,6 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
       for (Method method : theClass.getDeclaredMethods()) {
         if (!methodName.equalsIgnoreCase(method.getName())) continue;
 
-
         // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
         Class<?>[] methodArgTypes = method.getParameterTypes();
 
@@ -206,6 +208,70 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
       if (foundMethod != null) {
         foundMethod.setAccessible(true);
         this.setMethod(foundMethod);
+      }
+    }
+  }
+
+  public static class Model implements IModel, Serializable {
+
+    public static final Long serialVersionUID = 1L;
+
+    private Object mModel;
+
+    private Utils.MLPredictMethod mPredictMethod;
+
+    public Model(Object model) throws DDFException{
+      mModel = model;
+    }
+
+    public Object getInternalModel() {
+      return mModel;
+    }
+
+    /**
+     * @return a copy of this with mPredictMethod uninitialized
+     */
+    @Override
+    public IModel copy() throws DDFException {
+      return new Model(this.getInternalModel());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      if(!(other instanceof Model)) return false;
+
+      if(this.getInternalModel().getClass() != ((Model) other).getInternalModel().getClass()) return false;
+      //TO DO: PARSE PARAMETERS FROM MODEL FOR EQUALS IMPLEMENTATION
+
+      return true;
+    }
+
+    private void initializePredictMethod() throws DDFException {
+      this.mPredictMethod = new Utils.MLPredictMethod(this.mModel);
+    }
+
+    // Initialize mPredictMethod when needed, because
+    // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
+    public Utils.MLPredictMethod getPredictMethod() throws DDFException {
+      if(this.mPredictMethod == null){
+        this.initializePredictMethod();
+      }
+      return this.mPredictMethod;
+    }
+
+    @Override
+    public Double predict(double[] point) throws DDFException {
+
+      try{
+        if(this.getPredictMethod().getPredictReturnType() == Double.class) {
+          return (Double) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point);
+        } else if(this.getPredictMethod().getPredictReturnType() == Integer.class) {
+          return ((Integer) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point)).doubleValue();
+        } else {
+          throw new DDFException(String.format("Error getting prediction for %s", this.getInternalModel().getClass().getName()));
+        }
+      } catch(Exception e) {
+        throw new DDFException(e);
       }
     }
   }
