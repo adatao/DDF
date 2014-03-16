@@ -40,7 +40,7 @@ class KmeansSuite extends ATestSuite {
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
     val result1 = ddfPredict.ML.predict(model1)
-    val result2 = ddfPredict2.ML.getYTrueYPred(mlModel)
+    val result2 = ddfPredict2.ML.getYTrueYPredict(mlModel)
 
     result1.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Double]).count()
     result2.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count()

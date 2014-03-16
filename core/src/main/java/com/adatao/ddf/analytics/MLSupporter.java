@@ -1,28 +1,21 @@
 package com.adatao.ddf.analytics;
 
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.adatao.basic.ddf.BasicDDF;
-import com.adatao.ddf.content.APersistenceHandler;
-import com.adatao.ddf.content.ISerializable;
-import com.adatao.ddf.util.Utils;
-import com.google.common.base.Joiner;
-import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.ddf.util.Utils.MethodInfo;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.gson.annotations.Expose;
+import scala.actors.threadpool.Arrays;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  */
@@ -65,9 +58,11 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     // }
   }
 
+
   // //// ISupportML //////
 
   public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
+
 
   /**
    * Runs a training algorithm on the entire DDF dataset.
@@ -121,11 +116,11 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     return new Model(result);
   }
 
-  protected abstract DDF getYTrueYPredImpl(IModel model) throws DDFException;
+  protected abstract DDF getYTrueYPredictImpl(IModel model) throws DDFException;
 
   @Override
-  public DDF getYTrueYPred(IModel model) throws DDFException {
-    return this.getYTrueYPredImpl(model.copy());
+  public DDF getYTrueYPredict(IModel model) throws DDFException {
+    return this.getYTrueYPredictImpl(model.copy());
   }
 
   protected abstract DDF predictImpl(IModel model) throws DDFException;
@@ -136,7 +131,7 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
   }
 
   @SuppressWarnings("unchecked")
-  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) throws DDFException{
+  private Object[] buildArgsForMethod(Method method, Object[] paramArgs) throws DDFException {
     MethodInfo methodInfo = new MethodInfo(method);
     List<ParamInfo> paramInfos = methodInfo.getParamInfos();
     if (paramInfos == null || paramInfos.size() == 0) return new Object[0];
@@ -161,7 +156,7 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
    * @param paramInfo
    * @return
    */
-  protected Object convertDDF(ParamInfo paramInfo) throws DDFException{
+  protected Object convertDDF(ParamInfo paramInfo) throws DDFException {
     return this.getDDF();
   }
 
@@ -199,7 +194,7 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
         // the # of args in the method must be = 1 + the # of args supplied
         // ASSUMING that one of the args in the method is for input data
 
-        if((methodArgTypes.length - 1) == argTypes.length){
+        if ((methodArgTypes.length - 1) == argTypes.length) {
           foundMethod = method;
           break;
         }
@@ -220,7 +215,8 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
 
     private Utils.MLPredictMethod mPredictMethod;
 
-    public Model(Object model) throws DDFException{
+
+    public Model(Object model) throws DDFException {
       mModel = model;
     }
 
@@ -238,10 +234,10 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
 
     @Override
     public boolean equals(Object other) {
-      if(!(other instanceof Model)) return false;
+      if (!(other instanceof Model)) return false;
 
-      if(this.getInternalModel().getClass() != ((Model) other).getInternalModel().getClass()) return false;
-      //TO DO: PARSE PARAMETERS FROM MODEL FOR EQUALS IMPLEMENTATION
+      if (this.getInternalModel().getClass() != ((Model) other).getInternalModel().getClass()) return false;
+      // TO DO: PARSE PARAMETERS FROM MODEL FOR EQUALS IMPLEMENTATION
 
       return true;
     }
@@ -253,7 +249,7 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     // Initialize mPredictMethod when needed, because
     // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
     public Utils.MLPredictMethod getPredictMethod() throws DDFException {
-      if(this.mPredictMethod == null){
+      if (this.mPredictMethod == null) {
         this.initializePredictMethod();
       }
       return this.mPredictMethod;
@@ -262,17 +258,28 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     @Override
     public Double predict(double[] point) throws DDFException {
 
-      try{
-        if(this.getPredictMethod().getPredictReturnType() == Double.class) {
+      try {
+        if (this.getPredictMethod().getPredictReturnType() == Double.class) {
           return (Double) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point);
-        } else if(this.getPredictMethod().getPredictReturnType() == Integer.class) {
+        } else if (this.getPredictMethod().getPredictReturnType() == Integer.class) {
           return ((Integer) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point)).doubleValue();
         } else {
-          throw new DDFException(String.format("Error getting prediction for %s", this.getInternalModel().getClass().getName()));
+          throw new DDFException(String.format("Error getting prediction for %s", this.getInternalModel().getClass()
+              .getName()));
         }
-      } catch(Exception e) {
+      } catch (Exception e) {
         throw new DDFException(e);
       }
+    }
+
+    @Override
+    public double[] predict(double[][] points) throws DDFException {
+      double[] results = new double[points[0].length];
+
+      for (int i = 0; i < points[0].length; i++) {
+        results[i] = this.predict(points[i]);
+      }
+      return results;
     }
   }
 }

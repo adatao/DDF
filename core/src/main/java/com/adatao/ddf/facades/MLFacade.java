@@ -49,8 +49,8 @@ public class MLFacade implements ISupportML {
   }
 
   @Override
-  public DDF getYTrueYPred(IModel model) throws DDFException {
-    return this.getMLSupporter().getYTrueYPred(model);
+  public DDF getYTrueYPredict(IModel model) throws DDFException {
+    return this.getMLSupporter().getYTrueYPredict(model);
   }
 
   @Override

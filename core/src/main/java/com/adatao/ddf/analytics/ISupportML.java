@@ -21,7 +21,7 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    */
   public IModel train(String trainMethodName, Object... args) throws DDFException;
 
-  public DDF getYTrueYPred(IModel model) throws DDFException;
+  public DDF getYTrueYPredict(IModel model) throws DDFException;
 
   public DDF predict(IModel model) throws DDFException;
 
@@ -29,6 +29,8 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
   interface IModel {
 
     public Double predict(double[] point) throws DDFException;
+
+    public double[] predict(double[][] points) throws DDFException;
 
     public Object getInternalModel();
 

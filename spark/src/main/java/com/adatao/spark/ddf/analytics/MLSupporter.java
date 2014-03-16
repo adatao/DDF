@@ -55,32 +55,9 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
     }
   }
 
-  /*
-   * @Override protected <T, U> DDF predictImpl(DDF ddf, Class<T> predictReturnType, Class<U> predictInputType, Object
-   * model) throws DDFException { int numCols = ddf.getNumColumns();
-   * 
-   * RDD rdd = (RDD<U>) ddf.getRepresentationHandler().get(RDD.class, predictInputType);
-   * 
-   * JavaRDD<U> data = new JavaRDD<U>(rdd, ClassManifest$.MODULE$.fromClass(predictInputType));
-   * 
-   * String columnName = this.getColumnName(predictReturnType);
-   * 
-   * JavaRDD result = data.mapPartitions(new partitionMapper<T, U>(model)); Schema schema = new
-   * Schema(String.format("%s_%s_%s", ddf.getName(), model.getClass().getName(), "prediction"),
-   * String.format("prediction %s", columnName));
-   * 
-   * return new SparkDDF(this.getManager(), result.rdd(), predictReturnType, ddf.getManager().getNamespace(),
-   * schema.getTableName(), schema); }
-   */
-
-  private String getColumnName(Class<?> clazz) {
-    if (clazz == Double.class) return "double";
-    else if (clazz == Integer.class) return "int";
-    else return clazz.getName();
-  }
 
   @Override
-  public DDF getYTrueYPredImpl(IModel model) throws DDFException {
+  public DDF getYTrueYPredictImpl(IModel model) throws DDFException {
     model = new Model(model.getInternalModel());
     DDF ddf = this.getDDF();
     RDD rdd = (RDD<LabeledPoint>) ddf.getRepresentationHandler().get(RDD.class, LabeledPoint.class);
@@ -88,9 +65,8 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
     JavaRDD<LabeledPoint> data = new JavaRDD<LabeledPoint>(rdd, ClassManifest$.MODULE$.fromClass(LabeledPoint.class));
     JavaRDD result = data.mapPartitions(new ytrueYpredPartitionMapper(model));
 
-    String columnName = this.getColumnName(Double.class);
-    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getClass().getName(), "prediction"),
-        String.format("prediction %s", columnName));
+    String columns = "YTrue double, YPredict double";
+    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getInternalModel().getClass().getName(), "YTrueYPredict"), columns);
     return new SparkDDF(this.getManager(), result.rdd(), double[].class, ddf.getManager().getNamespace(),
         schema.getTableName(), schema);
   }
@@ -103,9 +79,9 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
 
     JavaRDD<double[]> data = new JavaRDD<double[]>(rdd, ClassManifest$.MODULE$.fromClass(double[].class));
 
-    String columnName = this.getColumnName(Double.class);
+    String columns = "yPredict double";
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getInternalModel().getClass().getName(),
-        "prediction"), String.format("prediction %s", columnName));
+        "prediction"), columns);
     JavaRDD result = data.mapPartitions(new ypredPartitionMapper(model));
 
     return new SparkDDF(this.getManager(), result.rdd(), Double.class, ddf.getManager().getNamespace(),
