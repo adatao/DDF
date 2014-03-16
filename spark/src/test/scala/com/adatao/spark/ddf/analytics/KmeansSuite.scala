@@ -44,11 +44,10 @@ class KmeansSuite extends ATestSuite {
 
     val result1 = ddfTrain.ML.predict(model)
     val result2 = ddfPredict2.ML.predict(mlModel)
-    val rdd= result1.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Integer])
-    rdd.foreach{
-      point => println(">>>>>>>>> " + point)
-    }
-    ddfTrain.ML.predict(model)
+
+    val rdd= result1.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Integer]).count()
+
+    result2.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Double]).count()
     //val kmeansPred = model.predict(ddfPredict)
     //val lmPred = mlModel.predict(ddfPredict2)
     LinearRegressionWithSGD

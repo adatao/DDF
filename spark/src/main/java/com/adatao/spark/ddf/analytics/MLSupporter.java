@@ -2,6 +2,7 @@ package com.adatao.spark.ddf.analytics;
 
 
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.analytics.MLPredictMethod;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
@@ -12,8 +13,10 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
+import scala.actors.threadpool.Arrays;
 import scala.reflect.ClassManifest$;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -58,75 +61,52 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
     }
   }
 
-  public DDF predict(Object model) throws DDFException {
-    DDF ddf = this.getDDF();
-    Method predictMethod = null;
-    RDD rdd = (RDD<double[]>) ddf.getRepresentationHandler().get(RDD.class, double[].class);
-    JavaRDD<double[]> data = new JavaRDD<double[]>(rdd, ClassManifest$.MODULE$.fromClass(double[].class));
 
-    try {
-      predictMethod = model.getClass().getMethod("predict", new Class[] { double[].class });
-    } catch (Exception e) {
-      throw new DDFException(e);
-    }
-    Class<?> returnType = predictMethod.getReturnType();
-    String modelName = model.getClass().getName();
+  @Override
+  protected  <T, U> DDF predictImpl(DDF ddf, Class<T> predictReturnType, Class<U> predictInputType, Object model) throws DDFException {
+    int numCols = ddf.getNumColumns();
 
-    JavaRDD result = null;
+    RDD rdd = (RDD<U>) ddf.getRepresentationHandler().get(RDD.class, predictInputType);
 
-    if(returnType == double.class || returnType == Double.class){
-      result = data.mapPartitions(new partitionMapper<Double>(model));
-      Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), modelName, "prediction"), "clusterID double");
+    JavaRDD<U> data = new JavaRDD<U>(rdd, ClassManifest$.MODULE$.fromClass(predictInputType));
 
-      return new SparkDDF(this.getManager(), result.rdd(), Double.class, ddf.getManager().getNamespace(),
-          schema.getTableName(), schema);
+    String columnName = this.getColumnName(predictReturnType);
 
-    } else if(returnType == int.class || returnType == Integer.class ) {
+    JavaRDD result = data.mapPartitions(new partitionMapper<T, U>(model));
+    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getClass().getName(), "prediction"),
+        String.format("prediction %s", columnName));
 
-      result = data.mapPartitions(new partitionMapper<Integer>(model));
-      Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), modelName, "prediction"), "clusterID int");
-
-      return new SparkDDF(this.getManager(), result.rdd(), Integer.class, ddf.getManager().getNamespace(),
-          schema.getTableName(), schema);
-    } else {
-      throw new DDFException("error ");
-    }
-
+    return new SparkDDF(this.getManager(), result.rdd(), predictReturnType, ddf.getManager().getNamespace(), schema.getTableName(), schema);
   }
 
-  public static class partitionMapper<T> extends FlatMapFunction<Iterator<double[]>, T> {
-    private Object mModel;
+  private String getColumnName(Class<?> clazz) {
+    if(clazz == Double.class) return "double";
+    else if(clazz == Integer.class) return "int";
+    else return clazz.getName();
+  }
 
-    private Method getPredictMethod() throws DDFException{
-      Method predictMethod = null;
-      try {
-        predictMethod = mModel.getClass().getMethod("predict", new Class[] { double[].class });
-      } catch (Exception e) {
-        throw new DDFException(e);
-      }
-      return predictMethod;
-    }
+  public static class partitionMapper<T, U> extends FlatMapFunction<Iterator<U>, T> {
+    private Object mModel;
 
     public partitionMapper(Object model) throws DDFException{
       this.mModel = model;
     }
 
     @Override
-    public Iterable<T> call(Iterator<double[]> points) throws DDFException {
-      Method predictMethod = this.getPredictMethod();
-      if(predictMethod == null) {
-        throw new DDFException("");
-      }
+    public Iterable<T> call(Iterator<U> points) throws DDFException {
+      // Have to initialize MLPredictMethod here because
+      // java.lang.reflect.Method is not serializable
+      MLPredictMethod mlPredictMethod = new MLPredictMethod(mModel);
       List<T> results = new ArrayList<T>();
 
       while(points.hasNext()){
-        double[] point = points.next();
+        U point = points.next();
         try {
-            results.add((T) predictMethod.invoke(this.mModel, point));
+           results.add((T) mlPredictMethod.getMethod().invoke(this.mModel, point));
 
         } catch (Exception e) {
-          if(e instanceof DDFException) throw new DDFException(e);
-          else throw new DDFException(e);
+          throw new DDFException(String.format("Error predicting with method %s",
+              mlPredictMethod.getMethod().getName()),e);
         }
       }
       return results;

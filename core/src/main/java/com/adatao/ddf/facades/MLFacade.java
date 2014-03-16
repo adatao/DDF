@@ -52,11 +52,6 @@ public class MLFacade implements ISupportML {
   public DDF predict(Object model) throws DDFException {
     return this.getMLSupporter().predict(model);
   }
-
-  @Override
-  public Object predict(Object model, double[] point) throws DDFException {
-    return this.getMLSupporter().predict(model, point);
-  }
   // //// Convenient facade ML algorithm names //////
 
   public Object kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)

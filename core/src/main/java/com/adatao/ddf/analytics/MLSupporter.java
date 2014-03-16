@@ -23,7 +23,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  */
-public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
+public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
 
   private Boolean sIsNonceInitialized = false;
 
@@ -66,7 +66,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
   public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
 
-
+  public static final String DEFAULT_PREDICT_METHOD_NAME = "predict";
   /**
    * Runs a training algorithm on the entire DDF dataset.
    * 
@@ -118,14 +118,18 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     return result;
   }
 
-  @Override
-  public DDF predict(Object model) throws DDFException {
-    return null;
-  }
+  protected abstract <T, U> DDF predictImpl(DDF ddf,Class<T> returnType, Class<U> predictInputType, Object model)
+      throws DDFException;
 
   @Override
-  public Object predict(Object model, double[] point) throws DDFException {
-    return null;
+  public DDF predict(Object model) throws DDFException {
+    DDF ddf = this.getDDF();
+    MLPredictMethod mlPredictMethod = new MLPredictMethod(model);
+
+    Class<?> predictInputType = mlPredictMethod.getInputType();
+
+    Class<?> predictReturnType = mlPredictMethod.getPredictReturnType();
+    return this.predictImpl(ddf, predictReturnType, predictInputType, model);
   }
 
   @SuppressWarnings("unchecked")

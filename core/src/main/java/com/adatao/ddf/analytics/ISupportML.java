@@ -25,6 +25,4 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
   public Object train(String trainMethodName, Object... args) throws DDFException;
 
   public DDF predict(Object model) throws DDFException;
-
-  public Object predict(Object model, double[] point) throws DDFException;
 }
