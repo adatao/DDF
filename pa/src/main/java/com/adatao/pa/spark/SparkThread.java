@@ -98,27 +98,6 @@ public class SparkThread extends ASessionThread {
 
 	@SuppressWarnings("unused")
 	private void processJsonCommand(JsonCommand jsCmd) throws JsonSyntaxException, InterruptedException, ClassNotFoundException, AdataoException {
-//		if (jsCmd.getCmdName().equals("disconnect")) {
-//			LOG.info("Closing SparkContext sessionID: " + sessionID);
-//
-//			// delete temporary hive-dataframe table
-//			deleteTempHiveTables();
-//
-//			// stop sparkContext
-//			sparkContext.stop();
-//
-//			// delay 5 seconds to stop spark context
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//
-//			JsonResult res = new JsonResult();
-//			resQueue.put(res);
-//		} else {
-			
 			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
 			LOG.info("Created Executor: " + exec.toString());
 
@@ -137,10 +116,7 @@ public class SparkThread extends ASessionThread {
 				// New-style, Scala-based class hierarchy
 				execRes = ((TExecutor<?>) exec).run(new ExecutionContext(this));
 			}
-			
 			resQueue.put(new JsonResult().setResult(execRes.toJson()));
-//		}
-
 	}
 	
 	public ExecutionResult<?> processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
@@ -238,13 +214,6 @@ public class SparkThread extends ASessionThread {
 		JavaSparkContext sc = null;
 		
 		ddfManager = DDFManager.get("spark");
-/*
-		if (!isShark) {
-			sc = new JavaSparkContext(env.get("SPARK_MASTER"), "BigR", env.get("SPARK_HOME"), jobJars, env);
-		} else {
-			sc = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(env.get("SPARK_MASTER"), "BigR", env.get("SPARK_HOME"), jobJars, env));
-		}
-*/
 		
 		return sc;
 	}
@@ -296,39 +265,6 @@ public class SparkThread extends ASessionThread {
 		} catch (InterruptedException e){
 			LOG.info("Thread is interrupted. Failed to send back result!");
 		}
-			
-//		try {
-//		
-//
-//			LOG.info("SparkThread running with sessionID="+sessionID+", entering loop");
-//			while (true) {
-//				Object rawCmd = cmdQueue.take();
-//
-//				if (rawCmd instanceof JsonCommand) {
-//					JsonCommand jsCmd = (JsonCommand) rawCmd;
-//					LOG.info("Got json command: " + jsCmd);
-//					try {
-//						processJsonCommand(jsCmd);
-//					} catch (Exception e) {
-//						/**
-//						 * Catch all exceptions here to make sure that result will be return to client
-//						 * The SparkContext/SparkThread will almost always be running unless client disconnect
-//						 */
-//						LOG.error("Exception: ", e);
-//						JsonResult res = new JsonResult().setResult(FailedResult.newInstance(e).toJson());
-//						resQueue.put(res);
-//					}
-//				}
-//			}
-//		} catch (InterruptedException e){
-//			LOG.info("Runner thread for session %s interrupted".format(sessionID));
-//		} catch (Exception e) {
-//			LOG.error("Exception ... can't continue ", e);
-//		} finally {
-//			LOG.info("Stopping session "+sessionID);
-//			sparkContext.stop();
-//		}
-
 	}
 
 	public DDFManager getDDFManager() {
