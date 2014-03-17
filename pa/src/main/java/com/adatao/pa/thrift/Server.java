@@ -17,12 +17,18 @@
 package com.adatao.pa.thrift;
 
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.adatao.pa.thrift.RCommandsHandler;
+import com.adatao.pa.thrift.Server;
+import com.adatao.pa.thrift.SessionManager;
+
 import com.adatao.pa.thrift.generated.RCommands;
 
 public class Server {
@@ -35,7 +41,7 @@ public class Server {
 
 	public Logger LOG = LoggerFactory.getLogger(Server.class);
 
-	SessionManager sessionManager;
+	private static SessionManager sessionManager;
 
 	public SessionManager getSessionManager() {
 		return sessionManager;
@@ -54,11 +60,7 @@ public class Server {
 			// Set port
 			serverLock.lock();
 			TServerSocket serverTransport = new TServerSocket(port);
-			if (multiUser) {
-				handler = new RMultiContextCommandsHandler(sessionManager);
-			} else {
-				handler = new RCommandsHandler(sessionManager);
-			}
+			handler = new RCommandsHandler(sessionManager);
 			RCommands.Processor<RCommands.Iface> processor = new RCommands.Processor<RCommands.Iface>(handler);
 
 			server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
