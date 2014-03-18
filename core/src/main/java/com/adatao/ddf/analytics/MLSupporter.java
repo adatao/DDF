@@ -5,7 +5,8 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
-import com.adatao.ddf.util.Utils;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.ml.Model;
 import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.ddf.util.Utils.MethodInfo;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
@@ -13,7 +14,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import scala.actors.threadpool.Arrays;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -99,7 +99,6 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     // for (int i = 0; i < paramArgs.length; i++) {
     // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
     // }
-    String originalTrainMethodName = trainMethodName;
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
@@ -116,19 +115,6 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     return new Model(result);
   }
 
-  protected abstract DDF getYTrueYPredictImpl(IModel model) throws DDFException;
-
-  @Override
-  public DDF getYTrueYPredict(IModel model) throws DDFException {
-    return this.getYTrueYPredictImpl(model.copy());
-  }
-
-  protected abstract DDF predictImpl(IModel model) throws DDFException;
-
-  @Override
-  public DDF predict(IModel model) throws DDFException {
-    return this.predictImpl(model.copy());
-  }
 
   @SuppressWarnings("unchecked")
   private Object[] buildArgsForMethod(Method method, Object[] paramArgs) throws DDFException {
@@ -204,82 +190,6 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
         foundMethod.setAccessible(true);
         this.setMethod(foundMethod);
       }
-    }
-  }
-
-  public static class Model implements IModel, Serializable {
-
-    public static final Long serialVersionUID = 1L;
-
-    private Object mModel;
-
-    private Utils.MLPredictMethod mPredictMethod;
-
-
-    public Model(Object model) throws DDFException {
-      mModel = model;
-    }
-
-    public Object getInternalModel() {
-      return mModel;
-    }
-
-    /**
-     * @return a copy of this with mPredictMethod uninitialized
-     */
-    @Override
-    public IModel copy() throws DDFException {
-      return new Model(this.getInternalModel());
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      if (!(other instanceof Model)) return false;
-
-      if (this.getInternalModel().getClass() != ((Model) other).getInternalModel().getClass()) return false;
-      // TO DO: PARSE PARAMETERS FROM MODEL FOR EQUALS IMPLEMENTATION
-
-      return true;
-    }
-
-    private void initializePredictMethod() throws DDFException {
-      this.mPredictMethod = new Utils.MLPredictMethod(this.mModel);
-    }
-
-    // Initialize mPredictMethod when needed, because
-    // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
-    public Utils.MLPredictMethod getPredictMethod() throws DDFException {
-      if (this.mPredictMethod == null) {
-        this.initializePredictMethod();
-      }
-      return this.mPredictMethod;
-    }
-
-    @Override
-    public Double predict(double[] point) throws DDFException {
-
-      try {
-        if (this.getPredictMethod().getPredictReturnType() == Double.class) {
-          return (Double) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point);
-        } else if (this.getPredictMethod().getPredictReturnType() == Integer.class) {
-          return ((Integer) this.getPredictMethod().getMethod().invoke(this.getInternalModel(), point)).doubleValue();
-        } else {
-          throw new DDFException(String.format("Error getting prediction for %s", this.getInternalModel().getClass()
-              .getName()));
-        }
-      } catch (Exception e) {
-        throw new DDFException(e);
-      }
-    }
-
-    @Override
-    public double[] predict(double[][] points) throws DDFException {
-      double[] results = new double[points[0].length];
-
-      for (int i = 0; i < points[0].length; i++) {
-        results[i] = this.predict(points[i]);
-      }
-      return results;
     }
   }
 }

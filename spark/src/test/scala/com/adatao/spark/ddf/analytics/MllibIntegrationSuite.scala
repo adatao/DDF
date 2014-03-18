@@ -5,9 +5,9 @@ import com.adatao.ddf.DDFManager
 
 /**
   */
-class KmeansSuite extends ATestSuite {
+class MllibIntegrationSuite extends ATestSuite {
 
-  test("Test Kmeans integation with mllib") {
+  test("Test MLLib integation with mllib") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
@@ -29,21 +29,19 @@ class KmeansSuite extends ATestSuite {
     val ddfPredict2 = manager.sql2ddf("select " +
       "distance,arrdelay, depdelay, delayed from airline_delayed")
 
-    val model1 = ddfTrain.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
-    val model2 = ddfTrain.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
+    val kmeansModel = ddfPredict.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
+    kmeansModel.predict(Array(0.1, 2, 3, 4, 5, 6, 7, 8))
 
     val initialWeight = for {
       x <- 0 until (ddfTrain2.getNumColumns - 1)
     } yield (math.random)
 
-    val mlModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
+    val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-    val result1 = ddfPredict.ML.predict(model1)
-    val result2 = ddfPredict2.ML.getYTrueYPredict(mlModel)
+    val result = ddfPredict2.ML.applyModel(regressionModel)
 
-    result1.asInstanceOf[SparkDDF].getRDD(classOf[java.lang.Double]).count()
-    result2.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count()
+    result.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
 
     manager.shutdown()
   }

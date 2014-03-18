@@ -4,6 +4,7 @@ package com.adatao.ddf.analytics;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
+import com.adatao.ddf.ml.IModel;
 
 /**
  * Interface for handling tasks related to Machine Learning
@@ -21,19 +22,5 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    */
   public IModel train(String trainMethodName, Object... args) throws DDFException;
 
-  public DDF getYTrueYPredict(IModel model) throws DDFException;
-
-  public DDF predict(IModel model) throws DDFException;
-
-
-  interface IModel {
-
-    public Double predict(double[] point) throws DDFException;
-
-    public double[] predict(double[][] points) throws DDFException;
-
-    public Object getInternalModel();
-
-    public IModel copy() throws DDFException;
-  }
+  public DDF applyModel(IModel model) throws DDFException;
 }

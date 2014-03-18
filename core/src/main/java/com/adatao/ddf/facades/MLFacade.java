@@ -7,6 +7,7 @@ package com.adatao.ddf.facades;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
 
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
@@ -49,14 +50,10 @@ public class MLFacade implements ISupportML {
   }
 
   @Override
-  public DDF getYTrueYPredict(IModel model) throws DDFException {
-    return this.getMLSupporter().getYTrueYPredict(model);
+  public DDF applyModel(IModel model) throws DDFException {
+    return this.getMLSupporter().applyModel(model);
   }
 
-  @Override
-  public DDF predict(IModel model) throws DDFException {
-    return this.getMLSupporter().predict(model);
-  }
   // //// Convenient facade ML algorithm names //////
 
   public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
@@ -68,5 +65,4 @@ public class MLFacade implements ISupportML {
       double miniBatchFraction) throws DDFException {
     return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
-
 }

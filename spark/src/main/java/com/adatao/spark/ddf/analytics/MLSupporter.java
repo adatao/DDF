@@ -4,6 +4,7 @@ package com.adatao.spark.ddf.analytics;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.spark.ddf.SparkDDF;
 import org.apache.spark.api.java.JavaRDD;
@@ -57,44 +58,27 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
 
 
   @Override
-  public DDF getYTrueYPredictImpl(IModel model) throws DDFException {
-    model = new Model(model.getInternalModel());
-    DDF ddf = this.getDDF();
-    RDD rdd = (RDD<LabeledPoint>) ddf.getRepresentationHandler().get(RDD.class, LabeledPoint.class);
+  public DDF applyModel(IModel model) throws DDFException {
+    SparkDDF ddf = (SparkDDF) this.getDDF();
 
+    RDD rdd = ddf.getRDD(LabeledPoint.class);
     JavaRDD<LabeledPoint> data = new JavaRDD<LabeledPoint>(rdd, ClassManifest$.MODULE$.fromClass(LabeledPoint.class));
-    JavaRDD result = data.mapPartitions(new ytrueYpredPartitionMapper(model));
+    JavaRDD result = data.mapPartitions(new applyModelMapper(model));
 
-    String columns = "YTrue double, YPredict double";
-    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getInternalModel().getClass().getName(), "YTrueYPredict"), columns);
+    String columns = "label double, prediction double";
+    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(), "YTrueYPredict"), columns);
     return new SparkDDF(this.getManager(), result.rdd(), double[].class, ddf.getManager().getNamespace(),
         schema.getTableName(), schema);
-  }
 
-  @Override
-  public DDF predictImpl(IModel model) throws DDFException {
-    model = new Model(model.getInternalModel());
-    DDF ddf = this.getDDF();
-    RDD rdd = (RDD<double[]>) ddf.getRepresentationHandler().get(RDD.class, double[].class);
-
-    JavaRDD<double[]> data = new JavaRDD<double[]>(rdd, ClassManifest$.MODULE$.fromClass(double[].class));
-
-    String columns = "yPredict double";
-    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getInternalModel().getClass().getName(),
-        "prediction"), columns);
-    JavaRDD result = data.mapPartitions(new ypredPartitionMapper(model));
-
-    return new SparkDDF(this.getManager(), result.rdd(), Double.class, ddf.getManager().getNamespace(),
-        schema.getTableName(), schema);
   }
 
 
   // if double[] contain YTrue then the first (n - 1) item will be feature vector
   // the last will be YTrue
-  public static class ytrueYpredPartitionMapper extends FlatMapFunction<Iterator<LabeledPoint>, double[]> {
+  public static class applyModelMapper extends FlatMapFunction<Iterator<LabeledPoint>, double[]> {
     private IModel mModel;
 
-    public ytrueYpredPartitionMapper(IModel model) throws DDFException {
+    public applyModelMapper(IModel model) throws DDFException {
       this.mModel = model;
     }
 
@@ -105,11 +89,11 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
       while (points.hasNext()) {
         LabeledPoint point = points.next();
         try {
-          double[] ytrueYpred = new double[] { point.label(), this.mModel.predict(point.features()) };
+          double[] ytrueYpred = new double[] {point.label(), this.mModel.predict(point.features())};
           results.add(ytrueYpred);
 
         } catch (Exception e) {
-          throw new DDFException(String.format("Error predicting with model %s", this.mModel.getInternalModel()
+          throw new DDFException(String.format("Error predicting with model %s", this.mModel.getRawModel()
               .getClass().getName()), e);
         }
       }
@@ -133,7 +117,7 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
         try {
           results.add(this.mModel.predict(point));
         } catch (Exception e) {
-          throw new DDFException(String.format("Error predicting with model %s", this.mModel.getInternalModel()
+          throw new DDFException(String.format("Error predicting with model %s", this.mModel.getRawModel()
               .getClass().getName()), e);
         }
       }
