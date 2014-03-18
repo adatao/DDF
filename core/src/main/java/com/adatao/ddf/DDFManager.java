@@ -312,10 +312,15 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public List<String> sql2txt(String command) throws DDFException {
     return this.sql2txt(command, null);
   }
+  
+  @Override
+  public List<String> sql2txt(String command, Integer maxRows) throws DDFException {
+    return this.sql2txt(command, maxRows, null);
+  }
 
   @Override
-  public List<String> sql2txt(String command, String dataSource) throws DDFException {
-    return this.getDummyDDF().getSqlHandler().sql2txt(command, dataSource);
+  public List<String> sql2txt(String command, Integer maxRows, String dataSource) throws DDFException {
+    return this.getDummyDDF().getSqlHandler().sql2txt(command, maxRows, dataSource);
   }
 
   // //// Persistence handling //////
