@@ -17,9 +17,12 @@
 package com.adatao.pa.thrift;
 
 import java.io.FileNotFoundException;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.Connect;
 import com.adatao.pa.spark.execution.ExecutionResultUtils;
@@ -38,6 +41,10 @@ public class RCommandsHandler implements RCommands.Iface {
 
 	static long EXPIRED_TIME = 30 * 60000; // 30 minutes
 
+	// lock for the Connect command, we want only one Connect command 
+	// is being executing at any moment in time
+	private static final ReentrantLock connectLock = new ReentrantLock();
+	
 	public RCommandsHandler(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
@@ -48,12 +55,6 @@ public class RCommandsHandler implements RCommands.Iface {
 		}
 
 		SparkThread sparkThread = (SparkThread) sessionManager.getSessionThread(cmd.getSid());
-		// sparkThread.setLatestCommandTime(new Date());
-//		ArrayBlockingQueue<Object> cmdQueue = sparkThread.getCommandQueue();
-//		ArrayBlockingQueue<Object> resQueue = sparkThread.getResultQueue();
-//		cmdQueue.put(cmd);
-//		JsonResult res = (JsonResult) resQueue.take();
-//		res.setSid(cmd.sid);
 		JsonResult res;
 		try {
 			res = new JsonResult().setResult(sparkThread.processJsonCommand1(cmd).toJson());
@@ -89,7 +90,10 @@ public class RCommandsHandler implements RCommands.Iface {
 					connect = gson.fromJson(cmd.params, Connect.class).setSessionManager(sessionManager);
 				}
 				
+				connectLock.lock();
 				JsonResult res = connect.run();
+				connectLock.unlock();
+				
 				LOG.info(res.toString());
 				return res;
 			} catch (Exception e) {
