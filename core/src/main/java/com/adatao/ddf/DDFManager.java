@@ -82,9 +82,12 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     return data.getName();
   }
 
-  public DDF getDDF(String ddfName) {
+  public DDF getDDF(String ddfName) throws DDFException {
     
     DDF data = mDDFs.get(ddfName);
+    if (data == null){
+    	throw new DDFException("Cannot get DDF with name " + ddfName);
+    }
     return data;
   }
 
