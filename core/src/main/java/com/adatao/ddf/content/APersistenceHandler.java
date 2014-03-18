@@ -7,6 +7,7 @@ package com.adatao.ddf.content;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
@@ -89,7 +90,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
    * Base class for objects that can persist themselves, via the DDF persistence mechanism
    * 
    */
-  public static abstract class APersistible implements IGloballyAddressable, IPersistible {
+  public static abstract class APersistible extends AGloballyAddressable implements IGloballyAddressable, IPersistible {
 
     private static final long serialVersionUID = -5941712506105779254L;
 
@@ -191,6 +192,11 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
       mName = name;
     }
 
+    @Override
+    public String getGlobalObjectType() {
+      return "persistible";
+    }
+
 
 
     @Override
@@ -204,6 +210,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
         throws DDFException {
       return deserializedObject;
     }
+
 
   }
 }

@@ -12,6 +12,7 @@ import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.util.Utils.JsonSerDes;
@@ -286,12 +287,22 @@ public class PersistenceHandler extends APersistenceHandler {
     public void setName(String name) {
       this.mName = name;
     }
+
+    @Override
+    public String getUri() {
+      return AGloballyAddressable.getUri(this);
+    }
+
+    @Override
+    public String getGlobalObjectType() {
+      return "persistence_uri";
+    }
   }
 
 
 
   /**
-   * Base class for objects that can persist themselves, via the BasicObjectDDF persistence mechanism
+   * Base class for objects that can persist themselves (e.g, Models) via the BasicObjectDDF persistence mechanism
    * 
    */
   public static class BasicPersistible extends APersistible {
@@ -305,7 +316,7 @@ public class PersistenceHandler extends APersistenceHandler {
       list.add(new Object[] { this, this.getClass().getName() });
       Schema schema = new Schema(this.getName(), "object BLOB, objectClass STRING");
 
-      BasicDDF ddf = new BasicDDF(list, Object[].class,this.getNamespace(), this.getName(), schema);
+      BasicDDF ddf = new BasicDDF(list, Object[].class, this.getNamespace(), this.getName(), schema);
 
       return ddf;
     }

@@ -12,4 +12,8 @@ public interface IGloballyAddressable {
   String getName();
 
   void setName(String name);
+
+  String getUri();
+
+  String getGlobalObjectType();
 }
