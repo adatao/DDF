@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 /**
  */
-public class MLPredictMethod {
+public class PredictMethod {
 
   private Object mModel;
 
@@ -16,7 +16,7 @@ public class MLPredictMethod {
 
   private static final Class<?> DEFAULT_PREDICT_TYPE_PARAM = double[].class;
 
-  public MLPredictMethod(Object model) throws DDFException {
+  public PredictMethod(Object model) throws DDFException {
     mModel = model;
     this.initializeMethod();
   }
@@ -34,6 +34,6 @@ public class MLPredictMethod {
   }
 
   public static Method get(Object mModel) throws DDFException {
-    return (new MLPredictMethod(mModel)).getMethod();
+    return (new PredictMethod(mModel)).getMethod();
   }
 }

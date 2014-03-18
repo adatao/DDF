@@ -4,8 +4,11 @@ package com.adatao.ddf.ml;
 import com.adatao.ddf.exception.DDFException;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang.builder.EqualsBuilder;
 /**
  */
 
@@ -15,7 +18,7 @@ public class Model implements IModel, Serializable {
 
   private Object mModel;
 
-  private transient Method mPredictMethod;
+  private transient Method mMethod;
 
   public Model(Object model) {
     mModel = model;
@@ -26,23 +29,13 @@ public class Model implements IModel, Serializable {
     return mModel;
   }
 
-  @Override
-  public boolean equals(Object other) {
-    if (!(other instanceof Model)) return false;
-
-    if (this.getRawModel().getClass() != ((Model) other).getRawModel().getClass()) return false;
-    // TO DO: PARSE PARAMETERS FROM MODEL FOR EQUALS IMPLEMENTATION
-
-    return true;
-  }
-
   // Initialize mPredictMethod when needed, because
   // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
   private Method getPredictMethod() throws DDFException {
-    if (mPredictMethod == null) {
-      mPredictMethod = MLPredictMethod.get(mModel);
+    if (mMethod == null) {
+      mMethod = PredictMethod.get(mModel);
     }
-    return mPredictMethod;
+    return mMethod;
   }
 
   @Override
