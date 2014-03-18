@@ -33,7 +33,7 @@ public class PredictMethod {
     return mPredictMethod;
   }
 
-  public static Method get(Object mModel) throws DDFException {
+  public static Method fromModel(Object mModel) throws DDFException {
     return (new PredictMethod(mModel)).getMethod();
   }
 }

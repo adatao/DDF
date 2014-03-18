@@ -33,7 +33,7 @@ public class Model implements IModel, Serializable {
   // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
   private Method getPredictMethod() throws DDFException {
     if (mMethod == null) {
-      mMethod = PredictMethod.get(mModel);
+      mMethod = PredictMethod.fromModel(mModel);
     }
     return mMethod;
   }
