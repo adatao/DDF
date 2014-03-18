@@ -32,6 +32,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
+import com.adatao.ddf.misc.ObjectRegistry;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
@@ -93,11 +94,12 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
   
   public DDFManager() {
-    this.initialize();
+    this.startup();
   }
 
-  private void initialize() {
-    PhantomReference.register(this);
+  public DDFManager(String namespace) {
+    this.setNamespace(namespace);
+    this.startup();
   }
 
 
@@ -124,13 +126,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
     return manager;
   }
-
-  /**
-   * Returns the DDF engine name of a particular implementation, e.g., "spark".
-   * 
-   * @return
-   */
-  public abstract String getEngine();
 
 
   private DDF mDummyDDF;
@@ -226,9 +221,40 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
 
+
+  // ////// ISupportPhantomReference ////////
+
+  public void cleanup() {
+    // Do nothing in the base
+  }
+
+
+
+  // ////// IDDFManager ////////
+
+
+  @Override
+  public void startup() {
+    try {
+      this.getNamespace(); // trigger the loading of the namespace
+
+    } catch (DDFException e) {
+      mLog.warn("Error while trying to getNamesapce()", e);
+    }
+
+    PhantomReference.register(this);
+  }
+
+  @Override
+  public void shutdown() {
+    // Do nothing in the base
+  }
+
+
   private String mNamespace;
 
 
+  @Override
   public String getNamespace() throws DDFException {
     if (Strings.isNullOrEmpty(mNamespace)) {
       mNamespace = Config.getValueWithGlobalDefault(this.getEngine(), ConfigConstant.FIELD_NAMESPACE);
@@ -237,25 +263,21 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     return mNamespace;
   }
 
-  public void setNameSpace(String namespace) {
+  @Override
+  public void setNamespace(String namespace) {
     mNamespace = namespace;
   }
 
-  // ////// ISupportPhantomReference ////////
 
-  public void cleanup() {
-    // Do nothing in the base
-  }
 
-  // ////// IDDFManager ////////
-  public void shutdown() {
-    // Do nothing in the base
-  }
+  // ////// IDDFRegistry ////////
+
+  private static final ObjectRegistry sObjectRegistry = new ObjectRegistry();
+  public final ObjectRegistry REGISTRY = sObjectRegistry;
 
 
 
   // ////// IHandleSql facade methods ////////
-
   @Override
   public DDF sql2ddf(String command) throws DDFException {
     return this.sql2ddf(command, null, null, null);

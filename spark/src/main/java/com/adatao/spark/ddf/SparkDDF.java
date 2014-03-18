@@ -1,11 +1,13 @@
 package com.adatao.spark.ddf;
 
 
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import scala.reflect.ClassManifest$;
 
 
 /**
@@ -48,5 +50,10 @@ public class SparkDDF extends DDF {
     Object obj = this.getRepresentationHandler().get(RDD.class, unitType);
     if (obj instanceof RDD<?>) return (RDD<T>) obj;
     else throw new DDFException("Unable to get RDD with unit type " + unitType);
+  }
+
+  public <T> JavaRDD<T> getJavaRDD(Class<T> unitType) throws DDFException {
+    RDD<T> rdd = this.getRDD(unitType);
+    return new JavaRDD<T>(rdd, ClassManifest$.MODULE$.fromClass(unitType));
   }
 }

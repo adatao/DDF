@@ -188,7 +188,7 @@ class LogisticRegressionIRLS(
 			iter += 1
 			//println("Iter " + iter + ": XtWXlambda " + XtWXlambda.toString())
 			//println("Iter " + iter + ": XtWz " + ret._2.toString())
-			//println("Iter " + iter + ": (lastDev: " + lastDev + ",currentDev: " + currentDev + "), eps: " + Math.abs((lastDev - currentDev) / currentDev))
+			//println("Iter " + iter + ": (lastDev: " + lastDev + ",currentDev: " + currentDev + "), eps: " + math.abs((lastDev - currentDev) / currentDev))
 			//println("Iter " + iter + ":" + weights.toString())
 
 			if (currentDev.isNaN()) {

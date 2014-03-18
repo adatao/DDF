@@ -17,8 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 import java.util.concurrent.ArrayBlockingQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.thrift.generated.JsonResult;
@@ -41,7 +43,13 @@ public class Connect {
 		this.isShark = isShark;
 	}
 	
-	// sparkThread is not used in this case because there is no sparkThread yet
+	/**
+	 * All clientIDs are currently shared a same session
+	 * 
+	 * @return JsonResult
+	 * @throws InterruptedException
+	 */
+	
 	public JsonResult run() throws InterruptedException {
 		LOG.info("CLIENT ID: " + clientID);
 		clientID=SessionManager.ANONYMOUS();
