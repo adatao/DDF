@@ -18,7 +18,6 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
-import com.google.common.base.Strings;
 
 /**
  * @author ctn

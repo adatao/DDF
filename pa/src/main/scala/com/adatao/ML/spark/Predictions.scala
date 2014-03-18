@@ -10,7 +10,6 @@ import com.adatao.ML.Kmeans.{ ParsePoint, DataPoint }
 import java.lang.Integer
 
 /**
- * @author aht
  */
 object Predictions {
 

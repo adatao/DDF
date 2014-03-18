@@ -55,6 +55,7 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
@@ -114,12 +115,13 @@ public abstract class DDF extends ALoggable //
     this(manager, sDummyManager);
   }
 
+
   /**
-   * cache for data computed from the DDF,
-   * e.g., ML models, DDF summary
+   * cache for data computed from the DDF, e.g., ML models, DDF summary
    */
   protected HashMap<String, Object> cachedObjects = new HashMap<String, Object>();
-  
+
+
   /**
    * Save a given object in memory for later (quick server-side) retrieval
    * 
@@ -131,7 +133,7 @@ public abstract class DDF extends ALoggable //
     cachedObjects.put(objectId, obj);
     return objectId;
   }
-  
+
   public String putObject(String objectId, Object obj) {
     cachedObjects.put(objectId, obj);
     return objectId;
@@ -146,6 +148,7 @@ public abstract class DDF extends ALoggable //
   public Object getObject(String objectId) {
     return cachedObjects.get(objectId);
   }
+
   /**
    * Available for run-time instantiation only.
    * 
@@ -181,6 +184,9 @@ public abstract class DDF extends ALoggable //
 
   // ////// Instance Fields & Methods ////////
 
+
+
+  // //// IGloballyAddressable //////
 
   @Expose private String mNamespace;
 
@@ -241,6 +247,11 @@ public abstract class DDF extends ALoggable //
   @Override
   public void setName(String name) {
     this.mName = name;
+  }
+
+  @Override
+  public String getGlobalObjectType() {
+    return "ddf";
   }
 
 
@@ -689,9 +700,11 @@ public abstract class DDF extends ALoggable //
   }
 
 
+  @Override
   public String getUri() {
-    return String.format("%s://%s/%s", this.getEngine(), this.getNamespace(), this.getName());
+    return AGloballyAddressable.getUri(this);
   }
+
 
   @Override
   public String toString() {
