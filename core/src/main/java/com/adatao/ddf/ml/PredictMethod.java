@@ -18,10 +18,6 @@ public class PredictMethod {
 
   public PredictMethod(Object model) throws DDFException {
     mModel = model;
-    this.initializeMethod();
-  }
-
-  private void initializeMethod() throws DDFException {
     try {
       mPredictMethod = this.mModel.getClass().getMethod(DEFAUL_PREDICT_METHOD_NAME, DEFAULT_PREDICT_TYPE_PARAM);
     } catch (NoSuchMethodException e) {
