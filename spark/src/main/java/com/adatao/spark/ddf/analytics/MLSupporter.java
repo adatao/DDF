@@ -61,8 +61,7 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
   public DDF applyModel(IModel model) throws DDFException {
     SparkDDF ddf = (SparkDDF) this.getDDF();
 
-    RDD rdd = ddf.getRDD(LabeledPoint.class);
-    JavaRDD<LabeledPoint> data = new JavaRDD<LabeledPoint>(rdd, ClassManifest$.MODULE$.fromClass(LabeledPoint.class));
+    JavaRDD<LabeledPoint> data = ddf.getJavaRDD(LabeledPoint.class);
     JavaRDD result = data.mapPartitions(new applyModelMapper(model));
 
     String columns = "label double, prediction double";
@@ -92,30 +91,6 @@ public class MLSupporter extends com.adatao.ddf.analytics.MLSupporter {
           double[] ytrueYpred = new double[] {point.label(), this.mModel.predict(point.features())};
           results.add(ytrueYpred);
 
-        } catch (Exception e) {
-          throw new DDFException(String.format("Error predicting with model %s", this.mModel.getRawModel()
-              .getClass().getName()), e);
-        }
-      }
-      return results;
-    }
-  }
-
-  public static class ypredPartitionMapper extends FlatMapFunction<Iterator<double[]>, Double> {
-    private IModel mModel;
-
-    public ypredPartitionMapper(IModel model) throws DDFException {
-      this.mModel = model;
-    }
-
-    @Override
-    public Iterable<Double> call(Iterator<double[]> points) throws DDFException {
-      List<Double> results = new ArrayList<Double>();
-
-      while (points.hasNext()) {
-        double[] point = points.next();
-        try {
-          results.add(this.mModel.predict(point));
         } catch (Exception e) {
           throw new DDFException(String.format("Error predicting with model %s", this.mModel.getRawModel()
               .getClass().getName()), e);
