@@ -3,6 +3,8 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 
@@ -47,6 +49,8 @@ public class ExecutionResultUtils {
 		} else if (e instanceof java.lang.UnsupportedOperationException &&
 				message.matches(emptyCollectionRegex)) {
 			return new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_EMPTY, e);
+		} else if (e instanceof DDFException) {
+			return new AdataoException(AdataoExceptionCode.ERR_DDF, e.getMessage(), e);
 		}
 		return new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
 	

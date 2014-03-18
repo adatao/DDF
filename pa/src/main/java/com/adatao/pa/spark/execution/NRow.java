@@ -18,9 +18,12 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.DataContainer;
@@ -51,7 +54,7 @@ public class NRow extends CExecutor {
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException, DDFException {
     /*
      * DataContainer dc = sparkThread.getDataManager().get(dataContainerID); if (dc.getType() ==
      * DataContainer.ContainerType.DataFrame) { DataFrame df = (DataFrame) dc; return new
@@ -64,11 +67,6 @@ public class NRow extends CExecutor {
      * String.format("unssuported container type: %s", dc.getType()), null); }
      */
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-    if (ddf == null) {
-      LOG.info("Cannot find the DDF " + dataContainerID);
-    } else {
-      LOG.info("Found the DDF " + dataContainerID);
-    }
     return new NRowResult(ddf.getNumRows());
   }
 

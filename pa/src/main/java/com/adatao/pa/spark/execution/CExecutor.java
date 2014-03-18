@@ -22,6 +22,8 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
@@ -46,7 +48,7 @@ public abstract class CExecutor implements IExecutor, Serializable {
 	 * @see com.adatao.pa.spark.types.IExecutor#run(com.adatao.pa.spark.SparkThread)
 	 */
 	@Override
-	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+	public ExecutorResult run(SparkThread sparkThread) throws AdataoException, DDFException {
 		// TODO Auto-generated method stub
 		return null;
 	}

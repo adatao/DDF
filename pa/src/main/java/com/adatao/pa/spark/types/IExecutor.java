@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.types;
 
 
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 
@@ -24,5 +25,5 @@ import com.adatao.pa.spark.SparkThread;
 public interface IExecutor {
 	String toString();
 
-	ExecutorResult run(SparkThread sparkThread) throws AdataoException;
+	ExecutorResult run(SparkThread sparkThread) throws AdataoException, DDFException;
 }

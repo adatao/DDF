@@ -116,27 +116,19 @@ public class QuickSummary extends CExecutor {
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException, DDFException {
     // first get the ddf
     ddfManager = sparkThread.getDDFManager();
     DDF ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-    try {
-      Summary[] ddfSummary = ddf.getSummary();
+    
+    Summary[] ddfSummary = ddf.getSummary();
 
-      DataframeStatsResult dfs = new DataframeStatsResult();
-      // TODO cache summary in ddf's cahcedObjects
-      dfs.setStats(ddfSummary);
-      dfs.setDataContainerID(ddf.getName());
+    DataframeStatsResult dfs = new DataframeStatsResult();
+    // TODO cache summary in ddf's cahcedObjects
+    dfs.setStats(ddfSummary);
+    dfs.setDataContainerID(ddf.getName());
 
-      return dfs;
-    } catch (DDFException e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
-
-    }
-
+    return dfs;
   }
 
   public String getDataContainerID() {

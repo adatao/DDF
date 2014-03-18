@@ -37,7 +37,8 @@ public class AdataoException extends Exception {
         		"Column type is not supported in this operation"),
 		ERR_HDFS("Cannot execute the hdfs command", "This is for failed hdfs command"),
 		ERR_HADOOPHOME_UNDEF("HADOOP_HOME is undefined", "HADOOP_HOME is undefined"),
-		ERR_UNSUPPORTED_CONTAINER_TYPE("Unsupported data container type", "Unsupported data container type");
+		ERR_UNSUPPORTED_CONTAINER_TYPE("Unsupported data container type", "Unsupported data container type"),
+		ERR_DDF("", "Got exception from DDF");
 		
     	private final String mMessage;
     	private final String mDescription;
