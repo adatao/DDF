@@ -19,6 +19,7 @@ package com.adatao.ddf;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +29,6 @@ import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
-import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.ISerializable;
@@ -56,6 +56,7 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
+import com.adatao.ddf.ml.ISupportML;
 import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -685,6 +686,11 @@ public abstract class DDF extends ALoggable //
       }
 
       Class<?> clazz = Class.forName(className);
+
+      if (Modifier.isAbstract(clazz.getModifiers())) {
+        throw new InstantiationError(String.format("Class %s is abstract and cannot be instantiated", className));
+      }
+
       Constructor<ADDFFunctionalGroupHandler> cons = (Constructor<ADDFFunctionalGroupHandler>) clazz
           .getDeclaredConstructor(new Class<?>[] { DDF.class });
 

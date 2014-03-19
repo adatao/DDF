@@ -1,17 +1,16 @@
 package com.adatao.ddf.util;
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import com.adatao.ddf.content.ISerializable;
+import com.adatao.ddf.exception.DDFException;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.gson.*;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.actors.threadpool.Arrays;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -22,19 +21,6 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.adatao.ddf.content.ISerializable;
-import com.adatao.ddf.exception.DDFException;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import scala.actors.threadpool.Arrays;
 
 /**
  * 
@@ -282,9 +268,11 @@ public class Utils {
   public static class ClassMethod {
 
     private String mClassHashMethodName;
+    private String mDefaultMethodName;
+    private Class<?>[] mMethodArgTypes;
     private Class<?> mObjectClass;
     private Object mObject;
-    private Method mMethod;
+    private transient Method mMethod; // this is not serializable, so make it transient
 
 
     public String getClassHashMethodName() {
@@ -296,7 +284,20 @@ public class Utils {
       return mObject;
     }
 
+    public void setObject(Object obj) {
+      mObject = obj;
+      if (mObject != null) mObjectClass = mObject.getClass();
+    }
+
     public Method getMethod() {
+      if (mMethod == null) try {
+        // Re-parse it if necessary, e.g., after serdes when we have lost mMethod since it's not serializable
+        this.parse(mClassHashMethodName, mDefaultMethodName, mMethodArgTypes);
+
+      } catch (DDFException e) {
+        sLog.warn(String.format("%s: Unable to parse() in getMethod()", this.getClass().getSimpleName()), e);
+      }
+
       return mMethod;
     }
 
@@ -316,6 +317,14 @@ public class Utils {
       this.parse(classHashMethodName, null, argTypes);
     }
 
+    public ClassMethod(Object theObject, String defaultMethodName, Class<?>... argTypes) throws DDFException {
+      if (theObject == null) throw new DDFException("Provided object cannot be null");
+
+      this.setObject(theObject);
+      mClassHashMethodName = String.format("%s#%s", theObject.getClass().getName(), defaultMethodName);
+      this.parse(theObject.getClass(), defaultMethodName, argTypes);
+    }
+
     private void parse(String classHashMethodName, String defaultMethodName, Object... args) throws DDFException {
       List<Class<?>> argTypes = Lists.newArrayList();
 
@@ -329,6 +338,8 @@ public class Utils {
     private void parse(String classHashMethodName, String defaultMethodName, Class<?>[] argTypes) throws DDFException {
       if (Strings.isNullOrEmpty(classHashMethodName)) throw new DDFException("Class#Method name cannot be null");
       mClassHashMethodName = classHashMethodName;
+      mDefaultMethodName = defaultMethodName;
+      mMethodArgTypes = argTypes;
 
       String[] parts = mClassHashMethodName.split("#");
       if (parts.length == 1) parts = new String[] { parts[0], defaultMethodName };

@@ -2,15 +2,12 @@ package com.adatao.spark.ddf.analytics
 
 import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager, ATestSuite}
 import com.adatao.ddf.DDFManager
-import org.apache.spark.rdd.RDD
-import com.adatao.ddf.content.APersistenceHandler.PersistenceUri
-import scala.collection.JavaConversions._
 
 /**
   */
-class KmeansSuite extends ATestSuite {
+class MllibIntegrationSuite extends ATestSuite {
 
-  test("Test Kmeans integation with mllib") {
+  test("Test MLLib integation with mllib") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
@@ -30,23 +27,22 @@ class KmeansSuite extends ATestSuite {
       "distance, arrdelay, depdelay, delayed from airline_delayed")
 
     val ddfPredict2 = manager.sql2ddf("select " +
-      "distance,arrdelay, depdelay from airlineWithNA")
+      "distance, arrdelay, depdelay, delayed from airline_delayed")
 
-    val model = ddfTrain.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
+    val kmeansModel = ddfPredict.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
     val initialWeight = for {
       x <- 0 until (ddfTrain2.getNumColumns - 1)
     } yield (math.random)
 
-    val mlModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
+    val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-    //val kmeansPred = model.predict(ddfPredict)
-    //val lmPred = mlModel.predict(ddfPredict2)
+    val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
+    val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
 
-    model.predict(Array(1,2,3,4.0, 5, 6, 7,8))
-    mlModel.predict(Array(1, 2, 3.0))
-
+    yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
+    yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     manager.shutdown()
   }
 }

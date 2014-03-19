@@ -47,7 +47,7 @@ public class SparkDDF extends DDF {
 
   @SuppressWarnings("unchecked")
   public <T> RDD<T> getRDD(Class<T> unitType) throws DDFException {
-    Object obj = this.getRepresentationHandler().get(unitType);
+    Object obj = this.getRepresentationHandler().get(RDD.class, unitType);
     if (obj instanceof RDD<?>) return (RDD<T>) obj;
     else throw new DDFException("Unable to get RDD with unit type " + unitType);
   }

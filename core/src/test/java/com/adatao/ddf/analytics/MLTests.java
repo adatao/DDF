@@ -5,10 +5,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.ISupportML.IModel;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
+import com.adatao.ddf.ml.IModel;
 import com.google.common.base.Strings;
 
 public class MLTests {
@@ -22,7 +22,7 @@ public class MLTests {
 
   public static IModel dummyKMeans(DDF arg1, int arg2, Double arg3) {
     return null;
-   }
+  }
 
   @Test
   public void testTrain() throws DDFException {
@@ -34,6 +34,4 @@ public class MLTests {
     IModel model = ddf.ML.train("kmeans", 1, 2.2);
     Assert.assertNotNull("Model cannot be null", model);
   }
-
-
 }
