@@ -1,58 +1,53 @@
 package com.adatao.ddf.ml;
 
 
-import com.adatao.ddf.exception.DDFException;
-
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.MLClassMethods.PredictMethod;
+
 /**
  */
 
 public class Model implements IModel, Serializable {
 
-  public static final Long serialVersionUID = 1L;
+  private static final long serialVersionUID = 8076703024981092021L;
 
-  private Object mModel;
+  private Object mRawModel;
 
-  private transient Method mMethod;
 
-  public Model(Object model) {
-    mModel = model;
+  public Model(Object rawModel) {
+    mRawModel = rawModel;
   }
 
   @Override
   public Object getRawModel() {
-    return mModel;
-  }
-
-  // Initialize mPredictMethod when needed, because
-  // java.lang.reflect.Method is not serializable, so it cannot be passed to Spark RDD.map*
-  private Method getPredictMethod() throws DDFException {
-    if (mMethod == null) {
-      mMethod = PredictMethod.fromModel(mModel);
-    }
-    return mMethod;
+    return mRawModel;
   }
 
   @Override
   public Double predict(double[] point) throws DDFException {
 
-    try {
-      Object result = this.getPredictMethod().invoke(this.getRawModel(), point);
-      if (result instanceof Double) {
-        return (Double) result;
-      } else if (result instanceof Integer) {
-        return ((Integer) result).doubleValue();
-      } else {
-        throw new DDFException(
-            String.format("Error getting prediction for %s", this.getRawModel().getClass().getName()));
-      }
-    } catch (Exception e) {
-      throw new DDFException(e);
+    PredictMethod predictMethod = new PredictMethod(this.getRawModel(), MLClassMethods.DEFAULT_PREDICT_METHOD_NAME,
+        new Class<?>[] { point.getClass() });
+
+    if (predictMethod.getMethod() == null) {
+      throw new DDFException(String.format("Cannot locate method specified by %s",
+          MLClassMethods.DEFAULT_PREDICT_METHOD_NAME));
     }
+
+    Object prediction = predictMethod.instanceInvoke(point);
+
+    if (prediction instanceof Double) {
+      return (Double) prediction;
+
+    } else if (prediction instanceof Integer) {
+      return ((Integer) prediction).doubleValue();
+
+    } else {
+      throw new DDFException(String.format("Error getting prediction from model %s", this.getRawModel().getClass()
+          .getName()));
+    }
+
   }
 }

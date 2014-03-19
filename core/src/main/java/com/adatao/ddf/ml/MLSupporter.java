@@ -1,25 +1,23 @@
-package com.adatao.ddf.analytics;
+package com.adatao.ddf.ml;
 
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
-import com.adatao.ddf.ml.IModel;
-import com.adatao.ddf.ml.Model;
+import com.adatao.ddf.ml.MLClassMethods.TrainMethod;
 import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.ddf.util.Utils.MethodInfo;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import scala.actors.threadpool.Arrays;
-
 import java.lang.reflect.Method;
 import java.util.List;
 
 /**
  */
-public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
+public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportML {
 
   private Boolean sIsNonceInitialized = false;
 
@@ -59,10 +57,8 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
   }
 
 
+
   // //// ISupportML //////
-
-  public static final String DEFAULT_TRAIN_METHOD_NAME = "train";
-
 
   /**
    * Runs a training algorithm on the entire DDF dataset.
@@ -93,20 +89,19 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
      * Double)
      * </code>
      */
+
     // Build the argument type array
     if (paramArgs == null) paramArgs = new Object[0];
-    // Class<?>[] argTypes = new Class<?>[paramArgs.length];
-    // for (int i = 0; i < paramArgs.length; i++) {
-    // argTypes[i] = (paramArgs[i] == null ? null : paramArgs[i].getClass());
-    // }
+
     // Locate the training method
     String mappedName = Config.getValueWithGlobalDefault(this.getEngine(), trainMethodName);
     if (!Strings.isNullOrEmpty(mappedName)) trainMethodName = mappedName;
 
-    MLClassMethod trainMethod = new MLClassMethod(trainMethodName, DEFAULT_TRAIN_METHOD_NAME, paramArgs);
+    TrainMethod trainMethod = new TrainMethod(trainMethodName, MLClassMethods.DEFAULT_TRAIN_METHOD_NAME, paramArgs);
     if (trainMethod.getMethod() == null) {
       throw new DDFException(String.format("Cannot locate method specified by %s", trainMethodName));
     }
+
     // Now we need to map the DDF and its column specs to the input format expected by the method we're invoking
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
 
@@ -147,49 +142,24 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
   }
 
 
+
   /**
+   * Base implementation does nothing
    * 
+   * @return the original, unmodified DDF
    */
-  private class MLClassMethod extends ClassMethod {
+  @Override
+  public DDF applyModel(IModel model) throws DDFException {
+    return this.getDDF();
+  }
 
-    public MLClassMethod(String classHashMethodName, String defaultMethodName, Object[] args) throws DDFException {
-      super(classHashMethodName, defaultMethodName, args);
-    }
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels) throws DDFException {
+    return this.getDDF();
+  }
 
-    /**
-     * Override to search for methods that may contain initial arguments that precede our argTypes. These initial
-     * arguments might be feature/target column specifications in a train() method. Thus we do the argType matching from
-     * the end back to the beginning.
-     */
-    @Override
-    protected void findAndSetMethod(Class<?> theClass, String methodName, Class<?>... argTypes)
-        throws NoSuchMethodException, SecurityException {
-
-      if (argTypes == null) argTypes = new Class<?>[0];
-
-      Method foundMethod = null;
-
-      // Scan all methods
-      for (Method method : theClass.getDeclaredMethods()) {
-        if (!methodName.equalsIgnoreCase(method.getName())) continue;
-
-        // Scan all method arg types, starting from the end, and see if they match with our supplied arg types
-        Class<?>[] methodArgTypes = method.getParameterTypes();
-
-        // Check that the number of args are correct:
-        // the # of args in the method must be = 1 + the # of args supplied
-        // ASSUMING that one of the args in the method is for input data
-
-        if ((methodArgTypes.length - 1) == argTypes.length) {
-          foundMethod = method;
-          break;
-        }
-      }
-
-      if (foundMethod != null) {
-        foundMethod.setAccessible(true);
-        this.setMethod(foundMethod);
-      }
-    }
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
+    return this.getDDF();
   }
 }

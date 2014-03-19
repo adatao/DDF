@@ -14,7 +14,6 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config.ConfigConstant;
-import com.google.common.base.Strings;
 
 
 /**

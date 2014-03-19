@@ -5,9 +5,9 @@ package com.adatao.ddf.facades;
 
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.ml.ISupportML;
 
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
