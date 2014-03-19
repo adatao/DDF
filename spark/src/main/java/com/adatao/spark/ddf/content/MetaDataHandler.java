@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.AMetaDataHandler;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.exception.DDFException.DDFExceptionCode;
 
 /**
  *
@@ -18,16 +20,14 @@ public class MetaDataHandler extends AMetaDataHandler {
   }
 
   @Override
-  protected long getNumRowsImpl() {
+  protected long getNumRowsImpl() throws DDFException {
     String tableName = this.getDDF().getSchemaHandler().getTableName();
     logger.debug("get NumRows Impl called");
-    try {
-      List<String> rs = this.getManager().sql2txt("SELECT COUNT(*) FROM " + tableName);
-      return Long.parseLong(rs.get(0));
-    } catch (Exception e) {
-      logger.error("Unable to query from " + tableName, e);
-    }
-    return 0;
+
+    List<String> rs = this.getManager().sql2txt("SELECT COUNT(*) FROM " + tableName);
+    if (rs == null || rs.size() == 0) throw new DDFException(DDFExceptionCode.ERR_SQL_RESULT_EMPTY);
+    return Long.parseLong(rs.get(0));
+
   }
 
 }

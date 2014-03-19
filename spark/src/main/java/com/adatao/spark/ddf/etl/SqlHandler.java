@@ -77,8 +77,12 @@ public class SqlHandler extends ASqlHandler {
       sqlCmd = String.format(
                             "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
                                                     tableName, command);
-      tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
-      tableRdd = this.getSharkContext().sql2rdd(command);
+      try {
+    	  tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
+    	  tableRdd = this.getSharkContext().sql2rdd(command);
+      } catch (Exception e) {
+    	  throw new DDFException("SQL query failed", e);
+      }
 
     } else {
       // TODO
@@ -116,6 +120,10 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public List<String> sql2txt(String command, String dataSource) throws DDFException {
     // TODO: handle other dataSources
-    return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+  	try {
+  	  return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+  	} catch (Exception e) {
+  	  throw new DDFException("SQL query failed", e);
+    }
   }
 }
