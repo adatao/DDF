@@ -26,7 +26,11 @@ public class MetaDataHandler extends AMetaDataHandler {
 
     List<String> rs = this.getManager().sql2txt("SELECT COUNT(*) FROM " + tableName);
     if (rs == null || rs.size() == 0) throw new DDFException(DDFExceptionCode.ERR_SQL_RESULT_EMPTY);
-    return Long.parseLong(rs.get(0));
+    try {
+      return Long.parseLong(rs.get(0));
+    } catch (NumberFormatException e){
+      throw new DDFException("Cannot convert to number: " + rs.get(0));
+    }
 
   }
 
