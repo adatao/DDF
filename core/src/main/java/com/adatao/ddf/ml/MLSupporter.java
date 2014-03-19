@@ -1,19 +1,18 @@
 package com.adatao.ddf.ml;
 
 
+import java.lang.reflect.Method;
+import java.util.List;
+import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.ml.MLClassMethods.TrainMethod;
-import com.adatao.ddf.util.Utils.ClassMethod;
 import com.adatao.ddf.util.Utils.MethodInfo;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import scala.actors.threadpool.Arrays;
-import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  */
@@ -106,8 +105,8 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
 
     // Invoke the training method
-    Object result = trainMethod.classInvoke(allArgs);
-    return new Model(result);
+    Object rawModel = trainMethod.classInvoke(allArgs);
+    return new Model(rawModel);
   }
 
 

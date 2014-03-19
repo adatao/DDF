@@ -2,7 +2,6 @@ package com.adatao.ddf.ml;
 
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.MLClassMethods.PredictMethod;
 

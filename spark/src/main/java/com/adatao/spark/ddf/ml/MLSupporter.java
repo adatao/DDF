@@ -1,22 +1,21 @@
 package com.adatao.spark.ddf.ml;
 
 
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.ml.IModel;
-import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
-import com.adatao.spark.ddf.SparkDDF;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-import scala.reflect.ClassManifest$;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
+import com.adatao.spark.ddf.SparkDDF;
 
 public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
@@ -75,7 +74,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     JavaRDD<double[]> data = ddf.getJavaRDD(double[].class);
     JavaRDD<double[]> result = data.mapPartitions(new predictMapper(model, hasLabels, includeFeatures));
 
-    String columns = "label double, prediction double";
+    String columns = "label double, prediction double"; // FIXME: schema must reflect correct number of columns
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
         "YTrueYPredict"), columns);
 
@@ -84,8 +83,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
   }
 
 
-  // if double[] contain YTrue then the first (n - 1) item will be feature vector
-  // the last will be YTrue
   public static class predictMapper extends FlatMapFunction<Iterator<double[]>, double[]> {
     private static final long serialVersionUID = 1L;
     private IModel mModel;

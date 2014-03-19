@@ -54,6 +54,18 @@ public class MLFacade implements ISupportML {
     return this.getMLSupporter().applyModel(model);
   }
 
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels);
+  }
+
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels, includeFeatures);
+  }
+
+
+
   // //// Convenient facade ML algorithm names //////
 
   public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
@@ -65,4 +77,5 @@ public class MLFacade implements ISupportML {
       double miniBatchFraction) throws DDFException {
     return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
+
 }

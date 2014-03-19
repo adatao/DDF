@@ -39,9 +39,9 @@ class MllibIntegrationSuite extends ATestSuite {
     val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-    val result = ddfPredict2.ML.applyModel(regressionModel)
+    val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel)
 
-    result.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
+    yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
 
     manager.shutdown()
   }
