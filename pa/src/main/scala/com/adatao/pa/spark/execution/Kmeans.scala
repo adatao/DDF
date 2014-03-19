@@ -2,7 +2,8 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.ML
 import com.adatao.ML.KmeansModel
-import com.adatao.ML.types.{Matrix, Vector}
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import com.adatao.pa.spark.DataManager.{DataFrame, DataContainer, SharkDataFrame}
 
 import org.apache.spark.SparkContext

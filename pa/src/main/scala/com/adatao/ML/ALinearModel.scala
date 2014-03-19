@@ -17,7 +17,8 @@
 package com.adatao.ML
 
 import org.jblas.DoubleMatrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import java.util.HashMap
 
 /**

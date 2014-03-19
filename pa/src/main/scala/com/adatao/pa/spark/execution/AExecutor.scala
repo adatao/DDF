@@ -20,9 +20,9 @@
 package com.adatao.pa.spark.execution
 import scala.Array.canBuildFrom
 import com.google.gson.Gson
-import com.adatao.ML.types.Matrix
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import com.adatao.ML._
-import com.adatao.ML.types.Vector
 import com.adatao.pa.spark.SparkThread
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType

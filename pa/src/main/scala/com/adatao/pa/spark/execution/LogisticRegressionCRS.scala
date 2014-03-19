@@ -20,8 +20,8 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import org.apache.spark.rdd.RDD
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.ALossFunction
@@ -29,7 +29,7 @@ import com.adatao.spark.RDDImplicits._
 import java.util.HashMap
 import org.jblas.DoubleMatrix
 import no.uib.cipr.matrix.sparse.CompRowMatrix
-import com.adatao.ML.types.MatrixSparse
+import com.adatao.ddf.scalatypes.MatrixSparse
 import org.jblas.MatrixFunctions
 import com.adatao.ML.GradientDescent
 import scala.util.Random

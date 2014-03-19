@@ -22,8 +22,8 @@ package com.adatao.ML
 
 import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 
 /**
  * Useful functions such as sigmoid() are defined here

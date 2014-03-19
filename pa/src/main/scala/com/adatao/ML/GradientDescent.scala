@@ -16,8 +16,8 @@
 
 package com.adatao.ML
 
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 
 /**
  * @author ctn

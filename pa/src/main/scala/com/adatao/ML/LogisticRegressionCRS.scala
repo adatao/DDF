@@ -6,10 +6,10 @@ import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import java.util.HashMap
-import com.adatao.ML.types.MatrixSparse
+import com.adatao.ddf.scalatypes.MatrixSparse
 
 
 object LogisticRegressionCRS {

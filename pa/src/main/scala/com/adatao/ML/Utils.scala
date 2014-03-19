@@ -22,8 +22,8 @@ import java.util.HashMap
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager.DataContainer
