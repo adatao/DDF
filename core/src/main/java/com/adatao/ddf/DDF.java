@@ -48,6 +48,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.RSupporter;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
@@ -325,6 +326,14 @@ public abstract class DDF extends ALoggable //
   public ViewsFacade Views;
 
 
+  // ///// Execute a sqlcmd
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2txt(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
 
   // ///// Aggregate operations
 
@@ -351,7 +360,12 @@ public abstract class DDF extends ALoggable //
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
+  
+  public AggregationResult xtabs(String fields) throws DDFException {
+	    return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
+  }
 
+  public final RSupporter R = new RSupporter(this, this.getAggregationHandler());
 
   // ////// Function-Group Handlers ////////
 

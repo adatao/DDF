@@ -73,16 +73,17 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
 //  public Iterator<?> getElementIterator(String columnName);
 
   /**
+   * @param <T>
    * @param numSamples
    * @return a new DDF containing `numSamples` rows selected randomly from our owner DDF.
    */
-  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed);
+  public List<Object[]> getRandomSample(int numSamples, boolean withReplacement, int seed);
   
   public DDF getRandomSample(double percent, boolean withReplacement, int seed);
   
-  public DDF firstNRows(int numRows) throws DDFException;
+  public List<String> firstNRows(int numRows) throws DDFException;
   
   public DDF project(List<String> columnNames) throws DDFException;
 
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
+  //public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException;
 }
