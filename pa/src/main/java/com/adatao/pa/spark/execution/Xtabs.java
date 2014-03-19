@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -23,12 +24,14 @@ import org.slf4j.LoggerFactory;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
+import com.google.common.base.Joiner;
 
 // For prototype/templating purpose
 // This executor returns the FULL result of a query as List<String>
@@ -64,17 +67,19 @@ public class Xtabs extends CExecutor {
 	      LOG.info("Found the DDF " + dataContainerID);
 	    }
 		
-		String sqlStr;
-		if (!scols.equalsIgnoreCase("count")) {
-			sqlStr = String.format("SELECT %s, SUM(%s) %s FROM %s GROUP BY %s",
-					gcols, scols, scols, ddf.getName(), gcols);
-		} else {
-			sqlStr = String.format(
-					"SELECT %s, COUNT(*) count FROM %s GROUP BY %s", gcols,
-					ddf.getName(), gcols);
-		}
 		try {
-			List<String> res = dm.sql2txt(sqlStr, maxLevels);
+			AggregationResult agg = null;
+			if (!scols.equalsIgnoreCase("count")) {
+				agg = ddf.xtabs(String.format("%s, SUM(%s)",
+						gcols, scols));
+			} else {
+				agg = ddf.xtabs(String.format(
+						"%s, COUNT(*)", gcols));
+			}
+			List<String> res = new ArrayList<String>();
+			for(String k: agg.keySet()) {
+				res.add(String.format("%s,%s", k, Joiner.on(",").join(agg.get(k))));
+			}
 			return new Sql2ListStringResult().setResults(res);
 		} catch (DDFException e) {
 			throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);

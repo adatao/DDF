@@ -350,6 +350,10 @@ public abstract class DDF extends ALoggable //
   public AggregationResult aggregate(String fields) throws DDFException {
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
+  
+  public AggregationResult xtabs(String fields) throws DDFException {
+	    return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
+  }
 
 
   // ////// Function-Group Handlers ////////
