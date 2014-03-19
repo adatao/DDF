@@ -25,16 +25,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
 
   private Summary[] basicStats;
-  private List<String> mXtabs;
 
   protected abstract Summary[] getSummaryImpl() throws DDFException;
 
-  protected abstract List<String> getXtabsImpl() throws DDFException;
-  
-  public List<String> getXtabs() throws DDFException {
-    this.mXtabs = getXtabsImpl();
-    return this.mXtabs;
-  }
 
 
   public Summary[] getSummary() throws DDFException {
@@ -42,16 +35,14 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     return basicStats;
   }
 
-
+  
   @Override
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException {
     FiveNumSummary[] fivenums = new FiveNumSummary[columnNames.size()];
 
     List<String> specs = Lists.newArrayList();
     for (String columnName : columnNames) {
-      if (!Strings.isNullOrEmpty(fiveNumFunction(columnName))) {
-        specs.add(fiveNumFunction(columnName));
-      }
+      specs.add(fiveNumFunction(columnName));
     }
 
     String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));
@@ -61,12 +52,12 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       // each value can be a NULL
       // a fivenumsummary of an Double/Float column is in the format "min \t max \t[1st_quantile, median, 3rd_quantile]"
       // or "min \t max \t null"
-
-      String[] rs = this.getDDF()
+      
+      String[] rs = this.getDDF().getViewHandler()
           .sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s")).get(0)
           .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
-
-
+      
+     
       int k = 0;
       for (int i = 0; i < rs.length; i += 5) {
         fivenums[k] = new FiveNumSummary(parseDouble(rs[i]), parseDouble(rs[i + 1]), parseDouble(rs[i + 2]),

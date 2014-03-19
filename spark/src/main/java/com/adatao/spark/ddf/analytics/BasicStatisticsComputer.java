@@ -1,6 +1,5 @@
 package com.adatao.spark.ddf.analytics;
 
-import java.util.List;
 import com.adatao.ddf.exception.DDFException;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -8,6 +7,7 @@ import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
@@ -23,11 +23,6 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
     super(theDDF);
   }
 
-  @Override
-  public List<String> getXtabsImpl() throws DDFException {
-    //TODO: implement xtabs executor
-    return null;
-  }
   @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl()  throws DDFException {
