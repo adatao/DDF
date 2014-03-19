@@ -93,7 +93,11 @@ public class Schema implements Serializable {
   }
 
   public List<Column> getColumns() {
-    return mColumns;
+    List<Column> columns = new ArrayList<Column>();
+    for(Column column : mColumns) {
+      columns.add(column.clone());
+    }
+    return columns;
   }
 
   public void setColumns(List<Column> Columns) {
@@ -233,6 +237,10 @@ public class Schema implements Serializable {
       return ColumnType.isNumeric(mType);
     }
 
+    @Override
+    public Column clone() {
+      return new Column(this.getName(), this.getType());
+    }
   }
 
   public static class ColumnWithData extends Column {

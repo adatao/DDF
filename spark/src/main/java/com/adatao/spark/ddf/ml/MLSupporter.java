@@ -1,21 +1,22 @@
 package com.adatao.spark.ddf.ml;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.mllib.regression.LabeledPoint;
-import org.apache.spark.rdd.RDD;
-import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.spark.ddf.SparkDDF;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.mllib.regression.LabeledPoint;
+import org.apache.spark.rdd.RDD;
+import scala.actors.threadpool.Arrays;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
@@ -73,10 +74,18 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
     JavaRDD<double[]> data = ddf.getJavaRDD(double[].class);
     JavaRDD<double[]> result = data.mapPartitions(new predictMapper(model, hasLabels, includeFeatures));
+    List<Schema.Column> outputColumns = new ArrayList<Schema.Column>();
 
-    String columns = "label double, prediction double"; // FIXME: schema must reflect correct number of columns
+    if (includeFeatures) {
+      outputColumns = ddf.getSchema().getColumns();
+    } else if (!includeFeatures && hasLabels) {
+      outputColumns.add(ddf.getSchema().getColumns().get(ddf.getNumColumns() - 1));
+    }
+
+    outputColumns.add(new Schema.Column("prediction", "double"));
+
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
-        "YTrueYPredict"), columns);
+        "YTrueYPredict"), outputColumns);
 
     return new SparkDDF(this.getManager(), result.rdd(), double[].class, ddf.getManager().getNamespace(),
         schema.getTableName(), schema);

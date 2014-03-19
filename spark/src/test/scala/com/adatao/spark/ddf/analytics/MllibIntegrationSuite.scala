@@ -27,10 +27,9 @@ class MllibIntegrationSuite extends ATestSuite {
       "distance, arrdelay, depdelay, delayed from airline_delayed")
 
     val ddfPredict2 = manager.sql2ddf("select " +
-      "distance,arrdelay, depdelay, delayed from airline_delayed")
+      "distance, arrdelay, depdelay, delayed from airline_delayed")
 
     val kmeansModel = ddfPredict.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
-    kmeansModel.predict(Array(0.1, 2, 3, 4, 5, 6, 7, 8))
 
     val initialWeight = for {
       x <- 0 until (ddfTrain2.getNumColumns - 1)
@@ -39,10 +38,11 @@ class MllibIntegrationSuite extends ATestSuite {
     val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-    val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel)
+    val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
+    val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
 
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
-
+    yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     manager.shutdown()
   }
 }
