@@ -25,9 +25,16 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
 
   private Summary[] basicStats;
+  private List<String> mXtabs;
 
   protected abstract Summary[] getSummaryImpl() throws DDFException;
 
+  protected abstract List<String> getXtabsImpl() throws DDFException;
+  
+  public List<String> getXtabs() throws DDFException {
+    this.mXtabs = getXtabsImpl();
+    return this.mXtabs;
+  }
 
 
   public Summary[] getSummary() throws DDFException {

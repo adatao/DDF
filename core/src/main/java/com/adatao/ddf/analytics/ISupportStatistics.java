@@ -11,5 +11,7 @@ public interface ISupportStatistics extends IHandleDDFFunctionalGroup {
   public Summary[] getSummary() throws DDFException;
   
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException;
+  
+  public List<String> getXtabs() throws DDFException;
 
 }
