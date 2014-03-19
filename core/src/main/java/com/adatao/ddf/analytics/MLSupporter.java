@@ -111,8 +111,8 @@ public abstract class MLSupporter extends ADDFFunctionalGroupHandler implements 
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
 
     // Invoke the training method
-    Object result = trainMethod.classInvoke(allArgs);
-    return new Model(result);
+    Object rawModel = trainMethod.classInvoke(allArgs);
+    return new Model(rawModel);
   }
 
 
