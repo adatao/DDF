@@ -5,8 +5,9 @@ package com.adatao.ddf.facades;
 
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.ml.ISupportML;
 
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
@@ -46,6 +47,21 @@ public class MLFacade implements ISupportML {
   @Override
   public IModel train(String trainMethodName, Object... params) throws DDFException {
     return this.getMLSupporter().train(trainMethodName, params);
+  }
+
+  @Override
+  public DDF applyModel(IModel model) throws DDFException {
+    return this.getMLSupporter().applyModel(model);
+  }
+
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels);
+  }
+
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels, includeFeatures);
   }
 
 

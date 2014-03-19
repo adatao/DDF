@@ -9,14 +9,11 @@ import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
-import com.adatao.basic.ddf.content.PersistenceHandler.PersistenceUri2;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.MLSupporter.Model;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.Config.ConfigConstant;
-import com.google.common.base.Strings;
 
 
 /**
@@ -50,7 +47,7 @@ public class PersistenceHandlerTests {
 
     ddf.unpersist();
   }
-
+  /*
   @Test
   public void testLoadDDF() throws Exception {
     DDFManager manager = DDFManager.get("basic");
@@ -72,30 +69,10 @@ public class PersistenceHandlerTests {
     Assert.assertEquals("Created and loaded DDF names must be equal", ddf4.getName(), ddf1.getName());
 
     ddf1.unpersist();
-  }
+  } */
 
-  public class TestModel extends Model {
-    private static final long serialVersionUID = 6451873623219190370L;
 
-    public TestModel(List<String> featureColumns, Class<?> inputPredictionClass) {
-      super(featureColumns, inputPredictionClass);
-    }
-    @Override
-    public boolean isSupervisedAlgorithmModel() {
-      return false;
-    }
-
-    @Override
-    public DDF predict(Object data, DDF ddf) {
-      return null;
-    }
-
-    @Override
-    public double predictImpl(double[] point) {
-      return 0.0;
-    }
-  }
-
+  /*
   @Test
   public void testPersistModel() throws DDFException {
 
@@ -112,4 +89,5 @@ public class PersistenceHandlerTests {
 
     model.unpersist();
   }
+  */
 }
