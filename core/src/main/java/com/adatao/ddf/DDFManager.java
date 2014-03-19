@@ -73,20 +73,21 @@ import com.google.common.base.Strings;
 public abstract class DDFManager extends ALoggable implements IDDFManager, IHandleSqlLike, ISupportPhantomReference {
 
   /**
-   * List of existing DDFs 
+   * List of existing DDFs
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
-  
+
+
   public String addDDF(DDF data) {
     mDDFs.put(data.getName(), data);
     return data.getName();
   }
 
   public DDF getDDF(String ddfName) throws DDFException {
-    
+
     DDF data = mDDFs.get(ddfName);
-    if (data == null){
-    	throw new DDFException("Cannot get DDF with name " + ddfName);
+    if (data == null) {
+      throw new DDFException("Cannot get DDF with name " + ddfName);
     }
     return data;
   }
@@ -94,7 +95,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public HashMap<String, DDF> getDDFs() {
     return mDDFs;
   }
-  
+
   public DDFManager() {
     this.initialize();
   }

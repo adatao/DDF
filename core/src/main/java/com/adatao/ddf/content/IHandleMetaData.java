@@ -1,7 +1,8 @@
 package com.adatao.ddf.content;
 
-import java.util.UUID;
 
+import java.util.UUID;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface IHandleMetaData extends IHandleDDFFunctionalGroup {
@@ -10,5 +11,5 @@ public interface IHandleMetaData extends IHandleDDFFunctionalGroup {
 
   public void setId(UUID id);
 
-  public long getNumRows();
+  public long getNumRows() throws DDFException;
 }

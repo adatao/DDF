@@ -3,25 +3,27 @@
  */
 package com.adatao.ddf.content;
 
+
 import java.util.HashMap;
 import java.util.UUID;
-
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
 /**
  * @author ctn
  * 
  */
-public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
-    implements IHandleMetaData {
+public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler implements IHandleMetaData {
 
 
   public AMetaDataHandler(DDF theDDF) {
     super(theDDF);
   }
 
+
   private UUID mId = UUID.randomUUID();
+
 
   @Override
   public UUID getId() {
@@ -33,16 +35,18 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     mId = id;
   }
 
+
   private long mNumRows = 0L;
   private boolean bNumRowsIsValid = false;
 
+
   /**
-   * Each implementation needs to come up with its own way to compute the row
-   * count.
+   * Each implementation needs to come up with its own way to compute the row count.
    * 
    * @return row count of a DDF
+   * @throws DDFException
    */
-  protected abstract long getNumRowsImpl();
+  protected abstract long getNumRowsImpl() throws DDFException;
 
   /**
    * Called to assert that the row count needs to be recomputed at next access
@@ -52,7 +56,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
   }
 
   @Override
-  public long getNumRows() {
+  public long getNumRows() throws DDFException {
     if (!bNumRowsIsValid) {
       mNumRows = this.getNumRowsImpl();
       bNumRowsIsValid = true;
@@ -60,7 +64,9 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
     return mNumRows;
   }
 
+
   private HashMap<Integer, ICustomMetaData> mCustomMetaDatas;
+
 
   public ICustomMetaData getCustomMetaData(int idx) {
     return mCustomMetaDatas.get(idx);
@@ -73,6 +79,8 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
   public HashMap<Integer, ICustomMetaData> getListCustomMetaData() {
     return mCustomMetaDatas;
   }
+
+
   public static interface ICustomMetaData {
 
     public double[] buildCoding(String value);
