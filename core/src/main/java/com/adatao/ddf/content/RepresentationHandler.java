@@ -7,6 +7,7 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 
 /**
@@ -195,7 +196,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   /**
    * A special class representing a Table that's native to the engine, e.g., Shark Table for the Spark engine.
    */
-  public static class NativeTable implements IGloballyAddressable {
+  public static class NativeTable extends AGloballyAddressable implements IGloballyAddressable {
     private String mNamespace;
     private String mName;
 
@@ -223,6 +224,11 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     @Override
     public void setName(String name) {
       mName = name;
+    }
+
+    @Override
+    public String getGlobalObjectType() {
+      return "native_table";
     }
   }
 

@@ -19,7 +19,10 @@ package com.adatao.ddf;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
@@ -53,10 +56,10 @@ import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
-import com.adatao.local.ddf.LocalDDFManager;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 
@@ -113,6 +116,40 @@ public abstract class DDF extends ALoggable //
     this(manager, sDummyManager);
   }
 
+
+  /**
+   * cache for data computed from the DDF, e.g., ML models, DDF summary
+   */
+  protected HashMap<String, Object> cachedObjects = new HashMap<String, Object>();
+
+
+  /**
+   * Save a given object in memory for later (quick server-side) retrieval
+   * 
+   * @param obj
+   * @return
+   */
+  public String putObject(Object obj) {
+    String objectId = UUID.randomUUID().toString();
+    cachedObjects.put(objectId, obj);
+    return objectId;
+  }
+
+  public String putObject(String objectId, Object obj) {
+    cachedObjects.put(objectId, obj);
+    return objectId;
+  }
+
+  /**
+   * Retrieve an earlier saved object given its ID
+   * 
+   * @param objectId
+   * @return
+   */
+  public Object getObject(String objectId) {
+    return cachedObjects.get(objectId);
+  }
+
   /**
    * Available for run-time instantiation only.
    * 
@@ -148,6 +185,9 @@ public abstract class DDF extends ALoggable //
 
   // ////// Instance Fields & Methods ////////
 
+
+
+  // //// IGloballyAddressable //////
 
   @Expose private String mNamespace;
 
@@ -210,12 +250,17 @@ public abstract class DDF extends ALoggable //
     this.mName = name;
   }
 
+  @Override
+  public String getGlobalObjectType() {
+    return "ddf";
+  }
+
 
 
   /**
    * We provide a "dummy" DDF Manager in case our manager is not set for some reason. (This may lead to nothing good).
    */
-  private static final DDFManager sDummyManager = new LocalDDFManager();
+  private static final DDFManager sDummyManager = new BasicDDFManager();
 
   private DDFManager mManager;
 
@@ -642,21 +687,33 @@ public abstract class DDF extends ALoggable //
 
       return cons != null ? (I) cons.newInstance(this) : null;
 
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException
-        | InvocationTargetException e) {
-
+    } catch (ClassNotFoundException cnfe) {
       mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
-          theInterface.getSimpleName(), className), e);
-      return null;
+          theInterface.getSimpleName(), className), cnfe);
+    } catch (NoSuchMethodException nsme) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), nsme);
+    } catch (IllegalAccessException iae) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), iae);
+    } catch (InstantiationException ie) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), ie);
+    } catch (InvocationTargetException ite) {
+      mLog.error(String.format("Cannot instantiate handler for [%s] %s/%s", this.getEngine(),
+          theInterface.getSimpleName(), className), ite);
     }
 
+    return null;
 
   }
 
 
+  @Override
   public String getUri() {
-    return String.format("%s://%s/%s", this.getEngine(), this.getNamespace(), this.getName());
+    return AGloballyAddressable.getUri(this);
   }
+
 
   @Override
   public String toString() {

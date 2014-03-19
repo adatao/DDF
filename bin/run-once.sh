@@ -67,7 +67,7 @@ function Run() {
   bin/make-poms.sh || Error "make-poms.sh failed"
 
 
-  bin/mvn-once.sh
+  bin/mvn-all.sh
 
 
   echo "
