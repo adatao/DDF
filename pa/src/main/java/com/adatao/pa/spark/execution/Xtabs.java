@@ -17,12 +17,18 @@
 package com.adatao.pa.spark.execution;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.DataManager.DataContainer;
-import com.adatao.pa.spark.DataManager.SharkDataFrame;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import shark.api.JavaSharkContext;
 
 // For prototype/templating purpose
 // This executor returns the FULL result of a query as List<String>
@@ -31,6 +37,9 @@ public class Xtabs extends CExecutor {
 	String dataContainerID;
 	String gcols;
 	String scols;
+	Integer maxLevels = 1000;
+	
+	public static Logger LOG = LoggerFactory.getLogger(Xtabs.class);
 
 	static public class Sql2ListStringResult extends SuccessResult {
 		List<String> results;
@@ -46,21 +55,31 @@ public class Xtabs extends CExecutor {
 	}
 
 	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
-		SharkDataFrame df = (SharkDataFrame) dc;
-		JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
+	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+		DDFManager dm = sparkThread.getDDFManager();
+		DDF ddf = (DDF) dm.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+	    if (ddf == null) {
+	      LOG.info("Cannot find the DDF " + dataContainerID);
+	    } else {
+	      LOG.info("Found the DDF " + dataContainerID);
+	    }
+		
 		String sqlStr;
 		if (!scols.equalsIgnoreCase("count")) {
 			sqlStr = String.format("SELECT %s, SUM(%s) %s FROM %s GROUP BY %s",
-					gcols, scols, scols, df.tableName, gcols);
+					gcols, scols, scols, ddf.getName(), gcols);
 		} else {
 			sqlStr = String.format(
 					"SELECT %s, COUNT(*) count FROM %s GROUP BY %s", gcols,
-					df.tableName, gcols);
+					ddf.getName(), gcols);
 		}
-		List<String> res = sc.sql(sqlStr);
-		return new Sql2ListStringResult().setResults(res);
+		try {
+			List<String> res = dm.sql2txt(sqlStr, maxLevels);
+			return new Sql2ListStringResult().setResults(res);
+		} catch (DDFException e) {
+			throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
+		}
+		
 	}
 
 	public Xtabs setSqlCmd(String dataContainerID, String gcols, String scols) {
