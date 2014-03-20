@@ -5,14 +5,12 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
-import java.util.UUID;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.util.DDFUtils;
 
 /**
- * @author ctn
- * 
  */
 public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
 
@@ -54,22 +52,31 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   @Override
-  public String newTableName(Object forObject) {
-    if (forObject == null) forObject = this.getDDF();
-
-    return (this.getDDF() != null) //
-    ? String.format("%s-%s-%s", forObject.getClass().getSimpleName(), this.getDDF().getEngine(), UUID.randomUUID()) //
-        : String.format("DDF-%s", UUID.randomUUID());
+  public String newTableName(Object obj) {
+    return DDFUtils.generateObjectName(obj);
   }
 
   @Override
-  public long getNumColumns() {
+  public int getNumColumns() {
     return mSchema != null ? mSchema.getNumColumns() : -1;
   }
 
   @Override
   public int getColumnIndex(String columnName) {
     return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
+  }
+
+  @Override
+  public Schema generateSchema() {
+    if (this.getSchema() != null) return this.getSchema();
+
+    // Try to infer from the DDF's data
+    Object data = this.getDDF().getRepresentationHandler().getDefault();
+
+    // TODO: for now, we'll just support the "null" case
+    if (data == null) return new Schema(null, "null BLOB");
+
+    return null;
   }
 
 }

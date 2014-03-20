@@ -1,5 +1,6 @@
 package com.adatao.spark.ddf.analytics;
 
+import com.adatao.ddf.exception.DDFException;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
@@ -15,8 +16,6 @@ import scala.reflect.ClassManifest$;
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
- * @author bhan
- * 
  */
 public class BasicStatisticsComputer extends AStatisticsSupporter {
 
@@ -26,8 +25,8 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Summary[] getSummaryImpl() {
-    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(Object[].class);
+  public Summary[] getSummaryImpl()  throws DDFException {
+    RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
     JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
@@ -35,7 +34,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   }
 
   /**
-   * Mapper function
+   * Mapper function to accumulate summary data from each row
    */
   @SuppressWarnings("serial")
   public static class GetSummaryMapper extends Function<Object[], Summary[]> {

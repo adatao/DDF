@@ -83,13 +83,24 @@ public interface IHandleSqlLike {
 
 
   /**
-   * Executes the given command and stores the results into a List<String> which already has a
+   * Executes the given command and stores the results into a List<String> with default size which already has a
    * schema to govern the data loading, from the system default data source, using its default
    * {@link DataFormat}.
    * 
    * @return the List<String> with loaded data content
    */
   public List<String> sql2txt(String command) throws DDFException;
+  
+  /**
+   * Executes the given command and stores the results into a List<String> which already has a
+   * schema to govern the data loading, from the system default data source, using its default
+   * {@link DataFormat}.
+   * 
+   * @param command
+   * @param maxRows
+   * @return the List<String> with loaded data content
+   */
+  public List<String> sql2txt(String command, Integer maxRows) throws DDFException;
 
   /**
    * Executes the given command and stores the results into a List<String> using the given
@@ -101,5 +112,5 @@ public interface IHandleSqlLike {
    *          The dataSource (URI) of the data, e.g., jdbc://xxx
    * @return
    */
-  public List<String> sql2txt(String command, String dataSource) throws DDFException;
+  public List<String> sql2txt(String command, Integer maxRows, String dataSource) throws DDFException;
 }

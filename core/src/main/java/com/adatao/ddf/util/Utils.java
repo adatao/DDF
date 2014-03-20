@@ -1,37 +1,26 @@
 package com.adatao.ddf.util;
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.actors.threadpool.Arrays;
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 
@@ -264,70 +253,119 @@ public class Utils {
       try {
         return deserialize(Utils.readFromFile(path));
 
-      } catch (IOException e) {
-        throw new DDFException(e);
+      } catch (Exception e) {
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
       }
     }
   }
 
 
+  /**
+   * Helper class to parse a string of the form className#methodName into an object containing the instantiated object,
+   * and a method reference. It can then be used to invoke that method on that instantiated object.
+   */
   public static class ClassMethod {
 
     private String mClassHashMethodName;
+    private String mDefaultMethodName;
+    private Class<?>[] mMethodArgTypes;
+    private Class<?> mObjectClass;
     private Object mObject;
-    private Method mMethod;
+    private transient Method mMethod; // this is not serializable, so make it transient
 
 
     public String getClassHashMethodName() {
       return mClassHashMethodName;
     }
 
-    public Object getObject() {
+    public Object getObject() throws DDFException {
+      if (mObject == null) mObject = this.instantiateObject(mObjectClass);
       return mObject;
     }
 
+    public void setObject(Object obj) {
+      mObject = obj;
+      if (mObject != null) mObjectClass = mObject.getClass();
+    }
+
     public Method getMethod() {
+      if (mMethod == null) try {
+        // Re-parse it if necessary, e.g., after serdes when we have lost mMethod since it's not serializable
+        this.parse(mClassHashMethodName, mDefaultMethodName, mMethodArgTypes);
+
+      } catch (DDFException e) {
+        sLog.warn(String.format("%s: Unable to parse() in getMethod()", this.getClass().getSimpleName()), e);
+      }
+
       return mMethod;
     }
 
+    protected void setMethod(Method theMethod) {
+      mMethod = theMethod;
+    }
+
+    public ClassMethod(String classHashMethodName, String defaultMethodName, Object... args) throws DDFException {
+      this.parse(classHashMethodName, defaultMethodName, args);
+    }
+
     public ClassMethod(String classHashMethodName, Object... args) throws DDFException {
-      this.parse(classHashMethodName, args);
+      this.parse(classHashMethodName, null, args);
     }
 
     public ClassMethod(String classHashMethodName, Class<?>... argTypes) throws DDFException {
-      this.parse(classHashMethodName, argTypes);
+      this.parse(classHashMethodName, null, argTypes);
     }
 
-    private void parse(String classHashMethodName, Object... args) throws DDFException {
-      if (args == null || args.length == 0) {
-        this.parse(classHashMethodName);
+    public ClassMethod(Object theObject, String defaultMethodName, Class<?>... argTypes) throws DDFException {
+      if (theObject == null) throw new DDFException("Provided object cannot be null");
 
-      } else {
-        List<Class<?>> argTypes = Lists.newArrayList();
-        for (Object arg : args) {
-          argTypes.add(arg == null ? Object.class : arg.getClass());
-        }
+      this.setObject(theObject);
+      mClassHashMethodName = String.format("%s#%s", theObject.getClass().getName(), defaultMethodName);
+      this.parse(theObject.getClass(), defaultMethodName, argTypes);
+    }
 
-        this.parse(classHashMethodName, argTypes.toArray());
+    private void parse(String classHashMethodName, String defaultMethodName, Object... args) throws DDFException {
+      List<Class<?>> argTypes = Lists.newArrayList();
+
+      if (args != null && args.length > 0) for (Object arg : args) {
+        argTypes.add(arg == null ? Object.class : arg.getClass());
       }
+
+      this.parse(classHashMethodName, defaultMethodName, argTypes.toArray(new Class<?>[0]));
     }
 
-    private void parse(String classHashMethodName, Class<?>... argTypes) throws DDFException {
+    private void parse(String classHashMethodName, String defaultMethodName, Class<?>[] argTypes) throws DDFException {
       if (Strings.isNullOrEmpty(classHashMethodName)) throw new DDFException("Class#Method name cannot be null");
       mClassHashMethodName = classHashMethodName;
+      mDefaultMethodName = defaultMethodName;
+      mMethodArgTypes = argTypes;
 
       String[] parts = mClassHashMethodName.split("#");
+      if (parts.length == 1) parts = new String[] { parts[0], defaultMethodName };
+
       if (parts.length != 2) throw new DDFException("Invalid class#method name: " + mClassHashMethodName);
 
       try {
         this.parse(Class.forName(parts[0]), parts[1], argTypes);
 
       } catch (Exception e) {
-        throw new DDFException(e);
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
       }
     }
 
     private void parse(Class<?> theClass, String methodName, Class<?>... argTypes) throws DDFException {
+      try {
+        mObjectClass = theClass;
+        this.findAndSetMethod(theClass, methodName, argTypes);
+
+      } catch (Exception e) {
+        throw new DDFException(String.format("Unable to parse %s#%s", theClass.getName(), methodName), e);
+      }
+    }
+
+    private Object instantiateObject(Class<?> theClass) throws DDFException {
       try {
         Constructor<?> cons = null;
 
@@ -335,16 +373,182 @@ public class Utils {
           cons = theClass.getDeclaredConstructor(new Class<?>[0]);
           if (cons != null) cons.setAccessible(true);
 
-        } catch (NoSuchMethodException nsme) {
-          throw new DDFException(String.format("%s needs to have a default, zero-arg constructor", theClass.getName()));
+        } catch (Exception e) {
+          throw new DDFException(String.format("%s needs to have a default, zero-arg constructor", theClass.getName()),
+              e);
         }
 
-        mObject = cons.newInstance(new Object[0]);
-        mMethod = theClass.getMethod(methodName, argTypes);
+        return cons.newInstance(new Object[0]);
 
       } catch (Exception e) {
-        throw new DDFException(e);
+        if (e instanceof DDFException) throw (DDFException) e;
+        else throw new DDFException(e);
+      }
+    }
+
+    /**
+     * Allow subclasses to override this to do their own method matching logic
+     * 
+     * @param theClass
+     * @param methodName
+     * @param argTypes
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     */
+    protected void findAndSetMethod(Class<?> theClass, String methodName, Class<?>... argTypes)
+        throws NoSuchMethodException, SecurityException {
+
+      this.setMethod(theClass.getMethod(methodName, argTypes));
+    }
+
+
+    public Object classInvoke(Object... args) throws DDFException {
+      try {
+        return this.getMethod().invoke(null, args);
+
+      } catch (Exception e) {
+        throw new DDFException(String.format("Error while invoking method %s on class %s", this.getMethod().getName(),
+            mObjectClass.getName()), e);
+      }
+    }
+
+    public Object instanceInvoke(Object... args) throws DDFException {
+      if (this.getObject() == null) throw new DDFException("An object is required to invoke the given method");
+      if (this.getMethod() == null) throw new DDFException("A method is required to invoke on the given object");
+
+      try {
+        return this.getMethod().invoke(this.getObject(), args);
+
+      } catch (Exception e) {
+        throw new DDFException(String.format("Error while invoking method %s on object %s", this.getMethod().getName(),
+            this.getObject().getClass().getName()), e);
       }
     }
   }
+
+
+  /**
+   * Returns the first element, if any, of an object that may be an {@link Iterable}
+   * 
+   * @param maybeIterable
+   * @return
+   */
+  public static Object getFirstElement(Object maybeIterable) {
+    if (!(maybeIterable instanceof Iterable<?>)) return null;
+    Iterable<?> iterable = (Iterable<?>) maybeIterable;
+    Iterator<?> iterator = iterable.iterator();
+    return iterator.hasNext() ? iterator.next() : null;
+  }
+
+
+  public static class MethodInfo {
+
+    private Method mMethod;
+    private List<ParamInfo> mParamInfos;
+
+
+    public MethodInfo(Method method) {
+      mMethod = method;
+      this.parse();
+    }
+
+    public Method getMethod() {
+      return mMethod;
+    }
+
+    public List<ParamInfo> getParamInfos() {
+      return mParamInfos;
+    }
+
+    private void parse() {
+      mParamInfos = Lists.newArrayList();
+
+      for (Type type : mMethod.getGenericParameterTypes()) {
+        mParamInfos.add(new ParamInfo(type));
+      }
+    }
+
+
+    public static class ParamInfo {
+      private Type mType;
+      private Type[] mTypeArgs;
+      private boolean bIsParameterizedType;
+
+
+      public ParamInfo(Type methodType) {
+        mType = methodType;
+
+        if (methodType instanceof ParameterizedType) {
+          bIsParameterizedType = true;
+          mType = ((ParameterizedType) methodType).getRawType();
+          mTypeArgs = ((ParameterizedType) methodType).getActualTypeArguments();
+        }
+      }
+
+      public boolean isParameterizedType() {
+        return bIsParameterizedType;
+      }
+
+      public boolean argMatches(Class<?> argType) {
+        return (argType.isAssignableFrom((Class<?>) mType));
+      }
+
+      public boolean argMatches(String argType) {
+        return mType.toString().indexOf(argType) >= 0;
+      }
+
+      public boolean argMatches(Class<?> argType, Class<?>... paramTypes) {
+        if (paramTypes == null) return this.argMatches(argType);
+
+        return (this.argMatches(argType) && this.paramMatches(paramTypes));
+      }
+
+      public boolean argMatches(String argType, String... paramTypes) {
+        if (paramTypes == null) return this.argMatches(argType);
+
+        return (this.argMatches(argType) && this.paramMatches(paramTypes));
+      }
+
+      public boolean paramMatches(Class<?>... paramTypes) {
+        for (int i = 0; i < paramTypes.length; i++) {
+          if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+        }
+
+        return true;
+      }
+
+      public boolean paramMatches(String... paramTypes) {
+        for (int i = 0; i < paramTypes.length; i++) {
+          if (mTypeArgs[i].toString().indexOf(paramTypes[0]) < 0) return false;
+        }
+
+        return true;
+      }
+
+
+      public Type getType() {
+        return mType;
+      }
+
+      public Class<?> getTypeClass() {
+        return (Class<?>) mType;
+      }
+
+      public Type[] getTypeArgs() {
+        return mTypeArgs;
+      }
+
+      @Override
+      public String toString() {
+        if (this.isParameterizedType()) {
+          return String.format("%s<%s>", this.getType(), Arrays.toString(this.getTypeArgs()));
+
+        } else {
+          return mType.toString();
+        }
+      }
+    }
+  }
+
 }

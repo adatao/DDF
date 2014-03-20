@@ -89,4 +89,10 @@ public class RSupporter implements IHandleAggregation {
         Joiner.on(",").join(aggregatedFields.toArray()));
   }
 
+  @Override
+  public AggregationResult xtabs(List<AggregateField> fields) throws DDFException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

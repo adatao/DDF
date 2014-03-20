@@ -7,6 +7,7 @@ package com.adatao.ddf.content;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
@@ -31,7 +32,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
    * e.g.,
    * 
    * <pre>
-   * local:///root/ddf/ddf-runtime/local-ddf-db/com.example/MyDDF.dat
+   * basic:///root/ddf/ddf-runtime/basic-ddf-db/com.example/MyDDF.dat
    * </pre>
    * 
    * @param uri
@@ -89,7 +90,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
    * Base class for objects that can persist themselves, via the DDF persistence mechanism
    * 
    */
-  public static abstract class APersistible implements IGloballyAddressable, IPersistible {
+  public static abstract class APersistible extends AGloballyAddressable implements IGloballyAddressable, IPersistible {
 
     private static final long serialVersionUID = -5941712506105779254L;
 
@@ -106,7 +107,7 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     // //// IPersistible /////
 
-    private DDF newContainerDDF() throws DDFException {
+    private DDF createDDFWrapper() throws DDFException {
       DDF ddf = this.newContainerDDFImpl();
 
       if (ddf == null) throw new DDFException(String.format("Cannot create new container DDF for %s: %s/%s",
@@ -125,7 +126,13 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     @Override
     public PersistenceUri persist(boolean doOverwrite) throws DDFException {
-      return this.newContainerDDF().persist(doOverwrite);
+      this.beforePersisting();
+
+      PersistenceUri uri = this.createDDFWrapper().persist(doOverwrite);
+
+      this.afterPersisting();
+
+      return uri;
     }
 
     @Override
@@ -135,8 +142,28 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
 
     @Override
     public void unpersist() throws DDFException {
-      this.newContainerDDF().unpersist();
+      this.beforeUnpersisting();
+
+      this.createDDFWrapper().unpersist();
+
+      this.afterUnpersisting();
     }
+
+    @Override
+    public void beforePersisting() {}
+
+
+    @Override
+    public void afterPersisting() {}
+
+
+    @Override
+    public void beforeUnpersisting() {}
+
+
+    @Override
+    public void afterUnpersisting() {}
+
 
 
     // //// IGloballyAddressable //////
@@ -165,6 +192,11 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
       mName = name;
     }
 
+    @Override
+    public String getGlobalObjectType() {
+      return "persistible";
+    }
+
 
 
     @Override
@@ -174,8 +206,11 @@ public abstract class APersistenceHandler extends ADDFFunctionalGroupHandler imp
     public void beforeSerialization() throws DDFException {}
 
     @Override
-    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData) throws DDFException {
+    public ISerializable afterDeserialization(ISerializable deserializedObject, Object serializationData)
+        throws DDFException {
       return deserializedObject;
     }
+
+
   }
 }

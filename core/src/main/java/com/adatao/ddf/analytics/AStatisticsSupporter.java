@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import com.adatao.ddf.DDF;
+
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -25,10 +26,11 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
   private Summary[] basicStats;
 
+  protected abstract Summary[] getSummaryImpl() throws DDFException;
 
-  protected abstract Summary[] getSummaryImpl();
 
-  public Summary[] getSummary() {
+
+  public Summary[] getSummary() throws DDFException {
     this.basicStats = getSummaryImpl();
     return basicStats;
   }
@@ -40,9 +42,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
     List<String> specs = Lists.newArrayList();
     for (String columnName : columnNames) {
-      if (!Strings.isNullOrEmpty(fiveNumFunction(columnName))) {
-        specs.add(fiveNumFunction(columnName));
-      }
+      specs.add(fiveNumFunction(columnName));
     }
 
     String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));

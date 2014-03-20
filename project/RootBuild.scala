@@ -14,7 +14,9 @@ object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
 	val SPARK_VERSION = "0.8.1-incubating"
+	//val SPARK_VERSION = "0.8.1-SNAPSHOT"
 	val SHARK_VERSION = "0.8.1-SNAPSHOT"
+	val MLLIB_VERSION = "0.8.1-incubating"
 	
 	//val theScalaVersion = "2.10.0"
 	val theScalaVersion = "2.9.3"
@@ -37,6 +39,16 @@ object RootBuild extends Build {
 	val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
 	val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 	
+	val enterpriseProjectName = projectName + "_enterprise"
+	val enterpriseVersion = rootVersion
+	val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
+	val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
+
+	val paProjectName = projectName + "_pa"
+	val paVersion = rootVersion
+	val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+	val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
+
 	val examplesProjectName = projectName + "_examples"
 	val examplesVersion = rootVersion
 	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
@@ -47,9 +59,11 @@ object RootBuild extends Build {
 	val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
 	val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
 	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib)
+	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
 	lazy val core = Project("core", file("core"), settings = coreSettings)
 	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
+	lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
+	lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
 	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
 	lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
 
@@ -77,7 +91,7 @@ object RootBuild extends Build {
   val excludeGuava = ExclusionRule(organization = "com.google.guava", name = "guava-parent")
   val excludeJets3t = ExclusionRule(organization = "net.java.dev.jets3t", name = "jets3t")
   val excludeAsm = ExclusionRule(organization = "asm", name = "asm")
-  val excludeSpark = ExclusionRule(organization = "org.spark-project", name = "spark-core_2.9.3")
+  val excludeSpark = ExclusionRule(organization = "org.apache.spark", name = "spark-core_2.9.3")
   val excludeEverthing = ExclusionRule(organization = "*", name = "*")
   val excludeEverythingHackForMakePom = ExclusionRule(organization = "_MAKE_POM_EXCLUDE_ALL_", name = "_MAKE_POM_EXCLUDE_ALL_")
 
@@ -120,11 +134,15 @@ object RootBuild extends Build {
     "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
     "org.datanucleus" % "datanucleus-core" % "2.0.3",
     "org.apache.derby" % "derby" % "10.4.2.0",
-    "org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
+    "org.apache.spark" % "spark-mllib_2.9.3" % MLLIB_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
     "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
   )
 
+  val pa_dependencies = Seq(
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
+    "org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
+  )
 
   /////// Common/Shared project settings ///////
 
@@ -177,7 +195,7 @@ object RootBuild extends Build {
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
-      "org.apache.commons" % "commons-io" % "1.3.2",
+      "commons-io" % "commons-io" % "1.3.2",
       //"org.apache.thrift" % "libthrift" % "0.9.0",
       //"org.apache.thrift" % "libfb303" % "0.9.0",
       //"org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
@@ -261,7 +279,7 @@ object RootBuild extends Build {
 								</environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
-                  <spark.kryo.registrator>adatao.bigr.spark.KryoRegistrator</spark.kryo.registrator>
+                  <spark.kryo.registrator>com.adatao.pa.spark.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                   <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
@@ -447,7 +465,8 @@ object RootBuild extends Build {
     name := coreProjectName,
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") }
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2"
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
@@ -457,19 +476,33 @@ object RootBuild extends Build {
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch spark/" + targetDir + "/*timestamp") },
-
     resolvers ++= Seq(
       //"JBoss Repository" at "http://repository.jboss.org/nexus/content/repositories/releases/",
       //"Spray Repository" at "http://repo.spray.cc/",
       //"Twitter4J Repository" at "http://twitter4j.org/maven2/"
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
-
     libraryDependencies ++= com_adatao_unmanaged,
     libraryDependencies ++= spark_dependencies
-
   ) ++ assemblySettings ++ extraAssemblySettings
 
+
+
+  def paSettings = commonSettings ++ Seq(
+    name := paProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
+    libraryDependencies ++= pa_dependencies
+  ) ++ assemblySettings ++ extraAssemblySettings
+
+
+  def enterpriseSettings = commonSettings ++ Seq(
+    name := enterpriseProjectName,
+    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch enterprise/" + targetDir + "/*timestamp") }
+  ) ++ assemblySettings ++ extraAssemblySettings
 
 
   def examplesSettings = commonSettings ++ Seq(

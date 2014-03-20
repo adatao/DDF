@@ -2,6 +2,7 @@ package com.adatao.spark.ddf;
 
 
 import java.util.Map;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,19 +73,17 @@ public class StatisticsSupporterTest {
     //manager.shutdown();
 
   }
-
+ 
   @Test
-  @Ignore
   public void testSampling() throws DDFException {
+    Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
     Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());
   }
+  
   @After
   public void closeTest() {
-
     manager.shutdown();
-
   }
-
 
 
 }

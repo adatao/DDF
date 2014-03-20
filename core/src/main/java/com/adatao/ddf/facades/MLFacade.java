@@ -5,8 +5,9 @@ package com.adatao.ddf.facades;
 
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.ISupportML;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.ml.ISupportML;
 
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
@@ -40,17 +41,39 @@ public class MLFacade implements ISupportML {
     mMLSupporter = mlSupporter;
   }
 
+
   @Override
-  public IModel train(IAlgorithm algorithm, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithm, params);
+  public IModel train(String trainMethodName, Object... params) throws DDFException {
+    return this.getMLSupporter().train(trainMethodName, params);
   }
 
-  public IModel train(String algorithmNameOrClassName, Object... params) throws DDFException {
-    return this.getMLSupporter().train(algorithmNameOrClassName, params);
+  @Override
+  public DDF applyModel(IModel model) throws DDFException {
+    return this.getMLSupporter().applyModel(model);
   }
 
-  public IModel kMeans(int numCentroids, int maxIters, int runs, String initMode) throws DDFException {
-    return this.train("kmeans", numCentroids, maxIters, runs, initMode);
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels);
+  }
+
+  @Override
+  public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
+    return this.getMLSupporter().applyModel(model, hasLabels, includeFeatures);
+  }
+
+
+
+  // //// Convenient facade ML algorithm names //////
+
+  public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
+      throws DDFException {
+    return this.train("kmeans", featureColumnIndexes, numCentroids, maxIters, runs, initMode);
+  }
+
+  public IModel linearRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
+      double miniBatchFraction) throws DDFException {
+    return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
 
 }
