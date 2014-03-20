@@ -33,13 +33,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
       sb.append(':');
     }
 
+    if (sb.length() > 0) sb.deleteCharAt(sb.length() - 1); // remove last ':'
+
     return sb.toString();
   }
 
-  // protected Class<?>[] getSafedataType(Class<?>[] typeSpecs) {
-  // if (typeSpecs == null || typeSpecs.length == 0) return
-  // return typeSpecs != null ? typeSpecs : NA.class;
-  // }
+
+  @Override
+  public String getSpecsAsString(Class<?>... typeSpecs) {
+    return getKeyFor(typeSpecs);
+  }
 
   /**
    * Gets an existing representation for our {@link DDF} matching the given dataType, if any.
@@ -50,11 +53,39 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    */
   @Override
   public Object get(Class<?>... typeSpecs) {
+    return this.get(this.getSpecsAsString(typeSpecs), true);
+  }
+
+
+  @Override
+  public Object get(String typeSpecs) {
     return this.get(typeSpecs, true);
   }
 
-  private Object get(Class<?>[] typeSpecs, boolean doCreate) {
-    Object obj = mReps.get(getKeyFor(typeSpecs));
+  @Override
+  public IGetResult get(Class<?>[][] acceptableTypeSpecs) {
+    if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
+
+    for (Class<?>[] ats : acceptableTypeSpecs) {
+      if (this.has(ats)) return new GetResult(this.get(this.getSpecsAsString(ats), false), ats);
+    }
+
+    return null;
+  }
+
+  @Override
+  public IGetResult get(String[] acceptableTypeSpecs) {
+    if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
+
+    for (String ats : acceptableTypeSpecs) {
+      if (this.has(ats)) return new GetResult(this.get(ats, false), ats);
+    }
+
+    return null;
+  }
+
+  private Object get(String typeSpecs, boolean doCreate) {
+    Object obj = mReps.get(typeSpecs);
 
     if (obj == null && doCreate) {
       obj = this.createRepresentation(typeSpecs);
@@ -62,6 +93,17 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     }
 
     return obj;
+  }
+
+
+  @Override
+  public boolean has(String typeSpecs) {
+    return mReps.containsKey(typeSpecs);
+  }
+
+  @Override
+  public boolean has(Class<?>... typeSpecs) {
+    return this.has(this.getSpecsAsString(typeSpecs));
   }
 
 
@@ -98,7 +140,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   private boolean equalsDefaultDataType(Class<?>... typeSpecs) {
-    return getKeyFor(typeSpecs).equals(getKeyFor(this.getDefaultDataType()));
+    return this.getSpecsAsString(typeSpecs).equals(this.getSpecsAsString(this.getDefaultDataType()));
   }
 
 
@@ -111,9 +153,9 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @param dataType
    * @return
    */
-  public Object createRepresentation(Class<?>[] dataType) {
-    if (getKeyFor(dataType).equals(getKeyFor(this.getDefaultDataType()))) {
-      return this.get(dataType, false);
+  public Object createRepresentation(String typeSpecs) {
+    if (typeSpecs != null && typeSpecs.equalsIgnoreCase(this.getSpecsAsString(this.getDefaultDataType()))) {
+      return this.get(typeSpecs, false);
 
     } else {
       return null;
@@ -146,7 +188,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     typeSpecs = determineTypeSpecs(data, typeSpecs);
     if (this.getDefaultDataType() == null) this.setDefaultDataType(typeSpecs);
 
-    mReps.put(getKeyFor(typeSpecs), data);
+    mReps.put(this.getSpecsAsString(typeSpecs), data);
   }
 
   /**
@@ -156,7 +198,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    */
   @Override
   public void remove(Class<?>... typeSpecs) {
-    mReps.remove(getKeyFor(typeSpecs));
+    mReps.remove(this.getSpecsAsString(typeSpecs));
     if (this.equalsDefaultDataType(typeSpecs)) this.reset();
   }
 
@@ -234,4 +276,48 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
 
   public static final String NATIVE_TABLE = getKeyFor(new Class<?>[] { NativeTable.class });
+
+
+  public static class GetResult implements IGetResult {
+
+    public GetResult(Object obj, Class<?>... typeSpecs) {
+      this(obj, RepresentationHandler.getKeyFor(typeSpecs));
+      mTypeSpecs = typeSpecs;
+    }
+
+
+    /**
+     * Internal use only. Don't encourage external use, since we want to require the Class<?>... typeSpecs format.
+     * 
+     * @param obj
+     * @param typeSpecsString
+     */
+    private GetResult(Object obj, String typeSpecsString) {
+      mObject = obj;
+      mTypeSpecsString = typeSpecsString;
+    }
+
+
+    private Class<?>[] mTypeSpecs;
+    private String mTypeSpecsString;
+    private Object mObject;
+
+
+    @Override
+    public Class<?>[] getTypeSpecs() {
+      return mTypeSpecs;
+    }
+
+    @Override
+    public String getTypeSpecsString() {
+      return mTypeSpecsString;
+    }
+
+    @Override
+    public Object getObject() {
+      return mObject;
+    }
+  }
+
+
 }

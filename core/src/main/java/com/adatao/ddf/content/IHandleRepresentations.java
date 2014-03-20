@@ -31,7 +31,19 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
 
   /**
-   * Retrieves a representation of type type.
+   * Converts a representation type specification to a unique String key
+   * 
+   * @param typeSpecs
+   * @return
+   */
+  String getSpecsAsString(Class<?>... typeSpecs);
+
+  boolean has(String typeSpecs);
+
+  boolean has(Class<?>... typeSpecs);
+
+  /**
+   * Retrieves a representation of the specified type specs.
    * 
    * @param typeSpecs
    *          a variable-length array of specifications to identify the exact data representation type, e.g.,
@@ -39,6 +51,42 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * @return a pointer to the specified
    */
   Object get(Class<?>... typeSpecs);
+
+  /**
+   * Retrieves a representation of the specified type specs.
+   * 
+   * @param typeSpecs
+   *          the String representation of the type specs, produced by
+   *          {@link IHandleRepresentations#getSpecsAsString(Class...)}
+   * @return a pointer to the specified
+   */
+  Object get(String typeSpecs);
+
+  /**
+   * Allows client to specify a list of acceptable type specs
+   * 
+   * @param acceptableTypeSpecs
+   * @return a representation matching one of the acceptable type specs
+   */
+  IGetResult get(Class<?>[][] acceptableTypeSpecs);
+
+  /**
+   * Allows client to specify a list of acceptable type specs
+   * 
+   * @param acceptableTypeSpecs
+   * @return a representation matching one of the acceptable type specs
+   */
+  IGetResult get(String[] acceptableTypeSpecs);
+
+
+  interface IGetResult {
+    String getTypeSpecsString();
+
+    Class<?>[] getTypeSpecs();
+
+    Object getObject();
+  }
+
 
   /**
    * Clears out all current representations.

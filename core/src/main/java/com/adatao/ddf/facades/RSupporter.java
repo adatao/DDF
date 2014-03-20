@@ -14,12 +14,12 @@ import com.google.common.collect.Lists;
 
 public class RSupporter implements IHandleAggregation {
 
-  private DDF mDDF;
+  // private DDF mDDF;
   private IHandleAggregation mAggregationHandler;
 
 
   public RSupporter(DDF ddf, IHandleAggregation mlSupporter) {
-    mDDF = ddf;
+    // mDDF = ddf;
     mAggregationHandler = mlSupporter;
   }
 
@@ -57,7 +57,7 @@ public class RSupporter implements IHandleAggregation {
   }
 
   // ///// Aggregate operations
-  
+
   // aggregate(cbind(mpg,hp) ~ vs + am, mtcars, FUN=mean)
   public AggregationResult aggregate(String rAggregateFormula) throws DDFException {
 
@@ -87,6 +87,12 @@ public class RSupporter implements IHandleAggregation {
 
     return Joiner.on(",").join(rParts[0].replaceAll("\\s*\\+\\s*", ","),
         Joiner.on(",").join(aggregatedFields.toArray()));
+  }
+
+  @Override
+  public AggregationResult xtabs(List<AggregateField> fields) throws DDFException {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
