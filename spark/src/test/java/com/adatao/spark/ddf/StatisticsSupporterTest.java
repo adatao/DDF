@@ -60,6 +60,7 @@ public class StatisticsSupporterTest {
     Assert.assertEquals(3, ddf.Views.project(new String[] { "year", "month", "deptime" }).getNumColumns());
     Assert.assertEquals(5, ddf.Views.firstNRows(5).size());
     //manager.shutdown();
+
   }
 
   @Test
@@ -79,7 +80,7 @@ public class StatisticsSupporterTest {
     Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
     Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());
   }
-  
+
   @After
   public void closeTest() {
     manager.shutdown();

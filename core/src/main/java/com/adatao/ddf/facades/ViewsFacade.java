@@ -9,7 +9,8 @@ import com.adatao.ddf.exception.DDFException;
 public class ViewsFacade implements IHandleViews {
   private DDF mDDF;
   private IHandleViews mViewHandler;
-  
+
+
   public ViewsFacade(DDF ddf, IHandleViews mlSupporter) {
     mDDF = ddf;
     mViewHandler = mlSupporter;
@@ -33,36 +34,6 @@ public class ViewsFacade implements IHandleViews {
     mViewHandler = viewHandler;
   }
 
-//  @Override
-//  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-//    return mViewHandler.getRowIterator(rowType);
-//  }
-//
-//  @Override
-//  public Iterator<?> getRowIterator() {
-//    return mViewHandler.getRowIterator();
-//  }
-//
-//  @Override
-//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
-//    return mViewHandler.getElementIterator(dataType, columnType, columnIndex);
-//  }
-//
-//  @Override
-//  public Iterator<?> getElementIterator(int columnIndex) {
-//    return mViewHandler.getElementIterator(columnIndex);
-//  }
-//
-//  @Override
-//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
-//    return mViewHandler.getElementIterator(dataType, columnType, columnName);
-//  }
-//
-//  @Override
-//  public Iterator<?> getElementIterator(String columnName) {
-//    return mViewHandler.getElementIterator(columnName);
-//  }
-
   @Override
   public List<Object[]> getRandomSample(int numSamples, boolean withReplacement, int seed) {
     return mViewHandler.getRandomSample(numSamples, withReplacement, seed);
@@ -83,8 +54,7 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF project(List<String> columnNames) throws DDFException {
+  public DDF project(String... columnNames) throws DDFException {
     return this.getViewHandler().project(columnNames);
   }
-
 }

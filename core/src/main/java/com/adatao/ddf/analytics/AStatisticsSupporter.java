@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import com.adatao.ddf.DDF;
-
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -26,6 +25,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
   private Summary[] basicStats;
 
+
   protected abstract Summary[] getSummaryImpl() throws DDFException;
 
 
@@ -35,7 +35,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     return basicStats;
   }
 
-  
+
   @Override
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException {
     FiveNumSummary[] fivenums = new FiveNumSummary[columnNames.size()];
@@ -51,13 +51,12 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       // a fivenumsummary of an Int/Long column is in the format "[min, max, 1st_quantile, median, 3rd_quantile]"
       // each value can be a NULL
       // a fivenumsummary of an Double/Float column is in the format "min \t max \t[1st_quantile, median, 3rd_quantile]"
-      // or "min \t max \t null"
-      
+      // or "min \t max \t null"s
       String[] rs = this.getDDF()
           .sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s")).get(0)
           .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
-      
-     
+
+
       int k = 0;
       for (int i = 0; i < rs.length; i += 5) {
         fivenums[k] = new FiveNumSummary(parseDouble(rs[i]), parseDouble(rs[i + 1]), parseDouble(rs[i + 2]),
