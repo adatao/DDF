@@ -24,8 +24,8 @@ import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.AAlgorithmTest
 import com.adatao.ML.LinearRegression
 import com.adatao.ML.LogisticRegression
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.ATimedAlgorithmTest
@@ -38,7 +38,7 @@ import com.adatao.ML.ATimedAlgorithmTest
  */
 class RegressionSuite extends ATimedAlgorithmTest {
 
-	private val doRunTests = true	
+	private val doRunTests = false	
 	private val testOrIgnore = if (doRunTests) test _ else ignore _
 
 	private val X = new Matrix(

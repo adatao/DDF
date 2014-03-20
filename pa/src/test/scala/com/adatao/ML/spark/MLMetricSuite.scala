@@ -18,8 +18,8 @@ package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.scalatypes.Vector
 import org.junit.Assert._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

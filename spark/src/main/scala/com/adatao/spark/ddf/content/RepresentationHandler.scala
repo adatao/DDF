@@ -30,26 +30,26 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
   override def getDefaultDataType: Array[Class[_]] = Array(classOf[RDD[_]], classOf[Row])
 
-      /**
-       * Converts from an RDD[Row] to any representation
-       */
-      override def createRepresentation(typeSpecs: Array[Class[_]]): Object = this.fromRDDRow(typeSpecs)
+  /**
+   * Converts from an RDD[Row] to any representation
+   */
+  override def createRepresentation(typeSpecs: Array[Class[_]]): Object = this.fromRDDRow(typeSpecs)
 
-      protected def fromRDDRow(typeSpecs: Array[Class[_]]): Object = {
-      val schemaHandler = mDDF.getSchemaHandler
-      val numCols = schemaHandler.getNumColumns.toInt
-      val srcRdd = this.toRDDRow
-      val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
+  protected def fromRDDRow(typeSpecs: Array[Class[_]]): Object = {
+  val schemaHandler = mDDF.getSchemaHandler
+  val numCols = schemaHandler.getNumColumns.toInt
+  val srcRdd = this.toRDDRow
+  val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
-      RH.getKeyFor(typeSpecs) match {
-        case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
-        case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
-        case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
-        case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
-        case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
-        case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s",
-            RH.getKeyFor(typeSpecs),
-            RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
+  RH.getKeyFor(typeSpecs) match {
+    case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
+    case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
+    case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
+    case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
+    case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
+    case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s",
+        RH.getKeyFor(typeSpecs),
+        RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
   }
 }
 
@@ -153,8 +153,8 @@ object RepresentationHandler {
     val numCols = mappers.length
     rdd.map(row ⇒ {
       val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
-          val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
-          new LabeledPoint(label, features)
+      val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
+      new LabeledPoint(label, features)
     })
   }
 
@@ -173,11 +173,11 @@ object RepresentationHandler {
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[(Matrix, Vector)] = {
     val numCols = mappers.length
-        var numRows = 0
-        while (rows.hasNext) {
-          rows.next
-          numRows += 1
-        }
+    var numRows = 0
+    while (rows.hasNext) {
+      rows.next
+      numRows += 1
+    }
     val Y = new Vector(numRows)
     val X = new Matrix(numRows, numCols-1)
 
@@ -192,11 +192,11 @@ object RepresentationHandler {
       while (i < numCols-1) {
         //        columnIndex = xCols(i - 1)
         columnIndex  = i
-            newValue = inputRow.getPrimitive(i).asInstanceOf[Double]
-                X.put(row, i, newValue) // x-feature #i
-                i += 1
+        newValue = mappers(i)(inputRow.getPrimitive(i))
+        X.put(row, i, newValue) // x-feature #i
+        i += 1
       }
-      Y.put(row, inputRow.getPrimitive(numCols - 1).asInstanceOf[Double]) // y-value
+      Y.put(row, mappers(i)(inputRow.getPrimitive(numCols - 1))) // y-value
       row += 1
     })
     Iterator((X, Y))

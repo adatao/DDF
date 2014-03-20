@@ -195,6 +195,7 @@ object RootBuild extends Build {
       "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
+      "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
       //"org.apache.thrift" % "libthrift" % "0.9.0",
       //"org.apache.thrift" % "libfb303" % "0.9.0",

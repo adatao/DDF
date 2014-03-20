@@ -27,12 +27,10 @@ import com.adatao.pa.spark.SparkThread
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import com.adatao.pa.spark.DataManager
-
 import com.adatao.pa.spark.DataManager.{SharkDataFrame, DataFrame}
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessfulResult
 import com.adatao.pa.spark.types.FailedResult
-
 import com.adatao.ML.Kmeans.ParsePoint
 import scala.Some
 import com.adatao.pa.spark.types.ExecutionException
@@ -44,6 +42,8 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
 import org.apache.spark.api.java.JavaSparkContext
+import com.adatao.ddf.DDFManager
+import com.adatao.ddf.DDF
 
 /**
  * These classes belong to the package [[com.adatao.pa.spark.execution]], which concern
@@ -207,23 +207,13 @@ abstract class AModelTrainer[T <: TModel](
 		//update numFeatures
 		numFeatures = xCols.length + 1
 		//handle both shark dataframe and normal dataframe
-		Option(context.sparkThread.getDataManager.get(dataContainerID)) match {
-			case Some(dataContainer) ⇒ {
+		
+		val ddfManager: DDFManager = context.sparkThread.getDDFManager()
+    val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
+    
+    val dataPartition: RDD[(Matrix, Vector)] = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).asInstanceOf[RDD[(Matrix, Vector)]]
+    Option(dataPartition)
 
-				var trDummyCoding = new TransformDummyCoding(dataContainer.getMetaInfo(), xCols, mapReferenceLevel)
-
-				var (dataPartition, dcm) = trDummyCoding.transform(dataContainer, yCol)
-				//set property
-				LOG.info("dummyColumnMapping={}",dcm.toString())
-				dummyColumnMapping = dcm
-				if (dummyColumnMapping.size() > 0)
-					numFeatures += trDummyCoding.numDummyCols
-				Option(dataPartition)
-
-			}
-			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, 
-								"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-		}
 	}
 
 	/*
