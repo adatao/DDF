@@ -16,7 +16,6 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
-
 import com.adatao.ddf.scalatypes.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.scalatypes.Vector
@@ -41,6 +40,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
   val srcRdd = this.toRDDRow
   val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
+  println(">>>>>>. typeSpecs=" + typeSpecs)
   RH.getKeyFor(typeSpecs) match {
     case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
     case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
@@ -132,7 +132,7 @@ object RepresentationHandler {
   val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
   val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
   val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
-  val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[(Matrix, Vector)]))
+  val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Tuple2[_,_]], classOf[Matrix], classOf[Vector]))
   /**
    *
    */
@@ -167,11 +167,12 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[(Matrix, Vector)] = {
+  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[(Matrix,Vector)] = {
+	  println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
     rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
   }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[(Matrix, Vector)] = {
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[(Matrix,Vector)] = {
     val numCols = mappers.length
     var numRows = 0
     while (rows.hasNext) {
@@ -180,6 +181,7 @@ object RepresentationHandler {
     }
     val Y = new Vector(numRows)
     val X = new Matrix(numRows, numCols-1)
+    
 
     var row = 0
     val yCol = 0
@@ -199,6 +201,7 @@ object RepresentationHandler {
       Y.put(row, mappers(i)(inputRow.getPrimitive(numCols - 1))) // y-value
       row += 1
     })
+    
     Iterator((X, Y))
   }
 

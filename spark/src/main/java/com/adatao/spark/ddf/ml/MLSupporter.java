@@ -5,6 +5,9 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.scalatypes.Matrix;
+import com.adatao.ddf.scalatypes.TupleMatrixVector;
+import com.adatao.ddf.scalatypes.Vector;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.spark.ddf.SparkDDF;
 import org.apache.commons.lang.ArrayUtils;
@@ -13,7 +16,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +40,10 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     if (paramInfo.argMatches(RDD.class)) {
       // Yay, our target data format is an RDD!
       RDD<?> rdd = null;
+      
 
+      System.out.println(">>>>>>>>>>>>>... spark MLSupporter convertDDF : paramInfo = " + paramInfo);
+      
       if (paramInfo.paramMatches(LabeledPoint.class)) {
         rdd = (RDD<LabeledPoint>) this.getDDF().getRepresentationHandler().get(RDD.class, LabeledPoint.class);
         System.out.println("RDD<LabeledPoint>");
@@ -49,10 +54,20 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
         rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
         System.out.println("RDD<Object>");
       }
+      else if (paramInfo.paramMatches(scala.Tuple2.class, Matrix.class, Vector.class)) {
+        System.out.println(">>>>>>>>>>>>>... insideconvertDDF : paramInfo = " + paramInfo);
+        rdd = (RDD<TupleMatrixVector>) this.getDDF().getRepresentationHandler().get(RDD.class, scala.Tuple2.class, Matrix.class, Vector.class);
+        
+        System.out.println(">>>>>>>>>>>>>... finish parsing Matrix Vector");
+        System.out.println("RDD<TupleMatrixVector>");
+      } 
+      
+      
       return rdd;
     }
 
     else {
+      System.out.println("paramInfo >>>>>>>>>" +paramInfo);
       return super.convertDDF(paramInfo);
     }
   }

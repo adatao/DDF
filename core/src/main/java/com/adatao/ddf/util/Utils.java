@@ -405,7 +405,10 @@ public class Utils {
 
     public Object classInvoke(Object... args) throws DDFException {
       try {
+        
+        System.out.println(">>>>>>>>>>>>>>>. args=" + args);
         return this.getMethod().invoke(null, args);
+        
 
       } catch (Exception e) {
         throw new DDFException(String.format("Error while invoking method %s on class %s", this.getMethod().getName(),
@@ -512,7 +515,13 @@ public class Utils {
 
       public boolean paramMatches(Class<?>... paramTypes) {
         for (int i = 0; i < paramTypes.length; i++) {
-          if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+          System.out.println(">>>>>>>>>>>>>>>>> \t" + i + "\t" + paramTypes[i] + "\ttype=" + mTypeArgs[i]);
+          try {
+            if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+          }
+          catch (Exception e) {
+            return false;
+          }
         }
 
         return true;
