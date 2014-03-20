@@ -16,6 +16,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
+import com.adatao.ddf.content.RepresentationHandler.GetResult
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -29,21 +30,21 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 	/**
 	 * Converts from an RDD[Row] to any representation
 	 */
-	override def createRepresentation(typeSpecs: Array[Class[_]]): Object = this.fromRDDRow(typeSpecs)
+	override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
 
-	protected def fromRDDRow(typeSpecs: Array[Class[_]]): Object = {
+	protected def fromRDDRow(typeSpecs: String): Object = {
 		val schemaHandler = mDDF.getSchemaHandler
 		val numCols = schemaHandler.getNumColumns.toInt
 		val srcRdd = this.toRDDRow
 		val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
-		RH.getKeyFor(typeSpecs) match {
+		typeSpecs match {
 			case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
 			case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
 			case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
 			case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
 			case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s",
-				RH.getKeyFor(typeSpecs),
+				typeSpecs,
 				RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
 		}
 	}
@@ -121,6 +122,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 }
 
 object RepresentationHandler {
+
 	/**
 	 * Supported Representations
 	 */

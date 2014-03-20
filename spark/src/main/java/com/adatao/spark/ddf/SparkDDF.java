@@ -5,8 +5,10 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.RepresentationHandler.GetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import scala.actors.threadpool.Arrays;
 import scala.reflect.ClassManifest$;
 
 
@@ -52,8 +54,32 @@ public class SparkDDF extends DDF {
     else throw new DDFException("Unable to get RDD with unit type " + unitType);
   }
 
+  public GetResult getRDD(Class<?>... acceptableUnitTypes) throws DDFException {
+    if (acceptableUnitTypes == null || acceptableUnitTypes.length == 0) {
+      throw new DDFException("Acceptable Unit Types must be specified");
+    }
+
+    for (Class<?> unitType : acceptableUnitTypes) {
+      if (this.getRepresentationHandler().has(RDD.class, unitType)) {
+        return new GetResult(this.getRepresentationHandler().get(RDD.class, unitType), unitType);
+      }
+    }
+
+    throw new DDFException("Unable to get RDD for any of the following unit types: "
+        + Arrays.toString(acceptableUnitTypes));
+  }
+
   public <T> JavaRDD<T> getJavaRDD(Class<T> unitType) throws DDFException {
     RDD<T> rdd = this.getRDD(unitType);
     return new JavaRDD<T>(rdd, ClassManifest$.MODULE$.fromClass(unitType));
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public GetResult getJavaRDD(Class<?>... acceptableUnitTypes) throws DDFException {
+    GetResult result = this.getRDD(acceptableUnitTypes);
+    RDD<?> rdd = (RDD<?>) result.getObject();
+    Class<?> unitType = result.getTypeSpecs()[0];
+
+    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)));
   }
 }
