@@ -30,11 +30,10 @@ object LogisticRegressionCRS {
   }
   
   
-  def train(XYData: RDD[(Matrix, Vector)],
+  def train(XYData: RDD[TupleMatrixVector],
 		numIters: java.lang.Integer,
     learningRate: java.lang.Double,
     ridgeLambda: java.lang.Double,
-    initialWeights: Array[java.lang.Double],
     numFeatures: Int): LogisticRegressionModel = {
 
 	  
@@ -110,9 +109,10 @@ object GradientDescent  {
 //    }
 //}
 
-class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
+class LossFunction(@transient XYData: RDD[TupleMatrixVector], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
     def compute: Vector ⇒ ALossFunction = {
-      (weights: Vector) ⇒ XYData.map { case (x,y) ⇒ this.compute(x, y, weights) }.reduce(_.aggregate(_))
+//      (weights: Vector) ⇒ XYData.map { case (x,y) ⇒ this.compute(x, y, weights) }.reduce(_.aggregate(_))
+      (weights: Vector) ⇒ XYData.map { case a ⇒ this.compute(a.x, a.y, weights) }.reduce(_.aggregate(_))
     }
 }
 

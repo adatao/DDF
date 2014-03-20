@@ -19,6 +19,7 @@ import shark.memstore2.TablePartition
 import com.adatao.ddf.scalatypes.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.scalatypes._
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -132,7 +133,7 @@ object RepresentationHandler {
   val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
   val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
   val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
-  val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Tuple2[_,_]], classOf[Matrix], classOf[Vector]))
+  val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   /**
    *
    */
@@ -167,12 +168,12 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[(Matrix,Vector)] = {
+  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
 	  println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
     rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
   }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[(Matrix,Vector)] = {
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
     val numCols = mappers.length
     var numRows = 0
     while (rows.hasNext) {
@@ -202,7 +203,8 @@ object RepresentationHandler {
       row += 1
     })
     
-    Iterator((X, Y))
+    val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
+    Iterator(Z)
   }
 
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {

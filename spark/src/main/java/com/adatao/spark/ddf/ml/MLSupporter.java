@@ -50,18 +50,18 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       } else if (paramInfo.paramMatches(double[].class)) {
         rdd = (RDD<double[]>) this.getDDF().getRepresentationHandler().get(RDD.class, double[].class);
         System.out.println("RDD<Double[]>");
-      } else if (paramInfo.paramMatches(Object.class)) {
-        rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
-        System.out.println("RDD<Object>");
-      }
-      else if (paramInfo.paramMatches(scala.Tuple2.class, Matrix.class, Vector.class)) {
+      } 
+      else if (paramInfo.paramMatches(TupleMatrixVector.class)) {
         System.out.println(">>>>>>>>>>>>>... insideconvertDDF : paramInfo = " + paramInfo);
-        rdd = (RDD<TupleMatrixVector>) this.getDDF().getRepresentationHandler().get(RDD.class, scala.Tuple2.class, Matrix.class, Vector.class);
+        rdd = (RDD<TupleMatrixVector>) this.getDDF().getRepresentationHandler().get(RDD.class, TupleMatrixVector.class);
         
         System.out.println(">>>>>>>>>>>>>... finish parsing Matrix Vector");
         System.out.println("RDD<TupleMatrixVector>");
       } 
-      
+      else if (paramInfo.paramMatches(Object.class)) {
+        rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
+        System.out.println("RDD<Object>");
+      }
       
       return rdd;
     }

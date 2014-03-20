@@ -45,8 +45,9 @@ class MllibIntegrationSuite extends ATestSuite {
 //    .get(classOf[RDD[_]], classOf[(Matrix, Vector)])
 //    ddfTrain2.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).
     
+    
     val glmModel = ddfTrain2.ML.train("logisticRegressionCRS", 2: java.lang.Integer,
-    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray, 2: java.lang.Integer)
+    0.1: java.lang.Double, 0.1: java.lang.Double, 3: java.lang.Integer)
 
 //    val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
 //    val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
