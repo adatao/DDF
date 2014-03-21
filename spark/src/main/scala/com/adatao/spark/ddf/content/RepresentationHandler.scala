@@ -16,7 +16,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
-import com.adatao.ddf.content.RepresentationHandler.GetResult
+import org.apache.spark.api.java.function.Function
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -39,13 +39,14 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 		val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
 		typeSpecs match {
+		  case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd) 
 			case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
 			case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
 			case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
 			case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
 			case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s",
 				typeSpecs,
-				RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
+				RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
 		}
 	}
 
@@ -72,7 +73,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 		if (arraysDouble != null) {
 			return null // TODO
 		}
-
+LabeledPoint
 		val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
 		if (labeledPoints != null) {
 			return null // TODO
@@ -129,6 +130,7 @@ object RepresentationHandler {
 	val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
 	val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
 	val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
+	val RDD_TABLE_PARTITION = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TablePartition]))
 	/**
 	 *
 	 */
@@ -163,6 +165,12 @@ object RepresentationHandler {
 		array
 	}
 
+	def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
+	  rdd.map {
+      row ⇒ row.rawdata.asInstanceOf[TablePartition]
+    }
+  }
+	
 	private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
 		colType match {
 			case ColumnType.DOUBLE ⇒ {
