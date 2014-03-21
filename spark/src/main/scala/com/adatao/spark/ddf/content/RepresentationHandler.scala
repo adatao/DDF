@@ -20,6 +20,7 @@ import com.adatao.ddf.scalatypes.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.scalatypes.Vector
 import com.adatao.ddf.scalatypes._
+import java.util.ArrayList
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -169,40 +170,57 @@ object RepresentationHandler {
   }
 
   def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
-	  println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
+	  
     rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
   }
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
+	  println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
     val numCols = mappers.length
-    var numRows = 0
-    while (rows.hasNext) {
-      rows.next
-      numRows += 1
-    }
-    val Y = new Vector(numRows)
-    val X = new Matrix(numRows, numCols-1)
     
-
+    //have to convert to List
+    var lstRows  =  new ArrayList[Array[Double]] ()
     var row = 0
+    while(rows.hasNext) {
+    	var currentRow = rows.next
+    	var column = 0
+    	var b = new Array[Double] (numCols)
+      while (column < numCols) {
+    	  b(column) = mappers(column)(currentRow.getPrimitive(column))
+    	  column += 1
+      }
+    	lstRows.add(row,  b)
+    	row += 1
+    }
+    
+    
+    val numRows = lstRows.size//rows.toArray[Row].length
+    val Y = new Vector(numRows)
+	   //numCols = numCols + 1 bias term
+    val X = new Matrix(numRows, numCols)
+    
+    row = 0
     val yCol = 0
-    rows.foreach(inputRow ⇒ {
+    
+    while(row < lstRows.size) {
+      var inputRow = lstRows(row)
       X.put(row, 0, 1.0) // bias term
-      var i = 1
       var columnIndex = 0
       var columnValue = ""
       var newValue: Double = -1.0
-      while (i < numCols-1) {
-        //        columnIndex = xCols(i - 1)
-        columnIndex  = i
-        newValue = mappers(i)(inputRow.getPrimitive(i))
-        X.put(row, i, newValue) // x-feature #i
-        i += 1
+      
+      var column = 0
+      while (column < numCols-1) {
+        columnIndex  = column + 1
+        newValue = inputRow(column)
+        
+        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
+        X.put(row, columnIndex, newValue) // x-feature #i
+        column += 1
       }
-      Y.put(row, mappers(i)(inputRow.getPrimitive(numCols - 1))) // y-value
+      Y.put(row, inputRow(numCols - 1)) // y-value
       row += 1
-    })
-    
+    }
     val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
     Iterator(Z)
   }

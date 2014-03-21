@@ -34,6 +34,7 @@ object LogisticRegressionCRS {
 		numIters: java.lang.Integer,
     learningRate: java.lang.Double,
     ridgeLambda: java.lang.Double,
+    initialWeights: scala.Array[Double],
     numFeatures: Int): LogisticRegressionModel = {
 
 	  
@@ -43,11 +44,21 @@ object LogisticRegressionCRS {
 	  val snumFeatures: Int = numFeatures.asInstanceOf[Int]
 	  
 	  val lossFunction = new LossFunction(XYData, ridgeLambda)
-	  val a: Vector = null
+	  var a: Vector = null
+	   
+	  if(initialWeights != null && initialWeights.size > 0) {
+  	  var i = 0
+  	  a = new Vector(initialWeights.size) 
+  	  while(i < initialWeights.size) {
+  	 	  a.put(i, initialWeights(i))
+  	 	  i += 1
+  	  }
+	  }
 	  
-
     //depend on length of weights
-    var model: LogisticRegressionModel = train(lossFunction, snumIters, slearningRate, a, snumFeatures)
+    val model: LogisticRegressionModel = train(lossFunction, snumIters, slearningRate, a, snumFeatures)
+    
+    println(">>>>>>>>>>>> model=" + model.toString() )
 
     model
   }
@@ -62,6 +73,10 @@ object LogisticRegressionCRS {
 }
 
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) {
+	
+	override def toString(): String = {
+		weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
+	}
   def predict(features: Array[Double]): Double = 0.0
 }
 
@@ -72,8 +87,6 @@ object GradientDescent  {
     initialWeights: Vector,
     learningRate: Double,
     numIters: Int): (Vector, Vector, Long) = {
-
-    println(">>>>>>>>>>>>>>>> GradientDescent initial weights rows = " + initialWeights.getRows() + "\tnumColumns=" + initialWeights.getColumns())
 
     // Track training errors for all iterations, plus 1 more for the error before the first iteration
     val trainingLosses = new Vector(numIters + 1)
@@ -109,7 +122,7 @@ object GradientDescent  {
 //    }
 //}
 
-class LossFunction(@transient XYData: RDD[TupleMatrixVector], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
+class LossFunction(@transient XYData: RDD[TupleMatrixVector], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
     def compute: Vector ⇒ ALossFunction = {
 //      (weights: Vector) ⇒ XYData.map { case (x,y) ⇒ this.compute(x, y, weights) }.reduce(_.aggregate(_))
       (weights: Vector) ⇒ XYData.map { case a ⇒ this.compute(a.x, a.y, weights) }.reduce(_.aggregate(_))
@@ -196,7 +209,7 @@ abstract class ALossFunction extends Serializable {
   def compute: Vector ⇒ ALossFunction
 }
 
-abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
+abstract class R[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
     extends ALinearGradientLossFunction[XYDataType](XYData, ridgeLambda) {
 
   /**
@@ -306,3 +319,57 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
     this
   }
 }
+
+abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
+    extends ALinearGradientLossFunction[XYDataType](XYData, ridgeLambda) {
+
+  /**
+   * Override to apply the sigmoid function
+   *
+   * hypothesis[vector] = sigmoid(weights*X)
+   */
+  override def computeHypothesis(X: Matrix, weights: Vector): (DoubleMatrix, DoubleMatrix) = {
+    val linearPredictor = this.computeLinearPredictor(X, weights)
+    (linearPredictor, ALossFunction.sigmoid(linearPredictor))
+  }
+
+  // LogisticRegression gradients is exactly the same as LinearRegression's
+
+  /**
+   * Override to compute the appropriate loss function for logistic regression
+   *
+   * h = hypothesis
+   * J[scalar] = -(Y'*log(h) + (1-Y')*log(1-h)) + (lambda*weights^2 / 2)
+   */
+  override def computeLoss(X: Matrix, Y: Vector, weights: Vector, errors: DoubleMatrix, linearPredictor: DoubleMatrix, hypothesis: DoubleMatrix) = {
+    /**
+     * We have
+     *   a1. lim log(sigmoid(x)) = 0 as x goes to +infinity
+     *   a2. lim log(sigmoid(x)) = -x as x goes to -infinity
+     * Likewise, 
+     *   b1. lim log(1-sigmoid(x)) = -x as x goes to +infinity
+     *   b2. lim log(1-sigmoid(x)) = 0 as x goes to -infinity
+     *
+     * We calculate h = sigmoid(x) under floating point arithmetic,
+     * then we calculate log(h) and 1-log(h), substituting overflowed values.
+     *
+     * The behavior of cases a1 and b2  hold under floating point arithmetic, i.e.
+     *   a1. when x > 720, h = 1, log h = 0
+     *   b2. when x < -720, h = 0, 1-h) = 1, log (1-h) = 0
+     * The other two cases result in overflow:
+     *   a2. when x < -720, h = 0, log h = -Infinity => replace with x
+     *   b1. when x > 720, h = 1, (1-h) = 0, log (1-h) = -Infinity => replace with -x
+     *
+     * This is actually quite complicated for a misleadingly-simple-looking few lines of code.
+     */
+    val YT = Y.transpose()
+    val lossA: Double = Y.dot(ALossFunction.safeLogOfSigmoid(hypothesis, linearPredictor)) // Y' x log(h)
+    val lossB: Double = Vector.fill(Y.length, 1.0).subi(Y).dot(
+      ALossFunction.safeLogOfSigmoid(Vector.fill(Y.length, 1.0).subi(hypothesis), linearPredictor.neg)
+    ) // (1-Y') x log(1-h)
+    var J = -(lossA + lossB)
+    if (ridgeLambda != 0.0) J += (ridgeLambda / 2) * weights.dot(weights)
+    J
+  }
+}
+
