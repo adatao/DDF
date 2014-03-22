@@ -2,7 +2,7 @@ package com.adatao.spark.ddf.ml;
 
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.RepresentationHandler.GetResult;
+import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
@@ -75,7 +75,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
   @Override
   public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
     SparkDDF ddf = (SparkDDF) this.getDDF();
-    GetResult gr = ddf.getJavaRDD(LabeledPoint.class, double[].class, Object[].class);
+    IGetResult gr = ddf.getJavaRDD(double[].class, LabeledPoint.class, Object[].class);
 
     // Apply appropriate mapper
     JavaRDD<?> result = null;

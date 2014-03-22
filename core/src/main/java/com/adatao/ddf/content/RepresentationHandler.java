@@ -66,8 +66,15 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   public IGetResult get(Class<?>[][] acceptableTypeSpecs) {
     if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
 
+    // First check what formats are *already* there, so we can save the effort of having to create it
     for (Class<?>[] ats : acceptableTypeSpecs) {
       if (this.has(ats)) return new GetResult(this.get(this.getSpecsAsString(ats), false), ats);
+    }
+
+    // Now see which formats can be created
+    for (Class<?>[] ats : acceptableTypeSpecs) {
+      Object result = this.get(this.getSpecsAsString(ats), true);
+      if (result != null) return new GetResult(result, ats);
     }
 
     return null;
@@ -77,8 +84,15 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   public IGetResult get(String[] acceptableTypeSpecs) {
     if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
 
+    // First check what formats are *already* there, so we can save the effort of having to create it
     for (String ats : acceptableTypeSpecs) {
       if (this.has(ats)) return new GetResult(this.get(ats, false), ats);
+    }
+
+    // Now see which formats can be created
+    for (String ats : acceptableTypeSpecs) {
+      Object result = this.get(ats, true);
+      if (result != null) return new GetResult(result, ats);
     }
 
     return null;
