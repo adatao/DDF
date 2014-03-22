@@ -82,13 +82,14 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     Class<?> resultUnitType = double[].class;
 
     if (LabeledPoint.class.equals(gr.getTypeSpecs()[0])) {
+
       result = ((JavaRDD<LabeledPoint>) gr.getObject()).mapPartitions(new PredictMapper<LabeledPoint, double[]>(
           LabeledPoint.class, double[].class, model, hasLabels, includeFeatures));
-
+      resultUnitType = double[].class;
     } else if (double[].class.equals(gr.getTypeSpecs()[0])) {
       result = ((JavaRDD<double[]>) gr.getObject()).mapPartitions(new PredictMapper<double[], double[]>(double[].class,
           double[].class, model, hasLabels, includeFeatures));
-
+      resultUnitType = double[].class;
     } else if (Object[].class.equals(gr.getTypeSpecs()[0])) {
       result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
           Object[].class, model, hasLabels, includeFeatures));
@@ -106,7 +107,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       outputColumns.add(ddf.getSchema().getColumns().get(ddf.getNumColumns() - 1));
     }
 
-    outputColumns.add(new Schema.Column("prediction", "double"));
+      outputColumns.add(new Schema.Column("prediction", "double"));
 
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
         "YTrueYPredict"), outputColumns);
