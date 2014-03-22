@@ -93,6 +93,8 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
           Object[].class, model, hasLabels, includeFeatures));
       resultUnitType = Object[].class;
+    }  else {
+      throw new DDFException(String.format("Error apply model %s", model.getRawModel().getClass().getName()));
     }
 
 

@@ -79,8 +79,8 @@ public class SparkDDF extends DDF {
   public IGetResult getJavaRDD(Class<?>... acceptableUnitTypes) throws DDFException {
     IGetResult result = this.getRDD(acceptableUnitTypes);
     RDD<?> rdd = (RDD<?>) result.getObject();
-    Class<?> unitType = result.getTypeSpecs()[0];
+    Class<?> unitType = result.getTypeSpecs()[1];
 
-    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)));
+    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)), unitType);
   }
 }
