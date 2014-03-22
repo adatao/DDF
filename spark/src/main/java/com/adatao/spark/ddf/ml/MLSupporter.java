@@ -14,7 +14,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -108,7 +107,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       outputColumns.add(ddf.getSchema().getColumns().get(ddf.getNumColumns() - 1));
     }
 
-    outputColumns.add(new Schema.Column("prediction", "double"));
+      outputColumns.add(new Schema.Column("prediction", "double"));
 
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
         "YTrueYPredict"), outputColumns);
