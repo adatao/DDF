@@ -12,15 +12,15 @@ import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-public class RSupporter implements IHandleAggregation {
+public class RFacade implements IHandleAggregation {
 
-  // private DDF mDDF;
+  private DDF mDDF;
   private IHandleAggregation mAggregationHandler;
 
 
-  public RSupporter(DDF ddf, IHandleAggregation mlSupporter) {
-    // mDDF = ddf;
-    mAggregationHandler = mlSupporter;
+  public RFacade(DDF ddf, IHandleAggregation aggregationHandler) {
+    mDDF = ddf;
+    mAggregationHandler = aggregationHandler;
   }
 
   public IHandleAggregation getAggregationHandler() {
@@ -33,14 +33,12 @@ public class RSupporter implements IHandleAggregation {
 
   @Override
   public DDF getDDF() {
-    // TODO Auto-generated method stub
-    return null;
+    return mDDF;
   }
 
   @Override
   public void setDDF(DDF theDDF) {
-    // TODO Auto-generated method stub
-
+    mDDF = theDDF;
   }
 
 

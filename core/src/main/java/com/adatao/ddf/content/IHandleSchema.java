@@ -2,23 +2,24 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
+import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 
 public interface IHandleSchema extends IHandleDDFFunctionalGroup {
 
-  public Schema getSchema();
+  Schema getSchema();
 
-  public void setSchema(Schema schema);
+  void setSchema(Schema schema);
 
-  public String getTableName();
+  String getTableName();
 
-  public List<Column> getColumns();
+  List<Column> getColumns();
 
-  public int getNumColumns();
+  int getNumColumns();
 
-  public String newTableName();
+  String newTableName();
 
   /**
    * The name will reflect the class name of the given forObject
@@ -26,12 +27,22 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
    * @param forObject
    * @return
    */
-  public String newTableName(Object forObject);
+  String newTableName(Object forObject);
 
-  public int getColumnIndex(String columnName);
+  int getColumnIndex(String columnName);
+
+  String getColumnName(int columnIndex);
 
   /**
    * Generate a basic schema for the current DDF
    */
-  public Schema generateSchema();
+  Schema generateSchema();
+
+  Factor<?> setAsFactor(String columnName);
+
+  Factor<?> setAsFactor(int columnIndex);
+
+  void unsetAsFactor(String columnName);
+
+  void unsetAsFactor(int columnIndex);
 }

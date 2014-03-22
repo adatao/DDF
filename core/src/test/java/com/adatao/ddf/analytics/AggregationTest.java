@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
-import com.adatao.ddf.facades.RSupporter;
+import com.adatao.ddf.facades.RFacade;
 public class AggregationTest {
 
   @Test
@@ -21,6 +21,7 @@ public class AggregationTest {
     
     String rAggregateFormula = "cbind(mpg,hp) ~ vs + am, mtcars, FUN=mean";
     assertTrue(rAggregateFormula.matches("^\\s*cbind\\((.+)\\)\\s*~\\s*(.+),(.+),(.+)"));    
-    Assert.assertEquals("vs,am,mean(mpg),mean(hp)", RSupporter.parseRAggregateFormula(rAggregateFormula));    
+
+    Assert.assertEquals("vs,am,mean(mpg),mean(hp)", RFacade.parseRAggregateFormula(rAggregateFormula));    
   }
 }
