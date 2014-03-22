@@ -4,14 +4,11 @@
 package com.adatao.ddf.content;
 
 
+import java.util.HashMap;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  *
@@ -89,9 +86,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
   private Object get(String typeSpecs, boolean doCreate) {
     Object obj = mReps.get(typeSpecs);
+
     if (obj == null && doCreate) {
       obj = this.createRepresentation(typeSpecs);
-      if (obj != null) this.mReps.put(typeSpecs, obj);
+      if (obj != null) this.add(obj);
     }
 
     return obj;
@@ -108,25 +106,6 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     return this.has(this.getSpecsAsString(typeSpecs));
   }
 
-  @Override
-  public boolean canCreate(String typeSpecs) {
-    return has(typeSpecs);
-  }
-
-  @Override
-  public boolean canCreate(Class<?>... typeSpecs) {
-    return this.canCreate(this.getSpecsAsString(typeSpecs));
-  }
-
-  @Override
-  public boolean canGet(String typeSpecs) {
-    return this.has(typeSpecs) || this.canCreate(typeSpecs);
-  }
-
-  @Override
-  public boolean canGet(Class<?>... typeSpecs) {
-    return this.canGet(this.getSpecsAsString(typeSpecs));
-  }
 
   private Class<?>[] mDefaultTypeSpecs;
 
@@ -235,18 +214,6 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     }
 
     return result;
-  }
-
-  /**
-   *
-   */
-  @Override
-  public List<String> getExistingRepresentations() {
-    List<String> ls = new ArrayList<String>();
-    for (Object key : mReps.keySet()) {
-      ls.add(key.toString());
-    }
-    return ls;
   }
 
   @Override

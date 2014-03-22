@@ -2,10 +2,6 @@ package com.adatao.spark.ddf.analytics
 
 import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager, ATestSuite}
 import com.adatao.ddf.DDFManager
-import shark.api.Row
-import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.regression.LabeledPoint
-import com.adatao.spark.ddf.content.RepresentationHandler
 
 /**
   */
@@ -42,12 +38,11 @@ class MllibIntegrationSuite extends ATestSuite {
     val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
 
-
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
     val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
 
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
-    //yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
+    yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     manager.shutdown()
   }
 }

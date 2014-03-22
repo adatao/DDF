@@ -60,7 +60,7 @@ public class SparkDDF extends DDF {
     }
 
     for (Class<?> unitType : acceptableUnitTypes) {
-      if (this.getRepresentationHandler().canGet(RDD.class, unitType)) {
+      if (this.getRepresentationHandler().has(RDD.class, unitType)) {
         return new GetResult(this.getRepresentationHandler().get(RDD.class, unitType), unitType);
       }
     }
@@ -80,6 +80,6 @@ public class SparkDDF extends DDF {
     RDD<?> rdd = (RDD<?>) result.getObject();
     Class<?> unitType = result.getTypeSpecs()[0];
 
-    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)), unitType);
+    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)));
   }
 }

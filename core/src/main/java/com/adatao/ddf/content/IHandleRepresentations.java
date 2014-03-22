@@ -3,8 +3,6 @@ package com.adatao.ddf.content;
 
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
-import java.util.List;
-
 /**
  * <p>
  * Handles the underlying, implementation-specific representation(s) of a DDF. Note that a single DDF may have
@@ -44,15 +42,6 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
 
   boolean has(Class<?>... typeSpecs);
 
-  boolean canCreate(Class<?>... typeSpecs);
-
-  boolean canCreate(String typeSpecs);
-
-  boolean canGet(String typeSpecs);
-
-  boolean canGet(Class<?>... typeSpecs);
-
-  public List<String> getExistingRepresentations();
   /**
    * Retrieves a representation of the specified type specs.
    * 
