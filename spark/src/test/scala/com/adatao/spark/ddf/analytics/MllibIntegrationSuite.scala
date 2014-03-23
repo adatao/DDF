@@ -5,6 +5,7 @@ import com.adatao.ddf.DDFManager
 import org.apache.spark.rdd.RDD
 import com.adatao.ddf.scalatypes.Matrix
 import com.adatao.ddf.scalatypes.Vector
+import java.util.HashMap
 
 /**
   */
@@ -51,8 +52,23 @@ class MllibIntegrationSuite extends ATestSuite {
       x <- 0 until (ddfTrain3.getNumColumns)
     } yield (math.random)
 
+    //manual input
+    var columnsSummary =  new HashMap[String, Array[Double]]
+    var hmin = new Array[Double] (ddfTrain3.getNumColumns)
+    var hmax = new Array[Double] (ddfTrain3.getNumColumns)
+    //convert columnsSummary to HashMap
+    var i = 0
+    while(i < ddfTrain3.getNumColumns) {
+      hmin(i) = 1
+      hmax(i) = 10      
+      i += 1
+    }
+    columnsSummary.put("min", hmin)
+    columnsSummary.put("max", hmax)
+    
+    
     val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight2.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer)
+    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight2.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
     
 
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)

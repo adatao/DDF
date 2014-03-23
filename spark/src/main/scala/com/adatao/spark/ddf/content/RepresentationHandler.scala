@@ -170,7 +170,6 @@ object RepresentationHandler {
   }
 
   def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
-	  
     rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
   }
 
