@@ -275,9 +275,8 @@ object RootBuild extends Build {
                 <reuseForks>false</reuseForks>
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
-								  <DDFSPARK_JAR>${{basedir}}/{targetDir}/{sparkJarName},${{basedir}}/{targetDir}/{sparkTestJarName}</DDFSPARK_JAR>
-<RSERVER_JAR>${{basedir}}/{targetDir}/{paJarName},${{basedir}}/{targetDir}/{paTestJarName}</RSERVER_JAR>							
-	</environmentVariables>
+                    <RSERVER_JAR>${{basedir}}/{targetDir}/*.jar,${{basedir}}/{targetDir}/lib/*</RSERVER_JAR>							
+                </environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>com.adatao.pa.spark.KryoRegistrator</spark.kryo.registrator>
