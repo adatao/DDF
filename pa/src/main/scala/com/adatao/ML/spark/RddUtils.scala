@@ -16,8 +16,8 @@
 
 package com.adatao.ML.spark
 
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 

@@ -9,6 +9,7 @@ import org.jblas.DoubleMatrix
 import org.apache.spark.rdd.RDD
 import com.adatao.ddf.types._
 import java.util.HashMap
+import com.adatao.ddf.ml.IModel
 
 class LogisticRegressionCRS {
 
@@ -114,11 +115,19 @@ object LogisticRegressionCRS {
   def randWeights(numFeatures: Int) = Vector(Seq.fill(numFeatures)(Random.nextDouble).toArray)
 }
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) {
+class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends IModel  {
 	override def toString(): String = {
 		weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
 	}
-  def predict(features: Array[Double]): Double = 0.0
+//  def predict(features: Array[Double]): Double = 0.0
+  
+  override def predict(point: Array[Double]) : java.lang.Double  = 0.0
+  
+//  public Double predict(double[] point) throws DDFException;
+  
+  def getRawModel(): Object  = {
+	  return null
+  }
 }
 
 object GradientDescent  {

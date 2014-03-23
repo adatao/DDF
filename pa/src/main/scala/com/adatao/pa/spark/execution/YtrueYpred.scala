@@ -4,7 +4,7 @@ import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import com.adatao.pa.spark.{SharkUtils, DataManager}
 import com.adatao.ML.{TModel, ALinearModel, TPredictiveModel}
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Vector
 import com.adatao.ML.spark.RddUtils
 
 import org.apache.spark.api.java.JavaRDD

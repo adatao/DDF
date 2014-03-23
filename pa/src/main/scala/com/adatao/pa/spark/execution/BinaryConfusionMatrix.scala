@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.ML.{TModel, ALinearModel, TPredictiveModel}
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Vector
 import com.adatao.ML.spark.{Metrics, RddUtils}
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager

@@ -21,8 +21,8 @@ package com.adatao.ML
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 
 /**
  * @author ctn

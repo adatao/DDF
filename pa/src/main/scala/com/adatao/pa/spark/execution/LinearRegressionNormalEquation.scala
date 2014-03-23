@@ -20,8 +20,8 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.Utils
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix

@@ -3,8 +3,8 @@ package com.adatao.pa.spark
 import com.esotericsoftware.kryo.Kryo
 import shark.{KryoRegistrator => SharkKryoRegistrator}
 import com.esotericsoftware.kryo.serializers.{JavaSerializer => KryoJavaSerializer, FieldSerializer}
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.ML.ALossFunction
 import com.adatao.pa.spark.execution.LinearRegression
 import com.adatao.pa.spark.execution.LogisticRegression

@@ -23,7 +23,6 @@ import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
 import org.junit.Assert.assertEquals
 import java.util.HashMap
-import com.adatao.pa.spark.execution.TransformSparseMatrix
 
 
 class MatrixVectorSuite extends ATestSuite {

@@ -2,8 +2,8 @@ package com.adatao.ML.spark
 
 import java.util.HashMap
 import org.jblas.DoubleMatrix
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import java.util.Arrays
 
 class TransformRow(xCols: Array[Int], mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) extends Serializable {

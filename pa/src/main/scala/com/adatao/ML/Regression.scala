@@ -20,8 +20,8 @@ import java.lang.String
 import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 
 /**
  * Companion object needed to interface with clients.
