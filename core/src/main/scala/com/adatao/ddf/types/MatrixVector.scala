@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.adatao.ddf.scalatypes
+package com.adatao.ddf.types
 
 import org.jblas.DoubleMatrix
 import com.google.gson.Gson

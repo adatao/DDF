@@ -16,10 +16,10 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
-import com.adatao.ddf.scalatypes.Matrix
+import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
-import com.adatao.ddf.scalatypes.Vector
-import com.adatao.ddf.scalatypes._
+import com.adatao.ddf.types.Vector
+import com.adatao.ddf.types._
 import java.util.ArrayList
 
 /**

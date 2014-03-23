@@ -3,8 +3,8 @@ package com.adatao.spark.content
 import com.esotericsoftware.kryo.Kryo
 import shark.{KryoRegistrator => SharkKryoRegistrator}
 import com.esotericsoftware.kryo.serializers.{JavaSerializer => KryoJavaSerializer, FieldSerializer}
-import com.adatao.ddf.scalatypes.Matrix
-import com.adatao.ddf.scalatypes.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.ddf.analytics._
 import com.adatao.spark.ddf.content._
 import org.jblas.DoubleMatrix

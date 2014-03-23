@@ -1,4 +1,4 @@
-package com.adatao.ddf.scalatypes
+package com.adatao.ddf.types
 
 import no.uib.cipr.matrix.sparse.CompRowMatrix
 import org.jblas.DoubleMatrix
