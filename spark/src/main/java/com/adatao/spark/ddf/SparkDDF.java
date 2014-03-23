@@ -1,15 +1,17 @@
 package com.adatao.spark.ddf;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
+import scala.reflect.ClassManifest$;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.RepresentationHandler.GetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
-import scala.actors.threadpool.Arrays;
-import scala.reflect.ClassManifest$;
 
 
 /**
@@ -54,19 +56,18 @@ public class SparkDDF extends DDF {
     else throw new DDFException("Unable to get RDD with unit type " + unitType);
   }
 
-  public GetResult getRDD(Class<?>... acceptableUnitTypes) throws DDFException {
+  public IGetResult getRDD(Class<?>... acceptableUnitTypes) throws DDFException {
     if (acceptableUnitTypes == null || acceptableUnitTypes.length == 0) {
       throw new DDFException("Acceptable Unit Types must be specified");
     }
 
+    // Compile a list of acceptableTypeSpecs
+    List<Class<?>[]> acceptableTypeSpecs = new ArrayList<Class<?>[]>();
     for (Class<?> unitType : acceptableUnitTypes) {
-      if (this.getRepresentationHandler().has(RDD.class, unitType)) {
-        return new GetResult(this.getRepresentationHandler().get(RDD.class, unitType), unitType);
-      }
+      acceptableTypeSpecs.add(new Class<?>[] { RDD.class, unitType });
     }
 
-    throw new DDFException("Unable to get RDD for any of the following unit types: "
-        + Arrays.toString(acceptableUnitTypes));
+    return this.getRepresentationHandler().get(acceptableTypeSpecs.toArray(new Class<?>[0][]));
   }
 
   public <T> JavaRDD<T> getJavaRDD(Class<T> unitType) throws DDFException {
@@ -75,11 +76,11 @@ public class SparkDDF extends DDF {
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public GetResult getJavaRDD(Class<?>... acceptableUnitTypes) throws DDFException {
-    GetResult result = this.getRDD(acceptableUnitTypes);
+  public IGetResult getJavaRDD(Class<?>... acceptableUnitTypes) throws DDFException {
+    IGetResult result = this.getRDD(acceptableUnitTypes);
     RDD<?> rdd = (RDD<?>) result.getObject();
-    Class<?> unitType = result.getTypeSpecs()[0];
+    Class<?> unitType = result.getTypeSpecs()[1];
 
-    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)));
+    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)), unitType);
   }
 }
