@@ -1,24 +1,22 @@
 package com.adatao.spark.ddf.ml;
 
 
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.ml.IModel;
-import com.adatao.ddf.types.Matrix;
-import com.adatao.ddf.types.TupleMatrixVector;
-import com.adatao.ddf.types.Vector;
-import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
-import com.adatao.spark.ddf.SparkDDF;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.types.TupleMatrixVector;
+import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
+import com.adatao.spark.ddf.SparkDDF;
 
 public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
