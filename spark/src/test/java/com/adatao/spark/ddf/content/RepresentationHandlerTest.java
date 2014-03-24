@@ -13,7 +13,6 @@ import shark.memstore2.TablePartition;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
-import com.adatao.spark.ddf.SparkDDF;
 
 public class RepresentationHandlerTest {
   private DDFManager manager;
