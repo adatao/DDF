@@ -115,19 +115,13 @@ object LogisticRegressionCRS {
   def randWeights(numFeatures: Int) = Vector(Seq.fill(numFeatures)(Random.nextDouble).toArray)
 }
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends IModel  {
+class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) {
 	override def toString(): String = {
 		weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
 	}
-//  def predict(features: Array[Double]): Double = 0.0
   
-  override def predict(point: Array[Double]) : java.lang.Double  = 0.0
+  def predict(point: Array[Double]) : java.lang.Double  = 0.0
   
-//  public Double predict(double[] point) throws DDFException;
-  
-  def getRawModel(): Object  = {
-	  return null
-  }
 }
 
 object GradientDescent  {
