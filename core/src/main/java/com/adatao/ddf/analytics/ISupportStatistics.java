@@ -12,4 +12,5 @@ public interface ISupportStatistics extends IHandleDDFFunctionalGroup {
   
   public FiveNumSummary[] getFiveNumSummary(List<String> columnNames) throws DDFException;
 
+  public Double[] getVectorQuantiles(Double[] pArray) throws DDFException;
 }
