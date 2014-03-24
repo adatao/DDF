@@ -43,6 +43,7 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
+import com.adatao.ddf.ml.IModel
 
 
  class LogisticRegressionCRSResult (model: LogisticRegressionModel) extends SuccessResult {
@@ -65,7 +66,7 @@ class LogisticRegressionCRS(
   var ddfManager: DDFManager = null
 
 	  
-	def run(sparkThread: SparkThread): LogisticRegressionCRSResult = {
+	def run(sparkThread: SparkThread): IModel = {
 		ddfManager = sparkThread.getDDFManager();
     val ddf: DDF  = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
     try {
@@ -73,7 +74,7 @@ class LogisticRegressionCRS(
     	val regressionModel = ddf.ML.train("LogisticRegressionCRS", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray)
       
-      return new LogisticRegressionCRSResult(regressionModel.asInstanceOf[LogisticRegressionModel])
+      return (regressionModel)
     } catch  {
     	case ioe: DDFException  => throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }

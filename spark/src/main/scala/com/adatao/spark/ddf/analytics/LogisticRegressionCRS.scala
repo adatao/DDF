@@ -120,7 +120,11 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
 		weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
 	}
   
-  def predict(point: Array[Double]) : java.lang.Double  = 0.0
+  def predict(point: Array[Double]) : java.lang.Double  = {
+	  val features = Vector(point)
+	  val linearPredictor = weights.dot(features)
+	  ALossFunction.sigmoid(linearPredictor)
+  }
   
 }
 
