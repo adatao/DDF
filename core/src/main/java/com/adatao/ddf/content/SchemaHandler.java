@@ -9,6 +9,7 @@ import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.util.DDFUtils;
 
@@ -90,6 +91,14 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     return null;
   }
 
+  @Override
+  public Factor<String> setAsFactor(String columnName, List<String> levels) throws DDFException {
+    Factor<String> factor = new Factor<String>(this.getDDF(), columnName);
+    factor.computeLevelMap(levels);
+    this.getSchema().getColumn(columnName).setAsFactor(factor);
+    return factor;
+  }
+  
   @Override
   public Factor<?> setAsFactor(String columnName) {
     if (this.getSchema() == null) return null;

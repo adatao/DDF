@@ -40,9 +40,11 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
 
     val intervals = createIntervals(breaks, includeLowest, right)
 
-    val newddf = mDDF.getManager().sql2ddf(createTransformSqlCmd(column, intervals, includeLowest, right))
+    var newddf = mDDF.getManager().sql2ddf(createTransformSqlCmd(column, intervals, includeLowest, right))
 
     mDDF.getManager().addDDF(newddf)
+    newddf.getSchemaHandler().setAsFactor(column, List.fromArray(intervals));
+    
     newddf
   }
 

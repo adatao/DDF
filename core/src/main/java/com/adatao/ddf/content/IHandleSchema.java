@@ -4,6 +4,7 @@ package com.adatao.ddf.content;
 import java.util.List;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 
@@ -39,6 +40,8 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
    * Generate a basic schema for the current DDF
    */
   Schema generateSchema();
+  
+  Factor<String> setAsFactor(String columnName, List<String> levels) throws DDFException;
 
   Factor<?> setAsFactor(String columnName);
 

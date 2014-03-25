@@ -20,7 +20,8 @@ public abstract class ABinningHandler extends ADDFFunctionalGroupHandler impleme
       boolean right) throws DDFException {
 
     DDF newddf = binningImpl(column, binningType, numBins, breaks, includeLowest, right);
-    Factor<?> factor = newddf.setAsFactor(column);
+    //Factor<String> factor = (Factor<String>) newddf.setAsFactor(column);
+    
     return newddf;
   }
 

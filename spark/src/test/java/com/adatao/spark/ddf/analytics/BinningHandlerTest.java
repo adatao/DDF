@@ -15,8 +15,9 @@ public class BinningHandlerTest {
     DDFManager manager = DDFManager.get("spark");
     DDF ddf = manager
         .sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance, arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
-    DDF newddf = ddf.binning("month", "EQUAL_INTERVAL", 2, null, true, true);
+    DDF newddf = ddf.binning("month", "EQUALINTERVAL", 2, null, true, true);
     Assert.assertEquals(ColumnClass.FACTOR, newddf.getSchemaHandler().getColumn("month").getColumnClass());
+    Assert.assertEquals(2, newddf.getSchemaHandler().getColumn("month").getOptionalFactor().getLevelMap().size());
     manager.shutdown();
   }
 
