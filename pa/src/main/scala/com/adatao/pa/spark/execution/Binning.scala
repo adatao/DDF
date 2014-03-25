@@ -35,7 +35,7 @@ class Binning(val dataContainerID: String,
 	protected override def runImpl(context: ExecutionContext): BinningResult = {
 	  
 	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-	  val newdd = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
+	  val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
 	  new BinningResult(Utils.getDataContainerId(newddf), Utils.generateMetaInfo(newddf.getSchema()))
 /*		val df = context.sparkThread.getDataManager.get(dataContainerID) match {
 			case x: SharkDataFrame => x

@@ -75,6 +75,7 @@ public class StatisticsSupporterTest {
   }
  
   @Test
+  @Ignore
   public void testSampling() throws DDFException {
     Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
     Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());

@@ -24,7 +24,7 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
     binningType match {
       case BinningType.CUSTOM ⇒ {
         if (breaks == null) throw new DDFException("Please enter valid break points")
-        if (breaks.sorted.deep != breaks.deep) throw new Exception("Please enter increasing breaks")
+        if (breaks.sorted.deep != breaks.deep) throw new DDFException("Please enter increasing breaks")
       }
       case BinningType.EQUAl_FREQUENCY ⇒ breaks = {
         if (numBins < 2) throw new DDFException("Number of bins is smaller than 2")
