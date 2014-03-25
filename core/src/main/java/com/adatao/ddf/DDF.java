@@ -809,6 +809,14 @@ public abstract class DDF extends ALoggable //
       throws DDFException {
     return this.getStatisticsSupporter().getVectorQuantiles(columnName, pArray);
   }
+  
+  public Double[] getVectorQuantiles(Double[] pArray) 
+      throws DDFException {
+    if (getSchema().getNumColumns() != 1) {
+      throw new DDFException("This method only applies to one columned DDF.");
+    }
+    return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), pArray);
+  }
 
   // //// ISupportML //////
 
