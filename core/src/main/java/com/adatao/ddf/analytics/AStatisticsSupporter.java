@@ -230,14 +230,18 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     Double[] result = new Double[pArray.length];
     HashMap<Double, Double> mapValues = new HashMap<Double, Double>();
-    for (int i = 0; i < pValues.size() - 1; i++) {
-      mapValues.put(pValues.get(i), Double.parseDouble(convertedResults[i]));
-    }
-    if (hasZero) {
-      mapValues.put(0.0, Double.parseDouble(convertedResults[convertedResults.length - 2]));
-    }
-    if (hasOne) {
-      mapValues.put(1.0, Double.parseDouble(convertedResults[convertedResults.length - 1]));
+    try {
+      for (int i = 0; i < pValues.size() - 1; i++) {
+        mapValues.put(pValues.get(i), Double.parseDouble(convertedResults[i]));
+      }
+      if (hasZero) {
+        mapValues.put(0.0, Double.parseDouble(convertedResults[convertedResults.length - 2]));
+      }
+      if (hasOne) {
+        mapValues.put(1.0, Double.parseDouble(convertedResults[convertedResults.length - 1]));
+      }
+    } catch (NumberFormatException nfe) {
+      throw new DDFException("Cannot parse the returned values from vector quantiles query", nfe);
     }
     for (int i = 0; i < pArray.length - 1; i++) {
       result[i] = mapValues.get(pArray[i]);
