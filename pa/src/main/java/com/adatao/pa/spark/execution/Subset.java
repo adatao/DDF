@@ -433,7 +433,7 @@ public class Subset extends CExecutor {
 		try {
   		// this is for the case of vector = one column
   		DDF vector = ddf.Views.project(columns.get(0).name);
-  		
+  		sparkThread.getDDFManager().addDDF(vector);
   		String containerID = vector.getName().substring(15).replace("_", "-");
   		return new SubsetResult().setDataContainerID(containerID).setMetaInfo(generateMetaInfo(vector.getSchema()));
 		} catch (DDFException e) {
