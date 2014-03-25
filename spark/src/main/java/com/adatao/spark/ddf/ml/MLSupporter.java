@@ -2,6 +2,7 @@ package com.adatao.spark.ddf.ml;
 
 
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
@@ -13,7 +14,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,14 +41,17 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
       if (paramInfo.paramMatches(LabeledPoint.class)) {
         rdd = (RDD<LabeledPoint>) this.getDDF().getRepresentationHandler().get(RDD.class, LabeledPoint.class);
-        System.out.println("RDD<LabeledPoint>");
+        // System.out.println("RDD<LabeledPoint>");
+
       } else if (paramInfo.paramMatches(double[].class)) {
         rdd = (RDD<double[]>) this.getDDF().getRepresentationHandler().get(RDD.class, double[].class);
-        System.out.println("RDD<Double[]>");
+        // System.out.println("RDD<Double[]>");
+
       } else if (paramInfo.paramMatches(Object.class)) {
         rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
-        System.out.println("RDD<Object>");
+        // System.out.println("RDD<Object>");
       }
+
       return rdd;
     }
 
@@ -68,16 +71,39 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     return this.applyModel(model, hasLabels, false);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
     SparkDDF ddf = (SparkDDF) this.getDDF();
+    IGetResult gr = ddf.getJavaRDD(double[].class, LabeledPoint.class, Object[].class);
 
-    JavaRDD<double[]> data = ddf.getJavaRDD(double[].class);
-    JavaRDD<double[]> result = data.mapPartitions(new predictMapper(model, hasLabels, includeFeatures));
+    // Apply appropriate mapper
+    JavaRDD<?> result = null;
+    Class<?> resultUnitType = double[].class;
+
+    if (LabeledPoint.class.equals(gr.getTypeSpecs()[0])) {
+      result = ((JavaRDD<LabeledPoint>) gr.getObject()).mapPartitions(new PredictMapper<LabeledPoint, double[]>(
+          LabeledPoint.class, double[].class, model, hasLabels, includeFeatures));
+
+    } else if (double[].class.equals(gr.getTypeSpecs()[0])) {
+      result = ((JavaRDD<double[]>) gr.getObject()).mapPartitions(new PredictMapper<double[], double[]>(double[].class,
+          double[].class, model, hasLabels, includeFeatures));
+
+    } else if (Object[].class.equals(gr.getTypeSpecs()[0])) {
+      result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
+          Object[].class, model, hasLabels, includeFeatures));
+      resultUnitType = Object[].class;
+    }  else {
+      throw new DDFException(String.format("Error apply model %s", model.getRawModel().getClass().getName()));
+    }
+
+
+    // Build schema
     List<Schema.Column> outputColumns = new ArrayList<Schema.Column>();
 
     if (includeFeatures) {
       outputColumns = ddf.getSchema().getColumns();
+
     } else if (!includeFeatures && hasLabels) {
       outputColumns.add(ddf.getSchema().getColumns().get(ddf.getNumColumns() - 1));
     }
@@ -87,48 +113,132 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
         "YTrueYPredict"), outputColumns);
 
-    return new SparkDDF(this.getManager(), result.rdd(), double[].class, ddf.getManager().getNamespace(),
-        schema.getTableName(), schema);
+
+    if (double[].class.equals(resultUnitType)) {
+      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, ddf.getManager()
+          .getNamespace(), schema.getTableName(), schema);
+
+    } else if (Object[].class.equals(resultUnitType)) {
+      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class, ddf.getManager()
+          .getNamespace(), schema.getTableName(), schema);
+
+    } else return null;
   }
 
 
-  public static class predictMapper extends FlatMapFunction<Iterator<double[]>, double[]> {
+  public static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
+
     private static final long serialVersionUID = 1L;
     private IModel mModel;
     private boolean mHasLabels;
     private boolean mIncludeFeatures;
+    private Class<?> mInputType;
+    private Class<?> mOutputType;
 
 
-    public predictMapper(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
+    public PredictMapper(Class<I> inputType, Class<O> outputType, IModel model, boolean hasLabels,
+        boolean includeFeatures) throws DDFException {
+
+      mInputType = inputType;
+      mOutputType = outputType;
       mModel = model;
       mHasLabels = hasLabels;
       mIncludeFeatures = includeFeatures;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Iterable<double[]> call(Iterator<double[]> samples) throws DDFException {
-      List<double[]> results = new ArrayList<double[]>();
+    public Iterable<O> call(Iterator<I> samples) throws DDFException {
+      List<O> results = new ArrayList<O>();
 
       while (samples.hasNext()) {
 
-        double[] features = samples.next();
-        double[] outputRow = null;
+        I sample = samples.next();
+        O outputRow = null;
 
         try {
-          if (mHasLabels) {
-            // label, prediction
-            double label = features[features.length - 1];
-            features = Arrays.copyOf(features, features.length - 1);
-            outputRow = new double[] { label, this.mModel.predict(features) };
+          if (sample instanceof LabeledPoint || sample instanceof double[]) {
+            double label = 0;
+            double[] features;
+
+            if (sample instanceof LabeledPoint) {
+              LabeledPoint s = (LabeledPoint) sample;
+              label = s.label();
+              features = s.features();
+
+            } else {
+              double[] s = (double[]) sample;
+              if (mHasLabels) {
+                label = s[s.length - 1];
+                features = Arrays.copyOf(s, s.length - 1);
+              } else {
+                features = s;
+              }
+            }
+
+
+            if (double[].class.equals(mOutputType)) {
+              if (mHasLabels) {
+                outputRow = (O) new double[] { label, (Double) this.mModel.predict(features) };
+              } else {
+                outputRow = (O) new double[] { (Double) this.mModel.predict(features) };
+              }
+
+              if (mIncludeFeatures) {
+                outputRow = (O) ArrayUtils.addAll(features, (double[]) outputRow);
+              }
+
+            } else if (Object[].class.equals(mOutputType)) {
+              if (mHasLabels) {
+                outputRow = (O) new Object[] { label, this.mModel.predict(features) };
+              } else {
+                outputRow = (O) new Object[] { this.mModel.predict(features) };
+              }
+
+              if (mIncludeFeatures) {
+                Object[] oFeatures = new Object[features.length];
+                for (int i = 0; i < features.length; i++) {
+                  oFeatures[i] = (Object) features[i];
+                }
+                outputRow = (O) ArrayUtils.addAll(oFeatures, (Object[]) outputRow);
+              }
+
+            } else {
+              throw new DDFException(String.format("Unsupported output type %s", mOutputType));
+            }
+
+
+          } else if (sample instanceof Object[]) {
+            Object label = null;
+            Object[] features;
+
+            Object[] s = (Object[]) sample;
+            if (mHasLabels) {
+              label = s[s.length - 1];
+              features = Arrays.copyOf(s, s.length - 1);
+            } else {
+              features = s;
+            }
+
+            double[] dFeatures = new double[features.length];
+            for (int i = 0; i < features.length; i++) {
+              dFeatures[i] = (Double) features[i];
+            }
+
+            if (mHasLabels) {
+              outputRow = (O) new Object[] { label, this.mModel.predict(dFeatures) };
+            } else {
+              outputRow = (O) new Object[] { this.mModel.predict(dFeatures) };
+            }
+
+            if (mIncludeFeatures) {
+              outputRow = (O) ArrayUtils.addAll(features, (Object[]) outputRow);
+            }
+
           } else {
-            // prediction
-            outputRow = new double[] { this.mModel.predict(features) };
+            throw new DDFException(String.format("Unsupported input type %s", mInputType));
           }
 
-          if (mIncludeFeatures) {
-            // features, (optional label), prediction
-            outputRow = ArrayUtils.addAll(features, outputRow);
-          }
 
           results.add(outputRow);
 
@@ -137,6 +247,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
               .getName()), e);
         }
       }
+
       return results;
     }
   }

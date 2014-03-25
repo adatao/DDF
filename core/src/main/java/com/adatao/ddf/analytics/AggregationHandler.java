@@ -74,9 +74,26 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     String tableName = this.getDDF().getTableName();
 
     String sqlCmd = AggregateField.toSql(fields, tableName);
+    mLog.info("SQL Command: " + sqlCmd);
+    int numUnaggregatedFields = 0;
 
-    List<String> result = this.getManager().sql2txt(sqlCmd);
-    return AggregationResult.newInstance(result, fields.size());
+    for (AggregateField field : fields) {
+      if (!field.isAggregated()) numUnaggregatedFields++;
+    }
+
+    try {
+      List<String> result = this.getManager().sql2txt(sqlCmd);
+      return AggregationResult.newInstance(result, numUnaggregatedFields);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new DDFException("Unable to query from " + tableName, e);
+    }
+  }
+  
+  @Override
+  public AggregationResult xtabs(List<AggregateField> fields) throws DDFException {
+	  return this.aggregate(fields);
   }
 
 
@@ -88,24 +105,20 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     private static final long serialVersionUID = -7809562958792876728L;
 
 
-    public static AggregationResult newInstance(List<String> sqlResult, int numFields) {
+    public static AggregationResult newInstance(List<String> sqlResult, int numUnaggregatedFields) {
 
       AggregationResult result = new AggregationResult();
 
       for (String res : sqlResult) {
-        int pos = StringUtils.ordinalIndexOf(res, "\t", numFields);
+
+        int pos = StringUtils.ordinalIndexOf(res, "\t", numUnaggregatedFields);
         String groupByColNames = res.substring(0, pos).replaceAll("\t", ",");
         String[] stats = res.substring(pos + 1).split("\t");
 
         Double[] statsDouble = new Double[stats.length];
 
         for (int i = 0; i < stats.length; i++) {
-          if (!"null".equalsIgnoreCase(stats[i])) {
-            statsDouble[i] = Double.NaN;
-
-          } else {
-            statsDouble[i] = Utils.roundUp(Double.parseDouble(stats[i]));
-          }
+          statsDouble[i] = "null".equalsIgnoreCase(stats[i]) ? Double.NaN : Utils.roundUp(Double.parseDouble(stats[i]));
         }
 
         result.put(groupByColNames, statsDouble);
@@ -163,8 +176,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     @Override
     public String toString() {
-      return this.isAggregated() ? String.format("%s(%s)", this.getAggregateFunction().toString(), this.getColumn())
-          : this.getColumn();
+      return this.isAggregated() ? this.getAggregateFunction().toString(this.getColumn()) : this.getColumn();
     }
 
     /**
@@ -204,12 +216,12 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
         if (Strings.isNullOrEmpty(spec)) continue;
 
         spec = spec.trim();
-        String[] parts = spec.split("(");
+        String[] parts = spec.split("\\(");
         if (parts.length == 1) {
           fields.add(new AggregateField(parts[0])); // just column name
 
         } else {
-          fields.add(new AggregateField(parts[0].replaceAll(")", ""), parts[1])); // function(columnName)
+          fields.add(new AggregateField(parts[0], parts[1].replaceAll("\\)", ""))); // function(columnName)
         }
       }
 
