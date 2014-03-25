@@ -50,7 +50,7 @@ import com.google.gson.JsonParseException;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
-
+import com.adatao.ddf.exception.DDFException;
 
 @SuppressWarnings({ "serial", "unchecked", "rawtypes" })
 public class Subset extends CExecutor {
@@ -430,15 +430,19 @@ public class Subset extends CExecutor {
 		  return new FailResult().setMessage("Unsupport operation: only column project is supported.");
 		}
 		
-		// this is for the case of vector = one column
-		DDF vector = ddf.Views.project(columns.get(0));
-		
-		String containerID = vector.getName().substring(15).replace("_", "-");
-		return new SubsetResult().setDataContainerID(containerID).setMetaInfo(generateMetaInfo(vector.getSchema()));
+		try {
+  		// this is for the case of vector = one column
+  		DDF vector = ddf.Views.project(columns.get(0).name);
+  		
+  		String containerID = vector.getName().substring(15).replace("_", "-");
+  		return new SubsetResult().setDataContainerID(containerID).setMetaInfo(generateMetaInfo(vector.getSchema()));
+		} catch (DDFException e) {
+		  return new FailResult().setMessage(e.getMessage());
+		}
 	}
 	
 	public static MetaInfo[] generateMetaInfo(Schema schema) {
-    List<Column> columns = schema.getColumns();
+    List<com.adatao.ddf.content.Schema.Column> columns = schema.getColumns();
     MetaInfo[] metaInfo = new MetaInfo[columns.size()];
     for (int i = 0; i < columns.size(); i++) {
       metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
