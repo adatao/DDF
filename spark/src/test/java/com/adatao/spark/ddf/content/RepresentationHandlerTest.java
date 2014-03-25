@@ -10,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
+import org.apache.spark.api.java.function.Function;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
@@ -63,11 +64,23 @@ public class RepresentationHandlerTest {
         ddf.getRepresentationHandler().getSpecsAsString(new Class<?>[] { RDD.class, Array.class, Double.class }), ddf
             .getRepresentationHandler().getSpecsAsString(new Class<?>[] { rddArrayDouble.getClass() }));
   }
+ 
 
   @After
   public void closeTest() {
     manager.shutdown();
   }
 
+  static public class TypeMapper extends Function<TablePartition, String> {
+
+    public TypeMapper() {
+      super();
+    }
+
+    @Override
+    public String call(TablePartition data) throws Exception {
+      return  data.getClass().toString();
+    }
+  }
 
 }
