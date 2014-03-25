@@ -110,7 +110,10 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
     outputColumns.add(new Schema.Column("prediction", "double"));
 
-    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
+    if(model.getRawModel() == null) {
+      mLog.info(">>>>>>>>>>> rawModel == null");
+    }
+    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
         "YTrueYPredict"), outputColumns);
 
 
