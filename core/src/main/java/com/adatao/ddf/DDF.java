@@ -805,7 +805,10 @@ public abstract class DDF extends ALoggable //
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
-
+  public Double[] getVectorQuantiles(String columnName, Double[] pArray) 
+      throws DDFException {
+    return this.getStatisticsSupporter().getVectorQuantiles(columnName, pArray);
+  }
 
   // //// ISupportML //////
 

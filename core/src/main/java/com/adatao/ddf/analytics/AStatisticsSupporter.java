@@ -177,10 +177,12 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       throw new DDFException("Column name must not be empty");
     }
     
-    String colType = getDDF().getSchema().getColumn(columnName).getType().name();
+    String colType = getDDF().getSchema().getColumn(columnName).getType().name().toLowerCase();
+    
+    mLog.info("Column type: " + colType);
     List<Double> pValues = Arrays.asList(pArray);
     Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
-    Pattern p2 = Pattern.compile("^float|double$");
+    Pattern p2 = Pattern.compile("^[float|double]$");
 
     String min = "";
     boolean hasZero = false;
@@ -202,9 +204,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     if (pValues.size() > 0) {
       if (p1.matcher(colType).matches()) {
-        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(pArray, ",") + ")";
+        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(pArray, ",") + "))";
       } else if (p2.matcher(colType).matches()) {
-        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pArray, ",") + ", " + B.toString() + ")";
+        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pArray, ",") + ", " + B.toString() + "))";
       } else {
         throw new DDFException("Only support numeric verctors!!!");
       }
@@ -231,7 +233,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     Double[] result = new Double[pArray.length];
     HashMap<Double, Double> mapValues = new HashMap<Double, Double>();
     try {
-      for (int i = 0; i < pValues.size() - 1; i++) {
+      for (int i = 0; i < pValues.size(); i++) {
         mapValues.put(pValues.get(i), Double.parseDouble(convertedResults[i]));
       }
       if (hasZero) {
@@ -243,7 +245,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     } catch (NumberFormatException nfe) {
       throw new DDFException("Cannot parse the returned values from vector quantiles query", nfe);
     }
-    for (int i = 0; i < pArray.length - 1; i++) {
+    for (int i = 0; i < pArray.length; i++) {
       result[i] = mapValues.get(pArray[i]);
     }
     return result;
