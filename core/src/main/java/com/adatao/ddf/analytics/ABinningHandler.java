@@ -1,6 +1,7 @@
 package com.adatao.ddf.analytics;
 
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
@@ -18,7 +19,9 @@ public abstract class ABinningHandler extends ADDFFunctionalGroupHandler impleme
   public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
       boolean right) throws DDFException {
 
-    return binningImpl(column, binningType, numBins, breaks, includeLowest, right);
+    DDF newddf = binningImpl(column, binningType, numBins, breaks, includeLowest, right);
+    Factor<?> factor = newddf.setAsFactor(column);
+    return newddf;
   }
 
   public abstract DDF binningImpl(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,

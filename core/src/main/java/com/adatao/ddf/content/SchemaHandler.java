@@ -43,6 +43,10 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     return mSchema != null ? mSchema.getTableName() : null;
   }
 
+  @Override 
+  public Column getColumn(String columnName) {
+    return mSchema.getColumn(columnName);
+  }
   @Override
   public List<Column> getColumns() {
     return mSchema != null ? mSchema.getColumns() : null;

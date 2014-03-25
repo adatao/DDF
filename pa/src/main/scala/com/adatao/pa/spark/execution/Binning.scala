@@ -1,13 +1,14 @@
 package com.adatao.pa.spark.execution
 
 import shark.api.{JavaSharkContext, Row}
-;
 import com.adatao.pa.spark.DataManager.{SharkColumnVector, SharkDataFrame, MetaInfo}
 import scala.collection.mutable
 import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import scala.annotation.tailrec
 import com.adatao.pa.spark.execution.Binning.{getIntervalsFromNumBins, getQuantilesFromNumBins, ColReducer, Intervals, ColMapper, MAX_LEVEL_SIZE}
 import java.text.DecimalFormat
+import com.adatao.pa.spark.Utils
+import com.adatao.ddf.DDF
 
 class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
 
@@ -32,7 +33,11 @@ class Binning(val dataContainerID: String,
 							val decimalPlaces: Int = 2) extends AExecutor[BinningResult]{
 
 	protected override def runImpl(context: ExecutionContext): BinningResult = {
-		val df = context.sparkThread.getDataManager.get(dataContainerID) match {
+	  
+	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+	  val newdd = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
+	  new BinningResult(Utils.getDataContainerId(newddf), Utils.generateMetaInfo(newddf.getSchema()))
+/*		val df = context.sparkThread.getDataManager.get(dataContainerID) match {
 			case x: SharkDataFrame => x
 			case _                 => throw new IllegalArgumentException("Only accept SharkDataFrame")
 		}
@@ -120,7 +125,7 @@ class Binning(val dataContainerID: String,
 
 		newdf.getMetaInfo.find(_.getHeader == col).map(col => LOG.info("Binned factors = {}", col.getFactor))
 
-		new BinningResult(uid, newdf.getMetaInfo)
+		new BinningResult(uid, newdf.getMetaInfo)*/
 	}
 
 }

@@ -14,6 +14,8 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
   void setSchema(Schema schema);
 
   String getTableName();
+  
+  Column getColumn(String columnName);
 
   List<Column> getColumns();
 
