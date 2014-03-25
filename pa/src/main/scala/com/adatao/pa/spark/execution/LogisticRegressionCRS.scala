@@ -22,7 +22,6 @@ import com.adatao.ML.Utils
 import com.adatao.ML.TModel
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
-import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 import org.apache.spark.rdd.RDD
 import com.adatao.ML.ALossFunction
 import com.adatao.spark.RDDImplicits._
@@ -44,6 +43,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
 import com.adatao.ddf.ml.IModel
+import com.adatao.ML.LogisticRegressionModel
 
 
  class LogisticRegressionCRSResult (model: LogisticRegressionModel) extends SuccessResult {
@@ -66,7 +66,7 @@ class LogisticRegressionCRS(
   var ddfManager: DDFManager = null
 
 	  
-	def run(sparkThread: SparkThread): IModel = {
+	def run(sparkThread: SparkThread): LogisticRegressionModel = {
 		ddfManager = sparkThread.getDDFManager();
     val ddf: DDF  = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
     try {
@@ -74,7 +74,11 @@ class LogisticRegressionCRS(
     	val regressionModel = ddf.ML.train("LogisticRegressionCRS", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray)
       
-      return (regressionModel)
+      val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
+      
+      val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
+      
+      return (glm)
     } catch  {
     	case ioe: DDFException  => throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }

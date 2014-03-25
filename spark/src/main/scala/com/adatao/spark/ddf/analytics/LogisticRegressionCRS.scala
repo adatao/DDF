@@ -126,6 +126,16 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
 	  ALossFunction.sigmoid(linearPredictor)
   }
   
+  def getWeights(): Vector = {
+	  this.weights
+  }
+  def getTrainingLosses(): Vector = {
+    this.trainingLosses
+  }
+  def getNumSamples(): Long = {
+    this.numSamples
+  }
+  
 }
 
 object GradientDescent  {
