@@ -20,11 +20,13 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
@@ -45,6 +47,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.Schema.Column;
 
 
 @SuppressWarnings({ "serial", "unchecked", "rawtypes" })
@@ -417,76 +422,29 @@ public class Subset extends CExecutor {
 
 	@Override
 	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		dm = sparkThread.getDataManager();
-		DataContainer dc = dm.get(dataContainerID);
-		if (dc.getType() == DataContainer.ContainerType.DataFrame) {
-			DataFrame df = (DataFrame) dc;
-			JavaRDD<Object[]> table = df.getRDD();
-			String uid;
-
-			updateVectorIndex(filter, dc);
-			for (Column v : columns) {
-				updateVectorIndex(v, dc);
-			}
-
-			LOG.info("Updated filter: " + filter);
-			LOG.info("Updated columns: " + Arrays.toString(columns.toArray()));
-
-			DataFrame subset;
-			if (filter != null) {
-				subset = new DataFrame(selectColumnMetaInfo(dc),
-					table.filter(new FilterMapper(filter)).map(new ColumnSelectionMapper(columns)));
-			} else {
-				subset = new DataFrame(selectColumnMetaInfo(dc), table.map(new ColumnSelectionMapper(columns)));
-			}
-			uid = dm.add(subset);
-
-			return new SubsetResult().setDataContainerID(uid).setMetaInfo(subset.getMetaInfo());
-		} else if (dc.getType() == DataContainer.ContainerType.SharkDataFrame) {
-			SharkDataFrame df = (SharkDataFrame) dc;
-
-			updateVectorName(filter, dc);
-			LOG.info("Updated filter: " + filter);
-
-			String[] colNames = new String[columns.size()];
-			for (int i=0; i<columns.size(); i++) {
-				updateVectorName(columns.get(i), dc);
-				colNames[i] = columns.get(i).getName();
-			}
-			LOG.info("Updated columns: " + Arrays.toString(columns.toArray()));
-
-			if ((filter == null) && (columns.size() == 1)) {
-				// special case: extracting a column vector from a table with no filter
-				String colName = columns.get(0).getName();
-				SharkColumnVector subset = SharkColumnVector.fromSharkDataFrame(df, colName);
-				String uid = dm.add(subset);
-				return new SubsetResult().setDataContainerID(uid).setMetaInfo(subset.getMetaInfo());
-			}
-
-			String sql = String.format("SELECT %s FROM %s", Joiner.on(", ").join(colNames), df.getTableName());
-			if (filter != null) {
-				sql += " WHERE " + filter.toSql();
-			}
-			LOG.info("sql = {}", sql);
-
-			// Very strange that create non-cached table does not work
-			// TODO: investigate
-			Sql2DataFrameResult result = (Sql2DataFrameResult) new Sql2DataFrame(sql, true).run(sparkThread);
-
-			if (columns.size() == 1) {
-				// special case: column vector as the result of filtering
-				SharkDataFrame resultdf = (SharkDataFrame) dm.get(result.dataContainerID);
-				String colName = columns.get(0).getName();
-				SharkColumnVector subset = SharkColumnVector.fromSharkDataFrame(resultdf, colName);
-				String uid = dm.add(subset);
-				return new SubsetResult().setDataContainerID(uid).setMetaInfo(subset.getMetaInfo());
-			}
-
-			return new SubsetResult().setDataContainerID(result.dataContainerID).setMetaInfo(result.metaInfo);
-		} else {
-			return new FailResult().setMessage("bad dataContainer type: " + dc.getType());
+		// dm = sparkThread.getDataManager();
+		// DataContainer dc = dm.get(dataContainerID);
+		DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		
+		if (columns == null || columns.size() != 1) {
+		  return new FailResult().setMessage("Unsupport operation: only column project is supported.");
 		}
+		
+		// this is for the case of vector = one column
+		DDF vector = ddf.Views.project(columns.get(0));
+		
+		String containerID = vector.getName().substring(15).replace("_", "-");
+		return new SubsetResult().setDataContainerID(containerID).setMetaInfo(generateMetaInfo(vector.getSchema()));
 	}
+	
+	public static MetaInfo[] generateMetaInfo(Schema schema) {
+    List<Column> columns = schema.getColumns();
+    MetaInfo[] metaInfo = new MetaInfo[columns.size()];
+    for (int i = 0; i < columns.size(); i++) {
+      metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
+    }
+    return metaInfo;
+  }
 
 	@Override
 	public String toString() {
