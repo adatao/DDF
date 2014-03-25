@@ -42,10 +42,13 @@ object LogisticRegressionCRS {
     
     var (sparseColumns, sparseColumnsPaddingIndex, sumAllRange) = buildParameters(columnsSummary)
 	  
+    //plus bias term
+    var nfeatures = numFeatures + 1
+    
     var weights = null.asInstanceOf[Vector]
 	  if(sumAllRange > 0)  
       weights = randWeights(numFeatures + sumAllRange) //Vector(initialWeights)
-    else weights = if (initialWeights == null || initialWeights.length != numFeatures)  randWeights(numFeatures)  else Vector(initialWeights) 
+    else weights = if (initialWeights == null || initialWeights.length != nfeatures)  randWeights(nfeatures)  else Vector(initialWeights) 
     
 	  
 	  val transformer: TransformSparseMatrix = new TransformSparseMatrix (sparseColumns, sparseColumnsPaddingIndex, sumAllRange)
@@ -55,7 +58,7 @@ object LogisticRegressionCRS {
 	  val snumIters: Int = numIters.asInstanceOf[Int]
 	  val slearningRate: Double = learningRate.asInstanceOf[Double]
 	  val sridgeLambda: Double = ridgeLambda.asInstanceOf[Double]
-	  val snumFeatures: Int = numFeatures.asInstanceOf[Int]
+	  val snumFeatures: Int = nfeatures.asInstanceOf[Int]
 	  
 	  val lossFunction = new LossFunction(XYSparse, ridgeLambda)
 	  
@@ -84,7 +87,9 @@ object LogisticRegressionCRS {
    * build column start index map
    */
   def buildParameters(columnsSummary: HashMap[String, Array[Double]]) : (HashMap[Int, Array[Double]], HashMap[Int, Int], Int)= {
-	  val SPARSE_RANGE = Integer.parseInt(System.getProperty("sparse.max.range", "3"))
+	  val SPARSE_RANGE = Integer.parseInt(System.getProperty("sparse.max.range", "10000"))
+	  
+	  println(">>>>>>>>>>SPARSE_RANGE=" + SPARSE_RANGE)
     //build sparse columns: column index, Array(min, max)
     //for example, ["1", [120, 10000]]
     //build column start index map
@@ -362,9 +367,11 @@ class TransformSparseMatrix (sparseColumns: HashMap[Int, Array[Double]], sparseP
       column = 0
       while (column < X.getColumns()) {
         val currentCell = X.get(row ,column)
-        if(sparseColumns != null && sparseColumns.size() > 0 && sparseColumns.containsKey(column)) {
+        //TODO double check adjustedColumnIndex is correct or not
+        val adjustedColumnIndex = column + 1
+        if(sparseColumns != null && sparseColumns.size() > 0 && sparseColumns.containsKey(adjustedColumnIndex)) {
           //check if this column is sparse column
-          if(!sparseColumns.containsKey(column)) {
+          if(!sparseColumns.containsKey(adjustedColumnIndex)) {
             //set as normal
             Xprime.crs.set(row, column, currentCell)
           }
@@ -372,12 +379,12 @@ class TransformSparseMatrix (sparseColumns: HashMap[Int, Array[Double]], sparseP
           else {
             //based 0, new column index = number original columns + padding index + internal column index
             newColumn =   maxOriginColumns
-            newColumn +=    sparsePaddingIndex.get(column) 
+            newColumn +=    sparsePaddingIndex.get(adjustedColumnIndex) 
             newColumn +=  currentCell.asInstanceOf[Int] - 1
             
             
             //offset by minmum cell value
-            newColumn = newColumn - sparseColumns.get(column).min.asInstanceOf[Int] + 1
+            newColumn = newColumn - sparseColumns.get(adjustedColumnIndex).min.asInstanceOf[Int] + 1
             
             
             Xprime.crs.set(row, newColumn, defaultValue)

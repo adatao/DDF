@@ -61,29 +61,62 @@ class LogisticRegressionCRS(
 	var numIters: Int,
 	var learningRate: Double,
 	var ridgeLambda: Double,
-	var initialWeights: Array[Double]) {
+	var initialWeights: Array[Double]) extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
 	
   var ddfManager: DDFManager = null
 
 	  
-	def run(sparkThread: SparkThread): LogisticRegressionModel = {
-		ddfManager = sparkThread.getDDFManager();
+//  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+//	override def run(sparkThread: SparkThread): ExecutorResult = {
+	override def runImpl(ctx: ExecutionContext) : LogisticRegressionModel = {
+	  
+	  println(">>>>>>>>>>>>>starting=sparkThread"  )
+	  
+		ddfManager = ctx.sparkThread.getDDFManager();
     val ddf: DDF  = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
     try {
 
-    	val regressionModel = ddf.ML.train("LogisticRegressionCRS", 10: java.lang.Integer,
-      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray)
+    	println(">>>>>>>>>>>>>starting=" )
+    	
+    	val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], xCols.size : java.lang.Integer, columnsSummary)
+      
+//      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+//    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
       
       val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       
+    	println(">>>>>>>>>>>>>model=" + model)
+    	
       val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
       
+	    println(">>>>>>>>>>>>>glm=" + glm)
+    	
       return (glm)
     } catch  {
     	case ioe: DDFException  => throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
 	}
-	
+  
+  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+	  null.asInstanceOf[LogisticRegressionModel]
+  }
+  
+  override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): LogisticRegressionModel = {
+    null.asInstanceOf[LogisticRegressionModel]
+  }
+  
+  override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
+	  null.asInstanceOf[LogisticRegressionModel]
+  }
+  
+  
+//  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
+//	  
+//  }
+//	
+  
+  
 //	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
 //		
 //		

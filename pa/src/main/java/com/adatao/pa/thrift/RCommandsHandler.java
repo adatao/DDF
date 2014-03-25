@@ -57,7 +57,7 @@ public class RCommandsHandler implements RCommands.Iface {
 		SparkThread sparkThread = (SparkThread) sessionManager.getSessionThread(cmd.getSid());
 		JsonResult res;
 		try {
-			res = new JsonResult().setResult(sparkThread.processJsonCommand1(cmd).toJson());
+		        res = new JsonResult().setResult(sparkThread.processJsonCommand1(cmd).toJson());
 		} catch (Exception e) {
 			LOG.error("Exception: ", e);
 			Exception processedException = ExecutionResultUtils.processException(e);

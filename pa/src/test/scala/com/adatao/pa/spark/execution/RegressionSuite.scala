@@ -23,8 +23,8 @@ import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.LinearRegressionModel
-//import com.adatao.ML.LogisticRegressionModel
-import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.ML.LogisticRegressionModel
+//import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.types.ExecutionResult
@@ -650,7 +650,7 @@ class RegressionSuite extends ABigRClientTest {
 		val lambda = 0.0
 		
 		//minimum threshold range for sparse columns
-		System.getProperty("sparse.max.range", "100000")
+		System.setProperty("sparse.max.range", "1000000")
 		var cmd2 = new FiveNumSummary(dataContainerId)
 		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
 		assert(summary.size > 0)
@@ -670,7 +670,7 @@ class RegressionSuite extends ABigRClientTest {
 		columnsSummary.put("max", hmax)
 		
 		
-		val executor = new LogisticRegressionCRS(dataContainerId, Array(2, 3), 0, columnsSummary, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
+		val executor = new LogisticRegressionCRS(dataContainerId, Array(1, 2), 0, columnsSummary, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
 		val r = bigRClient.execute[LogisticRegressionModel](executor)
 //		assert(r.isSuccess)
 

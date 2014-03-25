@@ -199,6 +199,7 @@ abstract class AModelTrainer[T <: TModel](
 	var numFeatures: Int = 0
 	override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
 
+	//TODO remove change in this class
 	/**
 	 * Gets an Option(RDD[[(Matrix, Vector)]]) from dataContainerID in context
 	 */
