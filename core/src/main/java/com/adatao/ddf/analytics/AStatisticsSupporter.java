@@ -169,6 +169,14 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
   }
   
   public Double[] getVectorQuantiles(String columnName, Double[] pArray, Integer B) throws DDFException {
+    if (pArray == null || pArray.length == 0) {
+      throw new DDFException("Cannot compute quantiles for empty percenties");
+    }
+    
+    if (Strings.isNullOrEmpty(columnName)) {
+      throw new DDFException("Column name must not be empty");
+    }
+    
     String colType = getDDF().getSchema().getColumn(columnName).getType().name();
     List<Double> pValues = Arrays.asList(pArray);
     Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
@@ -184,7 +192,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     boolean hasOne = true;
     String max = "";
-    if (pValues.get(pValues.size() - 1) == 0) {
+    if (pValues.get(pValues.size() - 1) == 1.0) {
       max = "max(" + columnName + ")";
       pValues.subList(0, pValues.size() - 1);
       hasOne = true;
@@ -212,20 +220,24 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     String cmd = "SELECT " + pParams + " FROM " + getDDF().getTableName();
     mLog.info("Command String = " + cmd);
-    String[] rs = getDDF().sql2txt(cmd, "Cannot get quantiles").get(0)
+    List<String> rs = getDDF().sql2txt(cmd, "Cannot get vector quantiles from SQL queries");
+    if (rs == null || rs.size() ==0) {
+      throw new DDFException("Cannot get vector quantiles from SQL queries");
+    }
+    String[] convertedResults= rs.get(0)
         .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
     mLog.info("Raw info " + StringUtils.join(rs, "\n"));
     
     Double[] result = new Double[pArray.length];
     HashMap<Double, Double> mapValues = new HashMap<Double, Double>();
     for (int i = 0; i < pValues.size() - 1; i++) {
-      mapValues.put(pValues.get(i), Double.parseDouble(rs[i]));
+      mapValues.put(pValues.get(i), Double.parseDouble(convertedResults[i]));
     }
     if (hasZero) {
-      mapValues.put(0.0, Double.parseDouble(rs[rs.length - 2]));
+      mapValues.put(0.0, Double.parseDouble(convertedResults[convertedResults.length - 2]));
     }
     if (hasOne) {
-      mapValues.put(1.0, Double.parseDouble(rs[rs.length - 1]));
+      mapValues.put(1.0, Double.parseDouble(convertedResults[convertedResults.length - 1]));
     }
     for (int i = 0; i < pArray.length - 1; i++) {
       result[i] = mapValues.get(pArray[i]);
