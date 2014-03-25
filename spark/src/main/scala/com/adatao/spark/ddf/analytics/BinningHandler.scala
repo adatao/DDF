@@ -26,11 +26,11 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
         if (breaks == null) throw new DDFException("Please enter valid break points")
         if (breaks.sorted.deep != breaks.deep) throw new DDFException("Please enter increasing breaks")
       }
-      case BinningType.EQUAl_FREQUENCY ⇒ breaks = {
+      case BinningType.EQUAlFREQ ⇒ breaks = {
         if (numBins < 2) throw new DDFException("Number of bins is smaller than 2")
         getQuantilesFromNumBins(colMeta.getName, numBins)
       }
-      case BinningType.EQUAL_INTERVAL ⇒ breaks = {
+      case BinningType.EQUALINTERVAL ⇒ breaks = {
         if (numBins < 2) throw new DDFException("Number of bins is smaller than 2")
         getIntervalsFromNumBins(colMeta.getName, numBins)
       }

@@ -28,7 +28,7 @@ public abstract class ABinningHandler extends ADDFFunctionalGroupHandler impleme
       boolean right) throws DDFException;
   
   public enum BinningType {
-    CUSTOM, EQUAl_FREQUENCY, EQUAL_INTERVAL;
+    CUSTOM, EQUAlFREQ, EQUALINTERVAL;
     
     public static BinningType get(String s) {
       if (s == null || s.length() == 0) return null;
