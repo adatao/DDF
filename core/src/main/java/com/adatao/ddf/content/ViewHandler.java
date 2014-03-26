@@ -4,6 +4,8 @@
 package com.adatao.ddf.content;
 
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.DDF;
@@ -141,7 +143,6 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
 
-
   // ///// Execute SQL command on the DDF ///////
 
   private DDF sql2ddf(String sqlCommand, String errorMessage) throws DDFException {
@@ -152,5 +153,12 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
     }
   }
+
+  @Override
+  public DDF subset() throws DDFException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 
 }

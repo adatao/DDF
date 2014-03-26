@@ -26,4 +26,6 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   public List<String> firstNRows(int numRows) throws DDFException;
 
   public DDF project(String... columnNames) throws DDFException;
+  
+  public DDF subset() throws DDFException;
 }
