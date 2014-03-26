@@ -36,7 +36,7 @@ class MllibIntegrationSuite extends ATestSuite {
     } yield (math.random)
 
     val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
-      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
+      0.1: java.lang.Double, 0.1: java.lang.Double)
 
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
     val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)

@@ -405,11 +405,19 @@ public class Utils {
 
     public Object classInvoke(Object... args) throws DDFException {
       try {
+        File logFile = new File("/tmp/Utils.log");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
+        for(Object arg: args) {
+          writer.write(">>>>>>>> arg = " + arg.toString());
+          sLog.info(">>>>>>>>> arg = " + arg.toString());
+        }
+
+        writer.close();
+
         return this.getMethod().invoke(null, args);
 
       } catch (Exception e) {
-        throw new DDFException(String.format("Error while invoking method %s on class %s", this.getMethod().getName(),
-            mObjectClass.getName()), e);
+        throw new DDFException(e.getCause());
       }
     }
 
