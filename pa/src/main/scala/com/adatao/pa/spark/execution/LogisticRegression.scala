@@ -40,7 +40,10 @@ class LogisticRegression(
 	var ridgeLambda: Double,
 	var initialWeights: Array[Double])
 		extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
-
+    
+    override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+    
+    }
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
 		
 //		println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
