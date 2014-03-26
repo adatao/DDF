@@ -18,6 +18,10 @@ public class BinningHandlerTest {
     DDF newddf = ddf.binning("month", "EQUALINTERVAL", 2, null, true, true);
     Assert.assertEquals(ColumnClass.FACTOR, newddf.getSchemaHandler().getColumn("month").getColumnClass());
     Assert.assertEquals(2, newddf.getSchemaHandler().getColumn("month").getOptionalFactor().getLevelMap().size());
+    
+    DDF ddf1 = ddf.binning("month", "custom", 0, new double[]{2, 4, 6, 8}, true, true);
+    //{'[2,4]'=1, '(4,6]'=2, '(6,8]'=3}
+    Assert.assertTrue(ddf1.getSchemaHandler().getColumn("month").getOptionalFactor().getLevelMap().get("'[2,4]'")==1);
     manager.shutdown();
   }
 

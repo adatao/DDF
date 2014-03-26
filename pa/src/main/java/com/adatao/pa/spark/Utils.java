@@ -16,32 +16,39 @@
 
 package com.adatao.pa.spark;
 
+
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.content.Schema.ColumnClass;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 
 
 public class Utils {
 
-	public static void printDoubleArray(String title, String fmt, double[] xs) {
-		System.out.print(title + " ");
-		for (double x : xs) {
-			System.out.format(fmt, x);
-		}
-		System.out.println();
-	}
+  public static void printDoubleArray(String title, String fmt, double[] xs) {
+    System.out.print(title + " ");
+    for (double x : xs) {
+      System.out.format(fmt, x);
+    }
+    System.out.println();
+  }
 
-  public static MetaInfo[] generateMetaInfo(Schema schema) {
+  public static MetaInfo[] generateMetaInfo(Schema schema) throws DDFException {
     List<Column> columns = schema.getColumns();
     MetaInfo[] metaInfo = new MetaInfo[columns.size()];
     for (int i = 0; i < columns.size(); i++) {
       metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
+      
+      if (columns.get(i).getColumnClass() == ColumnClass.FACTOR) {
+        metaInfo[i].setFactor(columns.get(i).getOptionalFactor().getLevelMap());
+      }
     }
     return metaInfo;
   }
-  
+
   public static String getDataContainerId(DDF ddf) {
     return ddf.getName().substring(15).replace("_", "-");
   }
