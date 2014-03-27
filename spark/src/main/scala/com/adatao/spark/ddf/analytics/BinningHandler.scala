@@ -27,14 +27,14 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
         if (breaks.sorted.deep != breaks.deep) throw new DDFException("Please enter increasing breaks")
       }
       case BinningType.EQUAlFREQ ⇒ breaks = {
-        if (numBins < 2) throw new DDFException("Number of bins is smaller than 2")
+        if (numBins < 2) throw new DDFException("Number of bins cannot be smaller than 2")
         getQuantilesFromNumBins(colMeta.getName, numBins)
       }
       case BinningType.EQUALINTERVAL ⇒ breaks = {
-        if (numBins < 2) throw new DDFException("Number of bins is smaller than 2")
+        if (numBins < 2) throw new DDFException("Number of bins cannot be smaller than 2")
         getIntervalsFromNumBins(colMeta.getName, numBins)
       }
-      case _ ⇒ throw new DDFException(String.format("Binning Type is not supported", binningTypeString))
+      case _ ⇒ throw new DDFException(String.format("Binning type %s is not supported", binningTypeString))
     }
     mLog.info("breaks = " + breaks.mkString(", "))
 
@@ -138,7 +138,7 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
   }
 
   /**
-   * using hive UDF to get percentiles as breaks
+   * Using hive UDF to get percentiles as breaks
    *
    */
   def getQuantiles(colName: String, pArray: Array[Double]): Array[Double] = {
