@@ -826,17 +826,17 @@ public abstract class DDF extends ALoggable //
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
-  public Double[] getVectorQuantiles(String columnName, Double[] pArray) 
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {
-    return this.getStatisticsSupporter().getVectorQuantiles(columnName, pArray);
+    return this.getStatisticsSupporter().getVectorQuantiles(columnName, percentiles);
   }
   
-  public Double[] getVectorQuantiles(Double[] pArray) 
+  public Double[] getVectorQuantiles(Double[] percentiles) 
       throws DDFException {
     if (getSchema().getNumColumns() != 1) {
       throw new DDFException("This method only applies to one columned DDF.");
     }
-    return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), pArray);
+    return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), percentiles);
   }
 
   // //// ISupportML //////

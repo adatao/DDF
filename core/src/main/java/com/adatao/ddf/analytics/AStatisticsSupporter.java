@@ -164,12 +164,12 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
   }
   
-  public Double[] getVectorQuantiles(String columnName, Double[] pArray) throws DDFException {
-    return getVectorQuantiles(columnName, pArray, 10000);
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles) throws DDFException {
+    return getVectorQuantiles(columnName, percentiles, 10000);
   }
   
-  public Double[] getVectorQuantiles(String columnName, Double[] pArray, Integer B) throws DDFException {
-    if (pArray == null || pArray.length == 0) {
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles, Integer B) throws DDFException {
+    if (percentiles == null || percentiles.length == 0) {
       throw new DDFException("Cannot compute quantiles for empty percenties");
     }
     
@@ -180,7 +180,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     String colType = getDDF().getSchema().getColumn(columnName).getType().name().toLowerCase();
     
     mLog.info("Column type: " + colType);
-    List<Double> pValues = Arrays.asList(pArray);
+    List<Double> pValues = Arrays.asList(percentiles);
     Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
     Pattern p2 = Pattern.compile("^[float|double]$");
 
@@ -204,9 +204,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     if (pValues.size() > 0) {
       if (p1.matcher(colType).matches()) {
-        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(pArray, ",") + "))";
+        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + "))";
       } else if (p2.matcher(colType).matches()) {
-        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pArray, ",") + ", " + B.toString() + "))";
+        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + ", " + B.toString() + "))";
       } else {
         throw new DDFException("Only support numeric verctors!!!");
       }
@@ -230,7 +230,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
         .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
     mLog.info("Raw info " + StringUtils.join(rs, "\n"));
     
-    Double[] result = new Double[pArray.length];
+    Double[] result = new Double[percentiles.length];
     HashMap<Double, Double> mapValues = new HashMap<Double, Double>();
     try {
       for (int i = 0; i < pValues.size(); i++) {
@@ -245,8 +245,8 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     } catch (NumberFormatException nfe) {
       throw new DDFException("Cannot parse the returned values from vector quantiles query", nfe);
     }
-    for (int i = 0; i < pArray.length; i++) {
-      result[i] = mapValues.get(pArray[i]);
+    for (int i = 0; i < percentiles.length; i++) {
+      result[i] = mapValues.get(percentiles[i]);
     }
     return result;
   }
