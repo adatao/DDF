@@ -38,13 +38,16 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
     }
     mLog.info("breaks = " + breaks.mkString(", "))
 
-    val intervals = createIntervals(breaks, includeLowest, right)
+    var intervals = createIntervals(breaks, includeLowest, right)
 
     var newddf = mDDF.getManager().sql2ddf(createTransformSqlCmd(column, intervals, includeLowest, right))
 
     mDDF.getManager().addDDF(newddf)
+
+    //remove single quote in intervals
+    intervals = intervals.map(x ⇒ x.replace("'", ""))
     newddf.getSchemaHandler().setAsFactor(column, List.fromArray(intervals));
-    
+
     newddf
   }
 
@@ -116,25 +119,25 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
     val res: Array[Double] = mDDF.sql2txt(cmd, "").get(0).split("\t").map(x ⇒ x.toDouble)
     val (min, max) = (res(0), res(1))
     val eachInterval = (max - min) / bins
-    val pArray: Array[Double] = Array.fill[Double](bins + 1)(0)
+    val probs: Array[Double] = Array.fill[Double](bins + 1)(0)
     var i = 0
     while (i < bins + 1) {
-      pArray(i) = min + i * eachInterval
+      probs(i) = min + i * eachInterval
       i += 1
     }
-    pArray(bins) = max
-    pArray
+    probs(bins) = max
+    probs
   }
 
   def getQuantilesFromNumBins(colName: String, bins: Int): Array[Double] = {
     val eachInterval = 1.0 / bins
-    val pArray: Array[Double] = Array.fill[Double](bins - 1)(0.0)
+    val probs: Array[Double] = Array.fill[Double](bins - 1)(0.0)
     var i = 0
     while (i < bins - 1) {
-      pArray(i) = (i + 1) * eachInterval
+      probs(i) = (i + 1) * eachInterval
       i += 1
     }
-    getQuantiles(colName, pArray)
+    getQuantiles(colName, probs)
   }
 
   /**
