@@ -59,6 +59,8 @@ class LogisticRegression(
     columnList.add(schema.getColumn(yCol).getName)
     val projectDDF = ddf.Views.project(columnList)
     val logisticModel = projectDDF.ML.train("logisticRegressionWithSGD", numIters:java.lang.Integer, ridgeLambda: java.lang.Double)
+    
+    // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[org.apache.spark.mllib.classification.LogisticRegressionModel]
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     paWeights += rawModel.intercept
@@ -70,15 +72,7 @@ class LogisticRegression(
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
-		
-//		println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
-		//depend on length of weights
-		val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-		
-		var model = ML.LogisticRegression.train(
-			new LogisticRegression.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
-		)
-		model
+		null
 	}
 	
 	//post process, set column mapping to model

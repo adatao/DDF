@@ -61,7 +61,8 @@ class LinearRegression(
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)
     val model = projectDDF.ML.train("linearRegressionWithSGD", numIters:java.lang.Integer)
-    // missing the methods to access weights
+    
+    // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[org.apache.spark.mllib.regression.LinearRegressionModel]
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     paWeights += rawModel.intercept
@@ -73,15 +74,9 @@ class LinearRegression(
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
-
-		//depend on length of weights
-		val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-		var model = ML.LinearRegression.train(
-			new LinearRegression.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
-		)
-
-		model
+    null
 	}
+	
 	//post process, set column mapping to model
 	def instrumentModel(model: LinearRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) :LinearRegressionModel = {
 	  model.dummyColumnMapping = mapping

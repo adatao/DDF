@@ -46,7 +46,8 @@ class Kmeans(
     for (col <- xCols) columnList.add(schema.getColumn(col).getName)
     val projectDDF = ddf.Views.project(columnList)
     val kmeansModel = projectDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
-    // missing the methods to access weights
+    
+    // converts DDF model to old PA model
     val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
     
     val totalWithins: ArrayBuffer[Double] = ArrayBuffer[Double]()
@@ -61,24 +62,7 @@ class Kmeans(
   }
 	
 	def train(dataPartition: RDD[Array[Double]], context: ExecutionContext): KmeansModel = {
-		type PointType = Tuple3[Array[Double], Int, Double]
-
-		val centroids: Array[PointType] = Option(initialCentroids) match {
-			case None 	=> initializationMode match {
-					case Kmeans.RANDOM => {
-						LOG.info("Running using random initialization mode")
-						dataPartition.takeSample(false, K, 42).map(point => (point, 1, 0.0))
-					}
-					//case Kmeans.KPLUSPLUS =>
-					case x             => throw new Exception("Don't support this initialization mode" + x)
-				}
-			case Some(x) 		=> {
-				LOG.info("Running using centroids provided by user")
-				x.map(point => (point, 1, 0.0)).toArray
-			}
-		}
-
-		ML.Kmeans.train(dataPartition, numIterations, centroids)
+		null
 	}
 }
 
