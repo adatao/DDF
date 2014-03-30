@@ -41,8 +41,14 @@ class MllibIntegrationSuite extends ATestSuite {
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
     val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
 
+    // numIterations = 10, stepSize = 0.1
+    val logRegModel = ddfPredict.ML.train("logisticRegressionWithSGD", 10: java.lang.Integer, 0.1: java.lang.Double)
+    val yPred1 = ddfPredict.ML.applyModel(logRegModel, false, true)
+     
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
+    
+    println(yPred1.asInstanceOf[SparkDDF].getNumRows())
     manager.shutdown()
   }
 }
