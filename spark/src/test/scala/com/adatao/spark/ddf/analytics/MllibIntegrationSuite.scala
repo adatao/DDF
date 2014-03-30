@@ -29,6 +29,9 @@ class MllibIntegrationSuite extends ATestSuite {
     val ddfPredict2 = manager.sql2ddf("select " +
       "distance, arrdelay, depdelay, delayed from airline_delayed")
 
+    val ddfTrain3 = manager.sql2ddf("select " +
+      "distance, depdelay, if (arrdelay > 10.89, 1, 0) as delayed from airline_delayed")
+      
     val kmeansModel = ddfPredict.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
     val initialWeight = for {
@@ -42,8 +45,8 @@ class MllibIntegrationSuite extends ATestSuite {
     val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
 
     // numIterations = 10, stepSize = 0.1
-    val logRegModel = ddfPredict.ML.train("logisticRegressionWithSGD", 10: java.lang.Integer, 0.1: java.lang.Double)
-    val yPred1 = ddfPredict.ML.applyModel(logRegModel, false, true)
+    val logRegModel = ddfTrain3.ML.train("logisticRegressionWithSGD", 10: java.lang.Integer, 0.1: java.lang.Double)
+    val yPred1 = ddfTrain3.ML.applyModel(logRegModel, false, true)
      
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count

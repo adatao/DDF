@@ -27,7 +27,11 @@ import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.ALossFunction
 import com.adatao.spark.RDDImplicits._
 import java.util.HashMap
+import java.util.List
+import java.util.ArrayList
 
+import com.adatao.ddf.DDF
+import scala.collection.mutable.ArrayBuffer
 /**
  * Entry point for SparkThread executor
  */
@@ -41,11 +45,30 @@ class LogisticRegression(
 	var initialWeights: Array[Double])
 		extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
     
-    /*
-    override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
-    
+  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+    val ddfManager = context.sparkThread.getDDFManager();
+    val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+      case x: DDF ⇒ x
+      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
     }
-    */
+    // project the xCols, and yCol as a new DDF
+    // this is costly
+    val schema = ddf.getSchema()
+    var columnList : java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    columnList.add(schema.getColumn(yCol).getName)
+    val projectDDF = ddf.Views.project(columnList)
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithSGD", numIters:java.lang.Integer, ridgeLambda: java.lang.Double)
+    val rawModel = logisticModel.getRawModel.asInstanceOf[org.apache.spark.mllib.classification.LogisticRegressionModel]
+    val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    paWeights += rawModel.intercept
+    for (w <- rawModel.weights) paWeights += w
+    val weights = Vector.apply(paWeights.toArray)
+    val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    for (i <- 0 to numIters) trainingLoss += 0
+    return new LogisticRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+  }
+  
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
 		
 //		println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
