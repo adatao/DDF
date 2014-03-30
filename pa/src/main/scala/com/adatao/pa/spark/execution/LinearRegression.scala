@@ -63,8 +63,13 @@ class LinearRegression(
     val model = projectDDF.ML.train("linearRegressionWithSGD", numIters:java.lang.Integer)
     // missing the methods to access weights
     val rawModel = model.getRawModel.asInstanceOf[org.apache.spark.mllib.regression.LinearRegressionModel]
-    val weights = Vector.apply(rawModel.weights)
-    return new LinearRegressionModel(weights, null, 0)
+    val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    paWeights += rawModel.intercept
+    for (w <- rawModel.weights) paWeights += w
+    val weights = Vector.apply(paWeights.toArray)
+    val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    for (i <- 0 to numIters) trainingLoss += 0
+    return new LinearRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
