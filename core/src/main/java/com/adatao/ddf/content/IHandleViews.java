@@ -5,6 +5,7 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
@@ -26,4 +27,6 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   public List<String> firstNRows(int numRows) throws DDFException;
 
   public DDF project(String... columnNames) throws DDFException;
+  
+  public DDF project(List<String> columnNames) throws DDFException;
 }

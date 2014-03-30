@@ -139,8 +139,15 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
         String.format("Unable to project columns %s from table %%s", selectedColumns));
   }
+  
+  @Override
+  public DDF project(List<String> columnNames) throws DDFException {
+    if (columnNames == null || columnNames.size() == 0) throw new DDFException("columnNames must be specified");
 
-
+    String selectedColumns = Joiner.on(",").join(columnNames);
+    return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
+        String.format("Unable to project columns %s from table %%s", selectedColumns));
+  }
 
   // ///// Execute SQL command on the DDF ///////
 
