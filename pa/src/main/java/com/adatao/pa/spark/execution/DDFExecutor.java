@@ -32,7 +32,7 @@ public class DDFExecutor {
         throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF "
             + this.ddfUri, null);
       }
-      return new SuccessfulResult(ddf.PA.runCommand(this.methodName, this.params));
+      return new SuccessfulResult(ddf.PA.runMethod(this.methodName, this.params));
 
     } catch (Exception e) {
       return new FailedResult(e.getMessage());

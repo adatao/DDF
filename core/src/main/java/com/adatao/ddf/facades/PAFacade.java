@@ -18,7 +18,7 @@ public class PAFacade {
     mDDF = ddf;
   }
 
-  public Object runCommand(String methodName, Object... params) throws DDFException {
+  public Object runMethod(String methodName, Object... params) throws DDFException {
     List<Class<?>> argTypes = new ArrayList<Class<?>>();
 
     if (params != null && params.length > 0) {
