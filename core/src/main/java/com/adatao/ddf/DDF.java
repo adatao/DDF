@@ -48,6 +48,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.PAFacade;
 import com.adatao.ddf.facades.RFacade;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -180,6 +181,7 @@ public abstract class DDF extends ALoggable //
     this.ML = new MLFacade(this, this.getMLSupporter());
     this.Views = new ViewsFacade(this, this.getViewHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
+    this.PA = new PAFacade(this);
   }
 
 
@@ -869,7 +871,8 @@ public abstract class DDF extends ALoggable //
   @Override
   public void afterUnpersisting() {}
 
-
+  //PA Facace
+  public PAFacade PA;
 
   // //// ISerializable //////
 
