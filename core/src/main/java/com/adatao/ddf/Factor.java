@@ -110,6 +110,7 @@ public class Factor<T> extends Vector<T> {
 
 
   private Map<String, Integer> mLevelMap;
+  private List<String> mLevels;
 
 
   /**
@@ -129,10 +130,11 @@ public class Factor<T> extends Vector<T> {
    * @throws DDFException
    * 
    */
-  protected Map<String, Integer> computeLevelMap() throws DDFException {
-    List<String> levels = null; // TODO: retrieve the list of levels from the underlying data, e.g.,
+  public Map<String, Integer> computeLevelMap(List<String> levels) throws DDFException {
+    // TODO: retrieve the list of levels from the underlying data, e.g.,
                                 // SELECT DISTINCT
     this.setLevels(levels, false);
+    
     return mLevelMap;
   }
 
@@ -146,8 +148,12 @@ public class Factor<T> extends Vector<T> {
     return this.getLevelMap().keySet();
   }
 
+  public Map<String, Integer> getLevelMap(List<String> levels) throws DDFException {
+    if (mLevelMap == null) mLevelMap = this.computeLevelMap(levels);
+    return mLevelMap;
+  }
+  
   public Map<String, Integer> getLevelMap() throws DDFException {
-    if (mLevelMap == null) mLevelMap = this.computeLevelMap();
     return mLevelMap;
   }
 
