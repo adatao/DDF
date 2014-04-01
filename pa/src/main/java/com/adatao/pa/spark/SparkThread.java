@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import com.adatao.pa.spark.execution.DDFExecutor;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +139,9 @@ public class SparkThread extends ASessionThread {
 			} else if (exec instanceof TExecutor) {
 				// New-style, Scala-based class hierarchy
 				execRes = ((TExecutor<?>) exec).run(new ExecutionContext(this));
-			}
+			} else if (exec instanceof DDFExecutor) {
+        execRes = ((DDFExecutor) exec).run(new ExecutionContext(this));
+      }
 			
 			return execRes;
 	}
