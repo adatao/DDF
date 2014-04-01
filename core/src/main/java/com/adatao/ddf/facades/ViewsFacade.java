@@ -4,6 +4,8 @@ package com.adatao.ddf.facades;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleViews;
+import com.adatao.ddf.content.ViewHandler.ColumnExpression;
+import com.adatao.ddf.content.ViewHandler.Expression;
 import com.adatao.ddf.exception.DDFException;
 
 public class ViewsFacade implements IHandleViews {
@@ -11,9 +13,9 @@ public class ViewsFacade implements IHandleViews {
   private IHandleViews mViewHandler;
 
 
-  public ViewsFacade(DDF ddf, IHandleViews mlSupporter) {
+  public ViewsFacade(DDF ddf, IHandleViews viewHandler) {
     mDDF = ddf;
-    mViewHandler = mlSupporter;
+    mViewHandler = viewHandler;
   }
 
   @Override
@@ -57,4 +59,11 @@ public class ViewsFacade implements IHandleViews {
   public DDF project(String... columnNames) throws DDFException {
     return this.getViewHandler().project(columnNames);
   }
+
+  @Override
+  public DDF subset(List<ColumnExpression> columnExpr, Expression filter) throws DDFException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
 }
