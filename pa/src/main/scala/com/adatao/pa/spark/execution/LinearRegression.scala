@@ -71,6 +71,7 @@ class LinearRegression(
     val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
     for (i <- 0 to numIters) trainingLoss += 0
     val paModel = new LinearRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+    ddfManager.addModel(model)
     paModel.ddfModel = model
     return paModel
   }

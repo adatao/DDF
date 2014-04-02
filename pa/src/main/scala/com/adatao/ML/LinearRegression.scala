@@ -74,7 +74,10 @@ class LinearRegressionModel(weights: Vector, trainingLosses: Vector,  numSamples
 	AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 	// The base class already sufficiently implements the predictor as [weights DOT features]
     @transient var ddfModel: IModel = null
-
+    override def ddfModelID: String = {
+        if (ddfModel != null) ddfModel.getName()
+        else null
+    }
 }
 
 /**
