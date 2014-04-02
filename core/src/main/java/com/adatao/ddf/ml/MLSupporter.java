@@ -166,7 +166,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
   @Override
-  public Double[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+  public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
     return null;
   }
 }

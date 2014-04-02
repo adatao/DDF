@@ -17,6 +17,8 @@ import scala.actors.threadpool.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 
 public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
@@ -256,12 +258,35 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
   }
 
   @Override
-  public Double[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+  public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
     SparkDDF ddf = (SparkDDF) this.getDDF();
     SparkDDF predictions = (SparkDDF) ddf.ML.applyModel(model, true, false);
 
     // Now get the underlying RDD to compute
-    RDD<Double[]> yTrueyPred = (RDD<Double[]>) predictions.getRDD((new Double[0]).getClass());
-    return null;
+    JavaRDD<Double[]> yTrueYPred = (JavaRDD<Double[]>) predictions.getJavaRDD((new Double[0]).getClass());
+    final double threshold1 = threshold; 
+    Long[] cm = yTrueYPred.map(new Function<Double[], Long[]>() {
+      @Override
+      public Long[] call(Double[] params) {
+        byte isPos = toByte(params[0] > threshold1);
+        byte predPos = toByte(params[1] > threshold1);
+
+        Long[] result = new Long[] {0L, 0L, 0L, 0L};
+        result[isPos << 1 | predPos] = 1L;
+        return result;
+      }
+    }).reduce(new Function2<Long[], Long[], Long[]>() {
+      @Override
+      public Long[] call(Long[] a, Long[] b) {
+        return new Long[] {a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]};
+      }
+    });
+
+    return new Long[][] {new Long[]{cm[3], cm[2]}, new Long[]{cm[1], cm[0]}};
+  }
+
+  private byte toByte(boolean exp) {
+    if (exp) return 1;
+    else return 0;
   }
 }
