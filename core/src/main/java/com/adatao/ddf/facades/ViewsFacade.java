@@ -9,7 +9,8 @@ import com.adatao.ddf.exception.DDFException;
 public class ViewsFacade implements IHandleViews {
   private DDF mDDF;
   private IHandleViews mViewHandler;
-  
+
+
   public ViewsFacade(DDF ddf, IHandleViews mlSupporter) {
     mDDF = ddf;
     mViewHandler = mlSupporter;
@@ -29,42 +30,12 @@ public class ViewsFacade implements IHandleViews {
     return mViewHandler;
   }
 
-  public void setMLSupporter(IHandleViews viewHandler) {
+  public void setViewHandler(IHandleViews viewHandler) {
     mViewHandler = viewHandler;
   }
 
-//  @Override
-//  public <T> Iterator<T> getRowIterator(Class<T> rowType) {
-//    return mViewHandler.getRowIterator(rowType);
-//  }
-//
-//  @Override
-//  public Iterator<?> getRowIterator() {
-//    return mViewHandler.getRowIterator();
-//  }
-//
-//  @Override
-//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, int columnIndex) {
-//    return mViewHandler.getElementIterator(dataType, columnType, columnIndex);
-//  }
-//
-//  @Override
-//  public Iterator<?> getElementIterator(int columnIndex) {
-//    return mViewHandler.getElementIterator(columnIndex);
-//  }
-//
-//  @Override
-//  public <C> Iterator<C> getElementIterator(Class<?> dataType, Class<C> columnType, String columnName) {
-//    return mViewHandler.getElementIterator(dataType, columnType, columnName);
-//  }
-//
-//  @Override
-//  public Iterator<?> getElementIterator(String columnName) {
-//    return mViewHandler.getElementIterator(columnName);
-//  }
-
   @Override
-  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
+  public List<Object[]> getRandomSample(int numSamples, boolean withReplacement, int seed) {
     return mViewHandler.getRandomSample(numSamples, withReplacement, seed);
   }
 
@@ -74,21 +45,16 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF firstNRows(int numRows) throws DDFException {
+  public List<String> firstNRows(int numRows) throws DDFException {
     return mViewHandler.firstNRows(numRows);
   }
 
-  public DDF getRandomSample(int numSamples) {
+  public List<Object[]> getRandomSample(int numSamples) {
     return getRandomSample(numSamples, false, 1);
   }
 
   @Override
-  public DDF project(List<String> columnNames) throws DDFException {
+  public DDF project(String... columnNames) throws DDFException {
     return this.getViewHandler().project(columnNames);
-  }
-
-  @Override
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
-    return this.getViewHandler().sql2txt(sqlCommand, errorMessage);
   }
 }

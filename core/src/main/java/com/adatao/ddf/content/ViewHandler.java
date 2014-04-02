@@ -29,7 +29,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   // }
 
   @Override
-  public DDF getRandomSample(int numSamples, boolean withReplacement, int seed) {
+  public List<Object[]> getRandomSample(int numSamples, boolean withReplacement, int seed) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -126,13 +126,15 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   // }
 
   @Override
-  public DDF firstNRows(int numRows) throws DDFException {
-    return sql2ddf(String.format("SELECT * FROM %%s LIMIT %d", numRows),
+  public List<String> firstNRows(int numRows) throws DDFException {
+    return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d rows from table %%s", numRows));
   }
 
   @Override
-  public DDF project(List<String> columnNames) throws DDFException {
+  public DDF project(String... columnNames) throws DDFException {
+    if (columnNames == null || columnNames.length == 0) throw new DDFException("columnNames must be specified");
+
     String selectedColumns = Joiner.on(",").join(columnNames);
     return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
         String.format("Unable to project columns %s from table %%s", selectedColumns));
@@ -145,16 +147,6 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   private DDF sql2ddf(String sqlCommand, String errorMessage) throws DDFException {
     try {
       return this.getManager().sql2ddf(String.format(sqlCommand, this.getDDF().getTableName()));
-
-    } catch (Exception e) {
-      throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
-    }
-  }
-
-  @Override
-  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
-    try {
-      return this.getManager().sql2txt(String.format(sqlCommand, this.getDDF().getTableName()));
 
     } catch (Exception e) {
       throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);

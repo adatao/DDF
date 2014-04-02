@@ -23,8 +23,6 @@ public class MLFacade implements ISupportML {
     mMLSupporter = mlSupporter;
   }
 
-
-
   @Override
   public DDF getDDF() {
     return mDDF;
