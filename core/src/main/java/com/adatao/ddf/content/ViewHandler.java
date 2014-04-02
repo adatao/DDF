@@ -155,7 +155,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
   
   @Override
-  public DDF subset(List<ColumnExpression> columnExpr, Expression filter) throws DDFException {
+  public DDF subset(List<Column> columnExpr, Expression filter) throws DDFException {
     updateVectorName(filter, this.getDDF());
     mLog.info("Updated filter: " + filter);
 
@@ -347,7 +347,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     }
   }
 
-  static public class ColumnExpression extends Expression {
+  static public class Column extends Expression {
     String id;
     String name;
     Integer index = null;
@@ -394,7 +394,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   }
 
 
-  private com.adatao.ddf.content.Schema.Column[] selectColumnMetaInfo(List<ColumnExpression> columns, DDF ddf) {
+  private com.adatao.ddf.content.Schema.Column[] selectColumnMetaInfo(List<Column> columns, DDF ddf) {
     int length = columns.size();
     com.adatao.ddf.content.Schema.Column[] retObj = new com.adatao.ddf.content.Schema.Column[length];
     for (int i = 0; i < length; i++) {
@@ -407,8 +407,8 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     if (Expression == null) {
       return;
     }
-    if (Expression.getType().equals("ColumnExpression")) {
-      ColumnExpression vec = (ColumnExpression) Expression;
+    if (Expression.getType().equals("Column")) {
+      Column vec = (Column) Expression;
       if (vec.getIndex() == null) {
         String name = vec.getName();
         if (name != null) {
@@ -429,8 +429,8 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     if (Expression == null) {
       return;
     }
-    if (Expression.getType().equals("ColumnExpression")) {
-      ColumnExpression vec = (ColumnExpression) Expression;
+    if (Expression.getType().equals("Column")) {
+      Column vec = (Column) Expression;
       if (vec.getName() == null) {
         Integer i = vec.getIndex();
         if (i != null) {

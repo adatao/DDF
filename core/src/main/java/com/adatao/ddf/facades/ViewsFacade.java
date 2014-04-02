@@ -4,7 +4,7 @@ package com.adatao.ddf.facades;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleViews;
-import com.adatao.ddf.content.ViewHandler.ColumnExpression;
+import com.adatao.ddf.content.ViewHandler.Column;
 import com.adatao.ddf.content.ViewHandler.Expression;
 import com.adatao.ddf.exception.DDFException;
 
@@ -61,7 +61,7 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public DDF subset(List<ColumnExpression> columnExpr, Expression filter) throws DDFException {
+  public DDF subset(List<Column> columnExpr, Expression filter) throws DDFException {
     return mViewHandler.subset(columnExpr, filter);
   }
   

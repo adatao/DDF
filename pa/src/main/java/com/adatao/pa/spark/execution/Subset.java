@@ -22,7 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.ViewHandler.ColumnExpression;
+import com.adatao.ddf.content.ViewHandler.Column;
 import com.adatao.ddf.content.ViewHandler.Expression;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
@@ -44,17 +44,17 @@ import com.google.gson.JsonParseException;
 @SuppressWarnings({ "serial", "unchecked", "rawtypes" })
 public class Subset extends CExecutor {
   private String dataContainerID;
-  private List<ColumnExpression> columns;
+  private List<Column> columns;
   private Expression filter = null;
 
   public static Logger LOG = LoggerFactory.getLogger(Subset.class);
 
 
-  static public class ExprDeserializer implements JsonDeserializer<Expression> {
+  static public class ExpressionDeserializer implements JsonDeserializer<Expression> {
     public Expression deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       GsonBuilder gsonBld = new GsonBuilder();
-      gsonBld.registerTypeAdapter(Expression.class, new ExprDeserializer());
+      gsonBld.registerTypeAdapter(Expression.class, new ExpressionDeserializer());
       Gson gson = gsonBld.create();
 
       JsonObject jo = json.getAsJsonObject();
@@ -126,11 +126,11 @@ public class Subset extends CExecutor {
     return this;
   }
 
-  public List<ColumnExpression> getColumns() {
+  public List<Column> getColumns() {
     return columns;
   }
 
-  public Subset setColumns(List<ColumnExpression> columns) {
+  public Subset setColumns(List<Column> columns) {
     this.columns = columns;
     return this;
   }
@@ -142,4 +142,5 @@ public class Subset extends CExecutor {
   public void setFilter(Expression filter) {
     this.filter = filter;
   }
+  
 }
