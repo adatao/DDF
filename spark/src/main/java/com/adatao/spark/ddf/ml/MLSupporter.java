@@ -254,4 +254,14 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       return results;
     }
   }
+
+  @Override
+  public Double[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+    SparkDDF ddf = (SparkDDF) this.getDDF();
+    SparkDDF predictions = (SparkDDF) ddf.ML.applyModel(model, true, false);
+
+    // Now get the underlying RDD to compute
+    RDD<Double[]> yTrueyPred = (RDD<Double[]>) predictions.getRDD((new Double[0]).getClass());
+    return null;
+  }
 }

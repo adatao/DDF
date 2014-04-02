@@ -52,4 +52,8 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    */
   DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException;
 
+  /*
+   * Compute the binary confusion matrix of this DDF based on the given model.
+  */
+  Double[][] getConfusionMatrix(IModel model, double threshold) throws DDFException;
 }

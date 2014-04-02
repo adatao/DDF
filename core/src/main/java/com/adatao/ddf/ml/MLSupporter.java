@@ -164,4 +164,9 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   public DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException {
     return this.getDDF();
   }
+
+  @Override
+  public Double[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+    return null;
+  }
 }
