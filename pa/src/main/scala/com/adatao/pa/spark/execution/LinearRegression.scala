@@ -70,7 +70,9 @@ class LinearRegression(
     val weights = Vector.apply(paWeights.toArray)
     val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
     for (i <- 0 to numIters) trainingLoss += 0
-    return new LinearRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+    val paModel = new LinearRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+    paModel.ddfModel = model
+    return paModel
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
