@@ -57,13 +57,12 @@ public class ViewsFacade implements IHandleViews {
 
   @Override
   public DDF project(String... columnNames) throws DDFException {
-    return this.getViewHandler().project(columnNames);
+    return mViewHandler.project(columnNames);
   }
 
   @Override
   public DDF subset(List<ColumnExpression> columnExpr, Expression filter) throws DDFException {
-    // TODO Auto-generated method stub
-    return null;
+    return mViewHandler.subset(columnExpr, filter);
   }
   
 }

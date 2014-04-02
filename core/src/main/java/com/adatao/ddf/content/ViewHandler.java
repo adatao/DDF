@@ -174,6 +174,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
     DDF subset = this.getManager().sql2ddf(sqlCmd);
 
+    this.getManager().addDDF(subset);
     return subset;
 
   }
@@ -406,7 +407,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     if (Expression == null) {
       return;
     }
-    if (Expression.getType().equals("Column")) {
+    if (Expression.getType().equals("ColumnExpression")) {
       ColumnExpression vec = (ColumnExpression) Expression;
       if (vec.getIndex() == null) {
         String name = vec.getName();
