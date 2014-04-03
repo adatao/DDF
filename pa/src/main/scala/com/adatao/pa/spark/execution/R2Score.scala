@@ -31,18 +31,16 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
 		val ddfManager = ctx.sparkThread.getDDFManager();
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
 		
-		//get model from cluster
-		val model: DDF = ddfManager.getDDF(("SparkDDF-spark-" + modelID).replace("-", "_"));
-		
 
 		// first, compute RDD[(ytrue, ypred)]
 		//all we need is to change it HERE
 		//old API
 //		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
 		
-		
 		val mymodel: IModel = ddfManager.getModel(modelID)
-		val predictions = ddf.getMLSupporter().applyModel(mymodel, true, true)
+		val result = ddf.getMLSupporter().applyModel(mymodel, true, true)
+		
+		val predictions = //get RDD
 		
 		//we are getting sparkDDF
 
