@@ -152,5 +152,4 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
     }
   }
-
 }

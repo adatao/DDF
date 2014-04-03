@@ -27,6 +27,7 @@ import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.analytics.IHandleBinning;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.analytics.Summary;
@@ -48,6 +49,7 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.PAFacade;
 import com.adatao.ddf.facades.RFacade;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -180,6 +182,7 @@ public abstract class DDF extends ALoggable //
     this.ML = new MLFacade(this, this.getMLSupporter());
     this.Views = new ViewsFacade(this, this.getViewHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
+    this.PA = new PAFacade(this);
   }
 
 
@@ -189,9 +192,11 @@ public abstract class DDF extends ALoggable //
 
   // //// IGloballyAddressable //////
 
-  @Expose private String mNamespace;
+  @Expose
+  private String mNamespace;
 
-  @Expose private String mName;
+  @Expose
+  private String mName;
 
 
   /**
@@ -319,7 +324,6 @@ public abstract class DDF extends ALoggable //
   }
 
 
-
   // ///// Execute a sqlcmd
   public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
     try {
@@ -362,8 +366,12 @@ public abstract class DDF extends ALoggable //
   public AggregationResult xtabs(String fields) throws DDFException {
     return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
   }
-
-
+  
+  // ///// binning 
+  public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
+      boolean right) throws DDFException {
+    return this.getBinningHandler().binning(column, binningType, numBins, breaks, includeLowest, right);
+  }
 
   // ////// Function-Group Handlers ////////
 
@@ -384,6 +392,7 @@ public abstract class DDF extends ALoggable //
   private IHandleViews mViewHandler;
   private ISupportML mMLSupporter;
   private IHandleAggregation mAggregationHandler;
+  private IHandleBinning mBinningHandler;
 
 
 
@@ -495,6 +504,21 @@ public abstract class DDF extends ALoggable //
 
   protected IHandleAggregation createAggregationHandler() {
     return newHandler(IHandleAggregation.class);
+  }
+  
+  public IHandleBinning getBinningHandler() {
+    if (mBinningHandler == null) mBinningHandler = this.createBinningHandler();
+    if (mBinningHandler == null) throw new UnsupportedOperationException();
+    else return mBinningHandler;
+  }
+
+  public DDF setBinningHandler(IHandleBinning aBinningHandler) {
+    this.mBinningHandler = aBinningHandler;
+    return this;
+  }
+
+  protected IHandleBinning createBinningHandler() {
+    return newHandler(IHandleBinning.class);
   }
 
   public IHandleMutability getMutabilityHandler() {
@@ -869,7 +893,8 @@ public abstract class DDF extends ALoggable //
   @Override
   public void afterUnpersisting() {}
 
-
+  //PA Facace
+  public PAFacade PA;
 
   // //// ISerializable //////
 

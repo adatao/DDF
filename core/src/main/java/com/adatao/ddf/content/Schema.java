@@ -276,7 +276,11 @@ public class Schema implements Serializable {
 
     @Override
     public Column clone() {
-      return new Column(this.getName(), this.getType());
+      Column clonedColumn = new Column(this.getName(), this.getType());
+      if (mClass == ColumnClass.FACTOR) {
+        clonedColumn = clonedColumn.setAsFactor(mOptionalFactor);
+      }
+      return clonedColumn;
     }
   }
 
