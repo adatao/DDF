@@ -153,7 +153,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       throw new DDFException(String.format(errorMessage, this.getDDF().getTableName()), e);
     }
   }
-  
+
   @Override
   public DDF subset(List<Column> columnExpr, Expression filter) throws DDFException {
     updateVectorName(filter, this.getDDF());
@@ -403,12 +403,12 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return retObj;
   }
 
-  private void updateVectorIndex(Expression Expression, DDF ddf) {
-    if (Expression == null) {
+  private void updateVectorIndex(Expression expression, DDF ddf) {
+    if (expression == null) {
       return;
     }
-    if (Expression.getType().equals("Column")) {
-      Column vec = (Column) Expression;
+    if (expression.getType().equals("Column")) {
+      Column vec = (Column) expression;
       if (vec.getIndex() == null) {
         String name = vec.getName();
         if (name != null) {
@@ -417,20 +417,20 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       }
       return;
     }
-    if (Expression instanceof Operator) {
-      Expression[] newOps = ((Operator) Expression).getOperands();
+    if (expression instanceof Operator) {
+      Expression[] newOps = ((Operator) expression).getOperands();
       for (Expression newOp : newOps) {
         updateVectorIndex(newOp, ddf);
       }
     }
   }
 
-  private void updateVectorName(Expression Expression, DDF ddf) {
-    if (Expression == null) {
+  private void updateVectorName(Expression expression, DDF ddf) {
+    if (expression == null) {
       return;
     }
-    if (Expression.getType().equals("Column")) {
-      Column vec = (Column) Expression;
+    if (expression.getType().equals("Column")) {
+      Column vec = (Column) expression;
       if (vec.getName() == null) {
         Integer i = vec.getIndex();
         if (i != null) {
@@ -439,8 +439,8 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       }
       return;
     }
-    if (Expression instanceof Operator) {
-      Expression[] newOps = ((Operator) Expression).getOperands();
+    if (expression instanceof Operator) {
+      Expression[] newOps = ((Operator) expression).getOperands();
       for (Expression newOp : newOps) {
         updateVectorName(newOp, ddf);
       }

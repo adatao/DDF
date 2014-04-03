@@ -62,7 +62,7 @@ public class Subset extends CExecutor {
 
       try {
         Expression expression = (Expression) gson.fromJson(json.toString(),
-            Class.forName("com.adatao.pa.spark.execution.Subset$" + type));
+            Class.forName("com.adatao.ddf.content.ViewHandler$" + type));
 
         return expression;
 
@@ -142,5 +142,5 @@ public class Subset extends CExecutor {
   public void setFilter(Expression filter) {
     this.filter = filter;
   }
-  
+
 }
