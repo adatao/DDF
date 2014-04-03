@@ -645,12 +645,12 @@ class RegressionSuite extends ABigRClientTest {
 		
 		//load data
 		createTableAdmission
-		val df= this.runSQL2RDDCmd("select * from admission", true)
+		val df= this.runSQL2RDDCmd("select v2, v4, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 		
 		//minimum threshold range for sparse columns
-		System.setProperty("sparse.max.range", "1000000")
+		System.setProperty("sparse.max.range", "10000")
 		var cmd2 = new FiveNumSummary(dataContainerId)
 		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
 		assert(summary.size > 0)

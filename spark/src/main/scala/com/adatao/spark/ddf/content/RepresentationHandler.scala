@@ -217,7 +217,7 @@ object RepresentationHandler {
         columnIndex  = column + 1
         newValue = inputRow(column)
         
-        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
+//        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
         X.put(row, columnIndex, newValue) // x-feature #i
         column += 1
       }
