@@ -19,6 +19,8 @@ package com.adatao.pa.spark.execution
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
 import com.adatao.ML.spark.{ Metrics, RddUtils }
 import scala.Some
+import com.adatao.ddf.DDF
+import com.adatao.ddf.ml.IModel
 
 /**
  *
@@ -26,16 +28,31 @@ import scala.Some
 class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int, var modelID: String) extends AExecutor[Double] {
 
 	def runImpl(ctx: ExecutionContext): Double = {
+		val ddfManager = ctx.sparkThread.getDDFManager();
+		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		
+		//get model from cluster
+		val model: DDF = ddfManager.getDDF(("SparkDDF-spark-" + modelID).replace("-", "_"));
+		
+
 		// first, compute RDD[(ytrue, ypred)]
-		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
+		//all we need is to change it HERE
+		//old API
+//		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
+		
+		
+		val mymodel: IModel = ddfManager.getModel(modelID)
+		val predictions = ddf.getMLSupporter().applyModel(mymodel, true, true)
+		
+		//we are getting sparkDDF
 
 		// then compute R2 score
 		Option(ctx.sparkThread.getDataManager.get(dataContainerID)) match {
-			case Some(dc) => Option(dc.getColumnMean(yCol)) match {
-				case Some(yMean) => Metrics.R2Score(predictions, yMean) // already have yMean
-				case _ => Metrics.R2Score(predictions)
+			case Some(dc) ⇒ Option(dc.getColumnMean(yCol)) match {
+				case Some(yMean) ⇒ Metrics.R2Score(predictions, yMean) // already have yMean
+				case _ ⇒ Metrics.R2Score(predictions)
 			}
-			case _ => Metrics.R2Score(predictions)
+			case _ ⇒ Metrics.R2Score(predictions)
 		}
 	}
 }
