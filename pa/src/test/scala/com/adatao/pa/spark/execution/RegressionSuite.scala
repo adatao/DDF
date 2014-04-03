@@ -686,11 +686,11 @@ class RegressionSuite extends ABigRClientTest {
 //		assertEquals(-0.9493, model.weights(2), 0.0001);
 	}
 
-	ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
+	test("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
 		
 		//load data		
 		createTableAdmission
-		val df= this.runSQL2RDDCmd("select * from admission", true)
+		val df= this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 		System.setProperty("sparse.max.range", "10")

@@ -76,9 +76,6 @@ object LogisticRegressionCRS {
 	  
     //depend on length of weights
     val model: LogisticRegressionModel = train(lossFunction, snumIters, slearningRate, a, snumFeatures)
-    
-    println(">>>>>>>>>>>> model=" + model.toString() )
-
     model
   }
   
@@ -104,7 +101,6 @@ object LogisticRegressionCRS {
       if(range >= SPARSE_RANGE) {
         sparseColumns.put(i, Array(columnsSummary.get("min")(i), columnsSummary.get("max")(i)))
         sparseColumnsPaddingIndex.put(i, sumAllRange)
-        println(">>>> sparsecolumn = " + i + "\tpadding = " + sparseColumnsPaddingIndex.get(i))
         sumAllRange += range.asInstanceOf[Int] + 1
       }
       i += 1
@@ -164,9 +160,6 @@ object GradientDescent  {
       // weights = weights - alpha * averageGradient
       if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
       trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
-      
-      println(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
-
       iter += 1
     }
     (weights, trainingLosses, computedLoss.numSamples)
@@ -237,11 +230,8 @@ class LossFunction(@transient XYData: RDD[(MatrixSparse, Vector)], ridgeLambda: 
     
     //not used
     def compute(X: Matrix, Y: Vector, weights: Vector): ALossFunction = {
-      
-      println(">>>>>>>>>>>> old method")
       null
     }
-    
   }
 
 /**
@@ -382,12 +372,8 @@ class TransformSparseMatrix (sparseColumns: HashMap[Int, Array[Double]], sparseP
             newColumn =   maxOriginColumns
             newColumn +=    sparsePaddingIndex.get(adjustedColumnIndex) 
             newColumn +=  currentCell.asInstanceOf[Int] - 1
-            
-            
             //offset by minmum cell value
             newColumn = newColumn - sparseColumns.get(adjustedColumnIndex).min.asInstanceOf[Int] + 1
-            
-            
             Xprime.crs.set(row, newColumn, defaultValue)
 //            println(">>> origincolumn=" + column + "\tpadding=" + sparsePaddingIndex.get(column) + "\tcellValue=" + currentCell.asInstanceOf[Int] + "\tnewcolumn=" + newColumn)
           }

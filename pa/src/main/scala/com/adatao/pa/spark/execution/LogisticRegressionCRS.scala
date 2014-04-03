@@ -70,13 +70,9 @@ class LogisticRegressionCRS(
 //	override def run(sparkThread: SparkThread): ExecutorResult = {
 	override def runImpl(ctx: ExecutionContext) : LogisticRegressionModel = {
 	  
-	  println(">>>>>>>>>>>>>starting=sparkThread"  )
-	  
 		ddfManager = ctx.sparkThread.getDDFManager();
     val ddf: DDF  = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
     try {
-
-    	println(">>>>>>>>>>>>>starting=" )
     	
     	val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], xCols.size : java.lang.Integer, columnsSummary)
@@ -85,13 +81,7 @@ class LogisticRegressionCRS(
 //    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
       
       val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-      
-    	println(">>>>>>>>>>>>>model=" + model)
-    	
       val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
-      
-	    println(">>>>>>>>>>>>>glm=" + glm)
-    	
       return (glm)
     } catch  {
     	case ioe: DDFException  => throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
@@ -110,56 +100,5 @@ class LogisticRegressionCRS(
 	  null.asInstanceOf[LogisticRegressionModel]
   }
   
-  
-//  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
-//	  
-//  }
-//	
-  
-  
-//	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
-//		
-//		
-//		val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
-//      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
-//		
-//		println(">>>> columnsSumary size ==" + columnsSummary.get("min").size + "\telement(0) min=" + columnsSummary.get("min")(0) + "\tmax=" + columnsSummary.get("max")(0))
-//		val SPARSE_RANGE = Integer.parseInt(System.getProperty("sparse.max.range", "10024"))
-//		println("SPARSE_RANGE=" + SPARSE_RANGE)
-//		
-//		//build sparse columns: column index, Array(min, max)
-//		//for example, ["1", [120, 10000]]
-//		
-//		//build column start index map
-//		var sparseColumns = new HashMap[Int, Array[Double]]()
-//		var sparseColumnsPaddingIndex = new HashMap[Int, Int]()
-//		
-//		//get new number of sparse columns
-//		var i = 0 
-//		var sumAllRange = 0
-//		while(i < columnsSummary.get("min").size) {
-//			val range = if (columnsSummary.get("max")(i) > columnsSummary.get("min")(i))  columnsSummary.get("max")(i) - columnsSummary.get("min")(i) else  0
-//			if(range >= SPARSE_RANGE) {
-//
-//				sparseColumns.put(i, Array(columnsSummary.get("min")(i), columnsSummary.get("max")(i)))
-//				sparseColumnsPaddingIndex.put(i, sumAllRange)
-//				
-//				println(">>>> sparsecolumn = " + i + "\tpadding = " + sparseColumnsPaddingIndex.get(i))
-//				
-//				sumAllRange += range.asInstanceOf[Int] + 1
-//				
-//			}
-//			i += 1
-//		}
-//		
-//		//create transformer object
-//	}
-	
-	
-//	//post process, set column mapping to model
-//	def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) :LogisticRegressionModel = {
-//	  model.dummyColumnMapping = mapping
-//	  model
-//	}
 }
 
