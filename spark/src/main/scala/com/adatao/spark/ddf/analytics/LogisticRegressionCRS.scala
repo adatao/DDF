@@ -370,7 +370,6 @@ class TransformSparseMatrix(sparseColumns: HashMap[Int, Array[Double]], sparsePa
 						//offset by minmum cell value
 						newColumn = newColumn - sparseColumns.get(adjustedColumnIndex).min.asInstanceOf[Int] + 1
 						Xprime.crs.set(row, newColumn, defaultValue)
-						//            println(">>> origincolumn=" + column + "\tpadding=" + sparsePaddingIndex.get(column) + "\tcellValue=" + currentCell.asInstanceOf[Int] + "\tnewcolumn=" + newColumn)
 					}
 				}
 				else {
