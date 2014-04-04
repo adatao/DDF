@@ -38,23 +38,16 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
 //		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
 		
 		val mymodel: IModel = ddfManager.getModel(modelID)
-		val resultDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
-		val predictionsRDD = resultDDF.asInstanceOf[SparkDDF].getRDD(classOf[Tuple2[Double, Double]])
+		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+//		val predictionsRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
 		
 		//get column mean
 		val summary = ddf.getStatisticsSupporter().getSummary()
 		val yMean = summary(yCol).mean()
 		
-		Metrics.R2Score(predictionsRDD, yMean)
+		ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
+		
+//		Metrics.R2Score(predictionsRDD, yMean)
 
-		// then compute R2 score
-		//old code
-//		Option(ctx.sparkThread.getDataManager.get(dataContainerID)) match {
-//			case Some(dc) ⇒ Option(dc.getColumnMean(yCol)) match {
-//				case Some(yMean) ⇒ Metrics.R2Score(predictions, yMean) // already have yMean
-//				case _ ⇒ Metrics.R2Score(predictions)
-//			}
-//			case _ ⇒ Metrics.R2Score(predictions)
-//		}
 	}
 }

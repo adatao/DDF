@@ -59,6 +59,7 @@ import com.adatao.ddf.misc.IHandleMiscellany;
 import com.adatao.ddf.misc.IHandleStreamingData;
 import com.adatao.ddf.misc.IHandleTimeSeries;
 import com.adatao.ddf.ml.ISupportML;
+import com.adatao.ddf.ml.ISupportMLMetrics;
 import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
 import com.adatao.ddf.util.ISupportPhantomReference;
@@ -391,6 +392,7 @@ public abstract class DDF extends ALoggable //
   private IHandleTimeSeries mTimeSeriesHandler;
   private IHandleViews mViewHandler;
   private ISupportML mMLSupporter;
+  private ISupportMLMetrics mMLMetricsSupporter;
   private IHandleAggregation mAggregationHandler;
   private IHandleBinning mBinningHandler;
 
@@ -674,10 +676,29 @@ public abstract class DDF extends ALoggable //
     this.mMLSupporter = aMLSupporter;
     return this;
   }
-
+  
   protected ISupportML createMLSupporter() {
     return newHandler(ISupportML.class);
   }
+  
+  //Metrics supporter
+  protected ISupportMLMetrics createMLMetricsSupporter() {
+    return newHandler(ISupportMLMetrics.class);
+  }
+  
+  public ISupportMLMetrics getMLMetricsSupporter() {
+    if (mMLMetricsSupporter == null) mMLMetricsSupporter = this.createMLMetricsSupporter();
+    if (mMLMetricsSupporter == null) throw new UnsupportedOperationException();
+    else return mMLMetricsSupporter;
+  }
+
+  public DDF setMLMetricsSupporter(ISupportMLMetrics aMLMetricsSupporter) {
+    this.mMLMetricsSupporter = aMLMetricsSupporter;
+    return this;
+  }
+
+  
+  
 
   /**
    * Instantiate a new {@link ADDFFunctionalGroupHandler} given its class name
