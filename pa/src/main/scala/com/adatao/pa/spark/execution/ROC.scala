@@ -66,44 +66,44 @@ class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) ext
 		//if yTrue has factor
 //		if (column != null && column.hasFactor()) {
 		//TODO check factor in the original DDF
-//    if (column != null) {			
-//			val yTrueIterator = metaInfos(YTRUE_INDEX).getFactor().keySet().iterator()
-//			while (isBinaryLabel && yTrueIterator.hasNext()) {
-//				val value = yTrueIterator.next()
-//				if (value != "0" && value != "1")
-//					isBinaryLabel = false
-//			}
-//		}
-//		//if yTrue is not factor
-//		else {
-//			val isBinaryClassification = dataPartition.mapPartitions(checkBinaryClassification).collect
-//			var i = 0
-//			while (isBinaryLabel && i < isBinaryClassification.length) {
-//				var j = 0
-//				while (isBinaryLabel && j < isBinaryClassification(i).length) {
-//					if (isBinaryClassification(i)(j) != 0 && isBinaryClassification(i)(j) != 1) {
-//						isBinaryLabel = false
-//					}
-//					j += 1
-//				}
-//				i += 1
-//			}
-//			if (isBinaryClassification == null || isBinaryClassification.length == 0) {
-//				isEmpty = true
-//			}
-//		}
+    if (column != null && column.getOptionalFactor()!= null && column.getOptionalFactor().getLevelMap()!= null && column.getOptionalFactor().getLevelMap().size() > 0) {			
+			val yTrueIterator = column.getOptionalFactor().getLevelMap().keySet().iterator()
+			while (isBinaryLabel && yTrueIterator.hasNext()) {
+				val value = yTrueIterator.next()
+				if (value != "0" && value != "1")
+					isBinaryLabel = false
+			}
+		}
+		//if yTrue is not factor
+		else {
+			val isBinaryClassification = dataPartition.mapPartitions(checkBinaryClassification).collect
+			var i = 0
+			while (isBinaryLabel && i < isBinaryClassification.length) {
+				var j = 0
+				while (isBinaryLabel && j < isBinaryClassification(i).length) {
+					if (isBinaryClassification(i)(j) != 0 && isBinaryClassification(i)(j) != 1) {
+						isBinaryLabel = false
+					}
+					j += 1
+				}
+				i += 1
+			}
+			if (isBinaryClassification == null || isBinaryClassification.length == 0) {
+				isEmpty = true
+			}
+		}
 
-//		if (isEmpty) {
-//			if (metaInfos == null)
-//				LOG.error("Predicted data is empty and metaInfos is null");
-//			else
-//				LOG.error("Predicted data is empty and metaInfos =" + metaInfos);
-//			throw new AdataoException(AdataoExceptionCode.ERR_ROC_EMPTY, "Please check if predicted data is empty.", null);
-//		}
-//		if (!isBinaryLabel) {
-//			LOG.error("True label data is not binary classified data, please check input data");
-//			throw new AdataoException(AdataoExceptionCode.ERR_ROC_NOT_BINARY, "Please make sure input data is binary classified.", null);
-//		}
+		if (isEmpty) {
+			if (column == null)
+				LOG.error("Predicted data is empty and metaInfos is null");
+			else
+				LOG.error("Predicted data is empty and metaInfos =" + column);
+			throw new AdataoException(AdataoExceptionCode.ERR_ROC_EMPTY, "Please check if predicted data is empty.", null);
+		}
+		if (!isBinaryLabel) {
+			LOG.error("True label data is not binary classified data, please check input data");
+			throw new AdataoException(AdataoExceptionCode.ERR_ROC_NOT_BINARY, "Please make sure input data is binary classified.", null);
+		}
 		
 		val data = dataPartition.mapPartitions(getData)
 		Metrics.ROC(data, alpha_length)

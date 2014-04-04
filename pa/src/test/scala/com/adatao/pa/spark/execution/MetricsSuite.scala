@@ -41,18 +41,20 @@ class MetricsSuite extends ABigRClientTest {
 	 * fail: if not success
 	 * for accuracy testing, please see MLMetricSuite
 	 */
-//	test("Test ROC metric function") {
-//
+	test("Test ROC metric function") {
+
 //		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
-//		val lambda = 0.0
-//
-//		// fake the training with learningRate = 0.0
-//		val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-//		val r = bigRClient.execute[LogisticRegressionModel](trainer)
-//		assert(r.isSuccess)
-//		val modelID = r.persistenceID
-//
-//		//run prediction
+		createTableAdmission
+		val dataContainerId = this.runSQL2RDDCmd("select * from admission", true).dataContainerID
+		val lambda = 0.0
+
+		// fake the training with learningRate = 0.0
+		val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		assert(r.isSuccess)
+		val modelID = r.persistenceID
+
+		//run prediction
 //		val predictor = new YtrueYpred(dataContainerId, modelID, Array(2, 3), 0)
 //		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 //		val predictionResultId = r2.result.dataContainerID
@@ -69,32 +71,32 @@ class MetricsSuite extends ABigRClientTest {
 //		assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
 //		assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
 //		assert(truncate(ret.result.auc, 4) === 0.6743)
-//
-//	}
 
-	test("R2 metric is correct") {
-		createTableMtcars
-    val df= this.runSQL2RDDCmd("select * from mtcars", true)
-		val dataContainerId = df.dataContainerID
-		val lambda = 0.0
-
-		// lm(mpg ~ wt, data=mtcars)
-		// 37.285       -5.344
-		// fake the training with learningRate = 0.0
-		val trainer = new LinearRegression(dataContainerId, Array(5), 0, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LinearRegressionModel](trainer)
-		assert(r.isSuccess)
-
-		val modelID = r.persistenceID
-
-		val scorer = new R2Score(dataContainerId, Array(5), 0, modelID)
-		val r2 = bigRClient.execute[Double](scorer)
-		assert(r2.isSuccess)
-
-		// summary(lm(mpg ~ wt, data=mtcars))
-		// Multiple R-squared:  0.7528
-		assertEquals(0.7528, r2.result, 0.0001)
 	}
+
+//	test("R2 metric is correct") {
+//		createTableMtcars
+//    val df= this.runSQL2RDDCmd("select * from mtcars", true)
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 0.0
+//
+//		// lm(mpg ~ wt, data=mtcars)
+//		// 37.285       -5.344
+//		// fake the training with learningRate = 0.0
+//		val trainer = new LinearRegression(dataContainerId, Array(5), 0, 1, 0.0, lambda, Array(37.285, -5.344))
+//		val r = bigRClient.execute[LinearRegressionModel](trainer)
+//		assert(r.isSuccess)
+//
+//		val modelID = r.persistenceID
+//
+//		val scorer = new R2Score(dataContainerId, Array(5), 0, modelID)
+//		val r2 = bigRClient.execute[Double](scorer)
+//		assert(r2.isSuccess)
+//
+//		// summary(lm(mpg ~ wt, data=mtcars))
+//		// Multiple R-squared:  0.7528
+//		assertEquals(0.7528, r2.result, 0.0001)
+//	}
 
 //	test("can get linear predictions") {
 //		createTableMtcars
