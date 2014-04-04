@@ -14,12 +14,12 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
   @Override
   /*
-   * input: prediction DDF
-   * input: meanYtrue
+   * input: prediction DDF input: meanYtrue
    * 
-   * output: r2score in double 
+   * output: r2score in double
    * 
    * (non-Javadoc)
+   * 
    * @see com.adatao.ddf.ml.AMLMetricsSupporter#r2score(com.adatao.ddf.DDF, double)
    */
   public double r2score(DDF predictionDDF, double meanYTrue) throws DDFException {
@@ -40,6 +40,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   public static class MetricsMapperR2 extends Function<double[], double[]> {
     private static final long serialVersionUID = 1L;
     public double meanYTrue = -1.0;
+
 
     public MetricsMapperR2(double _meanYTrue) throws DDFException {
       this.meanYTrue = _meanYTrue;
