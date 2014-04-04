@@ -73,6 +73,24 @@ class MetricsSuite extends ABigRClientTest {
 //		assert(truncate(ret.result.auc, 4) === 0.6743)
 
 	}
+	
+	test("Residuals metric is correct") {
+    createTableMtcars
+    val df= this.runSQL2RDDCmd("select * from mtcars", true)
+    val dataContainerId = df.dataContainerID
+    val lambda = 0.0
+
+    val trainer = new LinearRegression(dataContainerId, Array(5), 0, 1, 0.0, lambda, Array(37.285, -5.344))
+    val r = bigRClient.execute[LinearRegressionModel](trainer)
+    assert(r.isSuccess)
+
+    val modelID = r.persistenceID
+
+    val scorer = new Residuals(dataContainerId, modelID, Array(5), 0)
+    val residuals = bigRClient.execute[Double](scorer)
+    assert(residuals.isSuccess)
+
+  }
 
 //	test("R2 metric is correct") {
 //		createTableMtcars
