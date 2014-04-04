@@ -82,9 +82,33 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
 
   @Override
-  public DDF residuals(DDF predictionDDF) {
-    // TODO Auto-generated method stub
+  public DDF residuals(DDF predictionDDF) throws DDFException {
+    IGetResult gr = ((SparkDDF) predictionDDF).getJavaRDD(double[].class, double.class, double[].class);
+    JavaRDD predictionRDD = ((JavaRDD<double[]>) gr.getObject());
+
+    JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
+
     return null;
+  }
+  
+  public static class MetricsMapperResiduals extends Function<double[], double[]> {
+    private static final long serialVersionUID = 1L;
+
+    public MetricsMapperResiduals() throws DDFException {
+    }
+
+    public double[] call(double[] input) throws Exception {
+      double[] outputRow = new double[1];
+
+      if (input instanceof double[] && input.length > 1) {
+        double yTrue = input[0];
+        double yPredict = input[1];
+        outputRow[0] = outputRow[0] = (yTrue - yPredict);
+      } else {
+        throw new DDFException(String.format("Unsupported input type "));
+      }
+      return outputRow;
+    }
   }
 
   @Override

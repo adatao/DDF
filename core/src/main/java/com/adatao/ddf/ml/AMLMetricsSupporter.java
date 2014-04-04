@@ -24,7 +24,7 @@ public class AMLMetricsSupporter implements ISupportMLMetrics {
   }
 
   @Override
-  public DDF residuals(DDF predictionDDF) {
+  public DDF residuals(DDF predictionDDF) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }

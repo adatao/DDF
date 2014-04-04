@@ -1,6 +1,6 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import org.apache.spark.api.java.JavaRDD
 import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
@@ -16,44 +16,21 @@ import com.adatao.spark.ddf.SparkDDF
  * To change this template use File | Settings | File Templates.
  */
 class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int)
-		extends AExecutor[ResidualsResult]{
+		extends AExecutor[ResidualsResult] {
 	override def runImpl(ctx: ExecutionContext): ResidualsResult = {
-//		val ytrueypred= new YtrueYpred(dataContainerID, modelID, xCols, yCol)
-//		val pred= ytrueypred.runImpl(ctx)
-//		val predContainer= Option(ctx.sparkThread.getDataManager.get(pred.dataContainerID))
 
-		
 		val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		// first, compute RDD[(ytrue, ypred)]
 
-    // first, compute RDD[(ytrue, ypred)]
-    //all we need is to change it HERE
-    //old API
-//    val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
-    
-    val mymodel: IModel = ddfManager.getModel(modelID)
-    val resultDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
-    val predictionsRDD = resultDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-    
-    val residuals = predictionsRDD .map{arr => arr match {
-            case Array(ytrue, ypred) => Array((ytrue.asInstanceOf[Double] - ypred.asInstanceOf[Double]).asInstanceOf[AnyRef])
-    }    
-    }
-//		val residuals= predictionsRDD match {
-//			case Some(df) =>  df match{
-//				case dx: DataFrame =>	dx.getRDD.rdd.map{arr => arr match {
-//						case Array(ytrue, ypred) => Array((ytrue.asInstanceOf[Double] - ypred.asInstanceOf[Double]).asInstanceOf[AnyRef])
-//					}
-//				}
-//			}
-//			case None => throw new IllegalArgumentException("dataContainerID doesn't exist in user session")
-//		}
+		val mymodel: IModel = ddfManager.getModel(modelID)
+		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
 
-    //return dataframe
-		val metaInfo= Array(new MetaInfo("residual", "java.lang.Double"))
-		val jsc = ctx.sparkThread.getSparkContext.asInstanceOf[JavaSharkContext]
-		val sdf= SharkUtils.createSharkDataFrame(new DataFrame(metaInfo, JavaRDD.fromRDD(residuals)), jsc)
-		val uid = ctx.sparkThread.getDataManager.add(sdf)
+		val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
+
+		//return dataframe
+		val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
+		val uid = ctx.sparkThread.getDDFManager.addDDF(residualsDDF)
 
 		new ResidualsResult(uid, metaInfo)
 	}
