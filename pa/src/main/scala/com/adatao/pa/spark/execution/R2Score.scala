@@ -33,21 +33,20 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
 
 		// first, compute RDD[(ytrue, ypred)]
-		//all we need is to change it HERE
 		//old API
-//		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
-		
+		//		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
+
 		val mymodel: IModel = ddfManager.getModel(modelID)
 		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
-//		val predictionsRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-		
+		//		val predictionsRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
+
 		//get column mean
 		val summary = ddf.getStatisticsSupporter().getSummary()
 		val yMean = summary(yCol).mean()
-		
+
 		ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
-		
-//		Metrics.R2Score(predictionsRDD, yMean)
+
+		//		Metrics.R2Score(predictionsRDD, yMean)
 
 	}
 }
