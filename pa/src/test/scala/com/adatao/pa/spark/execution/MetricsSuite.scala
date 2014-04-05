@@ -43,7 +43,9 @@ class MetricsSuite extends ABigRClientTest {
 	 */
 	test("Test ROC metric function") {
 
-		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
+		createTableAdmission
+    val df= this.runSQL2RDDCmd("select * from admission", true)
+		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 
 		// fake the training with learningRate = 0.0
@@ -116,12 +118,9 @@ class MetricsSuite extends ABigRClientTest {
 
 	test("can get linear predictions") {
 		createTableMtcars
+		val df= this.runSQL2RDDCmd("select * from mtcars", true)
 
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
-		assert(r0.result.isSuccess)
-
-		val dataContainerId = r0.result.dataContainerID
+		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 		// lm(mpg ~ wt, data=mtcars)
 		// 37.285       -5.344
@@ -146,11 +145,9 @@ class MetricsSuite extends ABigRClientTest {
 	test("can get linear predictions categorical columns") {
 		createTableAirline
 
-		val loader = new Sql2DataFrame("select * from airline", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-		assert(r0.isSuccess)
+		val df= this.runSQL2RDDCmd("select * from airline", true)
 
-		val dataContainerId = r0.dataContainerID
+		val dataContainerId = df.dataContainerID
 
 		val lambda = 0.0
 		val trainer = new LinearRegression(dataContainerId, Array(3, 16, 17), 2, 50, 0.01, lambda, null)
@@ -172,7 +169,11 @@ class MetricsSuite extends ABigRClientTest {
 	}
 	//
 	test("can get logistic predictions") {
-		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
+		
+		createTableAdmission
+    val df= this.runSQL2RDDCmd("select * from admission", true)
+    val dataContainerId = df.dataContainerID
+    
 		val lambda = 0.0
 
 		// fake the training with learningRate = 0.0
@@ -192,8 +193,11 @@ class MetricsSuite extends ABigRClientTest {
 
 	test("test confusion matrix") {
 
-		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
-		val lambda = 0.0
+
+		createTableAdmission
+    val df= this.runSQL2RDDCmd("select * from admission", true)
+    val dataContainerId = df.dataContainerID
+    val lambda = 0.0
 
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
