@@ -4,10 +4,12 @@ package com.adatao.spark.ddf.ml;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
+import com.adatao.ddf.ml.RocMetric;
 import com.adatao.spark.ddf.SparkDDF;
 
 public class MLMetricsSupporter extends AMLMetricsSupporter {
@@ -112,8 +114,13 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
   @Override
-  public Object roc(DDF predictionDDF) {
-    // TODO Auto-generated method stub
+  public RocMetric roc(DDF predictionDDF) throws DDFException {
+    IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class, double[].class);
+    RDD<double[][]> predictionRDD =  (RDD<double[][]>) gr.getObject();
+    
+    ROCComputer rc = new ROCComputer();
+    rc.ROC(predictionRDD, 1000);
+    
     return null;
   }
 

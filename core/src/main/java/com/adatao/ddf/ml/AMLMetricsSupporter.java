@@ -2,6 +2,7 @@ package com.adatao.ddf.ml;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.RocMetric;
 
 public class AMLMetricsSupporter implements ISupportMLMetrics {
 
@@ -29,8 +30,9 @@ public class AMLMetricsSupporter implements ISupportMLMetrics {
     return null;
   }
 
+
   @Override
-  public Object roc(DDF predictionDDF) {
+  public RocMetric roc(DDF predictionDDF) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }

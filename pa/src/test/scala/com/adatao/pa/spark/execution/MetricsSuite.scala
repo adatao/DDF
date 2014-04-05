@@ -21,7 +21,7 @@ import com.adatao.ML.LogisticRegressionModel
 import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.spark.RocObject
+//import com.adatao.ML.spark.RocObject
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 

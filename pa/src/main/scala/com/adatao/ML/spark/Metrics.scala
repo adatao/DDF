@@ -23,6 +23,7 @@ import com.adatao.ML.types.Matrix
 import com.adatao.ML.types.Vector
 import com.adatao.spark.RDDImplicits._
 import java.util.Arrays
+import com.adatao.ddf.ml._
 
 // @author: aht
 
