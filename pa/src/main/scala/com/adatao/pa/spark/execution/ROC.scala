@@ -34,6 +34,7 @@ import java.util.HashMap
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.ddf.DDF
+import com.adatao.ddf.ml.RocMetric
 
 /**
  * From ctn: What is the intended API for ROC? Are we passing in a model and have it generate predictions, then compute
@@ -46,67 +47,13 @@ import com.adatao.ddf.DDF
 
 class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) extends AUnsupervisedTrainer[LinearRegressionModel](dataContainerID, xCols) {
 
-	def train(dataPartition: RDD[Array[Double]], ctx: ExecutionContext): RocObject = {
+	def train(dataPartition: RDD[Array[Double]], ctx: ExecutionContext): RocMetric = {
 		//first check if if input data is binary classification
 		//TODO double check if ytrueypred back by table i.e has schema
-		val YTRUE_INDEX = 0
 //		val df = ctx.sparkThread.getDataManager.get(dataContainerID)
 		val ddfManager = ctx.sparkThread.getDDFManager();
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-		
-		
-//		val metaInfos = df.getMetaInfo
-		val columnName = ddf.getColumnName(YTRUE_INDEX)
-		val column = ddf.getColumn(columnName)
-		
-//		column.hasFactor?
-		var isBinaryLabel = true
-		var isEmpty = false
-
-		//if yTrue has factor
-//		if (column != null && column.hasFactor()) {
-		//TODO check factor in the original DDF
-    if (column != null && column.getOptionalFactor()!= null && column.getOptionalFactor().getLevelMap()!= null && column.getOptionalFactor().getLevelMap().size() > 0) {			
-			val yTrueIterator = column.getOptionalFactor().getLevelMap().keySet().iterator()
-			while (isBinaryLabel && yTrueIterator.hasNext()) {
-				val value = yTrueIterator.next()
-				if (value != "0" && value != "1")
-					isBinaryLabel = false
-			}
-		}
-		//if yTrue is not factor
-		else {
-			val isBinaryClassification = dataPartition.mapPartitions(checkBinaryClassification).collect
-			var i = 0
-			while (isBinaryLabel && i < isBinaryClassification.length) {
-				var j = 0
-				while (isBinaryLabel && j < isBinaryClassification(i).length) {
-					if (isBinaryClassification(i)(j) != 0 && isBinaryClassification(i)(j) != 1) {
-						isBinaryLabel = false
-					}
-					j += 1
-				}
-				i += 1
-			}
-			if (isBinaryClassification == null || isBinaryClassification.length == 0) {
-				isEmpty = true
-			}
-		}
-
-		if (isEmpty) {
-			if (column == null)
-				LOG.error("Predicted data is empty and metaInfos is null");
-			else
-				LOG.error("Predicted data is empty and metaInfos =" + column);
-			throw new AdataoException(AdataoExceptionCode.ERR_ROC_EMPTY, "Please check if predicted data is empty.", null);
-		}
-		if (!isBinaryLabel) {
-			LOG.error("True label data is not binary classified data, please check input data");
-			throw new AdataoException(AdataoExceptionCode.ERR_ROC_NOT_BINARY, "Please make sure input data is binary classified.", null);
-		}
-		
-		val data = dataPartition.mapPartitions(getData)
-		Metrics.ROC(data, alpha_length)
+		val predictionDDF: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    predictionDDF.getMLMetricsSupporter().roc(predictionDDF)
 	}
 
 	/*
