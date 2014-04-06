@@ -21,9 +21,9 @@ import com.adatao.ML.LogisticRegressionModel
 import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
-//import com.adatao.ML.spark.RocObject
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
+import com.adatao.ddf.ml.RocMetric
 
 /**
  *
@@ -63,7 +63,7 @@ class MetricsSuite extends ABigRClientTest {
 		//		//run ROC
 		val alpha_length: Int = 10
 		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
-		val ret = bigRClient.execute[RocObject](executor)
+		val ret = bigRClient.execute[RocMetric](executor)
 
 		val metric = ret.result
 		assert(ret.isSuccess)

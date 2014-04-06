@@ -32,7 +32,7 @@ public class AMLMetricsSupporter implements ISupportMLMetrics {
 
 
   @Override
-  public RocMetric roc(DDF predictionDDF) throws DDFException {
+  public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
     // TODO Auto-generated method stub
     return null;
   }

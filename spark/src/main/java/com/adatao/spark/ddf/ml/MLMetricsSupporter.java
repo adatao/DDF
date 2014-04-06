@@ -114,14 +114,18 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
   @Override
-  public RocMetric roc(DDF predictionDDF) throws DDFException {
+  /*
+   * input expected RDD[double[][]]
+   * (non-Javadoc)
+   * @see com.adatao.ddf.ml.AMLMetricsSupporter#roc(com.adatao.ddf.DDF, int)
+   */
+  public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
     IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class, double[].class);
     RDD<double[][]> predictionRDD =  (RDD<double[][]>) gr.getObject();
     
     ROCComputer rc = new ROCComputer();
-    rc.ROC(predictionRDD, 1000);
+    return(rc.ROC(predictionRDD, alpha_length));
     
-    return null;
   }
 
 }
