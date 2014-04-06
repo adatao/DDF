@@ -38,6 +38,8 @@ import com.adatao.pa.spark.execution.Sql2ListString
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
 
+import org.json.JSONObject
+
 /**
  * Simulates an RClient communicating with BigR/server via Thrift
  *
@@ -93,7 +95,7 @@ class BigRClient(serverHost: String, serverPort: Int) {
 			workerHost = res.result.host
 			LOG.info("connect: SID=%s host=%s thriftPort=%d".format(sid, workerHost, workerPort))
 			// connect to worker now
-//			Thread.sleep(5000)
+			//			Thread.sleep(5000)
 			updateThriftClientWorker()
 		}
 		else {
@@ -120,6 +122,21 @@ class BigRClient(serverHost: String, serverPort: Int) {
 
 	def execute[T](thriftClient: RCommands.Client, commandObject: Object)(implicit m: Manifest[T]): ExecutionResult[T] = {
 		this.execute[T](thriftClient, commandObject.getClass.getSimpleName, new Gson().toJson(commandObject))
+	}
+
+	def executeNew[T](commandObject: Object)(implicit m: Manifest[T]): ExecutionResult[T] =
+		executeNew[T](thriftClienttoWorker, commandObject)
+
+	def executeNew[T](thriftClient: RCommands.Client, commandObject: Object)(implicit m: Manifest[T]): ExecutionResult[T] = {
+
+		var b = new JSONObject(new Gson().toJson(commandObject))
+		b.put("methodName", commandObject.getClass.getSimpleName)
+		b.put("ddfUri", commandObject.getClass.getSimpleName)
+		println(">>>newjson b: " + b)
+		this.execute[T](thriftClient, "DDFExecutor", b.toString())
+		
+//		this.execute[T](thriftClient, commandObject.getClass.getSimpleName, new Gson().toJson(commandObject))
+		
 	}
 
 	/**
@@ -155,7 +172,15 @@ class BigRClient(serverHost: String, serverPort: Int) {
 		executeImpl(thriftClienttoWorker, commandName, params)
 
 	private def executeImpl(thriftClient: RCommands.Client, commandName: String, params: String): JsonResult = {
+		println(">>>>>>>oldparams: " + params)
 		val json = thriftClient.execJsonCommand(new JsonCommand().setCmdName(commandName).setSid(sid).setParams(params))
+		if (json != null && json.getResult != null && json.getResult.matches(".*\"success\":false.*")) throw new Exception(json.getResult)
+		json
+	}
+
+	//new DDFExecutor, call DDFExecutor instead of old executor
+	private def executeImplnew(thriftClient: RCommands.Client, commandName: String, params: String): JsonResult = {
+		val json = thriftClient.execJsonCommand(new JsonCommand().setCmdName("DDFExecutor").setSid(sid).setParams(params))
 		if (json != null && json.getResult != null && json.getResult.matches(".*\"success\":false.*")) throw new Exception(json.getResult)
 		json
 	}
@@ -269,17 +294,17 @@ object BigRClientTestUtils {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources/sharkfiles").isSuccess)
 		assert(runSQLCmd(bigRClient, "drop table if exists test").isSuccess)
 		assert(runSQLCmd(bigRClient, "CREATE TABLE test (key Int, val String)").isSuccess)
-		assert(runSQLCmd(bigRClient,"LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/kv1.txt' INTO TABLE test").isSuccess)
+		assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/kv1.txt' INTO TABLE test").isSuccess)
 
 	}
 	def createTableAirQuality(bigRClient: BigRClient) = {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
 		assert(runSQLCmd(bigRClient, "drop table if exists airquality").isSuccess)
 		assert(runSQLCmd(bigRClient, "create table airquality ("
-				+"ozone int, solar_radiation int, wind double, temp int, month int, day int"
-				+") row format delimited fields terminated by ','").isSuccess)
+			+ "ozone int, solar_radiation int, wind double, temp int, month int, day int"
+			+ ") row format delimited fields terminated by ','").isSuccess)
 		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/airquality.csv' " +
-				"INTO TABLE airquality").isSuccess)
+			"INTO TABLE airquality").isSuccess)
 	}
 	//	def createTableAirline(bigRClient: BigRClient) = {
 	//		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)

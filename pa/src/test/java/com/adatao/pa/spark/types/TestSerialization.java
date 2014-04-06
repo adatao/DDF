@@ -19,7 +19,7 @@ package com.adatao.pa.spark.types;
 import org.junit.Test;
 
 import com.adatao.ML.LinearRegressionModel;
-import com.adatao.ML.types.Vector;
+import com.adatao.ddf.types.Vector;
 import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.spark.types.SuccessfulResult;
 
