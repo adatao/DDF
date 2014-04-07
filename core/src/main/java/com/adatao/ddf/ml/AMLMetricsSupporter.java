@@ -5,6 +5,10 @@ import com.adatao.ddf.exception.DDFException;
 
 public class AMLMetricsSupporter implements ISupportMLMetrics {
 
+  public AMLMetricsSupporter(DDF theDDF) {
+    // TODO Auto-generated constructor stub
+  }
+
   @Override
   public DDF getDDF() {
     // TODO Auto-generated method stub
