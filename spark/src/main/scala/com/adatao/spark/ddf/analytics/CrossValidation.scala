@@ -3,7 +3,13 @@ package com.adatao.spark.ddf.analytics
 import org.apache.spark.{TaskContext, Partition}
 import org.apache.spark.rdd.RDD
 import java.util.Random
-import org.apache.spark.api.java.JavaRDD
+import com.adatao.ddf.{DDFManager, DDF}
+import java.util.{List => JList}
+import com.adatao.spark.ddf.SparkDDF
+import shark.api.Row
+import com.adatao.ddf.exception.DDFException
+import java.util
+import com.adatao.ddf.content.Schema
 
 private[adatao]
 class SeededPartition(val prev: Partition, val seed: Int) extends Partition with Serializable {
@@ -35,11 +41,13 @@ class RandomSplitRDD[T: ClassManifest](
     // The results are stable accross compute() calls due to deterministic RNG.
     if (isTraining) {
       firstParent[T].iterator(split.prev, context).filter(x => {
-        val z = rand.nextDouble; z < lower || z >= upper
+        val z = rand.nextDouble;
+        z < lower || z >= upper
       })
     } else {
       firstParent[T].iterator(split.prev, context).filter(x => {
-        val z = rand.nextDouble; lower <= z && z < upper
+        val z = rand.nextDouble;
+        lower <= z && z < upper
       })
     }
   }
@@ -71,7 +79,89 @@ object CrossValidation {
       ).toIterator
   }
 
- // def kFoldSplitJava[T](rdd: RDD[T], k: Int, seed: Long)(implicit  _cm: ClassManifest[T]): Iterator[(JavaRDD, JavaRDD)] = {
- //
- // }
+  def DDFRandomSplit(ddf: DDF, k: Int, trainingSize: Double, seed: Long): JList[JList[DDF]] = {
+    var unitType: Class[_] = null
+    var splits: Iterator[(RDD[_], RDD[_])] = null
+
+    if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Double]]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
+      splits = randomSplit(rdd, k, trainingSize, seed)
+      unitType = classOf[Array[Double]]
+
+    } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Object]]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
+      splits = randomSplit(rdd, k, trainingSize, seed)
+      unitType = classOf[Array[Object]]
+
+    } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Row]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+      splits = randomSplit(rdd, k, trainingSize, seed)
+      unitType = classOf[Row]
+
+    } else {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
+      if (rdd == null) throw new DDFException("Cannot get RDD of Representation Array[Double], Array[Object] or Row")
+      splits = randomSplit(rdd, k, trainingSize, seed)
+      unitType = classOf[Array[Object]]
+    }
+    if (splits == null) {
+      throw new DDFException("Error getting cross validation for DDF")
+    }
+    return getDDFCVSetsFromRDDs(splits, ddf.getManager, ddf.getSchema, ddf.getNamespace, unitType)
+  }
+
+  def DDFKFoldSplit(ddf: DDF, k: Int, seed: Long): JList[JList[DDF]] = {
+    var unitType: Class[_] = null
+    var splits: Iterator[(RDD[_], RDD[_])] = null
+
+    if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Double]]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
+      splits = kFoldSplit(rdd, k, seed)
+      unitType = classOf[Array[Double]]
+
+    } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Object]]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
+      splits = kFoldSplit(rdd, k, seed)
+      unitType = classOf[Array[Object]]
+
+    } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Row]): _*)) {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+      splits = kFoldSplit(rdd, k, seed)
+      unitType = classOf[Row]
+
+    } else {
+      val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
+      if (rdd == null) throw new DDFException("Cannot get RDD of representation Array[Double], Array[Object] or Row")
+      splits = kFoldSplit(rdd, k, seed)
+      unitType = classOf[Array[Object]]
+    }
+
+    if (splits == null) {
+      throw new DDFException("Error getting cross validation for DDF")
+    }
+    return getDDFCVSetsFromRDDs(splits, ddf.getManager, ddf.getSchema, ddf.getNamespace, unitType)
+  }
+
+  /**
+   * Get set of Cross Validation of DDFs from RDD splits
+   * @param splits Iterator of tuple of (train, test) RDD
+   * @param unitType unitType of returned DDF
+   * @return List of Cross Validation sets
+   */
+  private def getDDFCVSetsFromRDDs(splits: Iterator[(RDD[_], RDD[_])], manager: DDFManager, schema: Schema, nameSpace: String, unitType: Class[_]): JList[JList[DDF]] = {
+    val cvSets: JList[JList[DDF]] = new util.ArrayList[JList[DDF]]()
+
+    for ((train, test) <- splits) {
+      val aSet = new util.ArrayList[DDF]();
+      val trainDDF = new SparkDDF(manager, train.asInstanceOf[RDD[_]], unitType, nameSpace,
+        null, schema)
+      val testDDF = new SparkDDF(manager, test.asInstanceOf[RDD[_]], unitType, nameSpace,
+        null, schema)
+
+      aSet.add(trainDDF)
+      aSet.add(testDDF)
+      cvSets.add(aSet)
+    }
+    return cvSets
+  }
 }

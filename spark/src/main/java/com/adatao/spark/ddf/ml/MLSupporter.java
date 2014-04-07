@@ -14,9 +14,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
-import scala.Tuple2;
 import scala.actors.threadpool.Arrays;
-import scala.reflect.ClassManifest$;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -97,7 +95,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
           Object[].class, model, hasLabels, includeFeatures));
       resultUnitType = Object[].class;
-    }  else {
+    } else {
       throw new DDFException(String.format("Error apply model %s", model.getRawModel().getClass().getName()));
     }
 
@@ -256,51 +254,12 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     }
   }
 
+
   public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
-    RDD rdd = ((SparkDDF) this.getDDF()).getRDD((new Object[0]).getClass());
-
-    scala.collection.Iterator<Tuple2<RDD<Object[]>, RDD<Object[]>>> splits =
-        CrossValidation.kFoldSplit(rdd, k, seed, ClassManifest$.MODULE$.fromClass(Object[].class));
-
-    List<List<DDF>> cvSets = new ArrayList<List<DDF>>();
-
-    while(splits.hasNext()) {
-      List<DDF> results = new ArrayList<DDF>();
-      Tuple2<RDD<Object[]>, RDD<Object[]>> train_test = splits.next();
-
-      DDF trainDDF = new SparkDDF(this.getManager(), (RDD<Object[]>) train_test._1(), Object[].class,
-          this.getManager().getNamespace(), this.getDDF().getSchemaHandler().newTableName(), this.getDDF().getSchema());
-      DDF testDDF = new SparkDDF(this.getManager(), (RDD<Object[]>) train_test._2(), Object[].class,
-          this.getManager().getNamespace(), this.getDDF().getSchemaHandler().newTableName(), this.getDDF().getSchema());
-
-      results.add(trainDDF);
-      results.add(testDDF);
-      cvSets.add(results);
-    }
-    return cvSets;
+    return CrossValidation.DDFKFoldSplit(this.getDDF(), k, seed);
   }
 
   public List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException {
-    RDD rdd = ((SparkDDF) this.getDDF()).getRDD((new Object[0]).getClass());
-
-    scala.collection.Iterator<Tuple2<RDD<Object[]>, RDD<Object[]>>> splits =
-        CrossValidation.randomSplit(rdd, k, trainingSize, seed, ClassManifest$.MODULE$.fromClass(Object[].class));
-
-    List<List<DDF>> cvSets = new ArrayList<List<DDF>>();
-
-    while(splits.hasNext()) {
-      List<DDF> results = new ArrayList<DDF>();
-      Tuple2<RDD<Object[]>, RDD<Object[]>> train_test = splits.next();
-
-      DDF trainDDF = new SparkDDF(this.getManager(), (RDD<Object[]>) train_test._1(), Object[].class,
-          this.getManager().getNamespace(), this.getDDF().getSchemaHandler().newTableName(), this.getDDF().getSchema());
-      DDF testDDF = new SparkDDF(this.getManager(), (RDD<Object[]>) train_test._2(), Object[].class,
-          this.getManager().getNamespace(), this.getDDF().getSchemaHandler().newTableName(), this.getDDF().getSchema());
-
-      results.add(trainDDF);
-      results.add(testDDF);
-      cvSets.add(results);
-    }
-    return cvSets;
+    return CrossValidation.DDFRandomSplit(this.getDDF(), k, trainingSize, seed);
   }
 }

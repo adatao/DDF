@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfterAll
 import shark.SharkContext
+import com.adatao.ddf.DDFManager
 
 /**
  * This makes a Logger LOG variable available to the test suite.
@@ -17,6 +18,7 @@ import shark.SharkContext
 @RunWith(classOf[JUnitRunner])
 abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll {
   val LOG: Logger = LoggerFactory.getLogger(this.getClass())
+  val manager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
 
   def createTableMtcars(sharkctx: SharkContext){
     sharkctx.sql("set shark.test.data.path=../resources")
