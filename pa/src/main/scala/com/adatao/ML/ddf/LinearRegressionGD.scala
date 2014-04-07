@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.adatao.pa.spark.execution
+package com.adatao.ML.ddf
 
 import java.lang.String
 import com.adatao.ML
@@ -30,43 +30,23 @@ import java.util.HashMap
 /**
  * Entry point for SparkThread executor
  */
-class LinearRegression(
-    dataContainerID: String,
-    xCols: Array[Int],
-    yCol: Int,
-    var numIters: Int,
-    var learningRate: Double,
-    var ridgeLambda: Double,
-    var initialWeights: Array[Double])
-        extends AModelTrainer[LinearRegressionModel](dataContainerID, xCols, yCol) {
+object LinearRegressionGD {
 
-    override def train(dataContainerID: String, context: ExecutionContext): LinearRegressionModel = {
-      val ddfManager = context.sparkThread.getDDFManager();
-      val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-        case x: DDF â‡’ x
-        case _ â‡’ throw new IllegalArgumentException("Only accept DDF")
-      }
-      // project the xCols, and yCol as a new DDF
-      // this is costly
-      val schema = ddf.getSchema()
-      var columnList : java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-      for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-      columnList.add(schema.getColumn(yCol).getName)
-      val projectDDF = ddf.Views.project(columnList)
-      // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
-      // new LinearRegressionModel(weights, trainingLosses, numSamples)
-      val model = projectDDF.ML.train("linearRegressionWithGD", numIters:java.lang.Integer)
-      
-      // converts DDF model to old PA model
-      val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
-      val paModel = new LinearRegressionModel(rawModel.weights, rawModel.traingLoss, projectDDF.getNumRows())
-      ddfManager.addModel(model)
-      paModel.ddfModel = model
-      return paModel
-    }
-  
-    def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
-      null
+    def train(dataPartition: RDD[(Matrix, Vector)],
+        xCols: Array[Int],
+        yCol: Int,
+        var numIters: Int,
+        var learningRate: Double,
+        var ridgeLambda: Double,
+        var initialWeights: Array[Double]): LinearRegressionModel = {
+
+        //depend on length of weights
+        val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
+        var model = ML.LinearRegression.train(
+            new LinearRegressionGD.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
+        )
+
+        model
     }
     //post process, set column mapping to model
     def instrumentModel(model: LinearRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) :LinearRegressionModel = {
@@ -75,7 +55,7 @@ class LinearRegression(
     }
 }
 
-object LinearRegression {
+object LinearRegressionGD {
     /**
      * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
      * knows how to handle that data.
@@ -93,6 +73,6 @@ object LinearRegression {
 /**
  * Entry point for SparkThread executor to execute predictions
  */
-class LinearRegressionPredictor(val model: LinearRegressionModel, var features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
+class LinearRegressionGDPredictor(val model: LinearRegressionModel, var features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
     def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
 }
