@@ -106,6 +106,8 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
     
     if(residualDDF == null) System.err.println(">>>>>>>>>>>.residualDDF is null");
+    
+    if(residualDDF != null) predictionDDF.getManager().addDDF(residualDDF);
 //        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
     return residualDDF;
   }
