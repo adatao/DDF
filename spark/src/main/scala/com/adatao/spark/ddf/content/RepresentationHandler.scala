@@ -16,7 +16,13 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
-import com.adatao.ddf.content.RepresentationHandler.GetResult
+import org.apache.spark.api.java.function.Function
+
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf._
+import com.adatao.ddf.types.Vector
+import com.adatao.ddf.types._
+import java.util.ArrayList
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -25,159 +31,224 @@ import com.adatao.ddf.content.RepresentationHandler.GetResult
 
 class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
-	override def getDefaultDataType: Array[Class[_]] = Array(classOf[RDD[_]], classOf[Row])
+  override def getDefaultDataType: Array[Class[_]] = Array(classOf[RDD[_]], classOf[Row])
 
-	/**
-	 * Converts from an RDD[Row] to any representation
-	 */
-	override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
+  /**
+   * Converts from an RDD[Row] to any representation
+   */
+  override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
 
-	protected def fromRDDRow(typeSpecs: String): Object = {
-		val schemaHandler = mDDF.getSchemaHandler
-		val numCols = schemaHandler.getNumColumns.toInt
-		val srcRdd = this.toRDDRow
-		val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
+  protected def fromRDDRow(typeSpecs: String): Object = {
+    val schemaHandler = mDDF.getSchemaHandler
+    val numCols = schemaHandler.getNumColumns.toInt
+    val srcRdd = this.toRDDRow
+    val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
-		typeSpecs match {
-			case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
-			case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
-			case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
-			case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
-			case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s",
-				typeSpecs,
-				RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
-		}
-	}
+    typeSpecs match {
+      case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd) 
+      case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
+      case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
+      case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
+      case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
+      case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
+      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
+        typeSpecs,
+        RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
+    }
+  }
 
-	/**
-	 * Converts to an RDD[Row] from any representation
-	 */
-	protected def toRDDRow: RDD[Row] = {
-		val rdd = this.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
-		if (rdd != null) return rdd
+  /**
+   * Converts to an RDD[Row] from any representation
+   */
+  protected def toRDDRow: RDD[Row] = {
+    val rdd = this.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
+    if (rdd != null) return rdd
 
-		// Try to convert from any known representation
+    // Try to convert from any known representation
 
-		val nativeTable = this.get(classOf[NativeTable]).asInstanceOf[NativeTable]
-		if (nativeTable != null) {
-			return null // TODO
-		}
+    val nativeTable = this.get(classOf[NativeTable]).asInstanceOf[NativeTable]
+    if (nativeTable != null) {
+      return null // TODO
+    }
 
-		val arraysObject = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Object]).asInstanceOf[RDD[Array[Object]]]
-		if (arraysObject != null) {
-			return null // TODO
-		}
+    val arraysObject = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Object]).asInstanceOf[RDD[Array[Object]]]
+    if (arraysObject != null) {
+      return null // TODO
+    }
 
-		val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Double]).asInstanceOf[RDD[Array[Double]]]
-		if (arraysDouble != null) {
-			return null // TODO
-		}
+    val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Double]).asInstanceOf[RDD[Array[Double]]]
+    if (arraysDouble != null) {
+      return null // TODO
+    }
+LabeledPoint
+    val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
+    if (labeledPoints != null) {
+      return null // TODO
+    }
 
-		val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
-		if (labeledPoints != null) {
-			return null // TODO
-		}
+    null.asInstanceOf[RDD[Row]]
+  }
 
-		null.asInstanceOf[RDD[Row]]
-	}
+  /**
+   * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
+   */
+  def set[T](data: RDD[T])(implicit m: Manifest[T]) = {
+    this.reset
+    this.add(data)
+  }
 
-	/**
-	 * Sets a new and unique representation for our {@link DDF}, clearing out any existing ones
-	 */
-	def set[T](data: RDD[T])(implicit m: Manifest[T]) = {
-		this.reset
-		this.add(data)
-	}
+  /**
+   * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
+   */
+  def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, classOf[RDD[_]], m.erasure)
 
-	/**
-	 * Adds a new and unique representation for our {@link DDF}, keeping any existing ones
-	 */
-	def add[T](data: RDD[T])(implicit m: Manifest[T]): Unit = this.add(data, classOf[RDD[_]], m.erasure)
+  private def forAllReps[T](f: RDD[_] ⇒ Any) {
+    mReps.foreach {
+      kv ⇒ if (kv._2 != null) f(kv._2.asInstanceOf[RDD[_]])
+    }
+  }
 
-	private def forAllReps[T](f: RDD[_] ⇒ Any) {
-		mReps.foreach {
-			kv ⇒ if (kv._2 != null) f(kv._2.asInstanceOf[RDD[_]])
-		}
-	}
+  override def cacheAll = {
+    forAllReps({
+      rdd: RDD[_] ⇒
+        if (rdd != null) {
+          mLog.info(this.getClass() + ": Persisting " + rdd)
+          rdd.persist
+        }
+    })
+  }
 
-	override def cacheAll = {
-		forAllReps({
-			rdd: RDD[_] ⇒
-				if (rdd != null) {
-					mLog.info(this.getClass() + ": Persisting " + rdd)
-					rdd.persist
-				}
-		})
-	}
-
-	override def uncacheAll = {
-		forAllReps({
-			rdd: RDD[_] ⇒
-				if (rdd != null) {
-					mLog.info(this.getClass() + ": Unpersisting " + rdd)
-					rdd.unpersist(false)
-				}
-		})
-	}
+  override def uncacheAll = {
+    forAllReps({
+      rdd: RDD[_] ⇒
+        if (rdd != null) {
+          mLog.info(this.getClass() + ": Unpersisting " + rdd)
+          rdd.unpersist(false)
+        }
+    })
+  }
 }
 
 object RepresentationHandler {
 
-	/**
-	 * Supported Representations
-	 */
-	val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
-	val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
-	val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
-	/**
-	 *
-	 */
-	def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
-		rdd.map {
-			row ⇒ row.rawdata.asInstanceOf[Array[Object]]
-		}
-	}
+  /**
+   * Supported Representations
+   */
+  val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
+  val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
+  val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
+  val RDD_TABLE_PARTITION = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TablePartition]))
+  val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
+  /**
+   *
+   */
+  def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
+    rdd.map {
+      row ⇒ row.rawdata.asInstanceOf[Array[Object]]
+    }
+  }
 
-	def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[Double]] = {
-		val numCols = mappers.length
-		rdd.map {
-			row ⇒ rowToArray(row, classOf[Double], new Array[Double](numCols), mappers)
-		}
-	}
+  def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[Double]] = {
+    val numCols = mappers.length
+    rdd.map {
+      row ⇒ rowToArray(row, classOf[Double], new Array[Double](numCols), mappers)
+    }
+  }
 
-	def rowsToLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[LabeledPoint] = {
-		val numCols = mappers.length
-		rdd.map(row ⇒ {
-			val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
-			val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
-			new LabeledPoint(label, features)
-		})
-	}
+  def rowsToLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[LabeledPoint] = {
+    val numCols = mappers.length
+    rdd.map(row ⇒ {
+      val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
+      val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
+      new LabeledPoint(label, features)
+    })
+  }
 
-	def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
-		var i = 0
-		while (i < array.size) {
-			array(i) = mappers(i)(row.getPrimitive(i))
-			i += 1
-		}
-		array
-	}
+  def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
+    var i = 0
+    while (i < array.size) {
+      array(i) = mappers(i)(row.getPrimitive(i))
+      i += 1
+    }
+    array
+  }
+  
+  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
+    rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
+  }
 
-	private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
-		colType match {
-			case ColumnType.DOUBLE ⇒ {
-				case obj ⇒ obj.asInstanceOf[Double]
-			}
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
+    println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
+    val numCols = mappers.length
+    
+    //have to convert to List
+    var lstRows  =  new ArrayList[Array[Double]] ()
+    var row = 0
+    while(rows.hasNext) {
+      var currentRow = rows.next
+      var column = 0
+      var b = new Array[Double] (numCols)
+      while (column < numCols) {
+        b(column) = mappers(column)(currentRow.getPrimitive(column))
+        column += 1
+      }
+      lstRows.add(row,  b)
+      row += 1
+    }
+    
+    
+    val numRows = lstRows.size//rows.toArray[Row].length
+    val Y = new Vector(numRows)
+     //numCols = numCols + 1 bias term
+    val X = new Matrix(numRows, numCols)
+    
+    row = 0
+    val yCol = 0
+    
+    while(row < lstRows.size) {
+      var inputRow = lstRows(row)
+      X.put(row, 0, 1.0) // bias term
+      var columnIndex = 0
+      var columnValue = ""
+      var newValue: Double = -1.0
+      
+      var column = 0
+      while (column < numCols-1) {
+        columnIndex  = column + 1
+        newValue = inputRow(column)
+        
+//        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
+        X.put(row, columnIndex, newValue) // x-feature #i
+        column += 1
+      }
+      Y.put(row, inputRow(numCols - 1)) // y-value
+      row += 1
+    }
+    val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
+    Iterator(Z)
+  }
 
-			case ColumnType.INT ⇒ {
-				case obj ⇒ obj.asInstanceOf[Int].toDouble
-			}
+  def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
+    rdd.map {
+      row ⇒ row.rawdata.asInstanceOf[TablePartition]
+    }
+  }
+  
+  private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
+    colType match {
+      case ColumnType.DOUBLE ⇒ {
+        case obj ⇒ obj.asInstanceOf[Double]
+      }
 
-			case ColumnType.STRING ⇒ {
-				case _ ⇒ throw new DDFException("Cannot convert string to double")
-			}
-		}
-	}
+      case ColumnType.INT ⇒ {
+        case obj ⇒ obj.asInstanceOf[Int].toDouble
+      }
 
-	def rowsToNativeTable(ddf: DDF, rdd: RDD[Row], numCols: Int): NativeTable = null // TODO
+      case ColumnType.STRING ⇒ {
+        case _ ⇒ throw new DDFException("Cannot convert string to double")
+      }
+    }
+  }
+
+  def rowsToNativeTable(ddf: DDF, rdd: RDD[Row], numCols: Int): NativeTable = null // TODO
 }

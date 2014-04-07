@@ -17,16 +17,13 @@
 package com.adatao.spark.ddf.ml.pa
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.ALossFunction
-import com.adatao.ML.Utils
+import com.adatao.ddf.util.Utils
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 // import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
-import com.adatao.pa.spark.DataManager._
 import java.util.HashMap
 import scala.collection.mutable.ListBuffer
 import org.jblas.exceptions.LapackArgumentException
@@ -37,7 +34,6 @@ import scala.collection.Iterator
 import scala.collection.immutable.List
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.api.java.JavaRDD
-import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 
 /**
@@ -46,7 +42,7 @@ import shark.api.JavaSharkContext
  */
 object LinearRegressionNormalEquation {
 	// Purpose of this function is to handle empty partitions using mapPartitions, :((((((
-	def doMatrixCalculation(inputRows: Iterator[(Matrix, Vector)]): Iterator[(DoubleMatrix, DoubleMatrix, Long, Double, Double, DoubleMatrix, Long)] = {
+	def doMatrixCalculation(numFeatures: Int)(inputRows: Iterator[(Matrix, Vector)]): Iterator[(DoubleMatrix, DoubleMatrix, Long, Double, Double, DoubleMatrix, Long)] = {
 
 		var XtX: DoubleMatrix = null
 		var Xty: DoubleMatrix = null
@@ -106,7 +102,7 @@ object LinearRegressionNormalEquation {
 		Iterator((XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions))
 	}
 
-	def train(dataPartition: RDD[(Matrix, Vector)], ridgeLambda: Double): NQLinearRegressionModel = {
+	def train(dataPartition: RDD[(Matrix, Vector)], xCols: Array[Int], ridgeLambda: Double): NQLinearRegressionModel = {
 		//Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
 		//1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
 		//2. Compute w and inverse of XtX in driver program.
@@ -114,8 +110,8 @@ object LinearRegressionNormalEquation {
 		//4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
 		//5. Compute t-values and p-values in R based on coefficients’ standard errors
 		// Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-
-		val ret = dataPartition.mapPartitions(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
+        val numFeatures = xCols.length + 1
+		val ret = dataPartition.mapPartitions(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
 		//val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
 		var messages: Array[String] = Array()
 
@@ -130,7 +126,7 @@ object LinearRegressionNormalEquation {
 		val sst = ret._4 - (ret._5 * ret._5) / ret._3
 
 		var XtXlambda: DoubleMatrix = ret._1
-		LOG.info(XtXlambda.toString())
+		// LOG.info(XtXlambda.toString())
 
 		if (ridgeLambda != 0) {
 			XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numFeatures).muli(ridgeLambda))
@@ -235,7 +231,7 @@ class NQLinearRegressionModel(weights: Vector, val resDfId: String, val rss: Dou
 	val sst: Double, val stdErrs: Vector,
 	numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
 		{
-	override def predict(features: Vector): Double = null
+	def predict(features: Vector): Double = 0
 }
 
 /**

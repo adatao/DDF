@@ -3,6 +3,7 @@ package com.adatao.spark.ddf.analytics
 import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager, ATestSuite}
 import com.adatao.ddf.DDFManager
 import scala.collection.JavaConversions._
+import org.apache.spark.rdd.RDD
 
 /**
   */
@@ -26,22 +27,26 @@ class MllibIntegrationSuite extends ATestSuite {
 
     val ddfTrain2 = manager.sql2ddf("select " +
       "distance, arrdelay, depdelay, delayed from airline_delayed")
+    
+    //for glm
+    val ddfTrain3 = manager.sql2ddf("select " +
+      "distance/1000, arrdelay/100, depdelay/100, delayed from airline_delayed")
 
     val ddfPredict2 = manager.sql2ddf("select " +
       "distance, arrdelay, depdelay, delayed from airline_delayed")
 
-    val ddfTrain3 = manager.sql2ddf("select " +
+    val ddfTrain4 = manager.sql2ddf("select " +
       "distance, depdelay, if (arrdelay > 10.89, 1, 0) as delayed from airline_delayed")
       
     val kmeansModel = ddfPredict.ML.train("kmeans", 5: java.lang.Integer, 5: java.lang.Integer, 10: java.lang.Integer, "random")
 
+    //for regression, need to add ONE for bias-term
     val initialWeight = for {
-      x <- 0 until (ddfTrain2.getNumColumns - 1)
+      x <- 0 until (ddfTrain2.getNumColumns-1)
     } yield (math.random)
 
     val regressionModel = ddfTrain2.ML.train("linearRegressionWithSGD", 10: java.lang.Integer,
-      0.1: java.lang.Double, 0.1: java.lang.Double)
-
+      0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
     val yPred = ddfPredict.ML.applyModel(kmeansModel, false, true)
     val nrows = yTrueYpred.Views.firstNRows(10)
@@ -49,8 +54,8 @@ class MllibIntegrationSuite extends ATestSuite {
     for (x <- nrows) println(x)
 
     // numIterations = 10, stepSize = 0.1
-    val logRegModel = ddfTrain3.ML.train("logisticRegressionWithSGD", 10: java.lang.Integer, 0.1: java.lang.Double)
-    val yPred1 = ddfTrain3.ML.applyModel(logRegModel, false, true)
+    val logRegModel = ddfTrain4.ML.train("logisticRegressionWithSGD", 10: java.lang.Integer, 0.1: java.lang.Double)
+    val yPred1 = ddfTrain4.ML.applyModel(logRegModel, false, true)
      
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     yPred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count

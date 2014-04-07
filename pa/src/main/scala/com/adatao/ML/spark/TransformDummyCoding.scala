@@ -2,8 +2,8 @@ package com.adatao.ML.spark
 
 import java.util.ArrayList
 import java.util.HashMap
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.DataManager.DataContainer
 import com.adatao.ML.Utils

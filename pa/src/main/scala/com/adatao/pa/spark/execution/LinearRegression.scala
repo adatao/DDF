@@ -21,8 +21,8 @@ import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.Utils
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
