@@ -1,10 +1,14 @@
 package com.adatao.spark.ddf.ml;
 
 
+import java.lang.reflect.Array;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
@@ -91,7 +95,10 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
     JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
 
-    return null;
+    
+    DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
+//        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
+    return residualDDF;
   }
   
   public static class MetricsMapperResiduals extends Function<double[], double[]> {
