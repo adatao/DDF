@@ -46,4 +46,9 @@ public class PAFacade {
   public Object summary() throws DDFException {
     return mDDF.getSummary();
   }
+  
+  //test algorithm with new Facade executor
+//  public Object LosgisticRegressionCRS(Int, ...) throws DDFException {
+//    return mDDF.ML.Logis("logisticRegressionCRS", params);
+//  }
 }
