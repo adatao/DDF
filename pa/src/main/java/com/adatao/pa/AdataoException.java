@@ -51,9 +51,9 @@ public class AdataoException extends Exception {
         return mMessage != null ? mMessage : "";
       }
       
-      public String getDescription() {
-        return mDescription != null ? mDescription : "";
-      }
+//      public String getDescription() {
+//        return mDescription != null ? mDescription : "";
+//      }
     	
     }
     

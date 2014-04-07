@@ -1,7 +1,6 @@
-package com.adatao.ML.types
+package com.adatao.ddf.types
 
 import no.uib.cipr.matrix.sparse.CompRowMatrix
-import com.adatao.ML.types._
 import org.jblas.DoubleMatrix
 import no.uib.cipr.matrix.sparse.FlexCompRowMatrix
 import no.uib.cipr.matrix.DenseVector
@@ -11,7 +10,7 @@ import no.uib.cipr.matrix.AbstractDenseMatrix
 
 class MatrixSparse (numRows: Int, numCols: Int)  {
 	
-	println("[MatrixSparse] Setting up numRows=" + numRows + "\t numCols =" + numCols)
+	//println("[MatrixSparse] Setting up numRows=" + numRows + "\t numCols =" + numCols)
 	var crs: FlexCompRowMatrix = new FlexCompRowMatrix(numRows, numCols)
 	
 	/*
@@ -23,8 +22,6 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 	def mmul(other: Vector) : DoubleMatrix = {
 		
 		//print dimension
-		println(">>>>>>>>>>>>> mmul Vector: number of rows \t:" + other.getRows() + "\t columns:" + other.getColumns())
-		println(">>>>>>>>>>>>> mmul Matrix sparse: numRows=" + numRows + "\tnumCols=" + numCols)
 		
 		//check dimension
 		if(numCols != other.getRows()) {
@@ -35,11 +32,9 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		//convert to DenseMatrix, n rows, 1 column
 		val denseMatrix: DenseMatrix = new DenseMatrix (new DenseVector(other.data))
 		
-		println(">>>> denseMatrix numRows  = " + denseMatrix.numRows() + "\t num columns=" + denseMatrix.numColumns())
 		
 		var retMatrix: DenseMatrix = new DenseMatrix(crs.numRows(), denseMatrix.numColumns())
 //		
-		println(">>>> retMatrix size  = " + retMatrix.numRows() + "\t" + retMatrix.numColumns())
 		
 		
 		val startTime = System.currentTimeMillis()
@@ -47,7 +42,6 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		crs.mult(denseMatrix, retMatrix)
 		
 		val endTime = System.currentTimeMillis()
-		println(">>>>>>>>>>>>>>>>>> timing mmul after mmul vector: " + (endTime-startTime))
 		
 		MatrixSparse.toDoubleMatrix(retMatrix)
 		
@@ -55,7 +49,7 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 	
 	def print() {
 		val str = "matrix: " + numRows + " * "  + numCols + "\n " + this.crs.toString()
-		println(str)
+		//println(str)
 	}
 	
 	/*
@@ -89,15 +83,12 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		}
 		
 		val endTime = System.currentTimeMillis()
-		println(">>>>>>>>>>>>>>>>>> timing mmul after convert: " + (endTime-startTime))
 		
 
 		//second: multiply CRS sparse matrix with dense matrix 
-		println(">>>>>>>>> multiplying matrix: crs: numrwos=" + crs.numRows() + "\t numColumns=" + crs.numColumns() + "\tconvertedMatrix numrows=" + convertedMatrix.numRows() + "\t numCOlumns=" + convertedMatrix.numColumns() )
 		crs.mult(convertedMatrix, retMatrix)
 		
 		val endTime2 = System.currentTimeMillis()
-		println(">>>>>>>>>>>>>>>>>> timing mmul after multiply: " + (endTime2-startTime))
 		
 		
 		retMatrix
@@ -127,19 +118,16 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		
 		
 		val endTime = System.currentTimeMillis()
-		println(">>>>>>>>>>>>>>>>>> timing mmul2 after convert: " + (endTime-startTime))
 		
 		//returned matrix
 		//m * n  multiply n * p return m * p
 		val retMatrix = new DenseMatrix(convertedMatrix.numRows, crs.numColumns())
 		
 		//TO DO: multAdd is VERY slow 
-		println(">>>>>>>>> multiplying matrix: crs: numrwos=" + crs.numRows() + "\t numColumns=" + crs.numColumns() + "\tconvertedMatrix numrows=" + convertedMatrix.numRows() + "\t numCOlumns=" + convertedMatrix.numColumns() )
 		convertedMatrix.multAdd(crs, retMatrix)
 		
 		
 		val endTime2 = System.currentTimeMillis()
-		println(">>>>>>>>>>>>>>>>>> timing mmul2 after multiadd: " + (endTime2-endTime))
 		
 		retMatrix
 	}

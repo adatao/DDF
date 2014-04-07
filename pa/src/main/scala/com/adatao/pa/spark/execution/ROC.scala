@@ -16,8 +16,8 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.ML.TModel
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.{ Utils ⇒ MLUtils }
