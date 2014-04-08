@@ -153,9 +153,9 @@ object CrossValidation {
 
     for ((train, test) <- splits) {
       val aSet = new util.ArrayList[DDF]();
-      val trainDDF = new SparkDDF(manager, train.asInstanceOf[RDD[_]], unitType, nameSpace,
+      val trainDDF = new SparkDDF(manager, train, unitType, nameSpace,
         null, schema)
-      val testDDF = new SparkDDF(manager, test.asInstanceOf[RDD[_]], unitType, nameSpace,
+      val testDDF = new SparkDDF(manager, test, unitType, nameSpace,
         null, schema)
 
       aSet.add(trainDDF)
