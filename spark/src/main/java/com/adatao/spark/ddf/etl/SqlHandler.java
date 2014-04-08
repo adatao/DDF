@@ -109,12 +109,17 @@ public class SqlHandler extends ASqlHandler {
 
   @Override
   public List<String> sql2txt(String command) throws DDFException {
-    return this.sql2txt(command, null);
+    return this.sql2txt(command, null, null);
+  }
+  
+  @Override
+  public List<String> sql2txt(String command, Integer maxRows) throws DDFException {
+    return this.sql2txt(command, maxRows, null);
   }
 
   @Override
-  public List<String> sql2txt(String command, String dataSource) throws DDFException {
+  public List<String> sql2txt(String command, Integer maxRows, String dataSource) throws DDFException {
     // TODO: handle other dataSources
-    return this.toList(getSharkContext().sql(command, MAX_COMMAND_RESULT_ROWS));
+    return this.toList(getSharkContext().sql(command, maxRows==null?MAX_COMMAND_RESULT_ROWS:maxRows));
   }
 }

@@ -63,6 +63,7 @@ define SPARK_JAVA_OPTS "$SPARK_JAVA_OPTS"
 #export HADOOP_HOME 
 #export HIVE_HOME
 #export SPARK_MASTER # export this if you don't use standalone spark
+export SPARK_MASTER=local[4]
 define SERVER_MODE "`source $CONF_DIR/determine-server-mode.sh $@`"	
 [ -f "$CONF_DIR/$SERVER_MODE/pa-env.sh" ] && source "$CONF_DIR/$SERVER_MODE/pa-env.sh" ]
 [ "X$HADOOP_HOME" != "X" ] && SPARK_CLASSPATH+=":${HADOOP_HOME}/conf/"

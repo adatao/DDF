@@ -27,6 +27,7 @@ import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.analytics.IHandleBinning;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.analytics.Summary;
@@ -48,6 +49,8 @@ import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
+import com.adatao.ddf.facades.PAFacade;
+import com.adatao.ddf.facades.RFacade;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
@@ -73,8 +76,6 @@ import com.google.gson.annotations.Expose;
  * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
  * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
  * </p>
- * 
- * @author ctn
  * 
  */
 public abstract class DDF extends ALoggable //
@@ -180,6 +181,8 @@ public abstract class DDF extends ALoggable //
     // Facades
     this.ML = new MLFacade(this, this.getMLSupporter());
     this.Views = new ViewsFacade(this, this.getViewHandler());
+    this.R = new RFacade(this, this.getAggregationHandler());
+    this.PA = new PAFacade(this);
   }
 
 
@@ -189,9 +192,11 @@ public abstract class DDF extends ALoggable //
 
   // //// IGloballyAddressable //////
 
-  @Expose private String mNamespace;
+  @Expose
+  private String mNamespace;
 
-  @Expose private String mName;
+  @Expose
+  private String mName;
 
 
   /**
@@ -319,14 +324,20 @@ public abstract class DDF extends ALoggable //
   }
 
 
-
-  // ///// Generate DDF views
-
-  public ViewsFacade Views;
-
+  // ///// Execute a sqlcmd
+  public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
+    try {
+      return this.getManager().sql2txt(String.format(sqlCommand, this.getTableName()));
+    } catch (Exception e) {
+      throw new DDFException(String.format(errorMessage, this.getTableName()), e);
+    }
+  }
 
 
   // ///// Aggregate operations
+
+  public RFacade R;
+
 
   /**
    * 
@@ -352,6 +363,15 @@ public abstract class DDF extends ALoggable //
     return this.getAggregationHandler().aggregate(AggregateField.fromSqlFieldSpecs(fields));
   }
 
+  public AggregationResult xtabs(String fields) throws DDFException {
+    return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
+  }
+  
+  // ///// binning 
+  public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
+      boolean right) throws DDFException {
+    return this.getBinningHandler().binning(column, binningType, numBins, breaks, includeLowest, right);
+  }
 
   // ////// Function-Group Handlers ////////
 
@@ -372,6 +392,7 @@ public abstract class DDF extends ALoggable //
   private IHandleViews mViewHandler;
   private ISupportML mMLSupporter;
   private IHandleAggregation mAggregationHandler;
+  private IHandleBinning mBinningHandler;
 
 
 
@@ -483,6 +504,21 @@ public abstract class DDF extends ALoggable //
 
   protected IHandleAggregation createAggregationHandler() {
     return newHandler(IHandleAggregation.class);
+  }
+  
+  public IHandleBinning getBinningHandler() {
+    if (mBinningHandler == null) mBinningHandler = this.createBinningHandler();
+    if (mBinningHandler == null) throw new UnsupportedOperationException();
+    else return mBinningHandler;
+  }
+
+  public DDF setBinningHandler(IHandleBinning aBinningHandler) {
+    this.mBinningHandler = aBinningHandler;
+    return this;
+  }
+
+  protected IHandleBinning createBinningHandler() {
+    return newHandler(IHandleBinning.class);
   }
 
   public IHandleMutability getMutabilityHandler() {
@@ -748,10 +784,7 @@ public abstract class DDF extends ALoggable //
 
 
 
-  // ////// Facade methods ////////
-
-
-  // //// IHandleViews //////
+  // //// IHandleSchema //////
 
   /**
    * 
@@ -761,6 +794,32 @@ public abstract class DDF extends ALoggable //
   public int getColumnIndex(String columnName) {
     return this.getSchema().getColumnIndex(columnName);
   }
+
+  public String getColumnName(int columnIndex) {
+    return this.getSchema().getColumnName(columnIndex);
+  }
+
+  public Factor<?> setAsFactor(int columnIndex) {
+    return this.getSchemaHandler().setAsFactor(columnIndex);
+  }
+
+  public Factor<?> setAsFactor(String columnName) {
+    return this.getSchemaHandler().setAsFactor(columnName);
+  }
+
+  public void unsetAsFactor(int columnIndex) {
+    this.getSchemaHandler().unsetAsFactor(columnIndex);
+  }
+
+  public void unsetAsFactor(String columnName) {
+    this.getSchemaHandler().unsetAsFactor(columnName);
+  }
+
+
+  // //// IHandleViews //////
+
+  public ViewsFacade Views;
+
 
   // public <T> Iterator<T> getRowIterator(Class<T> dataType) {
   // return this.getViewHandler().getRowIterator(dataType);
@@ -834,7 +893,8 @@ public abstract class DDF extends ALoggable //
   @Override
   public void afterUnpersisting() {}
 
-
+  //PA Facace
+  public PAFacade PA;
 
   // //// ISerializable //////
 

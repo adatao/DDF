@@ -4,9 +4,12 @@
 package com.adatao.ddf.content;
 
 
+import java.sql.Timestamp;
 import java.util.List;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.util.DDFUtils;
 
@@ -41,6 +44,10 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     return mSchema != null ? mSchema.getTableName() : null;
   }
 
+  @Override 
+  public Column getColumn(String columnName) {
+    return mSchema.getColumn(columnName);
+  }
   @Override
   public List<Column> getColumns() {
     return mSchema != null ? mSchema.getColumns() : null;
@@ -67,6 +74,11 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   @Override
+  public String getColumnName(int columnIndex) {
+    return mSchema != null ? mSchema.getColumnName(columnIndex) : null;
+  }
+
+  @Override
   public Schema generateSchema() {
     if (this.getSchema() != null) return this.getSchema();
 
@@ -77,6 +89,69 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     if (data == null) return new Schema(null, "null BLOB");
 
     return null;
+  }
+
+  @Override
+  public Factor<String> setAsFactor(String columnName, List<String> levels) throws DDFException {
+    Factor<String> factor = new Factor<String>(this.getDDF(), columnName);
+    factor.computeLevelMap(levels);
+    this.getSchema().getColumn(columnName).setAsFactor(factor);
+    return factor;
+  }
+  
+  @Override
+  public Factor<?> setAsFactor(String columnName) {
+    if (this.getSchema() == null) return null;
+
+    Factor<?> factor = null;
+
+    Column column = this.getSchema().getColumn(columnName);
+    switch (column.getType()) {
+      case DOUBLE:
+        factor = new Factor<Double>(this.getDDF(), columnName);
+        break;
+      case FLOAT:
+        factor = new Factor<Float>(this.getDDF(), columnName);
+        break;
+      case INT:
+        factor = new Factor<Integer>(this.getDDF(), columnName);
+        break;
+      case LONG:
+        factor = new Factor<Long>(this.getDDF(), columnName);
+        break;
+      case LOGICAL:
+        factor = new Factor<Boolean>(this.getDDF(), columnName);
+        break;
+      case STRING:
+        factor = new Factor<String>(this.getDDF(), columnName);
+        break;
+      case TIMESTAMP:
+        factor = new Factor<Timestamp>(this.getDDF(), columnName);
+        break;
+      case BLOB:
+      default:
+        factor = new Factor<Object>(this.getDDF(), columnName);
+        break;
+    }
+
+    column.setAsFactor(factor);
+
+    return factor;
+  }
+
+  @Override
+  public Factor<?> setAsFactor(int columnIndex) {
+    return this.setAsFactor(this.getColumnName(columnIndex));
+  }
+
+  @Override
+  public void unsetAsFactor(String columnName) {
+    this.unsetAsFactor(this.getColumnIndex(columnName));
+  }
+
+  @Override
+  public void unsetAsFactor(int columnIndex) {
+    if (this.getSchema() != null) this.getSchema().getColumn(columnIndex).unsetAsFactor();
   }
 
 }

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import scala.actors.threadpool.Arrays;
+import com.adatao.ddf.Factor;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 import com.google.common.collect.Lists;
@@ -94,7 +95,7 @@ public class Schema implements Serializable {
 
   public List<Column> getColumns() {
     List<Column> columns = new ArrayList<Column>();
-    for(Column column : mColumns) {
+    for (Column column : mColumns) {
       columns.add(column.clone());
     }
     return columns;
@@ -129,7 +130,7 @@ public class Schema implements Serializable {
 
     return mColumns.get(i);
   }
-  
+
   public String getColumnName(int i) {
     if (getColumn(i) == null) {
       return null;
@@ -204,11 +205,14 @@ public class Schema implements Serializable {
   public static class Column {
     @Expose private String mName;
     @Expose private ColumnType mType;
+    @Expose private ColumnClass mClass;
+    private Factor<?> mOptionalFactor;
 
 
     public Column(String name, ColumnType type) {
       this.mName = name;
       this.mType = type;
+      this.mClass = ColumnClass.get(type);
     }
 
     public Column(String name, String type) {
@@ -233,16 +237,58 @@ public class Schema implements Serializable {
       return this;
     }
 
+    public ColumnClass getColumnClass() {
+      return mClass;
+    }
+
+    public Column setColumnClass(ColumnClass clazz) {
+      this.mClass = clazz;
+      return this;
+    }
+
     public boolean isNumeric() {
       return ColumnType.isNumeric(mType);
     }
 
+    /**
+     * Sets this column as a {@link Factor}
+     * 
+     * @param factor
+     *          the {@link Factor} to associate with this column
+     * @return
+     */
+    public <T> Column setAsFactor(Factor<T> factor) {
+      mClass = ColumnClass.FACTOR;
+      mOptionalFactor = factor;
+      return this;
+    }
+
+    public Column unsetAsFactor() {
+      mClass = ColumnClass.get(mType);
+      mOptionalFactor = null;
+      return this;
+    }
+
+    public Factor<?> getOptionalFactor() {
+      return mOptionalFactor;
+    }
+
+
     @Override
     public Column clone() {
-      return new Column(this.getName(), this.getType());
+      Column clonedColumn = new Column(this.getName(), this.getType());
+      if (mClass == ColumnClass.FACTOR) {
+        clonedColumn = clonedColumn.setAsFactor(mOptionalFactor);
+      }
+      return clonedColumn;
     }
   }
 
+
+
+  /**
+   * 
+   */
   public static class ColumnWithData extends Column {
     private Object[] mData;
 
@@ -267,17 +313,25 @@ public class Schema implements Serializable {
     }
   }
 
+
+
+  /**
+   * The R concept of a column "type", such as STRING, INT, LONG, etc.
+   */
   public enum ColumnType {
 
     STRING(String.class), INT(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), //
-    TIMESTAMP(Date.class, java.sql.Date.class, Time.class, Timestamp.class), BLOB(Object.class);
+    TIMESTAMP(Date.class, java.sql.Date.class, Time.class, Timestamp.class), BLOB(Object.class), //
+    LOGICAL(Boolean.class), //
+    ANY(/* for ColumnClass.Factor */) //
+    ;
 
     private List<Class<?>> mClasses = Lists.newArrayList();
 
 
-    private ColumnType(Class<?>... classes) {
-      if (classes != null && classes.length > 0) {
-        for (Class<?> cls : classes) {
+    private ColumnType(Class<?>... acceptableClasses) {
+      if (acceptableClasses != null && acceptableClasses.length > 0) {
+        for (Class<?> cls : acceptableClasses) {
           mClasses.add(cls);
         }
       }
@@ -312,7 +366,7 @@ public class Schema implements Serializable {
         }
       }
 
-      return BLOB;
+      return null;
     }
 
     public static ColumnType get(Object[] elements) {
@@ -333,6 +387,58 @@ public class Schema implements Serializable {
     }
   }
 
+
+  /**
+   * The R concept of a column class. A Column class of NUMERIC would be associate with any of the following types:
+   * LONG, FLOAT, DOUBLE.
+   */
+  public enum ColumnClass {
+    NUMERIC(ColumnType.LONG, ColumnType.FLOAT, ColumnType.DOUBLE), //
+    CHARACTER(ColumnType.STRING), //
+    LOGICAL(ColumnType.LOGICAL), //
+
+    FACTOR(ColumnType.ANY) //
+
+    ;
+
+    private List<ColumnType> mTypes = Lists.newArrayList();
+
+
+    private ColumnClass(ColumnType... acceptableColumnTypes) {
+      if (acceptableColumnTypes != null && acceptableColumnTypes.length > 0) {
+        for (ColumnType type : acceptableColumnTypes) {
+          mTypes.add(type);
+        }
+      }
+    }
+
+    public List<ColumnType> getColumnTypes() {
+      return mTypes;
+    }
+
+    /**
+     * Returns the appropriate {@link ColumnClass} for a given {@link ColumnType}
+     * 
+     * @param type
+     * @return
+     */
+    public static ColumnClass get(ColumnType type) {
+      if (type == null) return null;
+
+      for (ColumnClass clz : ColumnClass.values()) {
+        for (ColumnType t : clz.getColumnTypes()) {
+          if (type.equals(t)) return clz;
+        }
+      }
+
+      return null;
+    }
+  }
+
+
+  /**
+   * 
+   */
   public enum DataFormat {
     SQL, CSV, TSV
   }
