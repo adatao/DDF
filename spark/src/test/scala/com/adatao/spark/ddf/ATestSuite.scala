@@ -44,7 +44,7 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
     sharkctx.sql("drop table if exists admission")
     sharkctx.sql("create table admission (v1 int, v2 int, v3 double, v4 int)" +
       " row format delimited fields terminated by ' '")
-    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/admission.csv' " +
+    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/admission.csv' " +
       "INTO TABLE admission")
   }
 

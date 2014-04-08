@@ -760,16 +760,16 @@ class RegressionSuite extends ABigRClientTest {
 		//		println("model=" + model)
 
 	}
-	
-	test("Multiple-variable logistic regression IRLS") {
-		
+
+	test("Multiple-variable logistic regression IRLS - ddf") {
+
 		//load data
 		createTableAdmission
-		val df= this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
+		val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
-		
-		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0,1,2), 3, 25, 1e-8, lambda, Array(0,0))
+
+		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1, 2), 3, 25, 1e-8, lambda, Array(0, 0))
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 		assert(r.isSuccess)
 	}
