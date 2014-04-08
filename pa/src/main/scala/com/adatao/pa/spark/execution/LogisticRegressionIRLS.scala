@@ -83,7 +83,7 @@ class LogisticRegressionIRLS(
 
 			println(">>>>>>>>>>>>>model=" + model)
 
-			return new IRLSLogisticRegressionModel(model.getWeights.toArray(), model.getDeviance, model.getNullDeviance, model.getNumSamples, ddf.getNumColumns(), model.getNumIters, model.getStdErrs.toArray())
+			return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, ddf.getNumColumns(), model.getNumIters, model.getStdErrs)
 		}
 		catch {
 			case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);

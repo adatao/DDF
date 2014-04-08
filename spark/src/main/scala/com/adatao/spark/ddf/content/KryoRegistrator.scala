@@ -15,9 +15,11 @@ class KryoRegistrator extends SharkKryoRegistrator {
 		kryo.register(classOf[Matrix])
 		kryo.register(classOf[ALossFunction])
 		kryo.register(classOf[DoubleMatrix])
+		kryo.register(classOf[LogisticRegressionIRLS.LossFunction])
 		kryo.register(classOf[LossFunction],
-			new FieldSerializer[Nothing](kryo, classOf[LossFunction]))
+      new FieldSerializer[Nothing](kryo, classOf[LossFunction]))
 		kryo.register(classOf[LogisticRegressionModel])
+		kryo.register(classOf[IRLSLogisticRegressionModel])
 		super.registerClasses(kryo)
 	}
 }
