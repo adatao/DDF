@@ -21,11 +21,14 @@ import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.Utils
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
+import java.util.ArrayList
+
+import com.adatao.ddf.DDF
 
 /**
  * Entry point for SparkThread executor
@@ -43,8 +46,8 @@ class LinearRegression(
     override def train(dataContainerID: String, context: ExecutionContext): LinearRegressionModel = {
       val ddfManager = context.sparkThread.getDDFManager();
       val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-        case x: DDF â‡’ x
-        case _ â‡’ throw new IllegalArgumentException("Only accept DDF")
+        case x: DDF => x
+        case _ => throw new IllegalArgumentException("Only accept DDF")
       }
       // project the xCols, and yCol as a new DDF
       // this is costly
@@ -59,7 +62,7 @@ class LinearRegression(
       
       // converts DDF model to old PA model
       val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
-      val paModel = new LinearRegressionModel(rawModel.weights, rawModel.traingLoss, projectDDF.getNumRows())
+      val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, projectDDF.getNumRows())
       ddfManager.addModel(model)
       paModel.ddfModel = model
       return paModel
@@ -84,8 +87,8 @@ object LinearRegression {
      * objects, if we were to place this class within [[class LinearRegression]].
      */
     class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALinearGradientLossFunction(XYData, ridgeLambda) {
-        def compute: Vector â‡’ ALossFunction = {
-            (weights: Vector) â‡’ XYData.map { case (x, y) â‡’ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+        def compute: Vector => ALossFunction = {
+            (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
         }
     }
 }

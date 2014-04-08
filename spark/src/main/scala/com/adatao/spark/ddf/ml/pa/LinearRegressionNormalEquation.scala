@@ -102,7 +102,7 @@ object LinearRegressionNormalEquation {
 		Iterator((XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions))
 	}
 
-	def train(dataPartition: RDD[(Matrix, Vector)], xCols: Array[Int], ridgeLambda: Double): NQLinearRegressionModel = {
+	def train(dataPartition: RDD[(Matrix, Vector)], xCols: Array[Int], yCol: Int, ridgeLambda: Double): NQLinearRegressionModel = {
 		//Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
 		//1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
 		//2. Compute w and inverse of XtX in driver program.
@@ -222,12 +222,12 @@ object LinearRegressionNormalEquation {
 		// numFeatures - 1 -> we dont count intercept as a feature. Actually, the user can specify that he dont want the model to include intercept
 		new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-        null
+        new NQLinearRegressionModel(Vector.apply(w), null, 0, 0, null, 0, numFeatures, null, null)
 	}
 
 }
 
-class NQLinearRegressionModel(weights: Vector, val resDfId: String, val rss: Double,
+class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss: Double,
 	val sst: Double, val stdErrs: Vector,
 	numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
 		{

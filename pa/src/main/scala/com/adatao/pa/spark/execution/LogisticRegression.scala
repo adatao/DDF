@@ -48,8 +48,8 @@ class LogisticRegression(
   override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
     val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-      case x: DDF ⇒ x
-      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
+      case x: DDF => x
+      case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     // project the xCols, and yCol as a new DDF
     // this is costly
@@ -91,8 +91,8 @@ object LogisticRegression {
 	 * objects, if we were to place this class within [[class LogisticRegression]].
 	 */
 	class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALogisticGradientLossFunction(XYData, ridgeLambda) {
-		def compute: Vector ⇒ ALossFunction = {
-			(weights: Vector) ⇒ XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+		def compute: Vector => ALossFunction = {
+			(weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
 		}
 	}
 }

@@ -21,8 +21,8 @@ import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.Utils
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
@@ -35,11 +35,11 @@ object LinearRegressionGD {
     def train(dataPartition: RDD[(Matrix, Vector)],
         xCols: Array[Int],
         yCol: Int,
-        var numIters: Int,
-        var learningRate: Double,
-        var ridgeLambda: Double,
-        var initialWeights: Array[Double]): LinearRegressionModel = {
-
+        numIters: Int,
+        learningRate: Double,
+        ridgeLambda: Double,
+        initialWeights: Array[Double]): LinearRegressionModel = {
+        val numFeatures = xCols.length + 1
         //depend on length of weights
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
         var model = ML.LinearRegression.train(
@@ -53,9 +53,7 @@ object LinearRegressionGD {
       model.dummyColumnMapping = mapping
       model
     }
-}
-
-object LinearRegressionGD {
+    
     /**
      * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
      * knows how to handle that data.
@@ -64,15 +62,8 @@ object LinearRegressionGD {
      * objects, if we were to place this class within [[class LinearRegression]].
      */
     class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALinearGradientLossFunction(XYData, ridgeLambda) {
-        def compute: Vector â‡’ ALossFunction = {
-            (weights: Vector) â‡’ XYData.map { case (x, y) â‡’ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+        def compute: Vector => ALossFunction = {
+            (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
         }
     }
-}
-
-/**
- * Entry point for SparkThread executor to execute predictions
- */
-class LinearRegressionGDPredictor(val model: LinearRegressionModel, var features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-    def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
 }

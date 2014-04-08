@@ -48,8 +48,8 @@ class LinearRegressionSGD (
   override def train(dataContainerID: String, context: ExecutionContext): LinearRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
     val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-      case x: DDF â‡’ x
-      case _ â‡’ throw new IllegalArgumentException("Only accept DDF")
+      case x: DDF => x
+      case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     // project the xCols, and yCol as a new DDF
     // this is costly
@@ -96,8 +96,8 @@ object LinearRegressionSGD {
      * objects, if we were to place this class within [[class LinearRegression]].
      */
     class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALinearGradientLossFunction(XYData, ridgeLambda) {
-        def compute: Vector â‡’ ALossFunction = {
-            (weights: Vector) â‡’ XYData.map { case (x, y) â‡’ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+        def compute: Vector => ALossFunction = {
+            (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
         }
     }
 }
