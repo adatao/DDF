@@ -103,7 +103,7 @@ object LinearRegressionNormalEquation {
 		Iterator((XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions))
 	}
 
-	def train(dataPartition: RDD[(Matrix, Vector)], nFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
+	def train(dataPartition1: RDD[TupleMatrixVector], nFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
 		//Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
 		//1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
 		//2. Compute w and inverse of XtX in driver program.
@@ -113,7 +113,13 @@ object LinearRegressionNormalEquation {
 		// Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
         val numFeatures = nFeatures + 1
         println("dataPartition")
-        println(dataPartition)
+        val result1 = dataPartition1.collect
+        for (t <- result1) {println("original"); println(t.getClass.getName); println(t);}
+        println(dataPartition1)
+        val dataPartition = dataPartition1.map(t => (t._1, t._2))
+        val result = dataPartition.collect
+        for (t <- result) { println("tuple" ); println(t._1.getClass.getName); println(t._1)}
+        for ((x, y) <- result) println("tuple-columns" + x.getColumns)
 		val ret = dataPartition.mapPartitions(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
 		//val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
 		var messages: Array[String] = Array()
