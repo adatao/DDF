@@ -22,38 +22,37 @@ import scala.Some
 import com.adatao.ddf.DDF
 import com.adatao.ddf.ml.IModel
 import com.adatao.spark.ddf.SparkDDF
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  *
  */
 class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int, var modelID: String) extends AExecutor[Double] {
 
-	def runImpl(ctx: ExecutionContext): Double = {
-		val ddfManager = ctx.sparkThread.getDDFManager();
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+  def runImpl(ctx: ExecutionContext): Double = {
+    val ddfManager = ctx.sparkThread.getDDFManager();
+    val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
 
-		// first, compute RDD[(ytrue, ypred)]
-		//old API
-		//		val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
+    // first, compute RDD[(ytrue, ypred)]
+    //old API val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
 
-		
-		println(">>>>> R2score input rdd name = " + ddf.getName() + "\t ddf Uri=" + ddf.getUri())
-		val mymodel: IModel = ddfManager.getModel(modelID)
-		require(mymodel != null)
-		println(">>>>> R2score mymodel = " + mymodel.getName() + "\t ddf Uri=" + ddf.getUri())
+    val mymodel: IModel = ddfManager.getModel(modelID)
+    if (mymodel == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
+        String.format("Not found dataframe with id %s", modelID), null);
+    }
 
-		
-		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
-		//		val predictionsRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-		//get column mean
-		val summary = ddf.getStatisticsSupporter().getSummary()
-		val yMean = summary(yCol).mean()
-//		println(">>>>> predictionDDF id = " + predictionDDF.getName() + "\t predictionDDF Uri=" + predictionDDF.getUri() + ">>> yMean=" + yMean)
-		
+    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+    if (predictionDDF == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
+        "Can not run prediction on dataContainerID: " + dataContainerID + "\t with modelID =" + modelID, null);
+    }
+    //get column mean
+    val summary = ddf.getStatisticsSupporter().getSummary()
+    val yMean = summary(yCol).mean()
 
-		ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
+    ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
 
-		//		Metrics.R2Score(predictionsRDD, yMean)
-
-	}
+  }
 }
