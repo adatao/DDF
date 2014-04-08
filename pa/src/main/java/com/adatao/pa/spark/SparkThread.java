@@ -126,7 +126,6 @@ public class SparkThread extends ASessionThread {
 			LOG.info("Created Executor: " + exec.toString());
 
 			ExecutionResult<?> execRes = null;
-
 			if (exec instanceof IExecutor) {
 				// Old-style, Java-based class hierarchy
 				// Note: this means every old ExecutorResult will be WRAPPED

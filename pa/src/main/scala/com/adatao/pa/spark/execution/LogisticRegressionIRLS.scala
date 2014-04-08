@@ -20,8 +20,8 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import org.apache.spark.rdd.RDD
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.ALossFunction
