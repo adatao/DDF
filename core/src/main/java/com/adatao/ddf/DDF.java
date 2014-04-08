@@ -866,7 +866,7 @@ public abstract class DDF extends ALoggable //
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
-  public void transformRserveNative(String transformExpression) {
+  public void transformNativeRserve(String transformExpression) {
     this.getTransformationHandler().transformNativeRserve(transformExpression);
   }
 

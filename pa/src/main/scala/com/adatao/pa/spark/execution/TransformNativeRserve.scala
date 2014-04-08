@@ -20,7 +20,7 @@ import com.adatao.pa.spark.Utils
  */
 class TransformNativeRserve(dataContainerID: String, val transformExpression: String) extends AExecutor[DataFrameResult] {
 	override def runImpl(context: ExecutionContext): DataFrameResult = {
-	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+	  var ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     ddf.transformNativeRserve(transformExpression);
     // binned var are now factors
     //new GetFactor().setDataContainerID(Utils.getDataContainerId(newddf)).setColumnName(col).run(context.sparkThread)
