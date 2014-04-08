@@ -22,11 +22,11 @@ import scala.collection.JavaConversions._
 /*
 * Return an Array of Tuple (train, test) of dataContainerID
 * */
-class CVRandomSplit(dataContainerID: String, k: Int, trainingSize: Double, seed: Long) extends AExecutor[Array[Array[String]]] {
+class CVRandomSplit(dataContainerID: String, numSplits: Int, trainingSize: Double, seed: Long) extends AExecutor[Array[Array[String]]] {
 	override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
 
     val ddf = ctx.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-    val cvSets = ddf.ML.CVRandom(k, trainingSize, seed)
+    val cvSets = ddf.ML.CVRandom(numSplits, trainingSize, seed)
     val result = cvSets.map {
       set => {
         val train = set(0).getName.substring(15).replace("_", "-")

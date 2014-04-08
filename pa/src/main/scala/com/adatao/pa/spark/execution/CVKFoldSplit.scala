@@ -23,11 +23,11 @@ import scala.collection.JavaConversions._
 /*
 * Return an Array of Tuple (train, test) of dataContainerID
 * */
-class CVKFoldSplit(dataContainerID: String, k: Int, seed: Long) extends AExecutor[Array[Array[String]]] {
+class CVKFoldSplit(dataContainerID: String, numSplits: Int, seed: Long) extends AExecutor[Array[Array[String]]] {
   override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
 
     val ddf = ctx.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-    val cvSets = ddf.ML.CVKFold(k, seed)
+    val cvSets = ddf.ML.CVKFold(numSplits, seed)
     val result = cvSets.map {
       set => {
         val train = set(0).getName.substring(15).replace("_", "-")

@@ -58,10 +58,10 @@ object CrossValidation {
     * for which the probability of each element belonging to each split is (trainingSize, 1-trainingSize).
     * The train & test data across k split are shuffled differently (different random seed for each iteration).
     */
-  def randomSplit[T](rdd: RDD[T], k: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+  def randomSplit[T](rdd: RDD[T], numSplits: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
     require(0 < trainingSize && trainingSize < 1)
     val rg = new Random(seed)
-    (1 to k).map(_ => rg.nextInt).map(z =>
+    (1 to numSplits).map(_ => rg.nextInt).map(z =>
       (new RandomSplitRDD(rdd, z, 0, 1.0 - trainingSize, true),
         new RandomSplitRDD(rdd, z, 0, 1.0 - trainingSize, false))).toIterator
   }
@@ -71,37 +71,37 @@ object CrossValidation {
     * The location of the test data is shifted consistently between folds
     * so that the resulting test sets are pair-wise disjoint.
     */
-  def kFoldSplit[T](rdd: RDD[T], k: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
-    require(k > 0)
-    (for (lower <- 0.0 until 1.0 by 1.0 / k)
-    yield (new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / k, true),
-        new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / k, false))
+  def kFoldSplit[T](rdd: RDD[T], numSplits: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+    require(numSplits > 0)
+    (for (lower <- 0.0 until 1.0 by 1.0 / numSplits)
+    yield (new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, true),
+        new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, false))
       ).toIterator
   }
 
-  def DDFRandomSplit(ddf: DDF, k: Int, trainingSize: Double, seed: Long): JList[JList[DDF]] = {
+  def DDFRandomSplit(ddf: DDF, numSplits: Int, trainingSize: Double, seed: Long): JList[JList[DDF]] = {
     var unitType: Class[_] = null
     var splits: Iterator[(RDD[_], RDD[_])] = null
 
     if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Double]]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-      splits = randomSplit(rdd, k, trainingSize, seed)
+      splits = randomSplit(rdd, numSplits, trainingSize, seed)
       unitType = classOf[Array[Double]]
 
     } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Object]]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
-      splits = randomSplit(rdd, k, trainingSize, seed)
+      splits = randomSplit(rdd, numSplits, trainingSize, seed)
       unitType = classOf[Array[Object]]
 
     } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Row]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Row])
-      splits = randomSplit(rdd, k, trainingSize, seed)
+      splits = randomSplit(rdd, numSplits, trainingSize, seed)
       unitType = classOf[Row]
 
     } else {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
       if (rdd == null) throw new DDFException("Cannot get RDD of Representation Array[Double], Array[Object] or Row")
-      splits = randomSplit(rdd, k, trainingSize, seed)
+      splits = randomSplit(rdd, numSplits, trainingSize, seed)
       unitType = classOf[Array[Object]]
     }
     if (splits == null) {
@@ -110,29 +110,29 @@ object CrossValidation {
     return getDDFCVSetsFromRDDs(splits, ddf.getManager, ddf.getSchema, ddf.getNamespace, unitType)
   }
 
-  def DDFKFoldSplit(ddf: DDF, k: Int, seed: Long): JList[JList[DDF]] = {
+  def DDFKFoldSplit(ddf: DDF, numSplits: Int, seed: Long): JList[JList[DDF]] = {
     var unitType: Class[_] = null
     var splits: Iterator[(RDD[_], RDD[_])] = null
 
     if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Double]]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-      splits = kFoldSplit(rdd, k, seed)
+      splits = kFoldSplit(rdd, numSplits, seed)
       unitType = classOf[Array[Double]]
 
     } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Array[Object]]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
-      splits = kFoldSplit(rdd, k, seed)
+      splits = kFoldSplit(rdd, numSplits, seed)
       unitType = classOf[Array[Object]]
 
     } else if (ddf.getRepresentationHandler.has(Array(classOf[RDD[_]], classOf[Row]): _*)) {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Row])
-      splits = kFoldSplit(rdd, k, seed)
+      splits = kFoldSplit(rdd, numSplits, seed)
       unitType = classOf[Row]
 
-    } else {
+    }  else {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
       if (rdd == null) throw new DDFException("Cannot get RDD of representation Array[Double], Array[Object] or Row")
-      splits = kFoldSplit(rdd, k, seed)
+      splits = kFoldSplit(rdd, numSplits, seed)
       unitType = classOf[Array[Object]]
     }
 
