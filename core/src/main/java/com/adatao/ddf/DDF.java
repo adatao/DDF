@@ -47,6 +47,7 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.etl.IHandleTransformations;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
@@ -393,6 +394,7 @@ public abstract class DDF extends ALoggable //
   private ISupportML mMLSupporter;
   private IHandleAggregation mAggregationHandler;
   private IHandleBinning mBinningHandler;
+  private IHandleTransformations mTransformationHandler;
 
 
 
@@ -521,6 +523,20 @@ public abstract class DDF extends ALoggable //
     return newHandler(IHandleBinning.class);
   }
 
+  public IHandleTransformations getTransformationHandler() {
+    if (mTransformationHandler == null) mTransformationHandler = this.createTransformationHandler();
+    if (mTransformationHandler == null) throw new UnsupportedOperationException();
+    else return mTransformationHandler;
+  }
+
+  public DDF setTransformationHandler(IHandleTransformations aTransformationHandler) {
+    this.mTransformationHandler = aTransformationHandler;
+    return this;
+  }
+
+  protected IHandleTransformations createTransformationHandler() {
+    return newHandler(IHandleTransformations.class);
+  }
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
@@ -850,6 +866,9 @@ public abstract class DDF extends ALoggable //
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
+  public void transformRserveNative(String transformExpression) {
+    this.getTransformationHandler().transformNativeRserve(transformExpression);
+  }
 
 
   // //// ISupportML //////
