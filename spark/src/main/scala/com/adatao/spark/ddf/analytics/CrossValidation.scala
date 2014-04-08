@@ -129,7 +129,7 @@ object CrossValidation {
       splits = kFoldSplit(rdd, numSplits, seed)
       unitType = classOf[Row]
 
-    }  else {
+    } else {
       val rdd = ddf.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
       if (rdd == null) throw new DDFException("Cannot get RDD of representation Array[Double], Array[Object] or Row")
       splits = kFoldSplit(rdd, numSplits, seed)
