@@ -20,6 +20,7 @@ import java.lang.String
 import com.adatao.ddf.util.Utils
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
+import com.adatao.ddf.types._
 // import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
@@ -102,7 +103,7 @@ object LinearRegressionNormalEquation {
 		Iterator((XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions))
 	}
 
-	def train(dataPartition: RDD[(Matrix, Vector)], xCols: Array[Int], yCol: Int, ridgeLambda: Double): NQLinearRegressionModel = {
+	def train(dataPartition: RDD[(Matrix, Vector)], nFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
 		//Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
 		//1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
 		//2. Compute w and inverse of XtX in driver program.
@@ -110,7 +111,9 @@ object LinearRegressionNormalEquation {
 		//4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
 		//5. Compute t-values and p-values in R based on coefficients’ standard errors
 		// Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-        val numFeatures = xCols.length + 1
+        val numFeatures = nFeatures + 1
+        println("dataPartition")
+        println(dataPartition)
 		val ret = dataPartition.mapPartitions(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
 		//val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
 		var messages: Array[String] = Array()
