@@ -2,6 +2,8 @@ package com.adatao.spark.ddf;
 
 
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,6 +81,16 @@ public class StatisticsSupporterTest {
   public void testSampling() throws DDFException {
     Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
     Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());
+  }
+
+  @Test
+  public void testVectorQuantiles() throws DDFException {
+    // Double[] quantiles = ddf1.getVectorQuantiles("deptime", {0.3, 0.5, 0.7});
+    Double[] pArray = {0.3, 0.5, 0.7};
+    Double[] expectedQuantiles = {801.0,1416.0,1644.0};
+    Double[] quantiles = ddf1.getVectorQuantiles("deptime", pArray);
+    System.out.println("Quantiles: " + StringUtils.join(quantiles, ", "));
+    Assert.assertArrayEquals(expectedQuantiles, quantiles);
   }
 
   @After
