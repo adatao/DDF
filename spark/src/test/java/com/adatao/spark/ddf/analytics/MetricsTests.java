@@ -40,6 +40,10 @@ public class MetricsTests {
     Assert.assertEquals(3, ddf.getSummary().length);
     IModel logModel = ddf.ML.train("logisticRegressionWithSGD", 10, 0.1);
     Long[][] cm = ddf.ML.getConfusionMatrix(logModel, 0.5);
+    Assert.assertEquals(0, cm[0][0].longValue());
+    Assert.assertEquals(13, cm[0][1].longValue());
+    Assert.assertEquals(0, cm[1][0].longValue());
+    Assert.assertEquals(18, cm[1][1].longValue());
     manager.shutdown();
   }
 
