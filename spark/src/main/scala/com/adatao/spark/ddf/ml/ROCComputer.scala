@@ -1,12 +1,12 @@
 package com.adatao.spark.ddf.ml
 
 import org.apache.spark.rdd.RDD
-
 import com.adatao.ddf.ml.RocMetric
+import org.apache.spark.mllib.regression.LabeledPoint
 
 class ROCComputer extends Serializable {
 	
-	def ROC(XYData: RDD[Array[Array[Double]]], alpha_length: Int): RocMetric = {
+	def ROC(XYData: RDD[Array[LabeledPoint]], alpha_length: Int): RocMetric = {
     var alpha: Array[Double] = new Array[Double](alpha_length)
 
       
@@ -156,7 +156,7 @@ class ROCComputer extends Serializable {
    * Array: length = alpha_length
    * each element: threshold, positve_frequency, negative_frequency
    */
-  def mappingPredictToThreshold(alpha_length: Int)(input: Array[Array[Double]]): RocMetric = {
+  def mappingPredictToThreshold(alpha_length: Int)(input: Array[LabeledPoint]): RocMetric = {
     //loop thorugh all test instance
     var output: Array[Array[Double]] = new Array[Array[Double]](alpha_length)
     var predict = 0.0
@@ -166,8 +166,8 @@ class ROCComputer extends Serializable {
 
     for (i ← 0 until input.length - 1) {
 
-      predict = input(i)(1)
-      yTrue = input(i)(0)
+      predict = input(i).features.apply(0)
+      yTrue = input(i).label
       
       //model.predict(Vector(input._1.getRow(i)))
       index = getAlpha(predict, alpha_length)

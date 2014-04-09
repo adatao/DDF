@@ -82,12 +82,16 @@ class MetricsSuite extends ABigRClientTest {
 //		assert(r2.isSuccess)
 
 		//		//run ROC
+		val df2= this.runSQL2RDDCmd("select v3, v2 from admission", true)
+		val dataContainerId2 = df2.dataContainerID
 		val alpha_length: Int = 10
-		val executor = new ROC(dataContainerId, Array(0, 1), alpha_length)
+		val executor = new ROC(dataContainerId2, Array(0, 1), alpha_length)
 		val ret = bigRClient.execute[RocMetric](executor)
 
 		val metric = ret.result
 		assert(ret.isSuccess)
+		
+		println(">>>>>> ret.result\t" + ret.result)
 //		//this result is idential with confusion matrix unit test
 //		assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
 //		assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
