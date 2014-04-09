@@ -16,54 +16,69 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
+import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
+import com.esotericsoftware.minlog.Log;
 
 @SuppressWarnings("serial")
 public class FetchRows extends CExecutor {
-	private String dataContainerID;
-	int limit = 1000;
-	
-	static public class FetchRowsResult extends SuccessResult {
-		String dataContainerID;
-		List<Object[]> data;
-		
-		public FetchRowsResult setDataContainerID(String dataContainerID) {
-			this.dataContainerID = dataContainerID;
-			return this;
-		}
-		public FetchRowsResult setData(List<Object[]> data) {
-			this.data = data;
-			return this;
-		}
-		public List<Object[]> getData() {
-			return data;
-		}
-	}
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataManager dm = sparkThread.getDataManager();
-		DataContainer dc = dm.get(dataContainerID);
+  private String dataContainerID;
+  int limit = 1000;
+  public static Logger LOG = LoggerFactory.getLogger(FetchRows.class);
 
-		List<Object[]> data;
-		data = dc.getRDD().take(limit);
-		//Iterator<Object[]> it = data.iterator();
-		//while (it.hasNext()) {
-		//	System.out.println(Arrays.toString(it.next()));
-		//}
-		return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
-	}
 
-	public FetchRows setDataContainerID(String dataContainerID) {
-		this.dataContainerID = dataContainerID;
-		return this;
-	}
-	public FetchRows setLimit(int limit) {
-		this.limit = limit;
-		return this;
-	}
+  static public class FetchRowsResult extends SuccessResult {
+    String dataContainerID;
+    List<String> data;
+
+
+    public FetchRowsResult setDataContainerID(String dataContainerID) {
+      this.dataContainerID = dataContainerID;
+      return this;
+    }
+
+    public FetchRowsResult setData(List<String> data) {
+      this.data = data;
+      return this;
+    }
+
+    public List<String> getData() {
+      return data;
+    }
+  }
+  
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) {
+
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    List<String> data;
+    try {
+      data = ddf.Views.firstNRows(limit);
+      return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
+    } catch (Exception e) {
+      LOG.error(String.format("Cannot fetch %s rows", limit), e);
+    }
+
+    return null;
+  }
+
+  public FetchRows setDataContainerID(String dataContainerID) {
+    this.dataContainerID = dataContainerID;
+    return this;
+  }
+
+  public FetchRows setLimit(int limit) {
+    this.limit = limit;
+    return this;
+  }
 }

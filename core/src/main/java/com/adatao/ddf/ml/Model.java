@@ -2,6 +2,8 @@ package com.adatao.ddf.ml;
 
 
 import java.io.Serializable;
+import java.util.UUID;
+
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.MLClassMethods.PredictMethod;
 
@@ -14,14 +16,26 @@ public class Model implements IModel, Serializable {
 
   private Object mRawModel;
 
+  private String mName;
 
   public Model(Object rawModel) {
     mRawModel = rawModel;
+    mName = UUID.randomUUID().toString();
   }
 
   @Override
   public Object getRawModel() {
     return mRawModel;
+  }
+
+  @Override
+  public String getName() {
+    return mName;
+  }
+
+  @Override
+  public void setName(String name) {
+    mName = name;
   }
 
   @Override
