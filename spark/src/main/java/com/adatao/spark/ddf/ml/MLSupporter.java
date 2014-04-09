@@ -19,8 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import java.io.Serializable;
 
-public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
+public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serializable{
 
   public MLSupporter(DDF theDDF) {
     super(theDDF);
