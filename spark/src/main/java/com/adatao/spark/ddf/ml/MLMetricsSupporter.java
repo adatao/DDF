@@ -1,10 +1,14 @@
 package com.adatao.spark.ddf.ml;
 
 
+import java.lang.reflect.Array;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
@@ -94,7 +98,22 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
     JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
 
-    return null;
+    if(result== null) System.err.println(">> javaRDD result of MetricMapper residuals is null");
+    if(predictionDDF.getManager()== null) System.err.println(">> predictionDDF.getManager() is null");
+    if(result.rdd()== null) System.err.println(">> result.rdd() is null");
+    if(predictionDDF.getNamespace()== null) System.err.println(">> predictionDDF.getNamespace() is null");
+    if(predictionDDF.getSchema()== null) System.err.println(">> predictionDDF.getSchema() is null");
+    if(predictionDDF.getName()== null) System.err.println(">> predictionDDF.getName() is null");
+    System.out.println(">>> predictionDDF.getName() === " + predictionDDF.getName());
+    
+    Schema schema = new Schema("doubble residuals");
+    DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), null, schema);
+    
+    if(residualDDF == null) System.err.println(">>>>>>>>>>>.residualDDF is null");
+    
+    if(residualDDF != null) predictionDDF.getManager().addDDF(residualDDF);
+//        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
+    return residualDDF;
   }
   
   public static class MetricsMapperResiduals extends Function<double[], double[]> {
