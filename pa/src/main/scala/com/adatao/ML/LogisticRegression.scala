@@ -24,6 +24,8 @@ import org.jblas.MatrixFunctions
 import com.adatao.ML.types.Matrix
 import com.adatao.ML.types.Vector
 import java.util.HashMap
+import com.adatao.ddf.ml.IModel
+
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -74,6 +76,13 @@ object LogisticRegression {
 
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
   override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
+
+  @transient var ddfModel: IModel = null
+  override def ddfModelID: String = {
+    if (ddfModel != null) ddfModel.getName()
+    else null
+  }
+
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {

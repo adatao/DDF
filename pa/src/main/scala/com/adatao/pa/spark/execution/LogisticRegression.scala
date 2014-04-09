@@ -68,7 +68,10 @@ class LogisticRegression(
     val weights = Vector.apply(paWeights.toArray)
     val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
     for (i <- 0 to numIters) trainingLoss += 0
-    return new LogisticRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+    val paModel = new LogisticRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
+    ddfManager.addModel(logisticModel)
+    paModel.ddfModel = logisticModel
+    return paModel
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
