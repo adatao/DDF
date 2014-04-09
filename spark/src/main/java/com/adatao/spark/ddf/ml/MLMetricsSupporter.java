@@ -33,6 +33,9 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     JavaRDD resultRDD = ((JavaRDD<double[]>) gr.getObject());
 
     double[] result = (double[]) resultRDD.map(new MetricsMapperR2(meanYTrue)).reduce(new MetricsReducerR2());
+    if(result == null || result.length > 1) {
+    	throw new DDFException("R2score result returns null");
+    }
     double sstot = result[0];
     double ssres = result[1];
     if (sstot == 0) {

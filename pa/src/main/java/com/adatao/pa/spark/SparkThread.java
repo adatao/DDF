@@ -89,7 +89,7 @@ public class SparkThread extends ASessionThread {
 	}).create();
 	
 	public void stopMe(){
-		sparkContext.stop();
+		ddfManager.shutdown();
 		this.interrupt();
 	}
 	
