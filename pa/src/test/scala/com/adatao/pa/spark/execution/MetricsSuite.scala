@@ -49,50 +49,27 @@ class MetricsSuite extends ABigRClientTest {
 		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
-		
-		System.setProperty("sparse.max.range", "10000")
-		var cmd2 = new FiveNumSummary(dataContainerId)
-		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-		assert(summary.size > 0)
 
-		var columnsSummary = new HashMap[String, Array[Double]]
-		var hmin = new Array[Double](summary.size)
-		var hmax = new Array[Double](summary.size)
-		//convert columnsSummary to HashMap
-		var i = 0
-		while (i < summary.size) {
-			hmin(i) = summary(i).min
-			hmax(i) = summary(i).max
-			i += 1
-		}
-		columnsSummary.put("min", hmin)
-		columnsSummary.put("max", hmax)
-		
 		// fake the training with learningRate = 0.0
-//		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+		val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
 		val r = bigRClient.execute[LogisticRegressionModel](trainer)
 		assert(r.isSuccess)
 		val modelID = r.persistenceID
 
 		//run prediction
-//		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
-//		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
-//		val predictionResultId = r2.result.dataContainerID
-//		assert(r2.isSuccess)
+		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val predictionResultId = r2.result.dataContainerID
+		assert(r2.isSuccess)
 
 		//		//run ROC
-		val df2= this.runSQL2RDDCmd("select v3, v2 from admission", true)
-		val dataContainerId2 = df2.dataContainerID
 		val alpha_length: Int = 10
-		val executor = new ROC(dataContainerId2, Array(0, 1), alpha_length)
+		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
 		val ret = bigRClient.execute[RocMetric](executor)
 
 		val metric = ret.result
 		assert(ret.isSuccess)
-		
-		println(">>>>>> ret.result\t" + ret.result)
-//		//this result is idential with confusion matrix unit test
+		//this result is idential with confusion matrix unit test
 //		assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
 //		assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
 //		assert(truncate(ret.result.auc, 4) === 0.6743)
