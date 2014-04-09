@@ -11,4 +11,9 @@ public interface IModel {
   public Object predict(double[] features) throws DDFException;
 
   public Object getRawModel();
+  
+  public String getName();
+
+  public void setName(String name);
+
 }
