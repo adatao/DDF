@@ -34,6 +34,9 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     JavaRDD resultRDD = ((JavaRDD<double[]>) gr.getObject());
 
     double[] result = (double[]) resultRDD.map(new MetricsMapperR2(meanYTrue)).reduce(new MetricsReducerR2());
+    if(result == null || result.length > 1) {
+    	throw new DDFException("R2score result returns null");
+    }
     double sstot = result[0];
     double ssres = result[1];
     if (sstot == 0) {
@@ -96,8 +99,20 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
     JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
 
+    if(result== null) System.err.println(">> javaRDD result of MetricMapper residuals is null");
+    if(predictionDDF.getManager()== null) System.err.println(">> predictionDDF.getManager() is null");
+    if(result.rdd()== null) System.err.println(">> result.rdd() is null");
+    if(predictionDDF.getNamespace()== null) System.err.println(">> predictionDDF.getNamespace() is null");
+    if(predictionDDF.getSchema()== null) System.err.println(">> predictionDDF.getSchema() is null");
+    if(predictionDDF.getName()== null) System.err.println(">> predictionDDF.getName() is null");
+    System.out.println(">>> predictionDDF.getName() === " + predictionDDF.getName());
     
-    DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
+    Schema schema = new Schema("doubble residuals");
+    DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), null, schema);
+    
+    if(residualDDF == null) System.err.println(">>>>>>>>>>>.residualDDF is null");
+    
+    if(residualDDF != null) predictionDDF.getManager().addDDF(residualDDF);
 //        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
     return residualDDF;
   }
@@ -129,7 +144,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
    * @see com.adatao.ddf.ml.AMLMetricsSupporter#roc(com.adatao.ddf.DDF, int)
    */
   public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
-    IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class, double[].class);
+    IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[][].class, double.class, double[][].class);
     RDD<double[][]> predictionRDD =  (RDD<double[][]>) gr.getObject();
     
     ROCComputer rc = new ROCComputer();

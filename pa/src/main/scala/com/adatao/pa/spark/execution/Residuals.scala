@@ -32,7 +32,7 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
 
 		//return dataframe
 		val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
-		val uid = residualsDDF.getName()
+		val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict","")
 
 		new ResidualsResult(uid, metaInfo)
 	}

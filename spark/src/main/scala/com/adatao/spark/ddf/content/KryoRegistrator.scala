@@ -7,6 +7,7 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import com.adatao.spark.ddf.analytics._
 import com.adatao.spark.ddf.content._
+import com.adatao.spark.ddf.ml.ROCComputer
 import org.jblas.DoubleMatrix
 
 class KryoRegistrator extends SharkKryoRegistrator {
@@ -15,6 +16,7 @@ class KryoRegistrator extends SharkKryoRegistrator {
 		kryo.register(classOf[Matrix])
 		kryo.register(classOf[ALossFunction])
 		kryo.register(classOf[DoubleMatrix])
+		kryo.register(classOf[ROCComputer])
 		kryo.register(classOf[LossFunction],
 			new FieldSerializer[Nothing](kryo, classOf[LossFunction]))
 		kryo.register(classOf[LogisticRegressionModel])

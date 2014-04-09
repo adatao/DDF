@@ -4,7 +4,7 @@ import org.apache.spark.rdd.RDD
 
 import com.adatao.ddf.ml.RocMetric
 
-class ROCComputer {
+class ROCComputer extends Serializable {
 	
 	def ROC(XYData: RDD[Array[Array[Double]]], alpha_length: Int): RocMetric = {
     var alpha: Array[Double] = new Array[Double](alpha_length)

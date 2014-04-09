@@ -280,7 +280,7 @@ object RootBuild extends Build {
                 </environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
-                  <spark.kryo.registrator>com.adatao.pa.spark.KryoRegistrator</spark.kryo.registrator>
+                  <spark.kryo.registrator>com.adatao.spark.content.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                   <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
