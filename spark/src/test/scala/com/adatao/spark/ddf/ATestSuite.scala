@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfterAll
 import shark.SharkContext
+import com.adatao.ddf.DDFManager
 
 /**
  * This makes a Logger LOG variable available to the test suite.
@@ -17,8 +18,10 @@ import shark.SharkContext
 @RunWith(classOf[JUnitRunner])
 abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll {
   val LOG: Logger = LoggerFactory.getLogger(this.getClass())
+  val manager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
+  val sharkctx = manager.getSharkContext
 
-  def createTableMtcars(sharkctx: SharkContext){
+  def createTableMtcars(){
     sharkctx.sql("set shark.test.data.path=../resources")
     sharkctx.sql("drop table if exists mtcars")
     sharkctx.sql("CREATE TABLE mtcars ("
@@ -27,7 +30,7 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
     sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/mtcars' INTO TABLE mtcars")
   }
 
-  def createTableAirline(sharkctx: SharkContext) {
+  def createTableAirline() {
     sharkctx.sql("set shark.test.data.path=../resources")
     sharkctx.sql("drop table if exists airline")
     sharkctx.sql("create table airline (Year int,Month int,DayofMonth int," +
@@ -43,7 +46,7 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
       "INTO TABLE airline")
   }
 
-  def createTableAirlineWithNA(sharkctx: SharkContext) {
+  def createTableAirlineWithNA() {
     sharkctx.sql("set shark.test.data.path=../resources")
     sharkctx.sql("drop table if exists airlineWithNA")
     sharkctx.sql("create table airlineWithNA (Year int,Month int,DayofMonth int," +
@@ -76,5 +79,9 @@ abstract class ATimedTestSuite extends ATestSuite {
     testNumber += 1
     LOG.info("%s ended".format(this.getCurrentTestName))
     super.afterEach
+  }
+
+  override def afterAll = {
+    manager.shutdown()
   }
 }
