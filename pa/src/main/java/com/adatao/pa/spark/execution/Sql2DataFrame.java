@@ -23,7 +23,6 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
-import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;

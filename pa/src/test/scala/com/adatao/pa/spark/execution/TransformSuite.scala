@@ -1,9 +1,7 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
-import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
-
+import com.adatao.pa.spark.types.ABigRClientTest
 /**
  * @author aht
  */

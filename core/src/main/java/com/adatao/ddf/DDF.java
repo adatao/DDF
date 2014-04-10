@@ -887,10 +887,19 @@ public abstract class DDF extends ALoggable //
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
 
+  // Transformations
   public void transformNativeRserve(String transformExpression) {
     this.getTransformationHandler().transformNativeRserve(transformExpression);
   }
 
+  public DDF transformScaleMinMax() throws DDFException {
+    return this.getTransformationHandler().transformScaleMinMax();
+  }
+  
+  public DDF transformScaleStandard() throws DDFException {
+    return this.getTransformationHandler().transformScaleStandard();
+  }
+  
 
   // //// ISupportML //////
 
