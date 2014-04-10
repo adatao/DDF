@@ -9,11 +9,9 @@ import org.apache.spark.rdd.RDD
 class MllibIntegrationSuite extends ATestSuite {
 
   test("Test MLLib integation with mllib") {
-    val manager = DDFManager.get("spark")
-    val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
-    createTableAirlineWithNA(sparkManager.getSharkContext)
-    createTableAirline(sparkManager.getSharkContext)
+    createTableAirlineWithNA()
+    createTableAirline()
 
     manager.sql2txt("drop table if exists airline_delayed")
     manager.sql2txt("create table airline_delayed as SELECT *, if(abs(arrdelay)>10,1,0) as delayed FROM airline")
