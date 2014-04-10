@@ -52,6 +52,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
 import com.adatao.ddf.facades.RFacade;
+import com.adatao.ddf.facades.TransformFacade;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
@@ -78,7 +79,7 @@ import com.google.gson.annotations.Expose;
  * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
  * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
  * </p>
- * 
+ *  
  */
 public abstract class DDF extends ALoggable //
     implements IGloballyAddressable, IPersistible, ISupportPhantomReference, ISerializable {
@@ -886,10 +887,11 @@ public abstract class DDF extends ALoggable //
   public FiveNumSummary[] getFiveNumSummary() throws DDFException {
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
+  
+  // IHandleTransformations
 
-  public void transformNativeRserve(String transformExpression) {
-    this.getTransformationHandler().transformNativeRserve(transformExpression);
-  }
+  public TransformFacade Transform;
+  
 
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {

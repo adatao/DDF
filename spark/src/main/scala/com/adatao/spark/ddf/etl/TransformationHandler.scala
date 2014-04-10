@@ -10,15 +10,16 @@ import org.rosuda.REngine.REXPInteger
 import org.rosuda.REngine.REXPString
 import org.rosuda.REngine.Rserve.RConnection
 
+import com.adatao.spark.ddf.SparkDDF
 import com.adatao.ddf.DDF
+import com.adatao.ddf.content.Schema
 import com.adatao.ddf.content.Schema.Column
-import com.adatao.ddf.etl.ATransformationHandler
-import com.adatao.ddf.etl.IHandleTransformations
+import com.adatao.ddf.etl.{TransformationHandler => CoreTransformationHandler}
 import com.adatao.ddf.exception.DDFException
 
-class TransformationHandler(mDDF: DDF) extends ATransformationHandler(mDDF) with IHandleTransformations {
+class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
-  override def transformNativeRserve(transformExpression: String): Unit = {
+  override def transformNativeRserve(transformExpression: String): DDF = {
 
     val rh = mDDF.getRepresentationHandler
     val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
@@ -67,8 +68,12 @@ class TransformationHandler(mDDF: DDF) extends ATransformationHandler(mDDF) with
     //        val bigdf = SharkUtils.createSharkDataFrame(new DataFrame(meta, rdd), jsc)
     //        val uid = dm.add(bigdf)
 
-    mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
-    mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
+    val newSchema = new Schema(columnArr.toList);
+    
+    //SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> unitType, String namespace, String name, Schema schema)
+    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
+    //mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
+    //mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
   }
   /**
    * Eval the expr in rconn, if succeeds return null (like rconn.voidEval),
