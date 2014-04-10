@@ -11,22 +11,16 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.spark.ddf.SparkDDF;
+import com.adatao.spark.ddf.analytics.CrossValidation;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.ml.IModel;
+
 import com.adatao.ddf.types.TupleMatrixVector;
-import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
-import com.adatao.spark.ddf.SparkDDF;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
 
 public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
@@ -113,7 +107,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
           Object[].class, model, hasLabels, includeFeatures));
       resultUnitType = Object[].class;
-    }  else {
+    } else {
       throw new DDFException(String.format("Error apply model %s", model.getRawModel().getClass().getName()));
     }
 
@@ -146,7 +140,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
   }
 
 
-  public static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
+  private static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
 
     private static final long serialVersionUID = 1L;
     private IModel mModel;
@@ -270,5 +264,14 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
       return results;
     }
+  }
+
+
+  public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
+    return CrossValidation.DDFKFoldSplit(this.getDDF(), k, seed);
+  }
+
+  public List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException {
+    return CrossValidation.DDFRandomSplit(this.getDDF(), k, trainingSize, seed);
   }
 }

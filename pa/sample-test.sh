@@ -1,0 +1,2 @@
+mvn -Dmaven.surefire.debug test -Dtest=com.adatao.pa.spark.execution.MetricsSuite -Dbigr.multiuser=false -Plocal   -Dmaven.javadoc.skip=true -Denforcer.skip=true -Dfsc=false -Donce=true -Dmaven.compiler.debug=false -Dmaven.compiler.debuglevel=INFO 
+#mvn test -Dtest=com.adatao.pa.spark.execution.MetricsSuite -Dbigr.multiuser=false -Plocal   -Dmaven.javadoc.skip=true -Denforcer.skip=true -Dfsc=false -Donce=true -Dmaven.compiler.debug=false -Dmaven.compiler.debuglevel=INFO

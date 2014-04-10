@@ -79,7 +79,7 @@ public class TestSampleDataFrame extends BaseTest {
 				.setParams(String.format("{dataContainerID: %s}", sdfpr.getDataContainerID()));
 		res = client.execJsonCommand(cmd);
 		FetchRowsResult frr = ExecutionResult.fromJson(res.getResult(), FetchRowsResult.class).result();
-		r11 = (Double) frr.getData().get(0)[0];
+		r11 = Double.parseDouble(frr.getData().get(0).split("\\t")[0]);
 		LOG.info("r11: " + r11.doubleValue());
 		assertEquals(r11.doubleValue(), 123.23, 0.01);
 		} finally {
@@ -136,7 +136,7 @@ public class TestSampleDataFrame extends BaseTest {
 					.setParams(String.format("{dataContainerID: %s}", sdfpr.getDataContainerID()));
 			res = client.execJsonCommand(cmd);
 			FetchRowsResult frr = ExecutionResult.fromJson(res.getResult(), FetchRowsResult.class).result();
-			r11 = (Double) frr.getData().get(0)[0];
+			r11 = Double.parseDouble(frr.getData().get(0).split("\\t")[0]);
 			LOG.info("r11: " + r11.doubleValue());
 			assertEquals(r11.doubleValue(), 21, 0.01);
 			
