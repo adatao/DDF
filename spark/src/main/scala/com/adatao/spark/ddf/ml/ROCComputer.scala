@@ -169,6 +169,8 @@ class ROCComputer extends Serializable {
       predict = input(i).features.apply(0)
       yTrue = input(i).label
       
+      println(">>>>>> predict=" + predict + "\t" + yTrue);
+      
       //model.predict(Vector(input._1.getRow(i)))
       index = getAlpha(predict, alpha_length)
       threshold = getThreshold(predict, alpha_length)
