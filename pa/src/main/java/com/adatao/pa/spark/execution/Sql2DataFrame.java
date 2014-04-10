@@ -61,7 +61,7 @@ public class Sql2DataFrame extends CExecutor {
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 
-    private MetaInfo[] generateMetaInfo(Schema schema) {
+    public static MetaInfo[] generateMetaInfo(Schema schema) {
       List<Column> columns = schema.getColumns();
       MetaInfo[] metaInfo = new MetaInfo[columns.size()];
       for (int i = 0; i < columns.size(); i++) {
