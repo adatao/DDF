@@ -113,26 +113,30 @@ object LogisticRegressionCRS {
 	def randWeights(numFeatures: Int) = Vector(Seq.fill(numFeatures)(Random.nextDouble).toArray)
 }
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) {
-	override def toString(): String = {
-		weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
-	}
+class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends Serializable {
+  override def toString(): String = {
+    weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
+  }
 
-	def predict(point: Array[Double]): java.lang.Double = {
-		val features = Vector(point)
-		val linearPredictor = weights.dot(features)
-		ALossFunction.sigmoid(linearPredictor)
-	}
+  def predict(point: Array[Double]): java.lang.Double = {
+	println(">>>>>>>>>>>calling predict point = " + point)
+    val features = Vector(Array[Double](1) ++ point)
+    println(">>>>>>>>>>>calling predict features = " + features)
+    println(">>>>>>>>>>>calling predict weights = " + weights)
+    val linearPredictor = weights.dot(features)
+    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
+    ALossFunction.sigmoid(linearPredictor)
+  }
 
-	def getWeights(): Vector = {
-		this.weights
-	}
-	def getTrainingLosses(): Vector = {
-		this.trainingLosses
-	}
-	def getNumSamples(): Long = {
-		this.numSamples
-	}
+  def getWeights(): Vector = {
+    this.weights
+  }
+  def getTrainingLosses(): Vector = {
+    this.trainingLosses
+  }
+  def getNumSamples(): Long = {
+    this.numSamples
+  }
 
 }
 
