@@ -18,6 +18,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
+import shark.memstore2.TablePartition;
 
 /**
  * @author ctn
@@ -63,7 +64,7 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
     TableRDD tableRdd = null;
-
+    RDD<Row> rddRow = null;
     // TODO: handle other dataSources and dataFormats
 
     String tableName = this.getDDF().getSchemaHandler().newTableName();
@@ -77,13 +78,11 @@ public class SqlHandler extends ASqlHandler {
                             "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
                                                     tableName, command);
       tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
-      tableRdd = this.getSharkContext().sql2rdd(command);
+      rddRow = this.getSharkContext().sql2rdd(command);
 
     } else {
       // TODO
     }
-
-    RDD<Row> rdd = (RDD<Row>) tableRdd;
 
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
     /*
@@ -95,8 +94,11 @@ public class SqlHandler extends ASqlHandler {
     if (tableName != null) {
       schema.setTableName(tableName);
     }
-    
-    return new SparkDDF(this.getManager(), rdd, Row.class, null, tableName, schema);
+
+    DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
+    ddf.getRepresentationHandler().add(tableRdd, RDD.class, TablePartition.class);
+
+    return ddf;
   }
 
   private <T> List<T> toList(Seq<T> sequence) {
