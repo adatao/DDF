@@ -226,7 +226,7 @@ object LinearRegressionNormalEquation {
 		// numFeatures - 1 -> we dont count intercept as a feature. Actually, the user can specify that he dont want the model to include intercept
 		new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), null, 0, 0, null, 0, numFeatures, null, null)
+    new NQLinearRegressionModel(Vector.apply(w), "73918a", 0, 0, null, 0, numFeatures, null, null)
   }
 
 }
