@@ -165,13 +165,20 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     public Iterable<O> call(Iterator<I> samples) throws DDFException {
       List<O> results = new ArrayList<O>();
 
+      System.out.println(">>>>>>>>>>>>>>applyModel: calling method");
+      
       while (samples.hasNext()) {
+    	  
+    	  System.out.println(">>>>>>>>>>>>>>applyModel: reading sample");
 
         I sample = samples.next();
         O outputRow = null;
 
         try {
           if (sample instanceof LabeledPoint || sample instanceof double[]) {
+        	  
+        	  System.out.println(">>>>>>>>>>>>>>applyModel: reading sample double[]");
+        	  
             double label = 0;
             double[] features;
 
@@ -198,6 +205,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
                 outputRow = (O) new double[] { (Double) this.mModel.predict(features) };
               }
 
+              System.out.println(">>>>>>>>>>>>>>applyModel:  after predict double[]");
               if (mIncludeFeatures) {
                 outputRow = (O) ArrayUtils.addAll(features, (double[]) outputRow);
               }
@@ -254,6 +262,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
           }
 
 
+          System.out.println(">>>>>>>>>>>>>>outputRow");
           results.add(outputRow);
 
         } catch (Exception e) {
