@@ -5,6 +5,8 @@ package com.adatao.spark.ddf.etl;
 
 
 import java.util.List;
+
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import scala.collection.Seq;
 import shark.SharkContext;
@@ -19,7 +21,7 @@ import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
 import shark.memstore2.TablePartition;
-
+import org.apache.spark.api.java.function.Function;
 /**
  * @author ctn
  * 
@@ -95,8 +97,17 @@ public class SqlHandler extends ASqlHandler {
       schema.setTableName(tableName);
     }
 
+    JavaRDD<TablePartition> rddTablePartition = tableRdd.toJavaRDD().map(
+        new Function<Row, TablePartition>() {
+          @Override
+          public TablePartition call(Row row) {
+            return (TablePartition) row.rawdata();
+          }
+        }
+    );
+
     DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
-    ddf.getRepresentationHandler().add(tableRdd, RDD.class, TablePartition.class);
+    ddf.getRepresentationHandler().add(rddTablePartition.rdd(), RDD.class, TablePartition.class);
 
     return ddf;
   }
