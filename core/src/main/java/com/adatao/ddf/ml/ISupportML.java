@@ -5,6 +5,8 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
+import java.util.List;
+
 /**
  * Interface for handling tasks related to Machine Learning
  */
@@ -52,4 +54,7 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    */
   DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException;
 
+  List<List<DDF>> CVKFold(int k, Long seed) throws DDFException;
+
+  List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException;
 }

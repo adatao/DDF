@@ -63,10 +63,10 @@ object CrossValidation {
 	  * for which the probability of each element belonging to each split is (trainingSize, 1-trainingSize).
 	  * The train & test data across k split are shuffled differently (different random seed for each iteration).
 	  */
-	def randomSplit[T](rdd: RDD[T], k: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+	def randomSplit[T](rdd: RDD[T], numSplits: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
 		require(0 < trainingSize && trainingSize < 1)
 		val rg = new Random(seed)
-		(1 to k).map(_ => rg.nextInt).map(z =>
+		(1 to numSplits).map(_ => rg.nextInt).map(z =>
 			(new RandomSplitRDD(rdd, z, 0, 1.0-trainingSize, true),
 				new RandomSplitRDD(rdd, z, 0, 1.0-trainingSize, false))).toIterator
 	}
@@ -76,11 +76,11 @@ object CrossValidation {
 	  * The location of the test data is shifted consistently between folds
 	  * so that the resulting test sets are pair-wise disjoint.
 	  */
-	def kFoldSplit[T](rdd: RDD[T], k: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
-		require(k > 0)
-		(for (lower <- 0.0 until 1.0 by 1.0/k)
-			yield (new RandomSplitRDD(rdd, seed, lower, lower+1.0/k, true),
-				new RandomSplitRDD(rdd, seed, lower, lower+1.0/k, false))
+	def kFoldSplit[T](rdd: RDD[T], numSplits: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+		require(numSplits > 0)
+		(for (lower <- 0.0 until 1.0 by 1.0/numSplits)
+			yield (new RandomSplitRDD(rdd, seed, lower, lower+1.0/numSplits, true),
+				new RandomSplitRDD(rdd, seed, lower, lower+1.0/numSplits, false))
 		).toIterator
 	}
 }
