@@ -27,10 +27,12 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
 		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
 
 		val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
+		require(residualsDDF != null)
+		
 
 		//return dataframe
 		val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
-		val uid = ctx.sparkThread.getDDFManager.addDDF(residualsDDF)
+		val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict","")
 
 		new ResidualsResult(uid, metaInfo)
 	}

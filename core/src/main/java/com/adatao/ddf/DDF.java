@@ -891,6 +891,18 @@ public abstract class DDF extends ALoggable //
     this.getTransformationHandler().transformNativeRserve(transformExpression);
   }
 
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
+      throws DDFException {
+    return this.getStatisticsSupporter().getVectorQuantiles(columnName, percentiles);
+  }
+  
+  public Double[] getVectorQuantiles(Double[] percentiles) 
+      throws DDFException {
+    if (getSchema().getNumColumns() != 1) {
+      throw new DDFException("This method only applies to one columned DDF.");
+    }
+    return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), percentiles);
+  }
 
   // //// ISupportML //////
 

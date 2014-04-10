@@ -2,8 +2,13 @@ package com.adatao.ddf.analytics;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
@@ -156,5 +161,92 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       this.mThird_quantile = mThird_quantile;
     }
 
+  }
+  
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles) throws DDFException {
+    return getVectorQuantiles(columnName, percentiles, 10000);
+  }
+  
+  public Double[] getVectorQuantiles(String columnName, Double[] percentiles, Integer B) throws DDFException {
+    if (percentiles == null || percentiles.length == 0) {
+      throw new DDFException("Cannot compute quantiles for empty percenties");
+    }
+    
+    if (Strings.isNullOrEmpty(columnName)) {
+      throw new DDFException("Column name must not be empty");
+    }
+    
+    String colType = getDDF().getSchema().getColumn(columnName).getType().name().toLowerCase();
+    
+    mLog.info("Column type: " + colType);
+    List<Double> pValues = Arrays.asList(percentiles);
+    Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
+    Pattern p2 = Pattern.compile("^[float|double]$");
+
+    String min = "";
+    boolean hasZero = false;
+    if (pValues.get(0) == 0) {
+      min = "min(" + columnName + ")";
+      pValues = pValues.subList(1, pValues.size() - 1);
+      hasZero = true;
+    }
+    
+    boolean hasOne = true;
+    String max = "";
+    if (pValues.get(pValues.size() - 1) == 1.0) {
+      max = "max(" + columnName + ")";
+      pValues.subList(0, pValues.size() - 1);
+      hasOne = true;
+    }
+    
+    String pParams = "";
+    
+    if (pValues.size() > 0) {
+      if (p1.matcher(colType).matches()) {
+        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + "))";
+      } else if (p2.matcher(colType).matches()) {
+        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + ", " + B.toString() + "))";
+      } else {
+        throw new DDFException("Only support numeric verctors!!!");
+      }
+    }
+    
+    if (min.length() > 0) {
+      pParams += ", " + min;
+    }
+    
+    if (max.length() > 0) {
+      pParams += ", " + max;
+    }
+    
+    String cmd = "SELECT " + pParams + " FROM " + getDDF().getTableName();
+    mLog.info("Command String = " + cmd);
+    List<String> rs = getDDF().sql2txt(cmd, "Cannot get vector quantiles from SQL queries");
+    if (rs == null || rs.size() ==0) {
+      throw new DDFException("Cannot get vector quantiles from SQL queries");
+    }
+    String[] convertedResults= rs.get(0)
+        .replace("[", "").replace("]", "").replaceAll("\t", ",").replace("null", "NULL, NULL, NULL").split(",");
+    mLog.info("Raw info " + StringUtils.join(rs, "\n"));
+    
+    Double[] result = new Double[percentiles.length];
+    HashMap<Double, Double> mapValues = new HashMap<Double, Double>();
+    try {
+      for (int i = 0; i < pValues.size(); i++) {
+        mapValues.put(pValues.get(i), Double.parseDouble(convertedResults[i]));
+      }
+      if (hasZero) {
+        mapValues.put(0.0, Double.parseDouble(convertedResults[convertedResults.length - 2]));
+      }
+      if (hasOne) {
+        mapValues.put(1.0, Double.parseDouble(convertedResults[convertedResults.length - 1]));
+      }
+    } catch (NumberFormatException nfe) {
+      throw new DDFException("Cannot parse the returned values from vector quantiles query", nfe);
+    }
+    for (int i = 0; i < percentiles.length; i++) {
+      result[i] = mapValues.get(percentiles[i]);
+    }
+    return result;
   }
 }

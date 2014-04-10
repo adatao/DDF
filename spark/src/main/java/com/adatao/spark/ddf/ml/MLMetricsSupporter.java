@@ -1,14 +1,20 @@
 package com.adatao.spark.ddf.ml;
 
 
+import java.lang.reflect.Array;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
+import com.adatao.ddf.ml.RocMetric;
 import com.adatao.spark.ddf.SparkDDF;
+import org.apache.spark.mllib.regression.LabeledPoint;
 
 public class MLMetricsSupporter extends AMLMetricsSupporter {
   
@@ -94,7 +100,22 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
     JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
 
-    return null;
+    if(result== null) System.err.println(">> javaRDD result of MetricMapper residuals is null");
+    if(predictionDDF.getManager()== null) System.err.println(">> predictionDDF.getManager() is null");
+    if(result.rdd()== null) System.err.println(">> result.rdd() is null");
+    if(predictionDDF.getNamespace()== null) System.err.println(">> predictionDDF.getNamespace() is null");
+    if(predictionDDF.getSchema()== null) System.err.println(">> predictionDDF.getSchema() is null");
+    if(predictionDDF.getName()== null) System.err.println(">> predictionDDF.getName() is null");
+    System.out.println(">>> predictionDDF.getName() === " + predictionDDF.getName());
+    
+    Schema schema = new Schema("doubble residuals");
+    DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), null, schema);
+    
+    if(residualDDF == null) System.err.println(">>>>>>>>>>>.residualDDF is null");
+    
+    if(residualDDF != null) predictionDDF.getManager().addDDF(residualDDF);
+//        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
+    return residualDDF;
   }
   
   public static class MetricsMapperResiduals extends Function<double[], double[]> {
@@ -118,9 +139,18 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
   @Override
-  public Object roc(DDF predictionDDF) {
-    // TODO Auto-generated method stub
-    return null;
+  /*
+   * input expected RDD[double[][]]
+   * (non-Javadoc)
+   * @see com.adatao.ddf.ml.AMLMetricsSupporter#roc(com.adatao.ddf.DDF, int)
+   */
+  public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
+    IGetResult gr = ((SparkDDF) predictionDDF).getRDD(LabeledPoint[].class, LabeledPoint.class, LabeledPoint[].class);
+    RDD<LabeledPoint[]> predictionRDD =  (RDD<LabeledPoint[]>) gr.getObject();
+    
+    ROCComputer rc = new ROCComputer();
+    return(rc.ROC(predictionRDD, alpha_length));
+    
   }
   
   public MLMetricsSupporter(DDF theDDF) {
