@@ -11,8 +11,7 @@ import shark.memstore2.TablePartition
 class RepresentationHandlerSuite extends ATestSuite {
 
   test("  ") {
-    val manager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
-    createTableAirline(manager.getSharkContext)
+    createTableAirline()
     val ddf = manager.sql2ddf("select * from airline").asInstanceOf[SparkDDF]
     val rddRow = ddf.getRDD(classOf[Row])
     val rddTablePartition = ddf.getRDD(classOf[TablePartition])

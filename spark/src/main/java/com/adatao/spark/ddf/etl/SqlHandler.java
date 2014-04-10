@@ -8,8 +8,10 @@ import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
+import scala.Option;
 import scala.collection.Seq;
 import shark.SharkContext;
+import shark.SharkEnv;
 import shark.api.Row;
 import shark.api.TableRDD;
 import com.adatao.ddf.DDF;
@@ -98,18 +100,14 @@ public class SqlHandler extends ASqlHandler {
       schema.setTableName(tableName);
     }
 
-    JavaRDD<TablePartition> rddTablePartition = tableRdd.toJavaRDD().map(
-        new Function<Row, TablePartition>() {
-          @Override
-          public TablePartition call(Row row) {
-            return (TablePartition) row.rawdata();
-          }
-        }
-    );
+    Option rddTablePartitionOrNull = SharkEnv.memoryMetadataManager().get(tableName);
 
     DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
-    ddf.getRepresentationHandler().add(rddTablePartition.rdd(), RDD.class, TablePartition.class);
 
+    if(rddTablePartitionOrNull.isDefined()){
+      RDD<TablePartition> rddTablePartition = (RDD<TablePartition>) rddTablePartitionOrNull.get();
+      ddf.getRepresentationHandler().add(rddTablePartition, RDD.class, TablePartition.class);
+    }
     return ddf;
   }
 
