@@ -18,7 +18,7 @@ import com.adatao.pa.spark.DataManager.MetaInfo
  *
  * Author: aht
  */
-class TransformNativeRserve(dataContainerID: String, val transformExpression: String) extends AExecutor[DataFrameResult] {
+class TransformNativeRserveScala(dataContainerID: String, val transformExpression: String) extends AExecutor[DataFrameResult] {
 	override def runImpl(context: ExecutionContext): DataFrameResult = {
 	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     val newddf = ddf.Transform.transformNativeRserve(transformExpression);
