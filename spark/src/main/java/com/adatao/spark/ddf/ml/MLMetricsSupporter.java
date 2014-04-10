@@ -12,7 +12,9 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
+import com.adatao.ddf.ml.RocMetric;
 import com.adatao.spark.ddf.SparkDDF;
+import org.apache.spark.mllib.regression.LabeledPoint;
 
 public class MLMetricsSupporter extends AMLMetricsSupporter {
   
@@ -137,9 +139,18 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
   @Override
-  public Object roc(DDF predictionDDF) {
-    // TODO Auto-generated method stub
-    return null;
+  /*
+   * input expected RDD[double[][]]
+   * (non-Javadoc)
+   * @see com.adatao.ddf.ml.AMLMetricsSupporter#roc(com.adatao.ddf.DDF, int)
+   */
+  public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
+    IGetResult gr = ((SparkDDF) predictionDDF).getRDD(LabeledPoint[].class, LabeledPoint.class, LabeledPoint[].class);
+    RDD<LabeledPoint[]> predictionRDD =  (RDD<LabeledPoint[]>) gr.getObject();
+    
+    ROCComputer rc = new ROCComputer();
+    return(rc.ROC(predictionRDD, alpha_length));
+    
   }
   
   public MLMetricsSupporter(DDF theDDF) {
