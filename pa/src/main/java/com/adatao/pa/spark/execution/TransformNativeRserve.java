@@ -15,7 +15,7 @@ public class TransformNativeRserve extends CExecutor {
 
   private String dataContainerID;
   private String transformExpression;
-  public static Logger LOG = LoggerFactory.getLogger(TransformScaleStandard.class);
+  public static Logger LOG = LoggerFactory.getLogger(TransformNativeRserve.class);
   
   public TransformNativeRserve(String dataContainerID, String transformExpression) {
     this.dataContainerID = dataContainerID;

@@ -184,6 +184,7 @@ public abstract class DDF extends ALoggable //
     // Facades
     this.ML = new MLFacade(this, this.getMLSupporter());
     this.Views = new ViewsFacade(this, this.getViewHandler());
+    this.Transform = new TransformFacade(this, this.getTransformationHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
     this.PA = new PAFacade(this);
   }

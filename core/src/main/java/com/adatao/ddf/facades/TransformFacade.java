@@ -9,6 +9,11 @@ public class TransformFacade implements IHandleTransformations {
 
 }
 
+  public TransformFacade(DDF ddf, IHandleTransformations transformationHandler) {
+    this.mDDF = ddf;
+    this.mTransformationHandler = transformationHandler;
+  }
+
   @Override
   public DDF getDDF() {
     return mDDF;
