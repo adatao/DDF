@@ -21,6 +21,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
   override def transformNativeRserve(transformExpression: String): DDF = {
 
+    println(">>>>>>>>>>>>>>>>>>> transformNativeRserve")
     val rh = mDDF.getRepresentationHandler
     val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
     
@@ -36,6 +37,8 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
         val expr = String.format("%s <- transform(%s, %s)", dfvarname, dfvarname, transformExpression)
         mLog.info("eval expr = {}", expr)
+        
+        println(">>>>>>>>>>>>.expr=" + expr.toString())
 
         // compute!
         tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")

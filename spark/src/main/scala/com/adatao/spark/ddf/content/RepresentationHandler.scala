@@ -263,10 +263,19 @@ object RepresentationHandler {
   }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {
+    rdd.map {      
       row ⇒ row.rawdata.asInstanceOf[TablePartition]
     }
+    rdd.asInstanceOf[RDD[TablePartition]]
   }
+  
+//    def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
+//    rdd.map {      
+//      row => println(String.format(">>>>>>>>>>>>> row.rawdata= %s", row.rawdata.getClass.getName))
+//    }
+//    null
+//  }
+  
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
     colType match {
       case ColumnType.DOUBLE ⇒ {
