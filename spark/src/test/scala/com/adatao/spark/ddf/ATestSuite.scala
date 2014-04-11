@@ -41,6 +41,15 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
       + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '")
     sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/mtcars' INTO TABLE mtcars")
   }
+  
+  def createTableAdmission() = {
+	  sharkctx.sql("set shark.test.data.path=../resources")
+    sharkctx.sql("drop table if exists admission")
+    sharkctx.sql("create table admission (v1 int, v2 int, v3 double, v4 int)" +
+      " row format delimited fields terminated by ' '")
+    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/admission.csv' " +
+      "INTO TABLE admission")
+  }
 
   def createTableAirline() {
     sharkctx.sql("set shark.test.data.path=../resources")

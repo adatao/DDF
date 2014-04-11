@@ -10,7 +10,7 @@ import java.util.HashMap
 
 class RegressionSuite extends ATestSuite {
 
-	/*test("Logistic Regression with sparse input") {
+	test("Logistic Regression with sparse input") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
@@ -50,14 +50,11 @@ class RegressionSuite extends ATestSuite {
     
 
     manager.shutdown()
-  }*/
+  }
 	
 	test("Logistic Regression IRLS") {
-    val manager = DDFManager.get("spark")
-    val sparkManager = manager.asInstanceOf[SparkDDFManager]
-
-    /*createTableAirlineWithNA(sparkManager.getSharkContext)
-    createTableAirline(sparkManager.getSharkContext)
+    /*createTableAirlineWithNA()
+    createTableAirline()
 
     manager.sql2txt("drop table if exists airline_delayed")
     manager.sql2txt("create table airline_delayed as SELECT *, if(abs(arrdelay)>10,1,0) as delayed FROM airline")
@@ -80,10 +77,10 @@ class RegressionSuite extends ATestSuite {
     println(model.getDeviance)
     assert(truncate(model.getDeviance, 2) === 265.91)
     println(model.getStdErrs)
-    assert(truncate(model.getStdErrs()(0), 2) === 0.28)
-    */
+    assert(truncate(model.getStdErrs()(0), 2) === 0.28)*/
     
-    createTableAdmission(sparkManager.getSharkContext)
+    
+    createTableAdmission()
     val ddfTrain3 = manager.sql2ddf("select v2, v3, v4, v1 from admission")
       
       val initialWeight = Array.fill(4){0.0}
