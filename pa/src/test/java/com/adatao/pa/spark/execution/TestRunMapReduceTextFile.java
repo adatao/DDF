@@ -94,7 +94,7 @@ public class TestRunMapReduceTextFile extends BaseTest {
 		.setParams(String.format("{dataContainerID: %s}",ltr.getDataContainerID()));
 		res = client.execJsonCommand(cmd);
 		FetchRowsResult frr = ExecutionResult.fromJson(res.getResult(), FetchRowsResult.class).result();
-		Object[] r = frr.getData().get(0);
+		Object[] r = frr.getData().get(0).split("\\t");
 		String r11 = (String)r[0];
 		Double r12 = (Double)r[1];
 		LOG.info(r11 + " " + r12);

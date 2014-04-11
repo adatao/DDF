@@ -73,7 +73,27 @@ object LogisticRegression {
 
 
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
-  override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
+  override def predict(features: Vector): Double = {
+    println(">>>>>>>>>>>>>>>. calling predict")
+    ALossFunction.sigmoid(this.linearPredictor(features))
+  }
+//  override def predict(features: Array[Double]): java.lang.Double = {
+//    //convert double[] to Vector
+//    val a = Vector(features)
+//    println(">>>>>>>>>>>>>>>. calling predict a= " + a	) 
+//    predict(a)
+//  }
+  
+//  def predict(point: Array[Double]): java.lang.Double = {
+//	println(">>>>>>>>>>>calling predict point = " + point)
+//    val features = Vector(Array[Double](1) ++ point)
+//    println(">>>>>>>>>>>calling predict features = " + features)
+//    println(">>>>>>>>>>>calling predict weights = " + weights)
+//    val linearPredictor = weights.dot(features)
+//    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
+//    ALossFunction.sigmoid(linearPredictor)
+//  }
+
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {

@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 import com.adatao.ddf.content.IHandleRepresentations;
@@ -32,6 +33,7 @@ import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.misc.Config;
 import com.adatao.ddf.misc.Config.ConfigConstant;
 import com.adatao.ddf.misc.ObjectRegistry;
+import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.ml.ISupportML;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
@@ -77,6 +79,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * List of existing DDFs 
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
+  protected Map<String, IModel> mModels = new HashMap<String, IModel>();
   
   public String addDDF(DDF data) {
     mDDFs.put(data.getName(), data);
@@ -345,5 +348,13 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
 
   public IPersistible load(PersistenceUri uri) throws DDFException {
     return this.getDummyDDF().getPersistenceHandler().load(uri);
+  }
+  
+  public void addModel(IModel model) {
+    mModels.put(model.getName(), model);
+  }
+
+  public IModel getModel(String modelName) {
+    return mModels.get(modelName);
   }
 }
