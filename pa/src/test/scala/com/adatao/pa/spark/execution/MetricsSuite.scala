@@ -37,6 +37,46 @@ class MetricsSuite extends ABigRClientTest {
 		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
 	}
 
+//	test("Test YtrueYpredict function") {
+//
+//		createTableAdmission
+//		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 0.0
+//
+//		System.setProperty("sparse.max.range", "10000")
+//		var cmd2 = new FiveNumSummary(dataContainerId)
+//		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+//		assert(summary.size > 0)
+//
+//		//construct columnSummary parameter
+//		var columnsSummary = new HashMap[String, Array[Double]]
+//		var hmin = new Array[Double](summary.size)
+//		var hmax = new Array[Double](summary.size)
+//		//convert columnsSummary to HashMap
+//		var i = 0
+//		while (i < summary.size) {
+//			hmin(i) = summary(i).min
+//			hmax(i) = summary(i).max
+//			i += 1
+//		}
+//		columnsSummary.put("min", hmin)
+//		columnsSummary.put("max", hmax)
+//
+//		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0,1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+//		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+//		assert(r.isSuccess)
+//
+//		val modelID = r.persistenceID
+//
+//		//run prediction
+//		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+//		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+//		val predictionResultId = r2.result.dataContainerID
+//		assert(r2.isSuccess)
+//
+//	}
+	
 	/**
 	 * this will test ROC execution
 	 * success: if roc execution return success value
@@ -50,17 +90,42 @@ class MetricsSuite extends ABigRClientTest {
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 
+		System.setProperty("sparse.max.range", "10000")
+		var cmd2 = new FiveNumSummary(dataContainerId)
+		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+		assert(summary.size > 0)
+
+		//construct columnSummary parameter
+		var columnsSummary = new HashMap[String, Array[Double]]
+		var hmin = new Array[Double](summary.size)
+		var hmax = new Array[Double](summary.size)
+		//convert columnsSummary to HashMap
+		var i = 0
+		while (i < summary.size) {
+			hmin(i) = summary(i).min
+			hmax(i) = summary(i).max
+			i += 1
+		}
+		columnsSummary.put("min", hmin)
+		columnsSummary.put("max", hmax)
+
+		
 		// fake the training with learningRate = 0.0
-		val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
 		val r = bigRClient.execute[LogisticRegressionModel](trainer)
 		assert(r.isSuccess)
+		println(">>>>>>model=" + r.result)
 		val modelID = r.persistenceID
+		
+		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
 
 		//run prediction
 		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
+		
+		println(">>>>>>>>>>>>>>>>>.predictionResultId=" + predictionResultId)
 
 		//		//run ROC
 		val alpha_length: Int = 10

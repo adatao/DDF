@@ -44,7 +44,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
       RDD<?> rdd = null;
       
 
-      System.out.println(">>>>>>>>>>>>>... spark MLSupporter convertDDF : paramInfo = " + paramInfo);
       
       if (paramInfo.paramMatches(LabeledPoint.class)) {
         rdd = (RDD<LabeledPoint>) this.getDDF().getRepresentationHandler().get(RDD.class, LabeledPoint.class);
@@ -52,14 +51,10 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
 
       } else if (paramInfo.paramMatches(double[].class)) {
         rdd = (RDD<double[]>) this.getDDF().getRepresentationHandler().get(RDD.class, double[].class);
-        System.out.println("RDD<Double[]>");
       } 
       else if (paramInfo.paramMatches(TupleMatrixVector.class)) {
-        System.out.println(">>>>>>>>>>>>>... insideconvertDDF : paramInfo = " + paramInfo);
         rdd = (RDD<TupleMatrixVector>) this.getDDF().getRepresentationHandler().get(RDD.class, TupleMatrixVector.class);
         
-        System.out.println(">>>>>>>>>>>>>... finish parsing Matrix Vector");
-        System.out.println("RDD<TupleMatrixVector>");
       } 
       else if (paramInfo.paramMatches(Object.class)) {
         rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
@@ -123,18 +118,16 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     }
 
     outputColumns.add(new Schema.Column("prediction", "double"));
+    
 
-    Schema schema = new Schema(String.format("%s_%s_%s", ddf.getName(), model.getRawModel().getClass().getName(),
-        "YTrueYPredict"), outputColumns);
+    Schema schema = new Schema(outputColumns);
 
 
     if (double[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, ddf.getManager()
-          .getNamespace(), schema.getTableName(), schema);
+      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);
 
     } else if (Object[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class, ddf.getManager()
-          .getNamespace(), schema.getTableName(), schema);
+      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class,null, null, schema);
 
     } else return null;
   }
@@ -165,13 +158,17 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     public Iterable<O> call(Iterator<I> samples) throws DDFException {
       List<O> results = new ArrayList<O>();
 
+      
       while (samples.hasNext()) {
+    	  
 
         I sample = samples.next();
         O outputRow = null;
 
         try {
           if (sample instanceof LabeledPoint || sample instanceof double[]) {
+        	  
+        	  
             double label = 0;
             double[] features;
 
@@ -252,8 +249,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
           } else {
             throw new DDFException(String.format("Unsupported input type %s", mInputType));
           }
-
-
           results.add(outputRow);
 
         } catch (Exception e) {
