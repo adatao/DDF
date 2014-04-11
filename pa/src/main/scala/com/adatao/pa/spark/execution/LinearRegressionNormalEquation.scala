@@ -44,6 +44,7 @@ import java.util.ArrayList
 
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
+import com.adatao.ML.LinearRegressionModel
 
 /**
  * Author: NhanVLC
@@ -83,6 +84,9 @@ class LinearRegressionNormalEquation(
       LOG.info(rawModel.weights.toJson)
       LOG.info(paModel.weights.toJson)
       LOG.info(paModel.toString)
+      LOG.info(rawModel.toString)
+      val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, projectDDF.getNumRows)
+      LOG.info(myModel.toString)
       ddfManager.addModel(model)
       // paModel.ddfModel = model
       return paModel
