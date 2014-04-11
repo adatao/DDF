@@ -3,6 +3,7 @@ package com.adatao.pa.spark.execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -26,8 +27,11 @@ public class TransformNativeRserve extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
       
-      DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDFManager manager = sparkThread.getDDFManager();
+      DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
       DDF newddf = ddf.Transform.transformNativeRserve(transformExpression);
+      LOG.info("Transformed DDF name " +newddf.getName());
+      manager.addDDF(newddf);
 
       return new Utils.DataFrameResult(newddf);
 

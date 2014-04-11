@@ -21,10 +21,11 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
   override def transformNativeRserve(transformExpression: String): DDF = {
 
-    println(">>>>>>>>>>>>>>>>>>> transformNativeRserve")
+    println(">>>>>>>>>>>>>>>>>>> transformNativeRserve abc")
     val rh = mDDF.getRepresentationHandler
+     println(">>>>>>>>>>>>>>>> abc")
     val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
-    
+    println(">>>>>>>>>>>>>>>> dfrddddddd" + dfrdd==null)
     // process each DF partition in R
     val rMapped = dfrdd.map { partdf ⇒
       try {

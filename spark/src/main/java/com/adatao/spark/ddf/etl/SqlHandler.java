@@ -80,7 +80,8 @@ public class SqlHandler extends ASqlHandler {
                                                     tableName, command);
       tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
 
-      tableRdd = this.getSharkContext().sql2rdd(String.format("select * from %s", tableName));
+      rddRow = this.getSharkContext().sql2rdd(String.format("SELECT * FROM %s", tableName));
+      
 
     } else {
       // TODO
