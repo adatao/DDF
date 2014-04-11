@@ -198,6 +198,34 @@ object RepresentationHandler {
       Iterator(ret)
     })
   }
+  
+  //TODO move this method
+  def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
+    rdd.mapPartitions(rows ⇒ {
+      val numCols = 2
+      var lstRows = new ArrayList[LabeledPoint]()
+      var row = 0
+      while (rows.hasNext) {
+        var currentRow = rows.next
+        val label =currentRow(0)
+        val prediction : Array[Double] = new Array(1)// rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        prediction(0) = currentRow(1)
+        
+        lstRows.add(row, new LabeledPoint(label, prediction))
+        row += 1
+      }
+
+      val numRows = lstRows.size //rows.toArray[Row].length
+      val ret = new Array[LabeledPoint](numRows)
+      row = 0
+      while (row < lstRows.size) {
+        ret(row) = lstRows(row)
+        row += 1
+      }
+      Iterator(ret)
+    })
+  }
+
 
   def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
     var i = 0
@@ -213,7 +241,6 @@ object RepresentationHandler {
   }
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
-    println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
     val numCols = mappers.length
 
     //have to convert to List
@@ -251,7 +278,6 @@ object RepresentationHandler {
         columnIndex = column + 1
         newValue = inputRow(column)
 
-        //        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
         X.put(row, columnIndex, newValue) // x-feature #i
         column += 1
       }
