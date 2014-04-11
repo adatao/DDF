@@ -119,12 +119,8 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
   }
 
   def predict(point: Array[Double]): java.lang.Double = {
-	println(">>>>>>>>>>>calling predict point = " + point)
     val features = Vector(Array[Double](1) ++ point)
-    println(">>>>>>>>>>>calling predict features = " + features)
-    println(">>>>>>>>>>>calling predict weights = " + weights)
     val linearPredictor = weights.dot(features)
-    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
     ALossFunction.sigmoid(linearPredictor)
   }
 

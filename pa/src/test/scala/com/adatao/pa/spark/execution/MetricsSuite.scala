@@ -116,12 +116,16 @@ class MetricsSuite extends ABigRClientTest {
 		assert(r.isSuccess)
 		println(">>>>>>model=" + r.result)
 		val modelID = r.persistenceID
+		
+		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
 
 		//run prediction
 		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
+		
+		println(">>>>>>>>>>>>>>>>>.predictionResultId=" + predictionResultId)
 
 		//		//run ROC
 		val alpha_length: Int = 10

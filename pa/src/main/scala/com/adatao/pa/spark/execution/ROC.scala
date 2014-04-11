@@ -67,7 +67,7 @@ class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) ext
 		//TODO double check if ytrueypred back by table i.e has schema
 		//    val df = ctx.sparkThread.getDataManager.get(dataContainerID)
 		val ddfManager = ctx.sparkThread.getDDFManager();
-		val predictionDDF: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		val predictionDDF: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID));
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
 

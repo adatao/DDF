@@ -54,7 +54,7 @@ class MllibIntegrationSuite extends ATestSuite {
 //  }
 
   test("Test MLLib integation with mllib 222222") {
-    val manager = DDFManager.get("spark")
+//    val manager = DDFManager.get("spark")
 //    val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
     createTableAirlineWithNA()
@@ -99,10 +99,8 @@ class MllibIntegrationSuite extends ATestSuite {
     //		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
 
     val regressionModel = ddfTrain3.ML.train("logisticRegressionCRS", 1: java.lang.Integer, 0.1: java.lang.Double,0.1: java.lang.Double, Array(37.285, -5.344, -5.344, 1), 3: java.lang.Integer, columnsSummary)
-    println(">>>>>> regressionModel=" + regressionModel.getRawModel())
-
-    val yTrueYpred = ddfTrain3.ML.applyModel(regressionModel, true, true)
-//
+    val yTrueYpred = ddfTrain3.ML.applyModel(regressionModel, true, false)
+    val a = ddfTrain3.getMLMetricsSupporter().roc(yTrueYpred, 10)
     yTrueYpred.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]]).count
     manager.shutdown()
   }
