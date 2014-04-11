@@ -66,6 +66,7 @@ class RegressionSuite extends ABigRClientTest {
 		assert(truncate(model.vif(0), 6) == 1)
 	}
 
+/*
 	//smoke test
 	test("Single-variable linear regression - normal equation categorical - no regularization") {
 		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
@@ -760,5 +761,5 @@ class RegressionSuite extends ABigRClientTest {
 		//		println("model=" + model)
 
 	}
-
+    */
 }

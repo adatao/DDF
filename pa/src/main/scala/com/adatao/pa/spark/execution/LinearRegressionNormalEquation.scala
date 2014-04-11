@@ -43,6 +43,7 @@ import shark.api.JavaSharkContext
 import java.util.ArrayList
 
 import com.adatao.ddf.DDF
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Author: NhanVLC
@@ -74,7 +75,14 @@ class LinearRegressionNormalEquation(
       val model = projectDDF.ML.train("linearRegressionNQ", xCols.length: java.lang.Integer, ridgeLambda: java.lang.Double)
       // converts DDF model to old PA model
       val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.ml.pa.NQLinearRegressionModel]
-      val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), 0, 0, null, projectDDF.getNumRows(), xCols.length, null, null)
+      val itr = rawModel.weights.iterator
+      val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
+      while (itr.hasNext) paWeights += itr.next
+      val paModel = new NQLinearRegressionModel(Vector.apply(paWeights.toArray), model.getName(), 0, 0, null, projectDDF.getNumRows(), xCols.length, null, null)
+      LOG.info("Json model")
+      LOG.info(rawModel.weights.toJson)
+      LOG.info(paModel.weights.toJson)
+      LOG.info(paModel.toString)
       ddfManager.addModel(model)
       // paModel.ddfModel = model
       return paModel

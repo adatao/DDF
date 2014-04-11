@@ -88,7 +88,10 @@ class RegressionSuite extends ATestSuite {
     
     val glmModel = ddfTrain.ML.train("linearRegressionNQ", 7: java.lang.Integer,
     0.1: java.lang.Double)
-    
+
+    println("Json model")
+    val rawModel = glmModel.getRawModel.asInstanceOf[com.adatao.spark.ddf.ml.pa.NQLinearRegressionModel]
+    println(rawModel.weights.toJson)
 
     manager.shutdown()
   }
