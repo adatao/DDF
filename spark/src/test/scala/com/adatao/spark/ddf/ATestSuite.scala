@@ -20,6 +20,18 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
   val LOG: Logger = LoggerFactory.getLogger(this.getClass())
   val manager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
   val sharkctx = manager.getSharkContext
+  
+  def truncate(x: Double, n: Int) = {
+		def p10(n: Int, pow: Long = 10): Long = if (n == 0) pow else p10(n - 1, pow * 10)
+		if (n < 0) {
+			val m = p10(-n).toDouble
+			math.round(x / m) * m
+		}
+		else {
+			val m = p10(n - 1).toDouble
+			math.round(x * m) / m
+		}
+	}
 
   def createTableMtcars(){
     sharkctx.sql("set shark.test.data.path=../resources")
@@ -28,6 +40,15 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
       + "mpg double,cyl int, disp double, hp int, drat double, wt double, qsec double, vs int, am int, gear int, carb int"
       + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '")
     sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/mtcars' INTO TABLE mtcars")
+  }
+  
+  def createTableAdmission() = {
+	  sharkctx.sql("set shark.test.data.path=../resources")
+    sharkctx.sql("drop table if exists admission")
+    sharkctx.sql("create table admission (v1 int, v2 int, v3 double, v4 int)" +
+      " row format delimited fields terminated by ' '")
+    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/admission.csv' " +
+      "INTO TABLE admission")
   }
 
   def createTableAirline() {
