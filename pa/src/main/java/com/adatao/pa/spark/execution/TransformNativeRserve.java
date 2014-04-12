@@ -32,6 +32,7 @@ public class TransformNativeRserve extends CExecutor {
       DDF newddf = ddf.Transform.transformNativeRserve(transformExpression);
       LOG.info("Transformed DDF name " +newddf.getName());
       manager.addDDF(newddf);
+      LOG.info(manager.getDDFs().keySet().toString());
 
       return new Utils.DataFrameResult(newddf);
 

@@ -20,12 +20,10 @@ import com.adatao.ddf.exception.DDFException
 class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
   override def transformNativeRserve(transformExpression: String): DDF = {
-
-    println(">>>>>>>>>>>>>>>>>>> transformNativeRserve abc")
+    
     val rh = mDDF.getRepresentationHandler
-     println(">>>>>>>>>>>>>>>> abc")
     val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
-    println(">>>>>>>>>>>>>>>> dfrddddddd" + dfrdd==null)
+
     // process each DF partition in R
     val rMapped = dfrdd.map { partdf ⇒
       try {
@@ -72,7 +70,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     //        val bigdf = SharkUtils.createSharkDataFrame(new DataFrame(meta, rdd), jsc)
     //        val uid = dm.add(bigdf)
 
-    val newSchema = new Schema(columnArr.toList);
+    val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
     
     //SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> unitType, String namespace, String name, Schema schema)
     new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)

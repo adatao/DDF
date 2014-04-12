@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.SparkThread;
+import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -56,6 +58,7 @@ public class Sql2DataFrame extends CExecutor {
     // }
     public String dataContainerID;
     public MetaInfo[] metaInfo;
+
 
     public Sql2DataFrameResult(DDF ddf) {
       this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
@@ -92,7 +95,7 @@ public class Sql2DataFrame extends CExecutor {
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
 
-      return new Sql2DataFrameResult(ddf);
+      return new Utils.DataFrameResult(ddf);
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly
@@ -104,6 +107,6 @@ public class Sql2DataFrame extends CExecutor {
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;
       }
-      }
+    }
   }
 }
