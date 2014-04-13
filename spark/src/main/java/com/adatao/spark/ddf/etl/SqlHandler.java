@@ -5,9 +5,13 @@ package com.adatao.spark.ddf.etl;
 
 
 import java.util.List;
+
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
+import scala.Option;
 import scala.collection.Seq;
 import shark.SharkContext;
+import shark.SharkEnv;
 import shark.api.Row;
 import shark.api.TableRDD;
 import com.adatao.ddf.DDF;
@@ -18,7 +22,8 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
-
+import shark.memstore2.TablePartition;
+import org.apache.spark.api.java.function.Function;
 /**
  * @author ctn
  * 
@@ -63,7 +68,7 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public DDF sql2ddf(String command, Schema schema, String dataSource, DataFormat dataFormat) throws DDFException {
     TableRDD tableRdd = null;
-
+    RDD<Row> rddRow = null;
     // TODO: handle other dataSources and dataFormats
 
     String tableName = this.getDDF().getSchemaHandler().newTableName();
@@ -77,13 +82,12 @@ public class SqlHandler extends ASqlHandler {
                             "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
                                                     tableName, command);
       tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
-      tableRdd = this.getSharkContext().sql2rdd(command);
+
+      rddRow = this.getSharkContext().sql2rdd(String.format("select * from %s", tableName));
 
     } else {
       // TODO
     }
-
-    RDD<Row> rdd = (RDD<Row>) tableRdd;
 
     if (schema == null) schema = SchemaHandler.getSchemaFrom(tableRdd.schema());
     /*
@@ -95,8 +99,16 @@ public class SqlHandler extends ASqlHandler {
     if (tableName != null) {
       schema.setTableName(tableName);
     }
-    
-    return new SparkDDF(this.getManager(), rdd, Row.class, null, tableName, schema);
+
+    Option rddTablePartitionOrNull = SharkEnv.memoryMetadataManager().get(tableName);
+
+    DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
+
+    if(rddTablePartitionOrNull.isDefined()){
+      RDD<TablePartition> rddTablePartition = (RDD<TablePartition>) rddTablePartitionOrNull.get();
+      ddf.getRepresentationHandler().add(rddTablePartition, RDD.class, TablePartition.class);
+    }
+    return ddf;
   }
 
   private <T> List<T> toList(Seq<T> sequence) {
