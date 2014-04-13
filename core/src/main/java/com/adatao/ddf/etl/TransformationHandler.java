@@ -1,6 +1,5 @@
 package com.adatao.ddf.etl;
 
-
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.Summary;
@@ -9,17 +8,11 @@ import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
-public class TransformationHandler extends ADDFFunctionalGroupHandler implements IHandleTransformations {
+public class TransformationHandler extends ADDFFunctionalGroupHandler implements IHandleTransformations{
 
   public TransformationHandler(DDF theDDF) {
     super(theDDF);
     // TODO Auto-generated constructor stub
-  }
-
-  @Override
-  public void transformNativeRserve(String transformExpression) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -78,6 +71,9 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     return newddf;
   }
 
-
+  public DDF transformNativeRserve(String transformExpression) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

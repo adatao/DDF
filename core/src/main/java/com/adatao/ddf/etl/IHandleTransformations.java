@@ -5,10 +5,12 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface IHandleTransformations extends IHandleDDFFunctionalGroup {
-  public void transformNativeRserve(String transformExpression);
   
   public DDF transformScaleMinMax() throws DDFException;
 
   public DDF transformScaleStandard() throws DDFException;
+  
+  public DDF transformNativeRserve(String transformExpression);
+
 
 }

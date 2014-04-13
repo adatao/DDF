@@ -50,8 +50,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
     typeSpecs match {
-
-      case RDD_REXP ⇒ tablePartitionsToRDataFrame(rowsToTablePartitions(srcRdd), schemaHandler.getColumns)
+      case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
       case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
@@ -289,11 +288,12 @@ object RepresentationHandler {
   }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {
+    rdd.map {      
       row ⇒ row.rawdata.asInstanceOf[TablePartition]
     }
+    rdd.asInstanceOf[RDD[TablePartition]]
   }
-  
+
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
     colType match {
       case ColumnType.DOUBLE ⇒ {

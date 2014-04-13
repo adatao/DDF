@@ -62,8 +62,8 @@ public class NRow extends CExecutor {
     return new NRowResult(ddf.getNumRows());
   }
 
-  public NRow setDataContainerID(String ddfName) {
-    // this.ddfName = ddfName;
+  public NRow setDataContainerID(String dataContainerID) {
+    this.dataContainerID = dataContainerID;
     return this;
   }
 
