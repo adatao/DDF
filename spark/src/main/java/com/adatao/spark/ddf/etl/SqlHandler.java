@@ -5,8 +5,6 @@ package com.adatao.spark.ddf.etl;
 
 
 import java.util.List;
-
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import scala.Option;
 import scala.collection.Seq;
@@ -14,6 +12,7 @@ import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.Row;
 import shark.api.TableRDD;
+import shark.memstore2.TablePartition;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.DataFormat;
@@ -22,8 +21,6 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
-import shark.memstore2.TablePartition;
-import org.apache.spark.api.java.function.Function;
 /**
  * @author ctn
  * 
@@ -83,7 +80,8 @@ public class SqlHandler extends ASqlHandler {
                                                     tableName, command);
       tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
 
-      rddRow = this.getSharkContext().sql2rdd(String.format("select * from %s", tableName));
+      rddRow = this.getSharkContext().sql2rdd(String.format("SELECT * FROM %s", tableName));
+      
 
     } else {
       // TODO
