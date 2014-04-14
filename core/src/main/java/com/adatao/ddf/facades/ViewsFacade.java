@@ -65,4 +65,8 @@ public class ViewsFacade implements IHandleViews {
     return mViewHandler.subset(columnExpr, filter);
   }
   
+  @Override
+  public DDF project(List<String> columnNames) throws DDFException {
+    return this.getViewHandler().project(columnNames);
+  }
 }

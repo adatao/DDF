@@ -68,6 +68,7 @@ trait TAlgorithm extends Serializable with TCanLog with TToJsonString {
  * Base class to serve as common ancestor for all Models
  */
 trait TModel extends Serializable with TCanLog with TToJsonString {
+    def ddfModelID: String = { null }
 }
 
 /**

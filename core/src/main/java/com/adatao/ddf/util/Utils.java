@@ -405,14 +405,12 @@ public class Utils {
 
     public Object classInvoke(Object... args) throws DDFException {
       try {
-        
         System.out.println(">>>>>>>>>>>>>>>. args=" + args);
         return this.getMethod().invoke(null, args);
         
 
       } catch (Exception e) {
-        throw new DDFException(String.format("Error while invoking method %s on class %s", this.getMethod().getName(),
-            mObjectClass.getName()), e);
+        throw new DDFException(e.getCause());
       }
     }
 
