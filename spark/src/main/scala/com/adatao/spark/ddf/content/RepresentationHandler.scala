@@ -17,12 +17,15 @@ import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
 import org.apache.spark.api.java.function.Function
-
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.types.Vector
 import com.adatao.ddf.types._
 import java.util.ArrayList
+import java.util.HashMap
+import com.adatao.spark.ddf.ml.TransformRow
+import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData
+import com.adatao.spark.ddf.content.MetaDataHandler.DummyCustomMetaData
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -44,6 +47,14 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val srcRdd = this.toRDDRow
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
+    val metaHandler: MetaDataHandler = mDDF.getMetaDataHandler().asInstanceOf[MetaDataHandler]
+    metaHandler.buildListCustomMetaData()
+    val customMetaData = metaHandler.getListCustomMetaData()
+    if (customMetaData != null) {
+      println(">>>>>>>>>>>>>>>>>>>>>>>> customMetaData before call rowToMatrixVector " + customMetaData)
+      println(">>>>>>>>>>>>>>>>>>>>>>>> metaHandler before call rowToMatrixVector " + metaHandler)
+    }
+
     typeSpecs match {
       case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
@@ -51,7 +62,11 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
       case RDD_ARRAY_LABELED_POINT ⇒ rowsToArrayLabeledPoints(srcRdd, mappers)
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
-      case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
+      case RDD_MATRIX_VECTOR ⇒ {
+
+        println(">>>>>>>>>>>>calling rowsToMatrixVector")
+        rowsToMatrixVector(srcRdd, mappers, metaHandler)
+      }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
         typeSpecs,
         RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
@@ -81,7 +96,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     if (arraysDouble != null) {
       return null // TODO
     }
-//    LabeledPoint
+    //    LabeledPoint
     val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
     if (labeledPoints != null) {
       return null // TODO
@@ -190,7 +205,7 @@ object RepresentationHandler {
       Iterator(ret)
     })
   }
-  
+
   //TODO move this method
   def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
     rdd.mapPartitions(rows ⇒ {
@@ -199,10 +214,10 @@ object RepresentationHandler {
       var row = 0
       while (rows.hasNext) {
         var currentRow = rows.next
-        val label =currentRow(0)
-        val prediction : Array[Double] = new Array(1)// rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        val label = currentRow(0)
+        val prediction: Array[Double] = new Array(1) // rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
         prediction(0) = currentRow(1)
-        
+
         lstRows.add(row, new LabeledPoint(label, prediction))
         row += 1
       }
@@ -218,7 +233,6 @@ object RepresentationHandler {
     })
   }
 
-
   def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
     var i = 0
     while (i < array.size) {
@@ -228,14 +242,51 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
-    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers))
+  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double], metaHandler: MetaDataHandler): RDD[TupleMatrixVector] = {
+
+    //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
+    //TODO initialize xCols
+    var xCols: Array[Int] = new Array[Int](mappers.length - 1)
+
+    println(">>>>> before calling printMetaData")
+    
+     
+    printMetaData(metaHandler)
+
+    //send to slave
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, metaHandler))
   }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
+  def printMetaData(metaHandler: MetaDataHandler) {
+
+    println(">>>>> calling printMetaData")
+    
+    if (metaHandler == null) {
+      println(">>>>>>>>>>>>>>> printMetaData metaHandler is null")
+    } else {
+      println(">>>>>>>>>>>>>>> printMetaData metaHandler is NOT null = " + metaHandler)
+    }
+
+    val customMetaData = metaHandler.getListCustomMetaData()
+    if (customMetaData == null) {
+      println(">>>>>>>>>>>>>>> printMetaData customMetaData is null")
+    } else {
+      var it = customMetaData.keySet().iterator()
+      println(">>>>>>>>>>>>>>> printMetaData iterating customMetaData ")
+      while (it.hasNext()) {
+        print(customMetaData.get(it.next()) + "\t")
+      }
+    }
+  }
+
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], metaHandler: MetaDataHandler): Iterator[TupleMatrixVector] = {
+
+    val customMetaData = metaHandler.getListCustomMetaData()
+
+    //number of original columns, including Y-column
     val numCols = mappers.length
 
-    //have to convert to List
+    //copy original data to arrayList
     var lstRows = new ArrayList[Array[Double]]()
     var row = 0
     while (rows.hasNext) {
@@ -250,10 +301,16 @@ object RepresentationHandler {
       row += 1
     }
 
-    val numRows = lstRows.size //rows.toArray[Row].length
+    val numRows = lstRows.size
     val Y = new Vector(numRows)
-    //numCols = numCols + 1 bias term
-    val X = new Matrix(numRows, numCols)
+    //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
+
+    //TODO fix this
+    var numDummyColumns = 0
+    if (customMetaData != null)
+      numDummyColumns = customMetaData.size
+
+    val X = new Matrix(numRows, numCols + numDummyColumns)
 
     row = 0
     val yCol = 0
@@ -261,17 +318,28 @@ object RepresentationHandler {
     while (row < lstRows.size) {
       var inputRow = lstRows(row)
       X.put(row, 0, 1.0) // bias term
-      var columnIndex = 0
-      var columnValue = ""
+      var columnValue = 0.0
       var newValue: Double = -1.0
 
-      var column = 0
-      while (column < numCols - 1) {
-        columnIndex = column + 1
-        newValue = inputRow(column)
+      val paddingBiasIndex = 1
 
-        X.put(row, columnIndex, newValue) // x-feature #i
-        column += 1
+      var columnIndex = 0
+      while (columnIndex < numCols - 1) {
+        columnValue = inputRow(columnIndex)
+
+        if (customMetaData != null && customMetaData.size > 0 && customMetaData.containsKey(columnIndex)) {
+          //          println(">>>>>>>>>>>>>... customMetaData is not null: " + customMetaData)
+          //           val currentCustomMetaData: DummyCustomMetaData = customMetaData.get(columnIndex).asInstanceOf[DummyCustomMetaData]
+          val currentCustomMetaData = customMetaData.get(columnIndex)
+          //          newValue = trRow.transform(columnIndex, columnValue + "")
+          newValue = currentCustomMetaData.getColumnIndex(columnValue + "")
+        }
+        if (newValue == -1.0)
+          newValue = columnValue
+
+        X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
+        columnIndex += 1
+        newValue = -1.0 // TODO: dirty and quick fix, need proper review
       }
       Y.put(row, inputRow(numCols - 1)) // y-value
       row += 1
