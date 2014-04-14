@@ -58,7 +58,7 @@ class LogisticRegression(
     for (col <- xCols) columnList.add(schema.getColumn(col).getName)
     columnList.add(schema.getColumn(yCol).getName)
     val projectDDF = ddf.Views.project(columnList)
-    val logisticModel = projectDDF.ML.train("logisticRegressionGD", numIters:java.lang.Integer, ridgeLambda: java.lang.Double)
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
     
     // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]

@@ -20,6 +20,7 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
+import com.adatao.ddf.types.TupleMatrixVector
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import org.apache.spark.rdd.RDD
@@ -37,7 +38,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 object LogisticRegressionGD {
     
-	def train(dataPartition: RDD[(Matrix, Vector)],
+	def train(dataPartition: RDD[TupleMatrixVector],
     xCols: Array[Int],
     yCol: Int,
     numIters: Int,
@@ -50,7 +51,7 @@ object LogisticRegressionGD {
     val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
     
     var model = ML.LogisticRegression.train(
-      new LogisticRegressionGD.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
+      new LogisticRegressionGD.LossFunction(dataPartition.map {row => (row._1, row._2)}, ridgeLambda), numIters, learningRate, weights, numFeatures
     )
     model
   }
