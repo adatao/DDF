@@ -58,7 +58,7 @@ class LinearRegression(
       val projectDDF = ddf.Views.project(columnList)
       // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
       // new LinearRegressionModel(weights, trainingLosses, numSamples)
-      val model = projectDDF.ML.train("linearRegressionWithGD", numIters:java.lang.Integer)
+      val model = projectDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
       
       // converts DDF model to old PA model
       val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]

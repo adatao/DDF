@@ -21,6 +21,7 @@ import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.Utils
+import com.adatao.ddf.types.TupleMatrixVector
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
@@ -32,7 +33,7 @@ import java.util.HashMap
  */
 object LinearRegressionGD {
 
-    def train(dataPartition: RDD[(Matrix, Vector)],
+    def train(dataPartition: RDD[TupleMatrixVector],
         xCols: Array[Int],
         yCol: Int,
         numIters: Int,
@@ -43,7 +44,7 @@ object LinearRegressionGD {
         //depend on length of weights
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
         var model = ML.LinearRegression.train(
-            new LinearRegressionGD.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
+            new LinearRegressionGD.LossFunction(dataPartition.map {row => (row._1, row._2)}, ridgeLambda), numIters, learningRate, weights, numFeatures
         )
 
         model
