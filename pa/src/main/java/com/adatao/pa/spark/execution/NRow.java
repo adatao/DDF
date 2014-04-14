@@ -52,17 +52,7 @@ public class NRow extends CExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    /*
-     * DataContainer dc = sparkThread.getDataManager().get(dataContainerID); if (dc.getType() ==
-     * DataContainer.ContainerType.DataFrame) { DataFrame df = (DataFrame) dc; return new
-     * NRowResult(df.getRDD().count()); } else if (dc.getType() == DataContainer.ContainerType.SharkDataFrame ||
-     * dc.getType() == DataContainer.ContainerType.SharkColumnVector) { // could still use rdd.count(), // but let's try
-     * a Hive UDAF! SharkDataFrame df = (SharkDataFrame) dc; JavaSharkContext sc = (JavaSharkContext)
-     * sparkThread.getSparkContext(); Long count = SharkQueryUtils.sql2Long(sc, "select count(*) from " + df.tableName,
-     * AdataoExceptionCode.ERR_GENERAL); return new NRowResult(count); } else { throw new
-     * AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_CONTAINER_TYPE,
-     * String.format("unssuported container type: %s", dc.getType()), null); }
-     */
+
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     if (ddf == null) {
       LOG.info("Cannot find the DDF " + dataContainerID);
@@ -72,8 +62,8 @@ public class NRow extends CExecutor {
     return new NRowResult(ddf.getNumRows());
   }
 
-  public NRow setDataContainerID(String ddfName) {
-    // this.ddfName = ddfName;
+  public NRow setDataContainerID(String dataContainerID) {
+    this.dataContainerID = dataContainerID;
     return this;
   }
 

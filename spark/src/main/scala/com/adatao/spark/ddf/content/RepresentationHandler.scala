@@ -4,9 +4,12 @@
 package com.adatao.spark.ddf.content
 
 import com.adatao.ddf.content.Schema.ColumnType
+import com.adatao.ddf.content.Schema.Column
+import com.adatao.ddf.content.Schema
 import java.lang.Class
 import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
+import scala.collection.mutable
 import scala.collection.JavaConversions._
 import shark.api.Row
 import com.adatao.ddf.DDF
@@ -17,7 +20,9 @@ import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
 import org.apache.spark.api.java.function.Function
-
+import org.rosuda.REngine._
+import org.apache.hadoop.io.{ Text, IntWritable }
+import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.types.Vector
@@ -45,15 +50,18 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
     typeSpecs match {
-      case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd) 
+
+      case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
+      case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
+      case RDD_ARRAY_LABELED_POINT ⇒ rowsToArrayLabeledPoints(srcRdd, mappers)
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
-      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
+      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n - %s\n -%s",
         typeSpecs,
-        RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
+        RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
   }
 
@@ -80,7 +88,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     if (arraysDouble != null) {
       return null // TODO
     }
-LabeledPoint
+    LabeledPoint
     val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
     if (labeledPoints != null) {
       return null // TODO
@@ -138,7 +146,9 @@ object RepresentationHandler {
   val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
   val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))
   val RDD_TABLE_PARTITION = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TablePartition]))
+  val RDD_REXP = RH.getKeyFor(Array(classOf[RDD[_]], classOf[REXP]))
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
+  val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
   /**
    *
    */
@@ -164,6 +174,59 @@ object RepresentationHandler {
     })
   }
 
+  def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[LabeledPoint]] = {
+    val numCols = mappers.length
+    rdd.mapPartitions(rows ⇒ {
+      val numCols = mappers.length
+      var lstRows = new ArrayList[LabeledPoint]()
+      var row = 0
+      while (rows.hasNext) {
+        var currentRow = rows.next
+        val features = rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        val label = mappers(numCols - 1)(currentRow.getPrimitive(numCols - 1))
+        lstRows.add(row, new LabeledPoint(label, features))
+        row += 1
+      }
+
+      val numRows = lstRows.size //rows.toArray[Row].length
+      val ret = new Array[LabeledPoint](numRows)
+      row = 0
+      while (row < lstRows.size) {
+        ret(row) = lstRows(row)
+        row += 1
+      }
+      Iterator(ret)
+    })
+  }
+  
+  //TODO move this method
+  def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
+    rdd.mapPartitions(rows ⇒ {
+      val numCols = 2
+      var lstRows = new ArrayList[LabeledPoint]()
+      var row = 0
+      while (rows.hasNext) {
+        var currentRow = rows.next
+        val label =currentRow(0)
+        val prediction : Array[Double] = new Array(1)// rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        prediction(0) = currentRow(1)
+        
+        lstRows.add(row, new LabeledPoint(label, prediction))
+        row += 1
+      }
+
+      val numRows = lstRows.size //rows.toArray[Row].length
+      val ret = new Array[LabeledPoint](numRows)
+      row = 0
+      while (row < lstRows.size) {
+        ret(row) = lstRows(row)
+        row += 1
+      }
+      Iterator(ret)
+    })
+  }
+
+
   def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
     var i = 0
     while (i < array.size) {
@@ -172,52 +235,49 @@ object RepresentationHandler {
     }
     array
   }
-  
+
   def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
-    rdd.mapPartitions( rows => rowsToMatrixVector(rows, mappers))
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers))
   }
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
-    println(">>>>>>>>>>>>>>>>>>> rowsToMatrixVector")
     val numCols = mappers.length
-    
+
     //have to convert to List
-    var lstRows  =  new ArrayList[Array[Double]] ()
+    var lstRows = new ArrayList[Array[Double]]()
     var row = 0
-    while(rows.hasNext) {
+    while (rows.hasNext) {
       var currentRow = rows.next
       var column = 0
-      var b = new Array[Double] (numCols)
+      var b = new Array[Double](numCols)
       while (column < numCols) {
         b(column) = mappers(column)(currentRow.getPrimitive(column))
         column += 1
       }
-      lstRows.add(row,  b)
+      lstRows.add(row, b)
       row += 1
     }
-    
-    
-    val numRows = lstRows.size//rows.toArray[Row].length
+
+    val numRows = lstRows.size //rows.toArray[Row].length
     val Y = new Vector(numRows)
-     //numCols = numCols + 1 bias term
+    //numCols = numCols + 1 bias term
     val X = new Matrix(numRows, numCols)
-    
+
     row = 0
     val yCol = 0
-    
-    while(row < lstRows.size) {
+
+    while (row < lstRows.size) {
       var inputRow = lstRows(row)
       X.put(row, 0, 1.0) // bias term
       var columnIndex = 0
       var columnValue = ""
       var newValue: Double = -1.0
-      
+
       var column = 0
-      while (column < numCols-1) {
-        columnIndex  = column + 1
+      while (column < numCols - 1) {
+        columnIndex = column + 1
         newValue = inputRow(column)
-        
-//        println(">>>>>> row=" + row + "\tcolumn=" + columnIndex + "\tvalue=" + newValue)
+
         X.put(row, columnIndex, newValue) // x-feature #i
         column += 1
       }
@@ -229,10 +289,18 @@ object RepresentationHandler {
   }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {
+    rdd.map {      
       row ⇒ row.rawdata.asInstanceOf[TablePartition]
     }
+    rdd.asInstanceOf[RDD[TablePartition]]
   }
+  
+//    def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
+//    rdd.map {      
+//      row => println(String.format(">>>>>>>>>>>>> row.rawdata= %s", row.rawdata.getClass.getName))
+//    }
+//    null
+//  }
   
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
     colType match {
@@ -251,4 +319,74 @@ object RepresentationHandler {
   }
 
   def rowsToNativeTable(ddf: DDF, rdd: RDD[Row], numCols: Int): NativeTable = null // TODO
+
+  /**
+   * Transform a bigr data frame into a rdd of native renjin dataframes per partition (as Java objects)
+   * note that a R data frame is just a list of column vectors with additional attributes
+   */
+  def tablePartitionsToRDataFrame(rdd: RDD[TablePartition], columnList: java.util.List[Column]): RDD[REXP] = {
+    rdd.filter { tp ⇒ tp.iterator.columnIterators.length > 0 }.map { tp ⇒
+      println("tp.numRows = " + tp.numRows)
+      println("columnIterators.length = " + tp.iterator.columnIterators.length)
+
+      // each TablePartition should not have more than MAX_INT rows,
+      // ArrayBuffer doesn't allow more than that anyway
+      val numRows = tp.numRows.asInstanceOf[Int]
+
+      val columns = columnList.zipWithIndex.map {
+        case (colMeta, colNo) ⇒
+          //mLog.info("processing column: {}, index = {}", colMeta, colNo)
+          val iter = tp.iterator.columnIterators(colNo)
+          val rvec = colMeta.getType match {
+            case ColumnType.INT ⇒ {
+              val builder = new mutable.ArrayBuilder.ofInt
+              var i = 0
+              while (i < tp.numRows) {
+                iter.next()
+                if (iter.current != null)
+                  builder += iter.current.asInstanceOf[IntWritable].get
+                else
+                  builder += REXPInteger.NA
+                i += 1
+              }
+              new REXPInteger(builder.result)
+            }
+            case ColumnType.DOUBLE ⇒ {
+              val builder = new mutable.ArrayBuilder.ofDouble
+              var i = 0
+              while (i < tp.numRows) {
+                iter.next()
+                if (iter.current != null)
+                  builder += iter.current.asInstanceOf[DoubleWritable].get
+                else
+                  builder += REXPDouble.NA
+                i += 1
+              }
+              new REXPDouble(builder.result)
+            }
+            case ColumnType.STRING ⇒ {
+              val buffer = new mutable.ArrayBuffer[String](numRows)
+              var i = 0
+              while (i < tp.numRows) {
+                iter.next()
+                if (iter.current != null)
+                  buffer += iter.current.asInstanceOf[Text].toString
+                else
+                  buffer += null
+                i += 1
+              }
+              new REXPString(buffer.toArray)
+            }
+            // TODO: REXPLogical
+          }
+          rvec.asInstanceOf[REXP]
+      }
+
+      // named list of columns with colnames
+      val dflist = new RList(columns, columnList.map { m ⇒ m.getName })
+
+      // this is the per-partition Renjin data.frame
+      REXP.createDataFrame(dflist)
+    }
+  }
 }

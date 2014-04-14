@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-
 import com.adatao.pa.spark.execution.DDFExecutor;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.ViewHandler.Expression;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
@@ -66,7 +66,7 @@ public class SparkThread extends ASessionThread {
 	int uiPort = 30001;
 
 	GsonBuilder gsonBld = new GsonBuilder().serializeSpecialFloatingPointValues()
-							.registerTypeAdapter(Subset.Expr.class, new Subset.ExprDeserializer());
+							.registerTypeAdapter(Expression.class, new Subset.ExpressionDeserializer());
 	Gson gson = gsonBld.setExclusionStrategies(new ExclusionStrategy() {
 		@Override
 		public boolean shouldSkipField(FieldAttributes arg0) {
@@ -89,7 +89,7 @@ public class SparkThread extends ASessionThread {
 	}).create();
 	
 	public void stopMe(){
-		sparkContext.stop();
+		ddfManager.shutdown();
 		this.interrupt();
 	}
 	

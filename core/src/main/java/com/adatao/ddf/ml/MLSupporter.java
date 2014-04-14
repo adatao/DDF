@@ -2,6 +2,7 @@ package com.adatao.ddf.ml;
 
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
@@ -110,9 +111,13 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // Invoke the training method
     Object rawModel = trainMethod.classInvoke(allArgs);
     IModel model = new  Model(rawModel);
-
+//<<<<<<< HEAD
+//
+//    this.getManager().addModel(model);
+//    return model;
+//=======
     this.getManager().addModel(model);
-    return model;
+    return new Model(rawModel);
   }
 
 
@@ -171,5 +176,14 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   @Override
   public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
     return null;
+  }
+  
+  public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
+    return new ArrayList<List<DDF>>();
+  }
+
+  @Override
+  public List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException {
+    return new ArrayList<List<DDF>>();
   }
 }

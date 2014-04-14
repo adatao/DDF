@@ -1,9 +1,12 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
+import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import org.apache.spark.api.java.JavaRDD
 import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
+import com.adatao.ddf.DDF
+import com.adatao.ddf.ml.IModel
+import com.adatao.spark.ddf.SparkDDF
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,26 +16,23 @@ import shark.api.JavaSharkContext
  * To change this template use File | Settings | File Templates.
  */
 class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int)
-		extends AExecutor[ResidualsResult]{
+		extends AExecutor[ResidualsResult] {
 	override def runImpl(ctx: ExecutionContext): ResidualsResult = {
-		val ytrueypred= new YtrueYpred(dataContainerID, modelID, xCols, yCol)
-		val pred= ytrueypred.runImpl(ctx)
-		val predContainer= Option(ctx.sparkThread.getDataManager.get(pred.dataContainerID))
 
-		val residuals= predContainer match {
-			case Some(df) =>  df match{
-				case dx: DataFrame =>	dx.getRDD.rdd.map{arr => arr match {
-						case Array(ytrue, ypred) => Array((ytrue.asInstanceOf[Double] - ypred.asInstanceOf[Double]).asInstanceOf[AnyRef])
-					}
-				}
-			}
-			case None => throw new IllegalArgumentException("dataContainerID doesn't exist in user session")
-		}
+		val ddfManager = ctx.sparkThread.getDDFManager();
+		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+		// first, compute RDD[(ytrue, ypred)]
 
-		val metaInfo= Array(new MetaInfo("residual", "java.lang.Double"))
-		val jsc = ctx.sparkThread.getSparkContext.asInstanceOf[JavaSharkContext]
-		val sdf= SharkUtils.createSharkDataFrame(new DataFrame(metaInfo, JavaRDD.fromRDD(residuals)), jsc)
-		val uid = ctx.sparkThread.getDataManager.add(sdf)
+		val mymodel: IModel = ddfManager.getModel(modelID)
+		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+
+		val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
+		require(residualsDDF != null)
+		
+
+		//return dataframe
+		val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
+		val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict","")
 
 		new ResidualsResult(uid, metaInfo)
 	}
