@@ -79,7 +79,7 @@ class LinearRegressionNormalEquation(
       val itr = rawModel.weights.iterator
       val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
       while (itr.hasNext) paWeights += itr.next
-      val paModel = new NQLinearRegressionModel(Vector.apply(paWeights.toArray), model.getName(), 0, 0, null, projectDDF.getNumRows(), xCols.length, null, null)
+      val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, projectDDF.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
       LOG.info("Json model")
       LOG.info(rawModel.weights.toJson)
       LOG.info(paModel.weights.toJson)

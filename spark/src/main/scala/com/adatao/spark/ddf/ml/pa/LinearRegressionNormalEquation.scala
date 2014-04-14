@@ -212,21 +212,22 @@ object LinearRegressionNormalEquation {
 
 		val sharkvector= SharkColumnVector.fromSharkDataFrame(sdf, metaInfo(0).getHeader)
 		val res_df_id = ctx.sparkThread.getDataManager.add(sharkvector)
-
+    */
 		// residual sum of squares or sum of squared error
 		val rss = residuals.map {
 			res ⇒ res.muli(res).sum()
-		}.safeReduce(_ + _, 0)
+		}.reduce(_ + _)
 
 		// degree of freedom
-		val df = ret._3 - numFeatures
+		val df = ret.x3 - numFeatures
 
 		// standard errors
 		val stderrs = org.jblas.MatrixFunctions.sqrt(invXtX.diag().muli(rss / df))
 		// numFeatures - 1 -> we dont count intercept as a feature. Actually, the user can specify that he dont want the model to include intercept
-		new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
+        /*
+        new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), "73918a", 0, 0, null, 0, numFeatures, null, null)
+    new NQLinearRegressionModel(Vector.apply(w), "73918a", rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
   }
 
 }
