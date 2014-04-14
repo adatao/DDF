@@ -40,7 +40,8 @@ public class MetaDataHandler extends AMetaDataHandler {
 		//TODO get multi factors
 		//then build ListCustomMetaData
 		HashMap<Integer, ICustomMetaData>  a = new HashMap<Integer, ICustomMetaData> ();
-		ICustomMetaData dcmd = new DummyCustomMetaData();
+		DummyCustomMetaData dcmd = new DummyCustomMetaData();
+		dcmd.mapping =  new HashMap<String, Integer> ();
 		dcmd.mapping.put("IND", 1);
 		dcmd.mapping.put("ISP", 2);
 		dcmd.mapping.put("IAD", 3);
@@ -65,9 +66,17 @@ public class MetaDataHandler extends AMetaDataHandler {
 		return (a);
 	}
 
-	public static class DummyCustomMetaData implements ICustomMetaData {
-		HashMap<String, Integer> mapping = new HashMap<String, Integer> ();
+	public class DummyCustomMetaData implements ICustomMetaData {
+		/**
+		 * 
+		 */
+		public HashMap<String, Integer> mapping = new HashMap<String, Integer> ();
 
+		public DummyCustomMetaData() {
+			 mapping = new HashMap<String, Integer> ();
+		}
+		private static final long serialVersionUID = 1L;
+		
 		public double[] buildCoding(String value) {
 			return null;
 		}

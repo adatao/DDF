@@ -85,7 +85,6 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
 
 	public static interface ICustomMetaData extends Serializable  {
 		
-		HashMap<String, Integer> mapping = new HashMap<String, Integer> ();
 
 		public double[] buildCoding(String value);
 
