@@ -21,6 +21,7 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import com.adatao.ML.spark.TransformDummyCoding
 import java.util.HashMap
+import com.adatao.ddf.ml.IModel
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -72,6 +73,11 @@ object LinearRegression {
 class LinearRegressionModel(weights: Vector, trainingLosses: Vector,  numSamples: Long) extends
 	AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 	// The base class already sufficiently implements the predictor as [weights DOT features]
+    @transient var ddfModel: IModel = null
+    override def ddfModelID: String = {
+        if (ddfModel != null) ddfModel.getName()
+        else null
+    }
 }
 
 /**

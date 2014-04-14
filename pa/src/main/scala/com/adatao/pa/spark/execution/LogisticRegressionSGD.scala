@@ -35,7 +35,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * Entry point for SparkThread executor
  */
-class LogisticRegression(
+class LogisticRegressionSGD(
 	dataContainerID: String,
 	xCols: Array[Int],
 	yCol: Int,
@@ -58,12 +58,17 @@ class LogisticRegression(
     for (col <- xCols) columnList.add(schema.getColumn(col).getName)
     columnList.add(schema.getColumn(yCol).getName)
     val projectDDF = ddf.Views.project(columnList)
-    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithSGD", numIters:java.lang.Integer, ridgeLambda: java.lang.Double)
     
     // converts DDF model to old PA model
-    val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
-    
-    return rawModel
+    val rawModel = logisticModel.getRawModel.asInstanceOf[org.apache.spark.mllib.classification.LogisticRegressionModel]
+    val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    paWeights += rawModel.intercept
+    for (w <- rawModel.weights) paWeights += w
+    val weights = Vector.apply(paWeights.toArray)
+    val trainingLoss: ArrayBuffer[Double] = ArrayBuffer[Double]()
+    for (i <- 0 to numIters) trainingLoss += 0
+    return new LogisticRegressionModel(weights, Vector.apply(trainingLoss.toArray), projectDDF.getNumRows())
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
@@ -77,7 +82,7 @@ class LogisticRegression(
 	}
 }
 
-object LogisticRegression {
+object LogisticRegressionSGD {
 	/**
 	 * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
 	 * knows how to handle that data.
@@ -95,6 +100,6 @@ object LogisticRegression {
 /**
  * Entry point for SparkThread executor to execute predictions
  */
-class LogisticRegressionPredictor(val model: LogisticRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
+class LogisticRegressionSGDPredictor(val model: LogisticRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
 	def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
 }

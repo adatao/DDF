@@ -47,10 +47,12 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
+import com.adatao.ddf.etl.IHandleTransformations;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
 import com.adatao.ddf.facades.RFacade;
+import com.adatao.ddf.facades.TransformFacade;
 import com.adatao.ddf.facades.ViewsFacade;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.ALoggable;
@@ -77,7 +79,7 @@ import com.google.gson.annotations.Expose;
  * This class was designed using the Bridge Pattern to provide clean separation between the abstract concepts and the
  * implementation so that the API can support multiple big data platforms under the same set of abstract concepts.
  * </p>
- * 
+ *  
  */
 public abstract class DDF extends ALoggable //
     implements IGloballyAddressable, IPersistible, ISupportPhantomReference, ISerializable {
@@ -182,6 +184,7 @@ public abstract class DDF extends ALoggable //
     // Facades
     this.ML = new MLFacade(this, this.getMLSupporter());
     this.Views = new ViewsFacade(this, this.getViewHandler());
+    this.Transform = new TransformFacade(this, this.getTransformationHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
     this.PA = new PAFacade(this);
   }
@@ -395,6 +398,7 @@ public abstract class DDF extends ALoggable //
   private ISupportMLMetrics mMLMetricsSupporter;
   private IHandleAggregation mAggregationHandler;
   private IHandleBinning mBinningHandler;
+  private IHandleTransformations mTransformationHandler;
 
 
 
@@ -523,6 +527,20 @@ public abstract class DDF extends ALoggable //
     return newHandler(IHandleBinning.class);
   }
 
+  public IHandleTransformations getTransformationHandler() {
+    if (mTransformationHandler == null) mTransformationHandler = this.createTransformationHandler();
+    if (mTransformationHandler == null) throw new UnsupportedOperationException();
+    else return mTransformationHandler;
+  }
+
+  public DDF setTransformationHandler(IHandleTransformations aTransformationHandler) {
+    this.mTransformationHandler = aTransformationHandler;
+    return this;
+  }
+
+  protected IHandleTransformations createTransformationHandler() {
+    return newHandler(IHandleTransformations.class);
+  }
   public IHandleMutability getMutabilityHandler() {
     if (mMutabilityHandler == null) mMutabilityHandler = this.createMutabilityHandler();
     if (mMutabilityHandler == null) throw new UnsupportedOperationException();
@@ -870,6 +888,11 @@ public abstract class DDF extends ALoggable //
   public FiveNumSummary[] getFiveNumSummary() throws DDFException {
     return this.getStatisticsSupporter().getFiveNumSummary(this.getColumnNames());
   }
+  
+  // IHandleTransformations
+
+  public TransformFacade Transform;
+  
 
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {

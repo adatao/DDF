@@ -189,7 +189,7 @@ object Matrix {
  * Internally represented as a DoubleMatrix column vector.
  * Constructors are in the companion object, [[Vector]]
  */
-class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double]  with Serializable {
+class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double]  with TJsonSerializable {
 //class Vector(size: Int) extends DoubleMatrix(size) with scala.Serializable with Iterable[Double] {
 
 	/**
@@ -249,9 +249,9 @@ class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double]  with S
 	 * Override TJsonSerializable.toJson() to serialize only the Array[Double], since this is
 	 * the interface that clients who understand the TSerialiable interface expects.
 	 */
-//	override def toJson: String = TJsonSerializable.basicGson.toJson(this.data)
+	override def toJson: String = TJsonSerializable.basicGson.toJson(this.data)
 //	
-//	override def toString: String = TJsonSerializable.basicGson.toJson(this.data)
+	override def toString: String = TJsonSerializable.basicGson.toJson(this.data)
 //	override def toJson: String = ""
 
 	/**

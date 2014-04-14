@@ -80,10 +80,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
   protected Map<String, IModel> mModels = new HashMap<String, IModel>();
-  
   public String addDDF(DDF data) {
-    mDDFs.put(data.getName(), data);
-    return data.getName();
+    mDDFs.put(data.getName().replace("-", "_"), data);
+    return data.getName().replace("-", "_");
   }
 
   public DDF getDDF(String ddfName) {
@@ -95,7 +94,15 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public HashMap<String, DDF> getDDFs() {
     return mDDFs;
   }
-  
+
+  public void addModel(IModel model) {
+    mModels.put(model.getName(), model);
+  }
+
+  public IModel getModel(String modelName) {
+    return mModels.get(modelName);
+  }
+
   public DDFManager() {
     this.startup();
   }
@@ -350,11 +357,4 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     return this.getDummyDDF().getPersistenceHandler().load(uri);
   }
   
-  public void addModel(IModel model) {
-    mModels.put(model.getName(), model);
-  }
-
-  public IModel getModel(String modelName) {
-    return mModels.get(modelName);
-  }
 }
