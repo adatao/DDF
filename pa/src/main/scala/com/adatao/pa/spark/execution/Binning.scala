@@ -36,7 +36,7 @@ class Binning(val dataContainerID: String,
 	  val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
 	  // binned var are now factors
     //new GetFactor().setDataContainerID(Utils.getDataContainerId(newddf)).setColumnName(col).run(context.sparkThread)
-	  new BinningResult(Utils.getDataContainerId(newddf), Utils.generateMetaInfo(newddf.getSchema()))
+	  new BinningResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))
 	}
 
 }

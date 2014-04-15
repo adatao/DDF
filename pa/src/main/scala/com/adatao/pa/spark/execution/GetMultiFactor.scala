@@ -2,7 +2,7 @@ package com.adatao.pa.spark.execution
 
 
 import scala.collection.JavaConversions._
-import java.util.{HashMap => JMap}
+import java.util.{HashMap => JMap, Map}
 import java.util
 import java.lang.{Integer => JInt}
 import com.adatao.pa.spark.execution.GetMultiFactor.{MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer}
@@ -10,6 +10,10 @@ import com.adatao.pa.spark.DataManager.{MetaInfo, DataFrame, SharkDataFrame}
 import shark.memstore2.TablePartition
 import org.apache.hadoop.io.{LongWritable, FloatWritable, IntWritable, Text}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
+import com.adatao.pa.spark.Utils._
+import scala.Some
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,45 +22,27 @@ import org.apache.hadoop.hive.serde2.io.DoubleWritable
  */
 class GetMultiFactor(dataContainerID: String,
 										 var columnIndexs: Array[Int]= null)
-		extends AExecutor[Array[(Int, JMap[String, JInt])]]{
+		extends AExecutor[Array[(JInt, java.util.Map[String, JInt])]]{
 
-	protected override def runImpl(context: ExecutionContext): Array[(Int, JMap[String, JInt])] ={
+	protected override def runImpl(context: ExecutionContext): Array[(JInt, java.util.Map[String, JInt])] = {
 
-		val df = context.sparkThread.getDataManager.get(dataContainerID)
-		if(df == null) throw new IllegalArgumentException("dataContainerID doesn't exist in user session")
-    val metaInfos= df.getMetaInfo
+    val ddf = context.sparkThread.getDDFManager.getDDF(getDDFNameFromDataContainerID(dataContainerID))
 
-		require(columnIndexs != null, "Please supply columnIndexs or columnNames")
+    if (ddf == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID, null)
+    }
+    val schemaHandler = ddf.getSchemaHandler
+    for (columnIndex <- columnIndexs) {
+      schemaHandler.setAsFactor(columnIndex)
+    }
+    schemaHandler.computeFactorLevelsAndLevelCounts()
 
-    val outOfBoundCols= columnIndexs.filter(idx => idx >= metaInfos.length)
-		if(outOfBoundCols.size > 0)
-      throw new IllegalArgumentException(String.format("Columns " + outOfBoundCols.mkString(", ")+ " is out of bound."))
+    val result: Array[(JInt, java.util.Map[String, JInt])] = for {
+      columnIndex <- columnIndexs
+      colName = schemaHandler.getColumnName(columnIndex)
+    } yield ((JInt.valueOf(columnIndex), schemaHandler.getColumn(colName).getOptionalFactor.getLevelCounts))
 
-		val indexsWithTypes= for{
-			idx <- columnIndexs
-		}yield(idx, metaInfos(idx).getType)
-		LOG.info("indexwithType= " + indexsWithTypes.mkString(", "))
-
-		val factor = df match {
-			case sdf: SharkDataFrame =>  {
-				val mapper= new SharkMultiFactorMapper(indexsWithTypes)
-				sdf.getTablePartitionRDD.filter(table => table.numRows > 0).map(mapper).reduce(new MultiFactorReducer)
-			}
-			case xdf: DataFrame      =>  {
-				val mapper = new MultiFactorMapper(indexsWithTypes)
-				xdf.getRDD.rdd.mapPartitions(mapper).reduce(new MultiFactorReducer)
-			}
-		}
-		//set factor for MetaInfo
-		factor.foreach{
-			case(idx,map) => {
-				metaInfos(idx).setFactor(map)
-			}
-		}
-
-		for{
-			idx <- columnIndexs
-		}yield((idx, factor(idx)))
+    result
 	}
 }
 

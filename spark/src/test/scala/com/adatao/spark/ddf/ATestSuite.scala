@@ -51,6 +51,22 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
       "INTO TABLE admission")
   }
 
+  def createTableAirlineSmall() {
+    sharkctx.sql("set shark.test.data.path=../resources")
+    sharkctx.sql("drop table if exists airline")
+    sharkctx.sql("create table airline (Year int,Month int,DayofMonth int," +
+      "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int," +
+      "CRSArrTime int,UniqueCarrier string, FlightNum int, " +
+      "TailNum string, ActualElapsedTime int, CRSElapsedTime int, " +
+      "AirTime int, ArrDelay int, DepDelay int, Origin string, " +
+      "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, " +
+      "CancellationCode string, Diverted string, CarrierDelay int, " +
+      "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+    )
+    sharkctx.sql("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/airline.csv' " +
+      "INTO TABLE airline")
+  }
+
   def createTableAirline() {
     sharkctx.sql("set shark.test.data.path=../resources")
     sharkctx.sql("drop table if exists airline")

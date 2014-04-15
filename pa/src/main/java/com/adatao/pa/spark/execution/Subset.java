@@ -81,7 +81,7 @@ public class Subset extends CExecutor {
     DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + this.dataContainerID).replace("-", "_"));
     try {
       DDF subset = ddf.Views.subset(columns, filter);
-      return new SubsetResult().setDataContainerID(Utils.getDataContainerId(subset)).setMetaInfo(
+      return new SubsetResult().setDataContainerID(Utils.getDataContainerID(subset)).setMetaInfo(
           Utils.generateMetaInfo(subset.getSchema()));
 
     } catch (DDFException e) {
