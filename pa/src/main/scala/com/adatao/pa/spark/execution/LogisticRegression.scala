@@ -62,8 +62,10 @@ class LogisticRegression(
     
     // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
-    
-    return rawModel
+    val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
+    ddfManager.addModel(logisticModel)
+    paModel.ddfModel = logisticModel
+    return paModel
   }
   
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {

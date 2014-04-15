@@ -76,7 +76,7 @@ class LogisticRegressionIRLS(
 		//TODO call get multifactor explicitly
 		
 		//call dummy coding explicitly
-		//TODO make sure all input ddf to algorithm MUST have schema
+		//make sure all input ddf to algorithm MUST have schema
 		ddf.getSchema().generateDummyCoding()
 		
 		val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures

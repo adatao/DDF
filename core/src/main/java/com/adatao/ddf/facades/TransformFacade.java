@@ -2,6 +2,7 @@ package com.adatao.ddf.facades;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.etl.IHandleTransformations;
+import com.adatao.ddf.exception.DDFException;
 
 public class TransformFacade implements IHandleTransformations {
   private DDF mDDF;
@@ -37,4 +38,15 @@ public class TransformFacade implements IHandleTransformations {
     return mTransformationHandler.transformNativeRserve(transformExpression);
     
   }
+
+  @Override
+  public DDF transformScaleMinMax() throws DDFException {
+    return mTransformationHandler.transformScaleMinMax();
+  }
+
+  @Override
+  public DDF transformScaleStandard() throws DDFException {
+    return mTransformationHandler.transformScaleStandard();
+  }
+  
 }

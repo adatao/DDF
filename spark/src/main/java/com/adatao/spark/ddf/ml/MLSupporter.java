@@ -27,8 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import java.io.Serializable;
 
-public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
+public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serializable{
 
   public MLSupporter(DDF theDDF) {
     super(theDDF);
@@ -280,11 +281,11 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     SparkDDF predictions = (SparkDDF) ddf.ML.applyModel(model, true, false);
 
     // Now get the underlying RDD to compute
-    JavaRDD<Double[]> yTrueYPred = (JavaRDD<Double[]>) predictions.getJavaRDD((new Double[0]).getClass());
+    JavaRDD<double[]> yTrueYPred = (JavaRDD<double[]>) predictions.getJavaRDD(double[].class);
     final double threshold1 = threshold; 
-    Long[] cm = yTrueYPred.map(new Function<Double[], Long[]>() {
+    Long[] cm = yTrueYPred.map(new Function<double[], Long[]>() {
       @Override
-      public Long[] call(Double[] params) {
+      public Long[] call(double[] params) {
         byte isPos = toByte(params[0] > threshold1);
         byte predPos = toByte(params[1] > threshold1);
 

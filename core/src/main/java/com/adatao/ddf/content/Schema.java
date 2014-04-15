@@ -29,7 +29,7 @@ public class Schema implements Serializable {
 	@Expose
 	private List<Column> mColumns = Collections
 			.synchronizedList(new ArrayList<Column>());
-	
+
 	private DummyCoding dummyCoding;
 
 	/**
@@ -45,8 +45,7 @@ public class Schema implements Serializable {
 	public Schema(String columns) {
 		this.initialize(null, this.parseColumnList(columns));
 	}
-	
-	
+
 	/**
 	 * Constructor that can take a list of columns in the following format:
 	 * "<name> <type>, <name> <type>". For example,
@@ -222,44 +221,37 @@ public class Schema implements Serializable {
 			}
 		}
 		dc.setNumDummyCoding(count);
-		
 
-		//TODO remove this
-		HashMap<String, Double> temp2 = new HashMap<String, Double>();
-        temp2.put("IAD", 1.0);
-        temp2.put("IND", 2.0);
-        temp2.put("ISP", 3.0);
-        dc.getMapping().put(1, temp2);
-        dc.setNumDummyCoding(2);
-        
-        //ignore Y column
-        Integer _features = this.getNumColumns() - 1;
-        //plus bias term for linear model
-        _features += 1;
-        //plus the new dummy coding columns
-        _features += dc.getNumDummyCoding();
-        		
-        		
-        dc.setNumberFeatures(_features);
-        
-        
-        //set number of features in schema
-        
-        this.setDummyCoding(dc);
+		// TODO hardcode remove this
+		// HashMap<String, Double> temp2 = new HashMap<String, Double>();
+		// temp2.put("IAD", 1.0);
+		// temp2.put("IND", 2.0);
+		// temp2.put("ISP", 3.0);
+		// dc.getMapping().put(1, temp2);
+		// dc.setNumDummyCoding(2);
+
+		// ignore Y column
+		Integer _features = this.getNumColumns() - 1;
+		// plus bias term for linear model
+		_features += 1;
+		// plus the new dummy coding columns
+		_features += dc.getNumDummyCoding();
+
+		dc.setNumberFeatures(_features);
+
+		// set number of features in schema
+
+		this.setDummyCoding(dc);
 
 	}
-	
-	
 
 	public DummyCoding getDummyCoding() {
 		return dummyCoding;
 	}
 
-
 	public void setDummyCoding(DummyCoding dummyCoding) {
 		this.dummyCoding = dummyCoding;
 	}
-
 
 	/**
 	 * 
@@ -556,35 +548,39 @@ public class Schema implements Serializable {
 		private Integer numDummyCoding;
 		public int[] xCols;
 		private Integer numberFeatures = 0;
-		
+
 		public HashMap<Integer, HashMap<String, Double>> getMapping() {
 			return mapping;
 		}
+
 		public void setMapping(HashMap<Integer, HashMap<String, Double>> mapping) {
 			this.mapping = mapping;
 		}
+
 		public Integer getNumDummyCoding() {
 			return numDummyCoding;
 		}
+
 		public void setNumDummyCoding(Integer numDummyCoding) {
 			this.numDummyCoding = numDummyCoding;
 		}
+
 		public int[] getxCols() {
 			return xCols;
 		}
+
 		public void setxCols(int[] xCols) {
 			this.xCols = xCols;
 		}
+
 		public Integer getNumberFeatures() {
 			return numberFeatures;
 		}
+
 		public void setNumberFeatures(Integer numberFeatures) {
 			this.numberFeatures = numberFeatures;
 		}
-		
-		
+
 	}
 
 }
-
-

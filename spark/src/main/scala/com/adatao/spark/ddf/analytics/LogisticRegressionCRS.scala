@@ -40,13 +40,13 @@ object LogisticRegressionCRS {
     columnsSummary: HashMap[String, Array[Double]]): LogisticRegressionModel = {
 
     var (sparseColumns, sparseColumnsPaddingIndex, sumAllRange) = buildParameters(columnsSummary)
-    //plus bias term
-    var nfeatures = numFeatures + 1
+    //plus bias term, old code NO NEED
+//    var nfeatures = numFeatures + 1
 
     var weights = null.asInstanceOf[Vector]
     if (sumAllRange > 0)
-      weights = randWeights(nfeatures + sumAllRange) //Vector(initialWeights)
-    else weights = if (initialWeights == null || initialWeights.length != nfeatures) randWeights(nfeatures + 1) else Vector(initialWeights)
+      weights = randWeights(numFeatures + sumAllRange) //Vector(initialWeights)
+    else weights = if (initialWeights == null || initialWeights.length != numFeatures) randWeights(numFeatures) else Vector(initialWeights)
 
     val transformer: TransformSparseMatrix = new TransformSparseMatrix(sparseColumns, sparseColumnsPaddingIndex, sumAllRange)
     //convert to MatrixSparse
@@ -55,7 +55,7 @@ object LogisticRegressionCRS {
     val snumIters: Int = numIters.asInstanceOf[Int]
     val slearningRate: Double = learningRate.asInstanceOf[Double]
     val sridgeLambda: Double = ridgeLambda.asInstanceOf[Double]
-    val snumFeatures: Int = nfeatures.asInstanceOf[Int]
+    val snumFeatures: Int = numFeatures.asInstanceOf[Int]
 
     val lossFunction = new LossFunction(XYSparse, ridgeLambda)
 
