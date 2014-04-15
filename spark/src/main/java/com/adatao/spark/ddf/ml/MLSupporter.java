@@ -1,6 +1,9 @@
 package com.adatao.spark.ddf.ml;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.Schema;
@@ -8,12 +11,17 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
 import com.adatao.spark.ddf.SparkDDF;
+import com.adatao.spark.ddf.analytics.CrossValidation;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
+
+import com.adatao.ddf.types.TupleMatrixVector;
+import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
+import com.adatao.spark.ddf.SparkDDF;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,24 +49,29 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
     if (paramInfo.argMatches(RDD.class)) {
       // Yay, our target data format is an RDD!
       RDD<?> rdd = null;
+      
 
+      
       if (paramInfo.paramMatches(LabeledPoint.class)) {
         rdd = (RDD<LabeledPoint>) this.getDDF().getRepresentationHandler().get(RDD.class, LabeledPoint.class);
         // System.out.println("RDD<LabeledPoint>");
 
       } else if (paramInfo.paramMatches(double[].class)) {
         rdd = (RDD<double[]>) this.getDDF().getRepresentationHandler().get(RDD.class, double[].class);
-        // System.out.println("RDD<Double[]>");
-
-      } else if (paramInfo.paramMatches(Object.class)) {
+      } 
+      else if (paramInfo.paramMatches(TupleMatrixVector.class)) {
+        rdd = (RDD<TupleMatrixVector>) this.getDDF().getRepresentationHandler().get(RDD.class, TupleMatrixVector.class);
+        
+      } 
+      else if (paramInfo.paramMatches(Object.class)) {
         rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
         // System.out.println("RDD<Object>");
       }
-
       return rdd;
     }
 
     else {
+      System.out.println("paramInfo >>>>>>>>>" +paramInfo);
       return super.convertDDF(paramInfo);
     }
   }
@@ -96,7 +109,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
       result = ((JavaRDD<Object[]>) gr.getObject()).mapPartitions(new PredictMapper<Object[], Object[]>(Object[].class,
           Object[].class, model, hasLabels, includeFeatures));
       resultUnitType = Object[].class;
-    }  else {
+    } else {
       throw new DDFException(String.format("Error apply model %s", model.getRawModel().getClass().getName()));
     }
 
@@ -112,27 +125,29 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
     }
 
     outputColumns.add(new Schema.Column("prediction", "double"));
+    
 
-    if(model.getRawModel() == null) {
-      mLog.info(">>>>>>>>>>> rawModel == null");
-    }
-    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
-        "YTrueYPredict"), outputColumns);
+//<<<<<<< HEAD
+//    if(model.getRawModel() == null) {
+//      mLog.info(">>>>>>>>>>> rawModel == null");
+//    }
+//    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
+//        "YTrueYPredict"), outputColumns);
+//=======
+    Schema schema = new Schema(outputColumns);
 
 
     if (double[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, ddf.getManager()
-          .getNamespace(), schema.getTableName(), schema);
+      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);
 
     } else if (Object[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class, ddf.getManager()
-          .getNamespace(), schema.getTableName(), schema);
+      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class,null, null, schema);
 
     } else return null;
   }
 
 
-  public static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
+  private static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
 
     private static final long serialVersionUID = 1L;
     private IModel mModel;
@@ -157,13 +172,17 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
     public Iterable<O> call(Iterator<I> samples) throws DDFException {
       List<O> results = new ArrayList<O>();
 
+      
       while (samples.hasNext()) {
+    	  
 
         I sample = samples.next();
         O outputRow = null;
 
         try {
           if (sample instanceof LabeledPoint || sample instanceof double[]) {
+        	  
+        	  
             double label = 0;
             double[] features;
 
@@ -244,8 +263,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
           } else {
             throw new DDFException(String.format("Unsupported input type %s", mInputType));
           }
-
-
           results.add(outputRow);
 
         } catch (Exception e) {
@@ -289,5 +306,13 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
   private byte toByte(boolean exp) {
     if (exp) return 1;
     else return 0;
+  }
+
+  public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
+    return CrossValidation.DDFKFoldSplit(this.getDDF(), k, seed);
+  }
+
+  public List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException {
+    return CrossValidation.DDFRandomSplit(this.getDDF(), k, trainingSize, seed);
   }
 }

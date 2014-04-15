@@ -405,16 +405,9 @@ public class Utils {
 
     public Object classInvoke(Object... args) throws DDFException {
       try {
-        File logFile = new File("/tmp/Utils.log");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
-        for(Object arg: args) {
-          writer.write(">>>>>>>> arg = " + arg.toString());
-          sLog.info(">>>>>>>>> arg = " + arg.toString());
-        }
-
-        writer.close();
-
+        System.out.println(">>>>>>>>>>>>>>>. args=" + args);
         return this.getMethod().invoke(null, args);
+        
 
       } catch (Exception e) {
         throw new DDFException(e.getCause());
@@ -520,7 +513,13 @@ public class Utils {
 
       public boolean paramMatches(Class<?>... paramTypes) {
         for (int i = 0; i < paramTypes.length; i++) {
-          if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+          System.out.println(">>>>>>>>>>>>>>>>> \t" + i + "\t" + paramTypes[i] + "\ttype=" + mTypeArgs[i]);
+          try {
+            if (!paramTypes[i].isAssignableFrom((Class<?>) mTypeArgs[i])) return false;
+          }
+          catch (Exception e) {
+            return false;
+          }
         }
 
         return true;

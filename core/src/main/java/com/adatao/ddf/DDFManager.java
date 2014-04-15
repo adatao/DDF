@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 import com.adatao.ddf.content.IHandleRepresentations;
@@ -81,10 +80,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
   protected Map<String, IModel> mModels = new HashMap<String, IModel>();
-
   public String addDDF(DDF data) {
-    mDDFs.put(data.getName(), data);
-    return data.getName();
+    mDDFs.put(data.getName().replace("-", "_"), data);
+    return data.getName().replace("-", "_");
   }
 
   public DDF getDDF(String ddfName) {
@@ -358,4 +356,5 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   public IPersistible load(PersistenceUri uri) throws DDFException {
     return this.getDummyDDF().getPersistenceHandler().load(uri);
   }
+  
 }

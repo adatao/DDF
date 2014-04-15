@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML.types
+package com.adatao.ddf.types
 
 import org.jblas.DoubleMatrix
 import com.google.gson.Gson
@@ -38,9 +38,9 @@ class Matrix(numRows: Int, numCols: Int) extends DoubleMatrix(numRows, numCols) 
 			var c = 0
 			while (c < numCols && c < maxCols) {
 				
-//				this.put(r, c, doubleMatrix(r)(c))
+				this.put(r, c, doubleMatrix(r)(c))
 				
-				crs.set(r, c, doubleMatrix(r)(c))
+//				crs.set(r, c, doubleMatrix(r)(c))
 				c += 1
 			}
 			r += 1
@@ -189,7 +189,8 @@ object Matrix {
  * Internally represented as a DoubleMatrix column vector.
  * Constructors are in the companion object, [[Vector]]
  */
-class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double] with TJsonSerializable {
+class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double]  with TJsonSerializable {
+//class Vector(size: Int) extends DoubleMatrix(size) with scala.Serializable with Iterable[Double] {
 
 	/**
 	 * This empty constructor is needed for deserialization
@@ -249,18 +250,22 @@ class Vector(size: Int) extends DoubleMatrix(size) with Iterable[Double] with TJ
 	 * the interface that clients who understand the TSerialiable interface expects.
 	 */
 	override def toJson: String = TJsonSerializable.basicGson.toJson(this.data)
+//	
+	override def toString: String = TJsonSerializable.basicGson.toJson(this.data)
+//	override def toJson: String = ""
 
 	/**
 	 * Override TJsonSerializable.toJson() to serialize only the Array[Double], since this is
 	 * the interface that clients who understand the TSerialiable interface expects.
 	 */
-	override def fromJson(jsonString: String) = Vector(TJsonSerializable.basicGson.fromJson(jsonString, classOf[Array[Double]]))
+//	override def fromJson(jsonString: String) = Vector(TJsonSerializable.basicGson.fromJson(jsonString, classOf[Array[Double]]))
+//	override def toString: String = ""
 
 	def reciprocal: Vector = Vector(DoubleMatrix.ones(this.length).divi(this))
 }
 
 object Vector {
-	def fromJson(jsonString: String): Vector = new Vector(0).fromJson(jsonString)
+//	def fromJson(jsonString: String): Vector = new Vector(0).fromJson(jsonString)
 
 	/**
 	 * Instantiate a new Vector given the contents of a DoubleMatrix. For efficiency, by default
@@ -321,3 +326,7 @@ object Vector {
 		result
 	}
 }
+
+class TupleMatrixVector(val x:Matrix, val y:Vector) extends Tuple2[Matrix, Vector](x,y) {
+}
+

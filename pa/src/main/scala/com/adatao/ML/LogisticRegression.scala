@@ -21,8 +21,8 @@ import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import java.util.HashMap
 import com.adatao.ddf.ml.IModel
 
@@ -75,13 +75,34 @@ object LogisticRegression {
 
 
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
-  override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
 
   @transient var ddfModel: IModel = null
   override def ddfModelID: String = {
     if (ddfModel != null) ddfModel.getName()
     else null
   }
+  
+  override def predict(features: Vector): Double = {
+    println(">>>>>>>>>>>>>>>. calling predict")
+    ALossFunction.sigmoid(this.linearPredictor(features))
+  }
+  
+//  override def predict(features: Array[Double]): java.lang.Double = {
+//    //convert double[] to Vector
+//    val a = Vector(features)
+//    println(">>>>>>>>>>>>>>>. calling predict a= " + a	) 
+//    predict(a)
+//  }
+  
+//  def predict(point: Array[Double]): java.lang.Double = {
+//	println(">>>>>>>>>>>calling predict point = " + point)
+//    val features = Vector(Array[Double](1) ++ point)
+//    println(">>>>>>>>>>>calling predict features = " + features)
+//    println(">>>>>>>>>>>calling predict weights = " + weights)
+//    val linearPredictor = weights.dot(features)
+//    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
+//    ALossFunction.sigmoid(linearPredictor)
+//  }
 
 }
 

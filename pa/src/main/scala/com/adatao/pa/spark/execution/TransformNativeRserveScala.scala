@@ -8,7 +8,8 @@ import org.apache.spark.storage.StorageLevel
 import shark.api.JavaSharkContext
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-
+import com.adatao.pa.spark.Utils
+import com.adatao.pa.spark.DataManager.MetaInfo
 /**
  * This executor performs transformation of BigDataFrame using a native R function:
  * 	 - add column using a function(row) {...}
@@ -17,9 +18,14 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
  *
  * Author: aht
  */
-class TransformNativeRserve(dataContainerID: String, val transformExpr: String) extends AExecutor[DataFrameResult] {
+class TransformNativeRserveScala(dataContainerID: String, val transformExpression: String) extends AExecutor[DataFrameResult] {
 	override def runImpl(context: ExecutionContext): DataFrameResult = {
-		val dm = context.sparkThread.getDataManager
+	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val newddf = ddf.Transform.transformNativeRserve(transformExpression);
+    // binned var are now factors
+    //new GetFactor().setDataContainerID(Utils.getDataContainerId(newddf)).setColumnName(col).run(context.sparkThread)
+    new DataFrameResult(Utils.getDataContainerId(newddf), Utils.generateMetaInfo(newddf.getSchema()))
+		/*val dm = context.sparkThread.getDataManager
 		Option(dm.get(dataContainerID)) match {
 			case Some(dataContainer) ⇒ {
 				val sdf = dataContainer match {
@@ -82,6 +88,7 @@ class TransformNativeRserve(dataContainerID: String, val transformExpr: String) 
 				new DataFrameResult(uid, bigdf.getMetaInfo)
 			}
 			case _ => throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, null)
-		}
+		}*/
 	}
+	//class DataFrameResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
 }

@@ -7,9 +7,8 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
-
+import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
@@ -50,33 +49,38 @@ public class StatisticsSupporterTest {
 
 
   @Test
-  public void testSimpleAggregate() throws DDFException {
 
-    Assert.assertEquals(14, ddf.getSummary().length);
+  public void testSimpleAggregate() throws DDFException {
 
     // aggregation: select year, month, min(depdelay), max(arrdelay) from airline group by year, month;
     Assert.assertEquals(13, ddf.aggregate("year, month, mean(depdelay), median(arrdelay)").size());
-    Assert.assertEquals(2, ddf.aggregate("year, month, mean(depdelay), median(arrdelay)").get("2010,3").length);
+    Assert.assertEquals(2, ddf.aggregate("year, month, min(depdelay), max(arrdelay)").get("2010,3").length);
 
     Assert.assertEquals(0.87, ddf.correlation("arrdelay", "depdelay"), 0.0);
-
     // project subset
-    Assert.assertEquals(3, ddf.Views.project("year", "month", "deptime").getNumColumns());
+    Assert.assertEquals(3, ddf.Views.project(new String[] { "year", "month", "deptime" }).getNumColumns());
+    Assert.assertEquals(5, ddf.Views.firstNRows(5).size());
+    //manager.shutdown();
 
   }
 
   @Test
   @Ignore
-  public void testFiveNumSummary() throws DDFException {
+  public void testSummary() throws DDFException {
 
+    Assert.assertEquals(14, ddf.getSummary().length);
+    Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(4, ddf1.getFiveNumSummary().length);
     Assert.assertEquals(FiveNumSummary.class, ddf1.getFiveNumSummary()[0].getClass());
+    //manager.shutdown();
 
   }
-
+ 
   @Test
+  @Ignore
   public void testSampling() throws DDFException {
     Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
+    Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());
   }
 
   @Test
@@ -93,5 +97,6 @@ public class StatisticsSupporterTest {
   public void closeTest() {
     manager.shutdown();
   }
+
 
 }

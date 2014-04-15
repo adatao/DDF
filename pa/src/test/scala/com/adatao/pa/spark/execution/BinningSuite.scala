@@ -31,7 +31,7 @@ class BinningSuite extends ABigRClientTest{
 			assert(factor.get("(4.5,5.5]") === 5)
 		}
 	}
-
+/*
 	test("test right & includeLowest") {
 		val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
 		assert(df.isSuccess)
@@ -142,5 +142,5 @@ class BinningSuite extends ABigRClientTest{
 		val factor = col.getFactor.toMap
 		assert(factor === Map("[10.4,16.2]"->10, "(16.2,21.4]"->12, "(21.4,33.9]"->10))
 	}
-
+*/
 }

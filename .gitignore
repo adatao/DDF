@@ -68,3 +68,5 @@ inst/java/
 *~
 *metastore_db/
 .Rproj.user
+#Rserve files
+pa/rlibs/Rserve/*

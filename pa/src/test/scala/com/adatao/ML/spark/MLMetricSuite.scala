@@ -18,12 +18,13 @@ package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
-import com.adatao.ML.types.Matrix
-import com.adatao.ML.types.Vector
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import org.junit.Assert._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.pa.spark.execution.YtrueYpred
+import com.adatao.ddf.ml.RocMetric
 
 /**
  * Tests for model scoring metrics
@@ -103,7 +104,7 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 			Array(0.2, 0, 0)
 		)
 
-		val roc = new RocObject(pred, 0.0)
+		val roc = new RocMetric(pred, 0.0)
 		roc.computeAUC
 		roc.print
 		assertEquals(roc.auc, 0.6666667, 0.0001)
@@ -113,7 +114,7 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 			Array(0.2, 0, 0)
 		)
 
-		val roc2 = new RocObject(pred2, 0.0)
+		val roc2 = new RocMetric(pred2, 0.0)
 		roc2.computeAUC
 		roc2.print
 		assertEquals(roc2.auc, 0.500, 0.0001)
@@ -123,7 +124,7 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 			Array(0.2, 0.98, 0)
 		)
 
-		val roc3 = new RocObject(pred3, 0.0)
+		val roc3 = new RocMetric(pred3, 0.0)
 		roc3.computeAUC
 		roc3.print
 		assertEquals(roc3.auc, 0.99, 0.0001)

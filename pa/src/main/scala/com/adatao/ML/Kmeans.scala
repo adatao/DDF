@@ -2,7 +2,8 @@ package com.adatao.ML
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.Accumulator
-import com.adatao.ML.types.{Vector, Matrix}
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.Vector
 import org.jblas.{DoubleMatrix, Geometry}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
