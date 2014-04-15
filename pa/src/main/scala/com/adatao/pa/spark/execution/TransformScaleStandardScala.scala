@@ -1,15 +1,16 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
+import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import com.adatao.pa.spark.DataManager
+import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import shark.api.JavaSharkContext
 import org.apache.spark.api.java.function.Function
 
 /**
- * Features scaling so that data has min = 0 and max = 1.
+ * Features scaling so that data is centered around 0 with stdev 1.
  */
-class TransformScaleMinMax(dataContainerID: String) extends AExecutor[DataFrameResult] {
+class TransformScaleStandardScala(dataContainerID: String) extends AExecutor[DataFrameResult] {
 	override def runImpl(context: ExecutionContext): DataFrameResult = {
 		val dm = context.sparkThread.getDataManager
 		Option(dm.get(dataContainerID)) match {
@@ -28,11 +29,11 @@ class TransformScaleMinMax(dataContainerID: String) extends AExecutor[DataFrameR
 						if (col.getType == "string" || col.hasFactor) {
 							col.getHeader
 						} else {
-							// subtract min, divide by (max - min)
+							// subtract mean, divide by stdev
 							String.format("((%s - %s) / %s) as %s",
 								col.getHeader,
-								summary.min(i).asInstanceOf[Object],
-								(summary.max(i) - summary.min(i)).asInstanceOf[Object],
+								summary.mean(i).asInstanceOf[Object],
+								summary.stdev(i).asInstanceOf[Object],
 								col.getHeader)
 						}
 					}.mkString(", ") + " from " + df.getTableName
@@ -66,16 +67,15 @@ class TransformScaleMinMax(dataContainerID: String) extends AExecutor[DataFrameR
 			(0 until numCol).foreach { i =>
 			// XXX: don't use try/catch
 				try {
-					row(i) = (
-							(row(i).asInstanceOf[Double] - summary.min(i)) / (summary.max(i) - summary.min(i))
-							).asInstanceOf[Object]
+					row(i) = ((row(i).asInstanceOf[Double] - summary.mean(i)) / summary.stdev(i)).asInstanceOf[Object]
 				} catch {
-					// do nothing for non-double values, all Intergers should have already been coerced
-					case e: ClassCastException => Unit
+					case e: ClassCastException => Unit // do nothing for non-double values
 				}
 			}
 			row
 		}
 	}
+
 }
 
+class DataFrameResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])

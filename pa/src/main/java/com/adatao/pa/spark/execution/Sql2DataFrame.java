@@ -24,7 +24,6 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
-import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
@@ -95,7 +94,7 @@ public class Sql2DataFrame extends CExecutor {
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
 
-      return new Utils.DataFrameResult(ddf);
+      return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly
