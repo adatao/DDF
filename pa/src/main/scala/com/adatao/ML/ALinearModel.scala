@@ -38,7 +38,11 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
 	 * Helpful signature for caller to be able to pass in an Array[Double] directly.
 	 * A Vector is built from the Array with a bias term.
 	 */
-	def predict(features: Array[Double]): OutputType = this.predict(Vector(Array[Double](1) ++ features))
+	def predict(features: Array[Double]): OutputType = {
+	  
+	  println(">>>>>>>>>>>>>>>>>>>>>>> calling predict inside ALinearModel")
+	  this.predict(Vector(Array[Double](1) ++ features))
+	}
 
 	protected def linearPredictor(features: Vector): Double = {
 		weights.dot(features)

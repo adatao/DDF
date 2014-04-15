@@ -12,7 +12,11 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
+import com.adatao.ddf.ml.RocMetric;
 import com.adatao.spark.ddf.SparkDDF;
+import org.apache.spark.mllib.regression.LabeledPoint;
+
+import com.adatao.spark.ddf.content.RepresentationHandler;
 
 public class MLMetricsSupporter extends AMLMetricsSupporter {
   
@@ -104,7 +108,6 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     if(predictionDDF.getNamespace()== null) System.err.println(">> predictionDDF.getNamespace() is null");
     if(predictionDDF.getSchema()== null) System.err.println(">> predictionDDF.getSchema() is null");
     if(predictionDDF.getName()== null) System.err.println(">> predictionDDF.getName() is null");
-    System.out.println(">>> predictionDDF.getName() === " + predictionDDF.getName());
     
     Schema schema = new Schema("doubble residuals");
     DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), null, schema);
@@ -137,9 +140,21 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
   @Override
-  public Object roc(DDF predictionDDF) {
-    // TODO Auto-generated method stub
-    return null;
+  /*
+   * input expected RDD[double[][]]
+   * (non-Javadoc)
+   * @see com.adatao.ddf.ml.AMLMetricsSupporter#roc(com.adatao.ddf.DDF, int)
+   */
+  public RocMetric roc(DDF predictionDDF, int alpha_length) throws DDFException {
+    
+	IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class);
+    RDD<double[]> predictionRDD =  (RDD<double[]>) gr.getObject();
+    //convert from rdd[double[]] to rdd[LabeledPoint]
+    RDD<LabeledPoint[]> newrdd = RepresentationHandler.rowsToArrayLabeledPoints2(predictionRDD);
+    
+    ROCComputer rc = new ROCComputer();
+    return(rc.ROC(newrdd, alpha_length));
+    
   }
   
   public MLMetricsSupporter(DDF theDDF) {

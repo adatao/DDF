@@ -12,7 +12,7 @@ import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.RepresentationHandler.GetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
-
+import shark.api.Row;
 
 /**
  * An Apache-Spark-based implementation of DDF
@@ -23,7 +23,7 @@ public class SparkDDF extends DDF {
   private static final long serialVersionUID = 7466377156065874568L;
 
 
-  public <T> SparkDDF(DDFManager manager, RDD<T> rdd, Class<T> unitType, String namespace, String name, Schema schema)
+  public <T> SparkDDF(DDFManager manager, RDD<?> rdd, Class<T> unitType, String namespace, String name, Schema schema)
       throws DDFException {
 
     super(manager);

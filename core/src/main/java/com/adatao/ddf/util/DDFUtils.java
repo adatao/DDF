@@ -70,4 +70,8 @@ public class DDFUtils {
   private static String ensureUniqueness(String desiredName) {
     return desiredName + UUID.randomUUID(); // FIXME: this should really be done by calling into the REGISTRY subsystem
   }
+  
+  public static String saveDDFName(String ddfName) {
+    return ddfName.replace("-", "_");
+  }
 }

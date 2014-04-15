@@ -136,4 +136,8 @@ public class RandomForestModel implements TModel, Serializable {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    public String ddfModelID() {
+        return null;
+    }
 }

@@ -21,9 +21,9 @@ import com.adatao.ML.LogisticRegressionModel
 import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.spark.RocObject
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
+import com.adatao.ddf.ml.RocMetric
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.HashMap
 
@@ -37,45 +37,110 @@ class MetricsSuite extends ABigRClientTest {
 		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
 	}
 
+//	test("Test YtrueYpredict function") {
+//
+//		createTableAdmission
+//		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 0.0
+//
+//		System.setProperty("sparse.max.range", "10000")
+//		var cmd2 = new FiveNumSummary(dataContainerId)
+//		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+//		assert(summary.size > 0)
+//
+//		//construct columnSummary parameter
+//		var columnsSummary = new HashMap[String, Array[Double]]
+//		var hmin = new Array[Double](summary.size)
+//		var hmax = new Array[Double](summary.size)
+//		//convert columnsSummary to HashMap
+//		var i = 0
+//		while (i < summary.size) {
+//			hmin(i) = summary(i).min
+//			hmax(i) = summary(i).max
+//			i += 1
+//		}
+//		columnsSummary.put("min", hmin)
+//		columnsSummary.put("max", hmax)
+//
+//		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0,1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+//		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+//		assert(r.isSuccess)
+//
+//		val modelID = r.persistenceID
+//
+//		//run prediction
+//		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+//		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+//		val predictionResultId = r2.result.dataContainerID
+//		assert(r2.isSuccess)
+//
+//	}
+	
 	/**
 	 * this will test ROC execution
 	 * success: if roc execution return success value
 	 * fail: if not success
 	 * for accuracy testing, please see MLMetricSuite
 	 */
-//	test("Test ROC metric function") {
-//
-//		createTableAdmission
-//		val df = this.runSQL2RDDCmd("select * from admission", true)
-//		val dataContainerId = df.dataContainerID
-//		val lambda = 0.0
-//
-//		// fake the training with learningRate = 0.0
-//		val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-//		val r = bigRClient.execute[LogisticRegressionModel](trainer)
-//		assert(r.isSuccess)
-//		val modelID = r.persistenceID
-//
-//		//run prediction
-//		val predictor = new YtrueYpred(dataContainerId, modelID, Array(2, 3), 0)
-//		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
-//		val predictionResultId = r2.result.dataContainerID
-//		assert(r2.isSuccess)
-//
-//		//		//run ROC
-//		val alpha_length: Int = 10
-//		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
-//		val ret = bigRClient.execute[RocObject](executor)
-//
-//		val metric = ret.result
-//		assert(ret.isSuccess)
-//		//this result is idential with confusion matrix unit test
+	test("Test ROC metric function") {
+
+		createTableAdmission
+		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+		val dataContainerId = df.dataContainerID
+		val lambda = 0.0
+
+		System.setProperty("sparse.max.range", "10000")
+		var cmd2 = new FiveNumSummary(dataContainerId)
+		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+		assert(summary.size > 0)
+
+		//construct columnSummary parameter
+		var columnsSummary = new HashMap[String, Array[Double]]
+		var hmin = new Array[Double](summary.size)
+		var hmax = new Array[Double](summary.size)
+		//convert columnsSummary to HashMap
+		var i = 0
+		while (i < summary.size) {
+			hmin(i) = summary(i).min
+			hmax(i) = summary(i).max
+			i += 1
+		}
+		columnsSummary.put("min", hmin)
+		columnsSummary.put("max", hmax)
+
+		
+		// fake the training with learningRate = 0.0
+		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		assert(r.isSuccess)
+		println(">>>>>>model=" + r.result)
+		val modelID = r.persistenceID
+		
+		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
+
+		//run prediction
+		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val predictionResultId = r2.result.dataContainerID
+		assert(r2.isSuccess)
+		
+		println(">>>>>>>>>>>>>>>>>.predictionResultId=" + predictionResultId)
+
+		//		//run ROC
+		val alpha_length: Int = 10
+		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
+		val ret = bigRClient.execute[RocMetric](executor)
+
+		val metric = ret.result
+		assert(ret.isSuccess)
+		//this result is idential with confusion matrix unit test
 //		assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
 //		assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
 //		assert(truncate(ret.result.auc, 4) === 0.6743)
-//
-//	}
-//
+
+	}
+
 //	test("R2 metric is correct") {
 //		createTableMtcars
 //		val df = this.runSQL2RDDCmd("select * from mtcars", true)
@@ -119,46 +184,46 @@ class MetricsSuite extends ABigRClientTest {
 //		println(">>>>>result =" + residuals.result)
 //
 //	}
-
-	test("smoke residuals metric") {
-		createTableMtcars
-		val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
-		val dataContainerId = df.dataContainerID
-		val lambda = 0.0
-
-		//minimum threshold range for sparse columns
-		System.setProperty("sparse.max.range", "10000")
-		var cmd2 = new FiveNumSummary(dataContainerId)
-		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-		assert(summary.size > 0)
-
-		//construct columnSummary parameter
-		var columnsSummary = new HashMap[String, Array[Double]]
-		var hmin = new Array[Double](summary.size)
-		var hmax = new Array[Double](summary.size)
-		//convert columnsSummary to HashMap
-		var i = 0
-		while (i < summary.size) {
-			hmin(i) = summary(i).min
-			hmax(i) = summary(i).max
-			i += 1
-		}
-		columnsSummary.put("min", hmin)
-		columnsSummary.put("max", hmax)
-
-		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0), 1, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
-		assert(r.isSuccess)
-
-		val modelID = r.persistenceID
-
-		val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
-		val residuals = bigRClient.execute[ResidualsResult](scorer)
-		assert(residuals.isSuccess)
-
-		println(">>>>>residuals =" + residuals.result)
-
-	}
+//
+//	test("smoke residuals metric") {
+//		createTableMtcars
+//		val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 0.0
+//
+//		//minimum threshold range for sparse columns
+//		System.setProperty("sparse.max.range", "10000")
+//		var cmd2 = new FiveNumSummary(dataContainerId)
+//		val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+//		assert(summary.size > 0)
+//
+//		//construct columnSummary parameter
+//		var columnsSummary = new HashMap[String, Array[Double]]
+//		var hmin = new Array[Double](summary.size)
+//		var hmax = new Array[Double](summary.size)
+//		//convert columnsSummary to HashMap
+//		var i = 0
+//		while (i < summary.size) {
+//			hmin(i) = summary(i).min
+//			hmax(i) = summary(i).max
+//			i += 1
+//		}
+//		columnsSummary.put("min", hmin)
+//		columnsSummary.put("max", hmax)
+//
+//		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0), 1, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344))
+//		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+//		assert(r.isSuccess)
+//
+//		val modelID = r.persistenceID
+//
+//		val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
+//		val residuals = bigRClient.execute[ResidualsResult](scorer)
+//		assert(residuals.isSuccess)
+//
+//		println(">>>>>residuals =" + residuals.result)
+//
+//	}
 //
 //	test("can get linear predictions") {
 //		createTableMtcars

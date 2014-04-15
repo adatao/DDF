@@ -27,7 +27,11 @@ import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.ALossFunction
 import com.adatao.spark.RDDImplicits._
 import java.util.HashMap
+import java.util.List
+import java.util.ArrayList
 
+import com.adatao.ddf.DDF
+import scala.collection.mutable.ArrayBuffer
 /**
  * Entry point for SparkThread executor
  */
@@ -40,17 +44,32 @@ class LogisticRegression(
 	var ridgeLambda: Double,
 	var initialWeights: Array[Double])
 		extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
-
+    
+  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+    val ddfManager = context.sparkThread.getDDFManager();
+    val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+      case x: DDF => x
+      case _ => throw new IllegalArgumentException("Only accept DDF")
+    }
+    // project the xCols, and yCol as a new DDF
+    // this is costly
+    val schema = ddf.getSchema()
+    var columnList : java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    columnList.add(schema.getColumn(yCol).getName)
+    val projectDDF = ddf.Views.project(columnList)
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    
+    // converts DDF model to old PA model
+    val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
+    val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
+    ddfManager.addModel(logisticModel)
+    paModel.ddfModel = logisticModel
+    return paModel
+  }
+  
 	def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
-		
-//		println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
-		//depend on length of weights
-		val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-		
-		var model = ML.LogisticRegression.train(
-			new LogisticRegression.LossFunction(dataPartition, ridgeLambda), numIters, learningRate, weights, numFeatures
-		)
-		model
+		null
 	}
 	
 	//post process, set column mapping to model
@@ -69,8 +88,8 @@ object LogisticRegression {
 	 * objects, if we were to place this class within [[class LogisticRegression]].
 	 */
 	class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALogisticGradientLossFunction(XYData, ridgeLambda) {
-		def compute: Vector ⇒ ALossFunction = {
-			(weights: Vector) ⇒ XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+		def compute: Vector => ALossFunction = {
+			(weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
 		}
 	}
 }

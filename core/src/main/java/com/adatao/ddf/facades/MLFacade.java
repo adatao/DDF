@@ -9,6 +9,8 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.IModel;
 import com.adatao.ddf.ml.ISupportML;
 
+import java.util.List;
+
 /**
  * A helper class to group together the various ML functions that would otherwise crowd up DDF.java
  */
@@ -74,6 +76,23 @@ public class MLFacade implements ISupportML {
   public IModel linearRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
       double miniBatchFraction) throws DDFException {
     return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
+  }
+
+  public IModel logisticRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
+      double miniBatchFraction) throws DDFException {
+    return this.train("LogisticRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
+  }
+
+  public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+    return this.getMLSupporter().getConfusionMatrix(model, threshold); 
+  }
+
+  public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
+    return this.getMLSupporter().CVKFold(k, seed);
+  }
+
+  public List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException {
+    return this.getMLSupporter().CVRandom(k, trainingSize, seed);
   }
 
 }
