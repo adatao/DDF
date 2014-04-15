@@ -244,7 +244,10 @@ class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDevianc
 abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
 		extends ALossFunction {
 
-	final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = X.mmul(weights)
+	final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = {
+	  println(">>>> X.numCols=" + X.getColumns() + "\t weights size = " + weights.getRows())
+	  X.mmul(weights)
+	}
 
 	/**
 	 * May override this to define a hypothesis function. The base implementation is

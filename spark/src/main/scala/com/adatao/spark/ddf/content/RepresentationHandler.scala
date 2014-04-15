@@ -34,6 +34,8 @@ import com.adatao.spark.ddf.ml.TransformRow
 import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData
 import com.adatao.spark.ddf.content.MetaDataHandler._
 import com.adatao.ddf.content.Schema.ColumnClass
+import com.adatao.ddf.content.Schema._
+import com.adatao.ddf.content.Schema.DummyCoding
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -48,65 +50,6 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
    * Converts from an RDD[Row] to any representation
    */
   override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
-
-  /*
-   * input: schema
-   * output: get hashpmap of dummy coding: 
-   * [column index, columnd_value, new index]
-   * i.e: [1, ["IAD", 1]], [1, ["IND", 2]] and so on
-   */
-  def generateDummyCoding(schema: Schema): (HashMap[Integer, HashMap[String, java.lang.Double]], Integer, Array[Int]) = {
-    val mapping: HashMap[Integer, HashMap[String, java.lang.Double]] = new HashMap[Integer, HashMap[String, java.lang.Double]]()
-    var numDummyCoding = 0
-
-    //initialize array xCols which is just 0, 1, 2 ..
-    var xCols: Array[Int] = new Array[Int](schema.getColumns().size())
-    var i = 0
-    while (i < xCols.length) {
-      xCols(i) = i
-      i += 1
-    }
-    println(">>>khang generateDummyCoding: ")
-
-    val columns = schema.getColumns()
-    val it = columns.iterator()
-    while (it.hasNext()) {
-
-      println(">>>khang generateDummyCoding: ")
-
-      val currentColumn = it.next()
-
-      println(">>>khang generateDummyCoding: currentColumn = " + currentColumn)
-
-      val currentColumnIndex = schema.getColumnIndex(currentColumn.getName())
-      var temp = new HashMap[String, java.lang.Double]()
-      //loop
-      if (currentColumn.getType() == ColumnType.ANY && currentColumn.getOptionalFactor() != null
-        && currentColumn.getOptionalFactor().getLevelMap() != null && currentColumn.getOptionalFactor().getLevelMap().size() > 0) {
-        val currentColumnFactor = currentColumn.getOptionalFactor().getLevelMap()
-        val iterator = currentColumnFactor.keySet().iterator()
-
-        var i = 0
-        temp = new HashMap[String, java.lang.Double]()
-        while (iterator.hasNext()) {
-
-          println(">>>khang generateDummyCoding: A ")
-
-          val columnValue = iterator.next()
-
-          println(">>>khang generateDummyCoding: A " + columnValue)
-
-          temp.put(columnValue, i)
-          println(">>>khang columnIndex: " + currentColumnIndex + "\t columnValue=" + columnValue + "\tcolumn new Index=" + i)
-          i += 1
-        }
-        mapping.put(currentColumnIndex, temp)
-
-        numDummyCoding += temp.size() - 2
-      }
-    }
-    (mapping, numDummyCoding, xCols)
-  }
 
   protected def fromRDDRow(typeSpecs: String): Object = {
     val schemaHandler = mDDF.getSchemaHandler
@@ -127,24 +70,10 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
-        val (dc, numDummyColumns, xCols) = generateDummyCoding(schema)
+        val dummyCoding = schema.generateDummyCoding() //generateDummyCoding(schema)
 
-        //manually input dc
-        var temp = new HashMap[String, java.lang.Double]()
-        temp.put("WN", 1.0)
-
-        var temp2 = new HashMap[String, java.lang.Double]()
-        temp2.put("IAD", 1.0)
-        temp2.put("IND", 2.0)
-        temp2.put("ISP", 3.0)
-        //        dc.put(1, temp)
-        dc.put(1, temp2)
-
-        var numDummyColumns2 = 2
-
-        println(">>>>>>>>>>>>calling before rowsToMatrixVector: dc.size = " + dc.size() + "\t numDummyColumns=" + numDummyColumns + "\txCols=" + xCols)
-
-        rowsToMatrixVectorRDD(srcRdd, mappers, dc, numDummyColumns2, xCols)
+        
+        rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
         typeSpecs,
@@ -322,30 +251,29 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVectorRDD(rdd: RDD[Row], mappers: Array[Object ⇒ Double], dc: HashMap[Integer, HashMap[String, java.lang.Double]], numDummyColumns: Integer, xCols: Array[Int]): RDD[TupleMatrixVector] = {
+  def rowsToMatrixVectorRDD(rdd: RDD[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): RDD[TupleMatrixVector] = {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
     println(">>>>> before calling printMetaData")
-    printMetaData(dc)
 
     //send to slave
-    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc, numDummyColumns, xCols))
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc))
   }
 
-  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+  //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+  //
+  //    println(">>>>> calling printMetaData")
+  //
+  //    if (dc == null) {
+  //      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
+  //    } else {
+  //      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
+  //    }
+  //
+  //  }
 
-    println(">>>>> calling printMetaData")
-
-    if (dc == null) {
-      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
-    } else {
-      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
-    }
-
-  }
-
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: HashMap[Integer, HashMap[String, java.lang.Double]], numDummyColumns: Integer, xCols: Array[Int]): Iterator[TupleMatrixVector] = {
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
 
     println(">>> inside rowsToMatrixVector dummy coding = " + dc)
 
@@ -369,15 +297,15 @@ object RepresentationHandler {
     }
 
     val numRows = lstRows.size
-    val Y = new Vector(numRows)
+    var Y = new Vector(numRows)
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
-    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + numDummyColumns)
+    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
-    val X = new Matrix(numRows, numCols + numDummyColumns)
-//    var newX = new Matrix(numRows, numCols + numDummyColumns)
-//    val newY = new Vector(numRows)
+    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+    //    var newX = new Matrix(numRows, numCols + numDummyColumns)
+    //    val newY = new Vector(numRows)
 
-    val trRow = new TransformRow(xCols, dc)
+    val trRow = new TransformRow(dc.xCols, dc.mapping)
 
     row = 0
     val yCol = 0
@@ -396,14 +324,13 @@ object RepresentationHandler {
         //if this column is categorical column
         if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
           columnStringValue = inputRow(columnIndex).toString() + ""
-          newValue = dc.get(columnIndex).get(columnStringValue)
+          newValue = dc.mapping.get(columnIndex).get(columnStringValue)
           println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
         }
         //normal numeric column
-        if (newValue == -1.0) 
+        if (newValue == -1.0)
           newValue = objectToDouble(inputRow(columnIndex))
-          
-          
+
         X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
 
         columnIndex += 1
@@ -413,62 +340,21 @@ object RepresentationHandler {
       row += 1
     }
 
-    
     println(">>>>>>>>>>>>> final OLD X matrix = " + X.toString())
-    
-    
-    var (newX, newY) = instrument((X, Y), dc, xCols)
-    
-    //let's print the matrix
-    println(">>>>>>>>>>>>> final X matrix = " + newX.toString())
-    val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
-    Iterator(Z)
+
+    if (dc.getNumDummyCoding > 0) {
+      //most important step
+      var newX: Matrix = trRow.instrument(X, dc.getMapping, dc.getxCols)
+      //let's print the matrix
+      println(">>>>>>>>>>>>> NEWWWWWWWWWWWWWW final X matrix = " + newX.toString())
+      val Z: TupleMatrixVector = new TupleMatrixVector(newX, Y)
+      Iterator(Z)
+    } else {
+      val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
+      Iterator(Z)
+    }
+
   }
-  
-  def instrument[InputType](inputRow: (Matrix, Vector), dummyColumnMapping: HashMap[Integer, HashMap[String, java.lang.Double]], xCols: Array[Int]): (Matrix, Vector) = {
-
-		//so we need to do minus one for original column
-		var oldX = inputRow._1
-		var oldY = inputRow._2
-
-		//add dummy columns
-		val numCols = oldX.columns
-		var numRows = oldX.rows
-
-		//this is the most critical improvement to avoid OOM while building lm-categorical
-		//basically we don't create a new matrix but rather updating value in-place
-		
-//		val newX = new Matrix(numRows, numCols + numDummyCols)
-//		var newColumnMap = new Array[Int](numCols + numDummyCols)
-		
-		
-		//new code, coulmnMap has same dimensions with input matrix columns
-		var newColumnMap = new Array[Int](numCols)
-
-		//row transformer
-		var trRow = new TransformRow(xCols, dummyColumnMapping)
-
-		//for each row
-		var indexRow = 0
-		var currentRow = null.asInstanceOf[Matrix]
-		var newRowValues = null.asInstanceOf[DoubleMatrix]
-		while (indexRow < oldX.rows) {
-
-			//for each rows
-			currentRow = Matrix(oldX.getRow(indexRow))
-
-			newRowValues = trRow.transform(currentRow)
-			//add new row
-			oldX.putRow(indexRow, newRowValues)
-
-			//convert oldX to new X
-			indexRow += 1
-		}
-
-//		println("after dummy coding, X = " + util.Arrays.deepToString(oldX.toArray2.asInstanceOf[Array[Object]]))
-
-		(oldX, oldY)
-	}
 
   def objectToDouble(o: Object): Double = o match {
     case i: java.lang.Integer => i.toDouble

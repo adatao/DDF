@@ -124,4 +124,46 @@ class TransformRow(xCols: Array[Int], mapping: HashMap[java.lang.Integer, HashMa
 		}
 		ret
 	}
+	
+	def instrument[InputType](oldX: Matrix, dummyColumnMapping: HashMap[Integer, HashMap[String, java.lang.Double]], xCols: Array[Int]): Matrix = {
+
+    //so we need to do minus one for original column
+
+    //add dummy columns
+    val numCols = oldX.columns
+    var numRows = oldX.rows
+
+    //this is the most critical improvement to avoid OOM while building lm-categorical
+    //basically we don't create a new matrix but rather updating value in-place
+
+    //		val newX = new Matrix(numRows, numCols + numDummyCols)
+    //		var newColumnMap = new Array[Int](numCols + numDummyCols)
+
+    //new code, coulmnMap has same dimensions with input matrix columns
+    var newColumnMap = new Array[Int](numCols)
+
+    //row transformer
+    var trRow = new TransformRow(xCols, dummyColumnMapping)
+
+    //for each row
+    var indexRow = 0
+    var currentRow = null.asInstanceOf[Matrix]
+    var newRowValues = null.asInstanceOf[DoubleMatrix]
+    while (indexRow < oldX.rows) {
+
+      //for each rows
+      currentRow = Matrix(oldX.getRow(indexRow))
+
+      newRowValues = trRow.transform(currentRow)
+      //add new row
+      oldX.putRow(indexRow, newRowValues)
+
+      //convert oldX to new X
+      indexRow += 1
+    }
+
+    //		println("after dummy coding, X = " + util.Arrays.deepToString(oldX.toArray2.asInstanceOf[Array[Object]]))
+
+    oldX
+  }
 }
