@@ -5,6 +5,7 @@ package com.adatao.ddf.content;
 
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
@@ -92,13 +93,10 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   @Override
-  public Factor<String> setAsFactor(String columnName, List<String> levels) throws DDFException {
-    Factor<String> factor = new Factor<String>(this.getDDF(), columnName);
-    factor.computeLevelMap(levels);
-    this.getSchema().getColumn(columnName).setAsFactor(factor);
-    return factor;
+  public void getFactorLevelsAndLevelCounts() throws DDFException {
+
   }
-  
+
   @Override
   public Factor<?> setAsFactor(String columnName) {
     if (this.getSchema() == null) return null;
