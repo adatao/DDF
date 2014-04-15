@@ -37,7 +37,6 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     sqlCmdBuffer.setLength(sqlCmdBuffer.length() - 1);
     sqlCmdBuffer.append("FROM ").append(this.getDDF().getTableName());
 
-    System.out.println("transformScaleMinMax SQL command >>>>> " +  sqlCmdBuffer.toString());
     DDF newddf = this.getManager().sql2ddf(sqlCmdBuffer.toString());
     this.getManager().addDDF(newddf);
 
@@ -54,14 +53,14 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
 
     for (int i = 0; i < columns.size(); i++) {
       Column col = columns.get(i);
-      if (!col.isNumeric() || col.getColumnClass() != ColumnClass.FACTOR) {
+      if (!col.isNumeric() || col.getColumnClass() == ColumnClass.FACTOR) {
         sqlCmdBuffer.append(col.getName());
       } else {
         // subtract mean, divide by stdev
-        sqlCmdBuffer.append(String.format("((%s - %s) / %s) as %s", col.getName(), summaryArr[i].mean(),
+        sqlCmdBuffer.append(String.format("((%s - %s) / %s) as %s ", col.getName(), summaryArr[i].mean(),
             summaryArr[i].stdev(), col.getName()));
       }
-      sqlCmdBuffer.append(", ");
+      sqlCmdBuffer.append(",");
     }
     sqlCmdBuffer.setLength(sqlCmdBuffer.length() - 1);
     sqlCmdBuffer.append("FROM ").append(this.getDDF().getTableName());
