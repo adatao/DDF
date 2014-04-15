@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import scala.actors.threadpool.Arrays;
 
@@ -198,16 +199,18 @@ public class Schema implements Serializable {
 					.getName());
 			HashMap<String, java.lang.Double> temp = new HashMap<String, java.lang.Double>();
 			// loop
-			if (currentColumn.getType() == ColumnType.ANY
-					&& currentColumn.getOptionalFactor() != null
-					&& currentColumn.getOptionalFactor().getLevelMap() != null
-					&& currentColumn.getOptionalFactor().getLevelMap().size() > 0) {
+			if (currentColumn.getColumnClass() == ColumnClass.FACTOR) {
+				
+				//set as factor
+				//recompute level
+				List<String> levels = new ArrayList(currentColumn.getOptionalFactor().getLevels());
+				currentColumn.getOptionalFactor().setLevels(levels, true);
 
-				Map<String, Integer> currentColumnFactor = currentColumn
-						.getOptionalFactor().getLevelMap();
+				Map<String, Integer> currentColumnFactor = currentColumn.getOptionalFactor().getLevelMap();
 				Iterator<String> iterator = currentColumnFactor.keySet()
 						.iterator();
 
+				//TODO update this code
 				i = 0;
 				temp = new HashMap<String, java.lang.Double>();
 				while (iterator.hasNext()) {
