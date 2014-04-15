@@ -25,7 +25,7 @@ public class TransformScaleMinMax extends CExecutor {
     try {
       
       DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-      DDF newddf = ddf.transformScaleMinMax();
+      DDF newddf = ddf.Transform.transformScaleMinMax();
 
       return new Utils.DataFrameResult(newddf);
 

@@ -94,7 +94,7 @@ public class Sql2DataFrame extends CExecutor {
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
 
-      return new Utils.DataFrameResult(ddf);
+      return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly
