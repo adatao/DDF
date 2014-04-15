@@ -41,10 +41,8 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
   @Override
   public void getFactorLevelsAndLevelCounts() throws DDFException {
     List<Integer> columnIndexes = new ArrayList<Integer>();
-    //List<Factor<?>> factors = new ArrayList<Factor<?>>();
     List<Schema.ColumnType> columnTypes = new ArrayList<Schema.ColumnType>();
 
-    mLog.info(">>>>> YOLO getFactorLevelsAndLevelCounts");
     for(Column col : this.getColumns()) {
       if(col.getColumnClass() == Schema.ColumnClass.FACTOR) {
         Factor<?> colFactor = col.getOptionalFactor();
@@ -84,10 +82,12 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
 
     for(Integer colIndex: columnIndexes) {
       Column column = this.getColumn(this.getColumnName(colIndex));
+      Map<String, Integer> levelCounts = listLevelCounts.get(colIndex);
       Factor<?> factor = column.getOptionalFactor();
-      List<String> levels = new ArrayList<String>(listLevelCounts.get(colIndex).keySet());
 
-      factor.setLevelCounts(listLevelCounts.get(colIndex));
+      List<String> levels = new ArrayList<String>(levelCounts.keySet());
+
+      factor.setLevelCounts(levelCounts);
       factor.setLevels(levels, false);
     }
   }
