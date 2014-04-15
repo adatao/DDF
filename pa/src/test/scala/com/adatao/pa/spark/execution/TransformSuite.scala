@@ -40,14 +40,14 @@ class TransformSuite extends ABigRClientTest {
 
 		// scale standard
 		val dataContainerId = r0.result.dataContainerID
-//		val scaler = new TransformScaleStandard(dataContainerId)
-//		val scaleres = bigRClient.execute[DataFrameResult](scaler)
-//
-//		val exsum = new QuickSummary().setDataContainerID(scaleres.result.dataContainerID)
-//		val summary = bigRClient.execute[DataframeStatsResult](exsum)
-//
-//		assert(summary.result.mean.forall(x => math.abs(x - 0) < 0.02))
-//		assert(summary.result.stdev.forall(x => math.abs(x - 1) < 0.02))
+		val scaler = new TransformScaleStandard(dataContainerId)
+		val scaleres = bigRClient.execute[com.adatao.pa.spark.Utils.DataFrameResult](scaler)
+
+		val exsum = new QuickSummary().setDataContainerID(scaleres.result.dataContainerID)
+		val summary = bigRClient.execute[DataframeStatsResult](exsum)
+
+		assert(summary.result.mean.forall(x => math.abs(x - 0) < 0.02))
+		assert(summary.result.stdev.forall(x => math.abs(x - 1) < 0.02))
 
 		// scale min max
 		val scaler2 = new TransformScaleMinMax(dataContainerId)
