@@ -14,9 +14,12 @@ import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData;
 /**
  *
  */
-public class MetaDataHandler extends AMetaDataHandler {
+public class MetaDataHandler extends AMetaDataHandler implements Serializable {
 	private static Logger logger = Logger.getLogger(MetaDataHandler.class);
+	
 
+	public HashMap<Integer, DummyCustomMetaData> dataMapping = new HashMap<Integer, DummyCustomMetaData>();
+	
 	public MetaDataHandler(DDF theDDF) {
 		super(theDDF);
 	}
@@ -34,49 +37,35 @@ public class MetaDataHandler extends AMetaDataHandler {
 		}
 		return 0;
 	}
-	
-	
+
 	public void buildListCustomMetaData() {
-		//TODO get multi factors
-		//then build ListCustomMetaData
-		HashMap<Integer, ICustomMetaData>  a = new HashMap<Integer, ICustomMetaData> ();
+		// TODO get multi factors
+		// then build ListCustomMetaData
+		
 		DummyCustomMetaData dcmd = new DummyCustomMetaData();
-		dcmd.mapping =  new HashMap<String, Integer> ();
+
+		dcmd.columnIndex = 1;
+		dcmd.mapping = new HashMap<String, Integer>();
 		dcmd.mapping.put("IND", 1);
 		dcmd.mapping.put("ISP", 2);
 		dcmd.mapping.put("IAD", 3);
-		a.put(1, (DummyCustomMetaData) dcmd);
-		
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> buildListCustomMetaData: ");
-		
-		
-		java.util.Iterator<Integer> it = a.keySet().iterator();
-		while(it.hasNext()) {
-			DummyCustomMetaData customMetaData = (DummyCustomMetaData) a.get(it.next());
-			if(customMetaData != null) System.out.println(">>>>customMetaData: " + customMetaData);
-			this.setCustomMetaData(customMetaData);
-		}
-		
-	}
-	
-	
-	@Override
-	public HashMap<Integer, ICustomMetaData> getListCustomMetaData() {
-		HashMap<Integer, ICustomMetaData> a = super.getListCustomMetaData();
-		return (a);
+		dataMapping.put(1, (DummyCustomMetaData) dcmd);
+
 	}
 
-	public class DummyCustomMetaData implements ICustomMetaData {
+	public class DummyCustomMetaData implements Serializable {
 		/**
 		 * 
 		 */
-		public HashMap<String, Integer> mapping = new HashMap<String, Integer> ();
+		public Integer columnIndex;
+		public HashMap<String, Integer> mapping;
 
 		public DummyCustomMetaData() {
-			 mapping = new HashMap<String, Integer> ();
+			mapping = new HashMap<String, Integer>();
 		}
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public double[] buildCoding(String value) {
 			return null;
 		}
@@ -87,9 +76,9 @@ public class MetaDataHandler extends AMetaDataHandler {
 
 		public int getColumnIndex() {
 			System.out.println(">>>>>>>getColumnIndex");
-			return 0;
+			return (columnIndex);
 		}
-		
+
 		public int getColumnIndex(String value) {
 			return 0;
 		}

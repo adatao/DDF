@@ -202,7 +202,7 @@ public class Schema implements Serializable {
    * 
    * 
    */
-  public static class Column {
+  public static class Column implements Serializable {
     @Expose private String mName;
     @Expose private ColumnType mType;
     @Expose private ColumnClass mClass;

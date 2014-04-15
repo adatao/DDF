@@ -27,11 +27,13 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.types.Vector
 import com.adatao.ddf.types._
+import org.jblas.DoubleMatrix
 import java.util.ArrayList
 import java.util.HashMap
 import com.adatao.spark.ddf.ml.TransformRow
 import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData
 import com.adatao.spark.ddf.content.MetaDataHandler._
+import com.adatao.ddf.content.Schema.ColumnClass
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -47,19 +49,72 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
    */
   override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
 
+  /*
+   * input: schema
+   * output: get hashpmap of dummy coding: 
+   * [column index, columnd_value, new index]
+   * i.e: [1, ["IAD", 1]], [1, ["IND", 2]] and so on
+   */
+  def generateDummyCoding(schema: Schema): (HashMap[Integer, HashMap[String, java.lang.Double]], Integer, Array[Int]) = {
+    val mapping: HashMap[Integer, HashMap[String, java.lang.Double]] = new HashMap[Integer, HashMap[String, java.lang.Double]]()
+    var numDummyCoding = 0
+
+    //initialize array xCols which is just 0, 1, 2 ..
+    var xCols: Array[Int] = new Array[Int](schema.getColumns().size())
+    var i = 0
+    while (i < xCols.length) {
+      xCols(i) = i
+      i += 1
+    }
+    println(">>>khang generateDummyCoding: ")
+
+    val columns = schema.getColumns()
+    val it = columns.iterator()
+    while (it.hasNext()) {
+
+      println(">>>khang generateDummyCoding: ")
+
+      val currentColumn = it.next()
+
+      println(">>>khang generateDummyCoding: currentColumn = " + currentColumn)
+
+      val currentColumnIndex = schema.getColumnIndex(currentColumn.getName())
+      var temp = new HashMap[String, java.lang.Double]()
+      //loop
+      if (currentColumn.getType() == ColumnType.ANY && currentColumn.getOptionalFactor() != null
+        && currentColumn.getOptionalFactor().getLevelMap() != null && currentColumn.getOptionalFactor().getLevelMap().size() > 0) {
+        val currentColumnFactor = currentColumn.getOptionalFactor().getLevelMap()
+        val iterator = currentColumnFactor.keySet().iterator()
+
+        var i = 0
+        temp = new HashMap[String, java.lang.Double]()
+        while (iterator.hasNext()) {
+
+          println(">>>khang generateDummyCoding: A ")
+
+          val columnValue = iterator.next()
+
+          println(">>>khang generateDummyCoding: A " + columnValue)
+
+          temp.put(columnValue, i)
+          println(">>>khang columnIndex: " + currentColumnIndex + "\t columnValue=" + columnValue + "\tcolumn new Index=" + i)
+          i += 1
+        }
+        mapping.put(currentColumnIndex, temp)
+
+        numDummyCoding += temp.size() - 2
+      }
+    }
+    (mapping, numDummyCoding, xCols)
+  }
+
   protected def fromRDDRow(typeSpecs: String): Object = {
     val schemaHandler = mDDF.getSchemaHandler
     val numCols = schemaHandler.getNumColumns.toInt
     val srcRdd = this.toRDDRow
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
-    val metaHandler: MetaDataHandler = mDDF.getMetaDataHandler().asInstanceOf[MetaDataHandler]
-    metaHandler.buildListCustomMetaData()
-    val customMetaData = metaHandler.getListCustomMetaData()
-    if (customMetaData != null) {
-      println(">>>>>>>>>>>>>>>>>>>>>>>> customMetaData before call rowToMatrixVector " + customMetaData)
-      println(">>>>>>>>>>>>>>>>>>>>>>>> metaHandler before call rowToMatrixVector " + metaHandler)
-    }
+    val schema = schemaHandler.getSchema()
 
     typeSpecs match {
 
@@ -72,8 +127,24 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
-        println(">>>>>>>>>>>>calling rowsToMatrixVector")
-        rowsToMatrixVector(srcRdd, mappers, metaHandler)
+        val (dc, numDummyColumns, xCols) = generateDummyCoding(schema)
+
+        //manually input dc
+        var temp = new HashMap[String, java.lang.Double]()
+        temp.put("WN", 1.0)
+
+        var temp2 = new HashMap[String, java.lang.Double]()
+        temp2.put("IAD", 1.0)
+        temp2.put("IND", 2.0)
+        temp2.put("ISP", 3.0)
+        //        dc.put(1, temp)
+        dc.put(1, temp2)
+
+        var numDummyColumns2 = 2
+
+        println(">>>>>>>>>>>>calling before rowsToMatrixVector: dc.size = " + dc.size() + "\t numDummyColumns=" + numDummyColumns + "\txCols=" + xCols)
+
+        rowsToMatrixVectorRDD(srcRdd, mappers, dc, numDummyColumns2, xCols)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
         typeSpecs,
@@ -251,59 +322,46 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double], metaHandler: MetaDataHandler): RDD[TupleMatrixVector] = {
+  def rowsToMatrixVectorRDD(rdd: RDD[Row], mappers: Array[Object ⇒ Double], dc: HashMap[Integer, HashMap[String, java.lang.Double]], numDummyColumns: Integer, xCols: Array[Int]): RDD[TupleMatrixVector] = {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
-    var xCols: Array[Int] = new Array[Int](mappers.length - 1)
-
     println(">>>>> before calling printMetaData")
-    
-     
-    printMetaData(metaHandler)
+    printMetaData(dc)
 
     //send to slave
-    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, metaHandler))
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc, numDummyColumns, xCols))
   }
 
-  def printMetaData(metaHandler: MetaDataHandler) {
+  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
 
     println(">>>>> calling printMetaData")
-    
-    if (metaHandler == null) {
-      println(">>>>>>>>>>>>>>> printMetaData metaHandler is null")
+
+    if (dc == null) {
+      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
     } else {
-      println(">>>>>>>>>>>>>>> printMetaData metaHandler is NOT null = " + metaHandler)
+      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
     }
 
-    val customMetaData = metaHandler.getListCustomMetaData()
-    if (customMetaData == null) {
-      println(">>>>>>>>>>>>>>> printMetaData customMetaData is null")
-    } else {
-      var it = customMetaData.keySet().iterator()
-      println(">>>>>>>>>>>>>>> printMetaData iterating customMetaData ")
-      while (it.hasNext()) {
-        print(customMetaData.get(it.next()) + "\t")
-      }
-    }
   }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], metaHandler: MetaDataHandler): Iterator[TupleMatrixVector] = {
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: HashMap[Integer, HashMap[String, java.lang.Double]], numDummyColumns: Integer, xCols: Array[Int]): Iterator[TupleMatrixVector] = {
 
-    val customMetaData = metaHandler.getListCustomMetaData()
+    println(">>> inside rowsToMatrixVector dummy coding = " + dc)
 
     //number of original columns, including Y-column
     val numCols = mappers.length
 
     //copy original data to arrayList
-    var lstRows = new ArrayList[Array[Double]]()
+    var lstRows = new ArrayList[Array[Object]]()
     var row = 0
     while (rows.hasNext) {
       var currentRow = rows.next
       var column = 0
-      var b = new Array[Double](numCols)
+      var b = new Array[Object](numCols)
       while (column < numCols) {
-        b(column) = mappers(column)(currentRow.getPrimitive(column))
+        //        b(column) = mappers(column)(currentRow.getPrimitive(column))
+        b(column) = currentRow.getPrimitive(column)
         column += 1
       }
       lstRows.add(row, b)
@@ -313,13 +371,13 @@ object RepresentationHandler {
     val numRows = lstRows.size
     val Y = new Vector(numRows)
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
-
-    //TODO fix this
-    var numDummyColumns = 0
-    if (customMetaData != null)
-      numDummyColumns = customMetaData.size
+    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + numDummyColumns)
 
     val X = new Matrix(numRows, numCols + numDummyColumns)
+//    var newX = new Matrix(numRows, numCols + numDummyColumns)
+//    val newY = new Vector(numRows)
+
+    val trRow = new TransformRow(xCols, dc)
 
     row = 0
     val yCol = 0
@@ -329,48 +387,110 @@ object RepresentationHandler {
       X.put(row, 0, 1.0) // bias term
       var columnValue = 0.0
       var newValue: Double = -1.0
-
       val paddingBiasIndex = 1
-
       var columnIndex = 0
+
       while (columnIndex < numCols - 1) {
-        columnValue = inputRow(columnIndex)
 
-        if (customMetaData != null && customMetaData.size > 0 && customMetaData.containsKey(columnIndex)) {
-          //          println(">>>>>>>>>>>>>... customMetaData is not null: " + customMetaData)
-          //           val currentCustomMetaData: DummyCustomMetaData = customMetaData.get(columnIndex).asInstanceOf[DummyCustomMetaData]
-          val currentCustomMetaData = customMetaData.get(columnIndex)
-          //          newValue = trRow.transform(columnIndex, columnValue + "")
-          newValue = currentCustomMetaData.getColumnIndex(columnValue + "")
+        var columnStringValue = ""
+        //if this column is categorical column
+        if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
+          columnStringValue = inputRow(columnIndex).toString() + ""
+          newValue = dc.get(columnIndex).get(columnStringValue)
+          println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
         }
-        if (newValue == -1.0)
-          newValue = columnValue
-
+        //normal numeric column
+        if (newValue == -1.0) 
+          newValue = objectToDouble(inputRow(columnIndex))
+          
+          
         X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
+
         columnIndex += 1
         newValue = -1.0 // TODO: dirty and quick fix, need proper review
       }
-      Y.put(row, inputRow(numCols - 1)) // y-value
+      Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
       row += 1
     }
+
+    
+    println(">>>>>>>>>>>>> final OLD X matrix = " + X.toString())
+    
+    
+    var (newX, newY) = instrument((X, Y), dc, xCols)
+    
+    //let's print the matrix
+    println(">>>>>>>>>>>>> final X matrix = " + newX.toString())
     val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
     Iterator(Z)
   }
+  
+  def instrument[InputType](inputRow: (Matrix, Vector), dummyColumnMapping: HashMap[Integer, HashMap[String, java.lang.Double]], xCols: Array[Int]): (Matrix, Vector) = {
+
+		//so we need to do minus one for original column
+		var oldX = inputRow._1
+		var oldY = inputRow._2
+
+		//add dummy columns
+		val numCols = oldX.columns
+		var numRows = oldX.rows
+
+		//this is the most critical improvement to avoid OOM while building lm-categorical
+		//basically we don't create a new matrix but rather updating value in-place
+		
+//		val newX = new Matrix(numRows, numCols + numDummyCols)
+//		var newColumnMap = new Array[Int](numCols + numDummyCols)
+		
+		
+		//new code, coulmnMap has same dimensions with input matrix columns
+		var newColumnMap = new Array[Int](numCols)
+
+		//row transformer
+		var trRow = new TransformRow(xCols, dummyColumnMapping)
+
+		//for each row
+		var indexRow = 0
+		var currentRow = null.asInstanceOf[Matrix]
+		var newRowValues = null.asInstanceOf[DoubleMatrix]
+		while (indexRow < oldX.rows) {
+
+			//for each rows
+			currentRow = Matrix(oldX.getRow(indexRow))
+
+			newRowValues = trRow.transform(currentRow)
+			//add new row
+			oldX.putRow(indexRow, newRowValues)
+
+			//convert oldX to new X
+			indexRow += 1
+		}
+
+//		println("after dummy coding, X = " + util.Arrays.deepToString(oldX.toArray2.asInstanceOf[Array[Object]]))
+
+		(oldX, oldY)
+	}
+
+  def objectToDouble(o: Object): Double = o match {
+    case i: java.lang.Integer => i.toDouble
+    case f: java.lang.Float => f.toDouble
+    case d: java.lang.Double => d
+    case _ => throw new RuntimeException("not a numeric Object")
+  }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {      
+    rdd.map {
       row ⇒ row.rawdata.asInstanceOf[TablePartition]
     }
     rdd.asInstanceOf[RDD[TablePartition]]
   }
-  
-//    def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-//    rdd.map {      
-//      row => println(String.format(">>>>>>>>>>>>> row.rawdata= %s", row.rawdata.getClass.getName))
-//    }
-//    null
-//  }
-  
+
+  //    def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
+  //    rdd.map {      
+  //      row => println(String.format(">>>>>>>>>>>>> row.rawdata= %s", row.rawdata.getClass.getName))
+  //    }
+  //    null
+  //  }
+
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
     colType match {
       case ColumnType.DOUBLE ⇒ {
