@@ -54,6 +54,10 @@ public interface ISupportML extends IHandleDDFFunctionalGroup {
    */
   DDF applyModel(IModel model, boolean hasLabels, boolean includeFeatures) throws DDFException;
 
+  /*
+   * Compute the binary confusion matrix of this DDF based on the given model.
+  */
+  Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException;
   List<List<DDF>> CVKFold(int k, Long seed) throws DDFException;
 
   List<List<DDF>> CVRandom(int k, double trainingSize, Long seed) throws DDFException;

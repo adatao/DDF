@@ -240,6 +240,7 @@ abstract class AModelTrainer[T <: TModel](
 			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
 				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
 		}
+		
 	}
 
 	//adding property to model

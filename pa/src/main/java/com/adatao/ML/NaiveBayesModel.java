@@ -124,4 +124,8 @@ public class NaiveBayesModel implements TModel, Serializable {
   public int getYCol() {
     return yCol;
   }
+
+  public String ddfModelID() {
+    return null;
+  }
 }

@@ -5,6 +5,7 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.ViewHandler.Column;
 import com.adatao.ddf.content.ViewHandler.Expression;
@@ -28,6 +29,8 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
   public List<String> firstNRows(int numRows) throws DDFException;
 
   public DDF project(String... columnNames) throws DDFException;
+  
+  public DDF project(List<String> columnNames) throws DDFException;
 
   public DDF subset(List<Column> columnExpr, Expression filter) throws DDFException;
 }

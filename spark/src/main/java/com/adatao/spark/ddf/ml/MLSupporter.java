@@ -20,9 +20,16 @@ import org.apache.spark.rdd.RDD;
 import scala.actors.threadpool.Arrays;
 
 import com.adatao.ddf.types.TupleMatrixVector;
+import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
+import com.adatao.spark.ddf.SparkDDF;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
+import java.io.Serializable;
 
-
-public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
+public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serializable{
 
   public MLSupporter(DDF theDDF) {
     super(theDDF);
@@ -120,6 +127,13 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     outputColumns.add(new Schema.Column("prediction", "double"));
     
 
+//<<<<<<< HEAD
+//    if(model.getRawModel() == null) {
+//      mLog.info(">>>>>>>>>>> rawModel == null");
+//    }
+//    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
+//        "YTrueYPredict"), outputColumns);
+//=======
     Schema schema = new Schema(outputColumns);
 
 
@@ -261,6 +275,38 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter {
     }
   }
 
+  @Override
+  public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+    SparkDDF ddf = (SparkDDF) this.getDDF();
+    SparkDDF predictions = (SparkDDF) ddf.ML.applyModel(model, true, false);
+
+    // Now get the underlying RDD to compute
+    JavaRDD<double[]> yTrueYPred = (JavaRDD<double[]>) predictions.getJavaRDD(double[].class);
+    final double threshold1 = threshold; 
+    Long[] cm = yTrueYPred.map(new Function<double[], Long[]>() {
+      @Override
+      public Long[] call(double[] params) {
+        byte isPos = toByte(params[0] > threshold1);
+        byte predPos = toByte(params[1] > threshold1);
+
+        Long[] result = new Long[] {0L, 0L, 0L, 0L};
+        result[isPos << 1 | predPos] = 1L;
+        return result;
+      }
+    }).reduce(new Function2<Long[], Long[], Long[]>() {
+      @Override
+      public Long[] call(Long[] a, Long[] b) {
+        return new Long[] {a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]};
+      }
+    });
+
+    return new Long[][] {new Long[]{cm[3], cm[2]}, new Long[]{cm[1], cm[0]}};
+  }
+
+  private byte toByte(boolean exp) {
+    if (exp) return 1;
+    else return 0;
+  }
 
   public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
     return CrossValidation.DDFKFoldSplit(this.getDDF(), k, seed);

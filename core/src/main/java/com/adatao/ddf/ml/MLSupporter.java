@@ -111,6 +111,11 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // Invoke the training method
     Object rawModel = trainMethod.classInvoke(allArgs);
     IModel model = new  Model(rawModel);
+//<<<<<<< HEAD
+//
+//    this.getManager().addModel(model);
+//    return model;
+//=======
     this.getManager().addModel(model);
     return new Model(rawModel);
   }
@@ -169,6 +174,10 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
   @Override
+  public Long[][] getConfusionMatrix(IModel model, double threshold) throws DDFException {
+    return null;
+  }
+  
   public List<List<DDF>> CVKFold(int k, Long seed) throws DDFException {
     return new ArrayList<List<DDF>>();
   }
