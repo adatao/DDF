@@ -16,7 +16,7 @@ class FactorSuite extends ATestSuite {
     Array(7,8,9,10).foreach{
       idx => schemaHandler.setAsFactor(idx)
     }
-    schemaHandler.getFactorLevelsAndLevelCounts()
+    schemaHandler.computeFactorLevelsAndLevelCounts()
     val cols = Array(7, 8, 9, 10).map {
       idx => schemaHandler.getColumn(schemaHandler.getColumnName(idx))
     }
@@ -40,7 +40,7 @@ class FactorSuite extends ATestSuite {
     Array(7, 8, 9, 10).foreach{
       idx => schemaHandler.setAsFactor(idx)
     }
-    schemaHandler.getFactorLevelsAndLevelCounts()
+    schemaHandler.computeFactorLevelsAndLevelCounts()
 
     val cols2 = Array(7, 8, 9, 10).map {
       idx => schemaHandler.getColumn(schemaHandler.getColumnName(idx))
@@ -64,7 +64,7 @@ class FactorSuite extends ATestSuite {
     Array(0, 8, 16, 17, 24, 25).foreach{
       idx => schemaHandler.setAsFactor(idx)
     }
-    schemaHandler.getFactorLevelsAndLevelCounts()
+    schemaHandler.computeFactorLevelsAndLevelCounts()
 
     val cols = Array(0, 8, 16, 17, 24, 25).map {
       idx => schemaHandler.getColumn(schemaHandler.getColumnName(idx))
@@ -96,7 +96,7 @@ class FactorSuite extends ATestSuite {
     Array(0, 8, 16, 17, 24, 25).foreach{
       idx => schemaHandler2.setAsFactor(idx)
     }
-    schemaHandler2.getFactorLevelsAndLevelCounts()
+    schemaHandler2.computeFactorLevelsAndLevelCounts()
 
     val cols2 = Array(0, 8, 16, 17, 24, 25).map {
       idx => schemaHandler2.getColumn(schemaHandler2.getColumnName(idx))

@@ -39,7 +39,7 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
   }
 
   @Override
-  public void getFactorLevelsAndLevelCounts() throws DDFException {
+  public void computeFactorLevelsAndLevelCounts() throws DDFException {
     List<Integer> columnIndexes = new ArrayList<Integer>();
     List<Schema.ColumnType> columnTypes = new ArrayList<Schema.ColumnType>();
 

@@ -35,7 +35,7 @@ class GetMultiFactor(dataContainerID: String,
     for (columnIndex <- columnIndexs) {
       schemaHandler.setAsFactor(columnIndex)
     }
-    schemaHandler.getFactorLevelsAndLevelCounts()
+    schemaHandler.computeFactorLevelsAndLevelCounts()
 
     val result: Array[(JInt, java.util.Map[String, JInt])] = for {
       columnIndex <- columnIndexs

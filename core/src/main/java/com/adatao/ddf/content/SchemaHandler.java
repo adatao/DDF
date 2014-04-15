@@ -93,7 +93,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
   }
 
   @Override
-  public void getFactorLevelsAndLevelCounts() throws DDFException {
+  public void computeFactorLevelsAndLevelCounts() throws DDFException {
 
   }
 

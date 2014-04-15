@@ -41,7 +41,7 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
    */
   Schema generateSchema();
 
-  void getFactorLevelsAndLevelCounts() throws DDFException;
+  void computeFactorLevelsAndLevelCounts() throws DDFException;
 
   Factor<?> setAsFactor(String columnName);
 
