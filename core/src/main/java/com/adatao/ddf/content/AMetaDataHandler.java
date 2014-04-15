@@ -3,7 +3,6 @@
  */
 package com.adatao.ddf.content;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -15,84 +14,72 @@ import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
  * 
  */
 public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
-		implements IHandleMetaData {
+    implements IHandleMetaData {
 
-	public AMetaDataHandler(DDF theDDF) {
-		super(theDDF);
-	}
 
-	private UUID mId = UUID.randomUUID();
+  public AMetaDataHandler(DDF theDDF) {
+    super(theDDF);
+  }
 
-	@Override
-	public UUID getId() {
-		return mId;
-	}
+  private UUID mId = UUID.randomUUID();
 
-	@Override
-	public void setId(UUID id) {
-		mId = id;
-	}
+  @Override
+  public UUID getId() {
+    return mId;
+  }
 
-	private long mNumRows = 0L;
-	private boolean bNumRowsIsValid = false;
+  @Override
+  public void setId(UUID id) {
+    mId = id;
+  }
 
-	/**
-	 * Each implementation needs to come up with its own way to compute the row
-	 * count.
-	 * 
-	 * @return row count of a DDF
-	 */
-	protected abstract long getNumRowsImpl();
+  private long mNumRows = 0L;
+  private boolean bNumRowsIsValid = false;
 
-	/**
-	 * Called to assert that the row count needs to be recomputed at next access
-	 */
-	protected void invalidateNumRows() {
-		bNumRowsIsValid = false;
-	}
+  /**
+   * Each implementation needs to come up with its own way to compute the row
+   * count.
+   * 
+   * @return row count of a DDF
+   */
+  protected abstract long getNumRowsImpl();
 
-	@Override
-	public long getNumRows() {
-		if (!bNumRowsIsValid) {
-			mNumRows = this.getNumRowsImpl();
-			bNumRowsIsValid = true;
-		}
-		return mNumRows;
-	}
+  /**
+   * Called to assert that the row count needs to be recomputed at next access
+   */
+  protected void invalidateNumRows() {
+    bNumRowsIsValid = false;
+  }
 
-	private HashMap<Integer, ICustomMetaData> mCustomMetaDatas;
+  @Override
+  public long getNumRows() {
+    if (!bNumRowsIsValid) {
+      mNumRows = this.getNumRowsImpl();
+      bNumRowsIsValid = true;
+    }
+    return mNumRows;
+  }
 
-	public HashMap<Integer, ICustomMetaData> getmCustomMetaDatas() {
-		return mCustomMetaDatas;
-	}
+  private HashMap<Integer, ICustomMetaData> mCustomMetaDatas;
 
-	public void setmCustomMetaDatas(
-			HashMap<Integer, ICustomMetaData> mCustomMetaDatas) {
-		this.mCustomMetaDatas = mCustomMetaDatas;
-	}
+  public ICustomMetaData getCustomMetaData(int idx) {
+    return mCustomMetaDatas.get(idx);
+  }
 
-	public ICustomMetaData getCustomMetaData(int idx) {
-		return mCustomMetaDatas.get(idx);
-	}
+  public void setCustomMetaData(ICustomMetaData customMetaData) {
+    mCustomMetaDatas.put(customMetaData.getColumnIndex(), customMetaData);
+  }
 
-	public void setCustomMetaData(ICustomMetaData customMetaData) {
-		mCustomMetaDatas.put(customMetaData.getColumnIndex(), customMetaData);
-	}
+  public HashMap<Integer, ICustomMetaData> getListCustomMetaData() {
+    return mCustomMetaDatas;
+  }
+  public static interface ICustomMetaData {
 
-	public HashMap<Integer, ICustomMetaData> getListCustomMetaData() {
-		return mCustomMetaDatas;
-	}
+    public double[] buildCoding(String value);
 
-	public static interface ICustomMetaData extends Serializable  {
-		
+    public double get(String value, int idx);
 
-		public double[] buildCoding(String value);
-
-		public double get(String value, int idx);
-
-		public int getColumnIndex();
-
-		public int getColumnIndex(String value);
-	}
+    public int getColumnIndex();
+  }
 
 }
