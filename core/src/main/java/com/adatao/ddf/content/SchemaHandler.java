@@ -6,6 +6,7 @@ package com.adatao.ddf.content;
 
 import java.sql.Timestamp;
 import java.util.List;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
@@ -137,6 +138,10 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandle
     column.setAsFactor(factor);
 
     return factor;
+  }
+  
+  public void generateDummyCoding() throws NumberFormatException, DDFException {
+	  this.getSchema().generateDummyCoding();
   }
 
   @Override

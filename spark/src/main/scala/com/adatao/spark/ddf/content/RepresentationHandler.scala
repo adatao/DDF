@@ -57,7 +57,6 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val srcRdd = this.toRDDRow
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
-    val schema = schemaHandler.getSchema()
 
     typeSpecs match {
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
@@ -70,8 +69,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_MATRIX_VECTOR ⇒ {
 
         //must invoke generate dummy coding explicitly, AGAIN
-        schema.generateDummyCoding() //generateDummyCoding(schema)
-        val dummyCoding = schema.getDummyCoding()
+        schemaHandler.generateDummyCoding() //generateDummyCoding(schema)
+        val dummyCoding = schemaHandler.getSchema().getDummyCoding()
 
         rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }
