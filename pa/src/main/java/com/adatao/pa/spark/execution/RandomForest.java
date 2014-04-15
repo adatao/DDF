@@ -6,7 +6,7 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -85,7 +85,7 @@ public class RandomForest implements IExecutor, Serializable {
 		int[] stringCols = new int[sCols.size()];
         for (int i = 0; i < stringCols.length; i++) stringCols[i] = sCols.get(i);
 		GetMultiFactor getMultiFactor = new GetMultiFactor(dataContainerID, stringCols);
-		Tuple2<Object, HashMap<String, Integer>>[] tuple2s = getMultiFactor.runImpl(new ExecutionContext(sparkThread));
+		Tuple2<Integer, Map<String, Integer>>[] tuple2s = getMultiFactor.runImpl(new ExecutionContext(sparkThread));
 
 		// LOGIC: 
 		// + If xCols[i] is string/int => CATEGORICAL, else => NUMERICAL
