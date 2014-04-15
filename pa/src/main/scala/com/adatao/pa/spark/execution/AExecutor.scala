@@ -242,6 +242,7 @@ abstract class AModelTrainer[T <: TModel](
 		}
 		
 	}
+	
 
 	//adding property to model
 	def instrumentModel(model: T, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): T

@@ -70,9 +70,10 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
-        val dummyCoding = schema.generateDummyCoding() //generateDummyCoding(schema)
+        //must invoke generate dummy coding explicitly, AGAIN
+        schema.generateDummyCoding() //generateDummyCoding(schema)
+        val dummyCoding = schema.getDummyCoding()
 
-        
         rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
@@ -305,7 +306,7 @@ object RepresentationHandler {
     //    var newX = new Matrix(numRows, numCols + numDummyColumns)
     //    val newY = new Vector(numRows)
 
-    val trRow = new TransformRow(dc.xCols, dc.mapping)
+    val trRow = new TransformRow(dc.xCols, dc.getMapping)
 
     row = 0
     val yCol = 0
@@ -324,7 +325,7 @@ object RepresentationHandler {
         //if this column is categorical column
         if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
           columnStringValue = inputRow(columnIndex).toString() + ""
-          newValue = dc.mapping.get(columnIndex).get(columnStringValue)
+          newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
           println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
         }
         //normal numeric column

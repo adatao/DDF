@@ -168,6 +168,8 @@ object LogisticRegressionIRLS {
 		eps: Double,
 		ridgeLambda: Double,
 		initialWeights: Array[Double], nullModel: Boolean): IRLSLogisticRegressionModel = {
+	  
+	   println(">>>>>>>inside train initialWeights.size =" + initialWeights.size + "\tinitialWeights=" + initialWeights.toString())
 
 		if (!nullModel) {
 			val ret = doIRLS(XYData.map { row ⇒ (row._1, row._2) }, initialWeights, numFeatures, eps, ridgeLambda, numIters)

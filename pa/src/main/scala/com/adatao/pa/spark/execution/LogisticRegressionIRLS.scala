@@ -72,29 +72,18 @@ class LogisticRegressionIRLS(
 		val ddfManager = ctx.sparkThread.getDDFManager();
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
 		
-		val dummyCoding = ddf.getSchema().generateDummyCoding()
+		
+		//TODO call get multifactor explicitly
+		
+		//call dummy coding explicitly
+		//TODO make sure all input ddf to algorithm MUST have schema
+		ddf.getSchema().generateDummyCoding()
+		
+		val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
 		
 		try {
-
 			
-			//adjust new num dummy coding columns
-			val newColumns = dummyCoding.getNumDummyCoding()
-			println(">>>>>>>>>>>>>starting=" + newColumns)
-			
-			//plus bias term
-			var featuresSize = xCols.length + 1
-			//plus dummy coding
-			featuresSize += newColumns
-			println(">>>>>>>featuresSize=" + featuresSize)
-			
-			if(initialWeights.size != featuresSize) {
-			  
-			  initialWeights = Seq.fill(featuresSize)(Random.nextDouble).toArray
-			  println(">>>>>>>regenerate initialWeights.size =" + initialWeights.size + "\tinitialWeights=" + initialWeights)
-			}
-			
-			
-			val regressionModel = ddf.ML.train("logisticRegressionIRLS", ddf.getNumColumns(): java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+			val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
 
 			//      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
 			//    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)

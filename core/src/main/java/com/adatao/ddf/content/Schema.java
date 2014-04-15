@@ -29,6 +29,8 @@ public class Schema implements Serializable {
 	@Expose
 	private List<Column> mColumns = Collections
 			.synchronizedList(new ArrayList<Column>());
+	
+	private DummyCoding dummyCoding;
 
 	/**
 	 * Constructor that can take a list of columns in the following format:
@@ -177,7 +179,7 @@ public class Schema implements Serializable {
 	/*
    * 
    */
-	public DummyCoding generateDummyCoding() throws NumberFormatException,
+	public void generateDummyCoding() throws NumberFormatException,
 			DDFException {
 		DummyCoding dc = new DummyCoding();
 		// initialize array xCols which is just 0, 1, 2 ..
@@ -229,9 +231,35 @@ public class Schema implements Serializable {
         temp2.put("ISP", 3.0);
         dc.getMapping().put(1, temp2);
         dc.setNumDummyCoding(2);
+        
+        //ignore Y column
+        Integer _features = this.getNumColumns() - 1;
+        //plus bias term for linear model
+        _features += 1;
+        //plus the new dummy coding columns
+        _features += dc.getNumDummyCoding();
+        		
+        		
+        dc.setNumberFeatures(_features);
+        
+        
+        //set number of features in schema
+        
+        this.setDummyCoding(dc);
 
-		return (dc);
 	}
+	
+	
+
+	public DummyCoding getDummyCoding() {
+		return dummyCoding;
+	}
+
+
+	public void setDummyCoding(DummyCoding dummyCoding) {
+		this.dummyCoding = dummyCoding;
+	}
+
 
 	/**
 	 * 
@@ -524,9 +552,11 @@ public class Schema implements Serializable {
 	}
 
 	public static class DummyCoding implements Serializable {
-		public HashMap<Integer, HashMap<String, Double>> mapping = new HashMap<Integer, HashMap<String, Double>>();
-		public Integer numDummyCoding;
+		private HashMap<Integer, HashMap<String, Double>> mapping = new HashMap<Integer, HashMap<String, Double>>();
+		private Integer numDummyCoding;
 		public int[] xCols;
+		private Integer numberFeatures = 0;
+		
 		public HashMap<Integer, HashMap<String, Double>> getMapping() {
 			return mapping;
 		}
@@ -544,6 +574,12 @@ public class Schema implements Serializable {
 		}
 		public void setxCols(int[] xCols) {
 			this.xCols = xCols;
+		}
+		public Integer getNumberFeatures() {
+			return numberFeatures;
+		}
+		public void setNumberFeatures(Integer numberFeatures) {
+			this.numberFeatures = numberFeatures;
 		}
 		
 		
