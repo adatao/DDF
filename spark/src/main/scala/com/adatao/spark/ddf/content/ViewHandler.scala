@@ -3,13 +3,12 @@
  */
 package com.adatao.spark.ddf.content
 
-import org.apache.spark.rdd.RDD
 import com.adatao.ddf.DDF
 import com.adatao.ddf.content.IHandleViews
 import com.adatao.spark.ddf.SparkDDF
-import java.util.List
-import java.util.ArrayList
 import scala.collection.JavaConverters._
+import com.adatao.ddf.content.Schema
+
 /**
  * RDD-based ViewHandler
  *
@@ -67,13 +66,15 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
   override def getRandomSample(percent: Double, withReplacement: Boolean, seed: Int): DDF = {
     val rdd = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
     val sampleRdd = rdd.sample(withReplacement, percent, seed)
-    new SparkDDF(this.getManager(), sampleRdd, classOf[Array[Object]], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
+    val columns = mDDF.getSchema.getColumns
+    val schema = new Schema(null, columns)
+    new SparkDDF(this.getManager(), sampleRdd, classOf[Array[Object]], mDDF.getNamespace(), null, schema)
   }
 }
 
 object ViewHandler {
   def getDefault(cols: Array[Int], theDDF: DDF): DDF = {
-    
+
     null
   }
 
