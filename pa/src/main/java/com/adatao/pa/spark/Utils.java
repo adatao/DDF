@@ -50,16 +50,20 @@ public class Utils {
     return metaInfo;
   }
 
-  public static String getDataContainerId(DDF ddf) {
+  public static String getDataContainerID(DDF ddf) {
     return ddf.getName().substring(15).replace("_", "-");
   }
-  
+
+  public static String getDDFNameFromDataContainerID(String dataContainerID) {
+    return ("SparkDDF-spark-" + dataContainerID).replace("-", "_");
+  }
+
   static public class DataFrameResult extends SuccessResult {
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 
     public DataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = getDataContainerId(ddf);
+      this.dataContainerID = getDataContainerID(ddf);
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
   }

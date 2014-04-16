@@ -24,7 +24,7 @@ class TransformNativeRserveScala(dataContainerID: String, val transformExpressio
     val newddf = ddf.Transform.transformNativeRserve(transformExpression);
     // binned var are now factors
     //new GetFactor().setDataContainerID(Utils.getDataContainerId(newddf)).setColumnName(col).run(context.sparkThread)
-    new DataFrameResult(Utils.getDataContainerId(newddf), Utils.generateMetaInfo(newddf.getSchema()))
+    new DataFrameResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))
 		/*val dm = context.sparkThread.getDataManager
 		Option(dm.get(dataContainerID)) match {
 			case Some(dataContainer) ⇒ {

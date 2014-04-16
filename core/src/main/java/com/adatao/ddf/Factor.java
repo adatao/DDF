@@ -111,7 +111,7 @@ public class Factor<T> extends Vector<T> {
 
   private Map<String, Integer> mLevelMap;
   private List<String> mLevels;
-
+  private Map<String, Integer> mLevelCounts;
 
   /**
    * Derived classes should call this to instantiate a synchronized level map for thread safety. Internally, we use
@@ -130,11 +130,9 @@ public class Factor<T> extends Vector<T> {
    * @throws DDFException
    * 
    */
-  public Map<String, Integer> computeLevelMap(List<String> levels) throws DDFException {
+  public Map<String, Integer> computeLevelMap() throws DDFException {
     // TODO: retrieve the list of levels from the underlying data, e.g.,
-                                // SELECT DISTINCT
-    this.setLevels(levels, false);
-    
+
     return mLevelMap;
   }
 
@@ -144,19 +142,14 @@ public class Factor<T> extends Vector<T> {
    * @return
    * @throws DDFException
    */
-  public Set<String> getLevels() throws DDFException {
-    return this.getLevelMap().keySet();
+  public List<String> getLevels() throws DDFException {
+    return this.mLevels;
   }
 
-  public Map<String, Integer> getLevelMap(List<String> levels) throws DDFException {
-    if (mLevelMap == null) mLevelMap = this.computeLevelMap(levels);
-    return mLevelMap;
-  }
-  
   public Map<String, Integer> getLevelMap() throws DDFException {
+    if(mLevelMap == null) mLevelMap = this.computeLevelMap();
     return mLevelMap;
   }
-
   /**
    * Typically, levels are automatically computed from the data, but in some rare instances, the user may want to
    * specify the levels explicitly, e.g., when the data column does not contain all the levels desired.
@@ -201,10 +194,17 @@ public class Factor<T> extends Vector<T> {
     while (levelIter.hasNext()) {
       mLevelMap.put(levelIter.next(), codeIter.next());
     }
-
+    this.mLevels = new ArrayList<String>(levels);
     this.setOrdered(isOrdered);
   }
 
+  public void setLevelCounts(Map<String, Integer> levelCounts) {
+    this.mLevelCounts = Collections.synchronizedMap(levelCounts);
+  }
+
+  public Map<String, Integer> getLevelCounts() throws DDFException {
+    return this.mLevelCounts;
+  }
 
   private boolean mIsOrdered = false;
 

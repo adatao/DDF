@@ -41,6 +41,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.ddf.exception.DDFException
 import com.adatao.ddf.DDF
 import com.adatao.ddf.types.TupleMatrixVector
+import scala.util.Random
 
 /**
  * NhanVLC
@@ -58,7 +59,7 @@ class LogisticRegressionIRLS(
 	var numIters: Int,
 	var eps: Double,
 	var ridgeLambda: Double,
-	val initialWeights: Array[Double],
+	var initialWeights: Array[Double],
 	mapReferenceLevel: HashMap[String, String] = null, nullModel: Boolean = false)
 		extends AModelTrainer[IRLSLogisticRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
 
@@ -70,11 +71,19 @@ class LogisticRegressionIRLS(
 
 		val ddfManager = ctx.sparkThread.getDDFManager();
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
+		
+		
+		//TODO call get multifactor explicitly
+		
+		//call dummy coding explicitly
+		//make sure all input ddf to algorithm MUST have schema
+		ddf.getSchema().generateDummyCoding()
+		
+		val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+		
 		try {
-
-			println(">>>>>>>>>>>>>starting=")
-
-			val regressionModel = ddf.ML.train("logisticRegressionIRLS", ddf.getNumColumns(): java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+			
+			val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
 
 			//      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
 			//    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)

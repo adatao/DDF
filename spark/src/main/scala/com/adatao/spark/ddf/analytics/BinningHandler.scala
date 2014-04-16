@@ -46,7 +46,7 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
 
     //remove single quote in intervals
     intervals = intervals.map(x ⇒ x.replace("'", ""))
-    newddf.getSchemaHandler().setAsFactor(column, List.fromArray(intervals));
+    newddf.getSchemaHandler().setAsFactor(column);
 
     newddf
   }

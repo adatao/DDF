@@ -27,7 +27,15 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
 import com.adatao.ddf.types.Vector
 import com.adatao.ddf.types._
+import org.jblas.DoubleMatrix
 import java.util.ArrayList
+import java.util.HashMap
+import com.adatao.spark.ddf.ml.TransformRow
+import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData
+import com.adatao.spark.ddf.content.MetaDataHandler._
+import com.adatao.ddf.content.Schema.ColumnClass
+import com.adatao.ddf.content.Schema._
+import com.adatao.ddf.content.Schema.DummyCoding
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -49,6 +57,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val srcRdd = this.toRDDRow
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
+    val schema = schemaHandler.getSchema()
+
     typeSpecs match {
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
       case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
@@ -57,8 +67,15 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
       case RDD_ARRAY_LABELED_POINT ⇒ rowsToArrayLabeledPoints(srcRdd, mappers)
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
-      case RDD_MATRIX_VECTOR ⇒ rowsToMatrixVector(srcRdd, mappers)
-      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n - %s\n -%s",
+      case RDD_MATRIX_VECTOR ⇒ {
+
+        //must invoke generate dummy coding explicitly, AGAIN
+        schema.generateDummyCoding() //generateDummyCoding(schema)
+        val dummyCoding = schema.getDummyCoding()
+
+        rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
+      }
+      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
         typeSpecs,
         RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
@@ -87,7 +104,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     if (arraysDouble != null) {
       return null // TODO
     }
-    LabeledPoint
+    //    LabeledPoint
     val labeledPoints = this.get(classOf[RDD[_]], classOf[LabeledPoint]).asInstanceOf[RDD[LabeledPoint]]
     if (labeledPoints != null) {
       return null // TODO
@@ -153,7 +170,16 @@ object RepresentationHandler {
    */
   def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
     rdd.map {
-      row ⇒ row.rawdata.asInstanceOf[Array[Object]]
+      row ⇒ {
+        val size = row.rawdata.asInstanceOf[Array[Object]].size
+        val array = new Array[Object](size)
+        var idx = 0
+        while(idx < size) {
+          array(idx) = row.getPrimitive(idx)
+          idx += 1
+        }
+        array
+      }
     }
   }
 
@@ -197,7 +223,7 @@ object RepresentationHandler {
       Iterator(ret)
     })
   }
-  
+
   //TODO move this method
   def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
     rdd.mapPartitions(rows ⇒ {
@@ -206,10 +232,10 @@ object RepresentationHandler {
       var row = 0
       while (rows.hasNext) {
         var currentRow = rows.next
-        val label =currentRow(0)
-        val prediction : Array[Double] = new Array(1)// rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        val label = currentRow(0)
+        val prediction: Array[Double] = new Array(1) // rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
         prediction(0) = currentRow(1)
-        
+
         lstRows.add(row, new LabeledPoint(label, prediction))
         row += 1
       }
@@ -225,7 +251,6 @@ object RepresentationHandler {
     })
   }
 
-
   def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
     var i = 0
     while (i < array.size) {
@@ -235,32 +260,61 @@ object RepresentationHandler {
     array
   }
 
-  def rowsToMatrixVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[TupleMatrixVector] = {
-    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers))
+  def rowsToMatrixVectorRDD(rdd: RDD[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): RDD[TupleMatrixVector] = {
+
+    //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
+    //TODO initialize xCols
+    println(">>>>> before calling printMetaData")
+
+    //send to slave
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc))
   }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double]): Iterator[TupleMatrixVector] = {
+  //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+  //
+  //    println(">>>>> calling printMetaData")
+  //
+  //    if (dc == null) {
+  //      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
+  //    } else {
+  //      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
+  //    }
+  //
+  //  }
+
+  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
+
+    println(">>> inside rowsToMatrixVector dummy coding = " + dc)
+
+    //number of original columns, including Y-column
     val numCols = mappers.length
 
-    //have to convert to List
-    var lstRows = new ArrayList[Array[Double]]()
+    //copy original data to arrayList
+    var lstRows = new ArrayList[Array[Object]]()
     var row = 0
     while (rows.hasNext) {
       var currentRow = rows.next
       var column = 0
-      var b = new Array[Double](numCols)
+      var b = new Array[Object](numCols)
       while (column < numCols) {
-        b(column) = mappers(column)(currentRow.getPrimitive(column))
+        //        b(column) = mappers(column)(currentRow.getPrimitive(column))
+        b(column) = currentRow.getPrimitive(column)
         column += 1
       }
       lstRows.add(row, b)
       row += 1
     }
 
-    val numRows = lstRows.size //rows.toArray[Row].length
-    val Y = new Vector(numRows)
-    //numCols = numCols + 1 bias term
-    val X = new Matrix(numRows, numCols)
+    val numRows = lstRows.size
+    var Y = new Vector(numRows)
+    //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
+    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
+
+    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+    //    var newX = new Matrix(numRows, numCols + numDummyColumns)
+    //    val newY = new Vector(numRows)
+
+    val trRow = new TransformRow(dc.xCols, dc.getMapping)
 
     row = 0
     val yCol = 0
@@ -268,32 +322,62 @@ object RepresentationHandler {
     while (row < lstRows.size) {
       var inputRow = lstRows(row)
       X.put(row, 0, 1.0) // bias term
-      var columnIndex = 0
-      var columnValue = ""
+      var columnValue = 0.0
       var newValue: Double = -1.0
+      val paddingBiasIndex = 1
+      var columnIndex = 0
 
-      var column = 0
-      while (column < numCols - 1) {
-        columnIndex = column + 1
-        newValue = inputRow(column)
+      while (columnIndex < numCols - 1) {
 
-        X.put(row, columnIndex, newValue) // x-feature #i
-        column += 1
+        var columnStringValue = ""
+        //if this column is categorical column
+        if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
+          columnStringValue = inputRow(columnIndex).toString() + ""
+          newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
+          println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
+        }
+        //normal numeric column
+        if (newValue == -1.0)
+          newValue = objectToDouble(inputRow(columnIndex))
+
+        X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
+
+        columnIndex += 1
+        newValue = -1.0 // TODO: dirty and quick fix, need proper review
       }
-      Y.put(row, inputRow(numCols - 1)) // y-value
+      Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
       row += 1
     }
-    val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
-    Iterator(Z)
+
+    println(">>>>>>>>>>>>> final OLD X matrix = " + X.toString())
+
+    if (dc.getNumDummyCoding > 0) {
+      //most important step
+      var newX: Matrix = trRow.instrument(X, dc.getMapping, dc.getxCols)
+      //let's print the matrix
+      println(">>>>>>>>>>>>> NEWWWWWWWWWWWWWW final X matrix = " + newX.toString())
+      val Z: TupleMatrixVector = new TupleMatrixVector(newX, Y)
+      Iterator(Z)
+    } else {
+      val Z: TupleMatrixVector = new TupleMatrixVector(X, Y)
+      Iterator(Z)
+    }
+
+  }
+
+  def objectToDouble(o: Object): Double = o match {
+    case i: java.lang.Integer => i.toDouble
+    case f: java.lang.Float => f.toDouble
+    case d: java.lang.Double => d
+    case _ => throw new RuntimeException("not a numeric Object")
   }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {      
+    rdd.map {
       row ⇒ row.rawdata.asInstanceOf[TablePartition]
     }
     rdd.asInstanceOf[RDD[TablePartition]]
   }
-
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
     colType match {
       case ColumnType.DOUBLE ⇒ {
