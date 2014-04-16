@@ -180,7 +180,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     mLog.info("Column type: " + colType);
     List<Double> pValues = Arrays.asList(percentiles);
-    Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
+    Pattern p1 = Pattern.compile("(big|small|tiny|int)");
     Pattern p2 = Pattern.compile("(float|double)");
 
     
