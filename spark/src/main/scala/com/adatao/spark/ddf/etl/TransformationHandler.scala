@@ -18,28 +18,25 @@ import org.rosuda.REngine.Rserve.RConnection
 import com.adatao.ddf.DDF
 import com.adatao.ddf.content.Schema
 import com.adatao.ddf.content.Schema.Column
-import com.adatao.ddf.etl.{TransformationHandler => CoreTransformationHandler}
+import com.adatao.ddf.etl.{ TransformationHandler ⇒ CoreTransformationHandler }
 import com.adatao.ddf.exception.DDFException
 import com.adatao.spark.ddf.SparkDDF
-
-
 
 class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
   override def transformMapReduceNative(mapFuncDef: String, reduceFuncDef: String, mapsideCombine: Boolean = true): DDF = {
 
     // Prepare data as REXP objects
-    val rh = mDDF.getRepresentationHandler
-    val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
+    val dfrdd = mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
 
     // 1. map!
     val rMapped = dfrdd.map { partdf ⇒
-      try {        
-        preShuffleMapper(partdf, mapFuncDef, reduceFuncDef, mapsideCombine)
+      try {
+        TransformationHandler.preShuffleMapper(partdf, mapFuncDef, reduceFuncDef, mapsideCombine)
       }
       catch {
         case e: Exception ⇒ {
-          mLog.error("Exception: ", e)
+
           e match {
             case aExc: DDFException ⇒ throw aExc
             case rserveExc: org.rosuda.REngine.Rserve.RserveException ⇒ {
@@ -52,16 +49,15 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     }
 
     // 2. extract map key and shuffle!
-    val groupped = doShuffle(rMapped)
+    val groupped = TransformationHandler.doShuffle(rMapped)
 
     // 3. reduce!
     val rReduced = groupped.mapPartitions { partdf ⇒
       try {
-        postShufflePartitionMapper(partdf, reduceFuncDef)
+        TransformationHandler.postShufflePartitionMapper(partdf, reduceFuncDef)
       }
       catch {
         case e: Exception ⇒ {
-          mLog.error("Exception: ", e)
           e match {
             case aExc: DDFException ⇒ throw aExc
             case rserveExc: org.rosuda.REngine.Rserve.RserveException ⇒ {
@@ -80,7 +76,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     }
 
     // convert R-processed DF partitions back to BigR DataFrame
-    val (rdd, columnArr) = RDataFrameToArrayObject(rReduced)
+    val (rdd, columnArr) = TransformationHandler.RDataFrameToArrayObject(rReduced)
 
     // persist because this RDD is expensive to recompute
     rdd.persist(StorageLevel.MEMORY_AND_DISK)
@@ -92,8 +88,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
   override def transformNativeRserve(transformExpression: String): DDF = {
 
-    val rh = mDDF.getRepresentationHandler
-    val dfrdd = rh.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
+    val dfrdd = mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[REXP]).asInstanceOf[RDD[REXP]]
 
     // process each DF partition in R
     val rMapped = dfrdd.map { partdf ⇒
@@ -106,12 +101,11 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
         rconn.assign(dfvarname, partdf)
 
         val expr = String.format("%s <- transform(%s, %s)", dfvarname, dfvarname, transformExpression)
-        mLog.info("eval expr = {}", expr)
 
         println(">>>>>>>>>>>>.expr=" + expr.toString())
 
         // compute!
-        tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")
+        TransformationHandler.tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")
 
         // transfer data to JVM
         val partdfres = rconn.eval(dfvarname)
@@ -124,7 +118,6 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
       }
       catch {
         case e: DDFException ⇒ {
-          mLog.error("Exception: ", e)
           throw new DDFException("Unable to perform NativeRserve transformation", e)
 
         }
@@ -132,7 +125,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     }
 
     // convert R-processed data partitions back to RDD[Array[Object]]
-    val (rdd, columnArr) = RDataFrameToArrayObject(rMapped)
+    val (rdd, columnArr) = TransformationHandler.RDataFrameToArrayObject(rMapped)
 
     // persist because this RDD is expensive to recompute
     rdd.persist(StorageLevel.MEMORY_AND_DISK)
@@ -143,11 +136,16 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     //mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
     //mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
   }
+
+}
+
+object TransformationHandler {
+
   /**
    * Eval the expr in rconn, if succeeds return null (like rconn.voidEval),
    * if fails raise AdataoException with captured R error message.
    * See: http://rforge.net/Rserve/faq.html#errors
-   */
+   */  
   def tryEval(rconn: RConnection, expr: String, errMsgHeader: String) {
     rconn.assign(".tmp.", expr)
     val r = rconn.eval("r <- try(eval(parse(text=.tmp.)), silent=TRUE); if (inherits(r, 'try-error')) r else NULL")
@@ -250,9 +248,9 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     rconn.assign("df.partition", partdf)
     rconn.assign("mapside.combine", new REXPLogical(mapsideCombine))
 
-    tryEval(rconn, "map.func <- " + mapFuncDef,
+    TransformationHandler.tryEval(rconn, "map.func <- " + mapFuncDef,
       errMsgHeader = "fail to eval map.func definition")
-    tryEval(rconn, "combine.func <- " + reduceFuncDef,
+    TransformationHandler.tryEval(rconn, "combine.func <- " + reduceFuncDef,
       errMsgHeader = "fail to eval combine.func definition")
 
     // pre-amble to define internal functions
@@ -351,7 +349,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
         """.stripMargin)
 
     // map!
-    tryEval(rconn, "pre.shuffle.result <- do.pre.shuffle(df.partition, map.func, combine.func, mapside.combine, debug=T)",
+    TransformationHandler.tryEval(rconn, "pre.shuffle.result <- do.pre.shuffle(df.partition, map.func, combine.func, mapside.combine, debug=T)",
       errMsgHeader = "fail to apply map.func to data partition")
 
     // transfer pre-shuffle result into JVM
@@ -368,14 +366,14 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
    * we both have each partition as a list of list(key=..., val=...)
    */
   def doShuffle(rMapped: RDD[REXP]): RDD[(String, Seq[REXP])] = {
-    val groupped = rMapped.flatMap {rexp ⇒
-      rexp.asList().iterator.map{ kv ⇒
+    val groupped = rMapped.flatMap { rexp ⇒
+      rexp.asList().iterator.map { kv ⇒
         val kvl = kv.asInstanceOf[REXP].asList()
         val (k, v) = (kvl.at("key").asString(), kvl.at("val"))
         (k, v)
       }
     }.groupByKey()
-    
+
     // uncomment to debug
     // groupped.collectAsMap().foreach { case(k, vv) => println("k = " + k + ", vv = " + vv.toArray.map(_.toDebugString).mkString(",")) }
 
@@ -476,7 +474,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
           |}
         """.stripMargin)
 
-    tryEval(rconn, "reduce.func <- " + reduceFuncDef,
+    TransformationHandler.tryEval(rconn, "reduce.func <- " + reduceFuncDef,
       errMsgHeader = "fail to eval reduce.func definition")
 
     rconn.voidEval("reductions <- list()")
@@ -495,21 +493,21 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
         // print to Rserve log
         rconn.voidEval("print(paste('====== processing key = ', reduce.key))")
 
-        tryEval(rconn, "reduce.vvlist <- lapply(reduce.serialized.vvlist, unserialize)",
+        TransformationHandler.tryEval(rconn, "reduce.vvlist <- lapply(reduce.serialized.vvlist, unserialize)",
           errMsgHeader = "fail to unserialize shuffled values for key = " + k)
         //println("AHT !!! reduce.vvlist = \n" + RserveUtils.evalCaptureOutput(rconn, "reduce.vvlist"))
 
-        tryEval(rconn, "reduce.vv <- rbind.vv(reduce.vvlist)",
+        TransformationHandler.tryEval(rconn, "reduce.vv <- rbind.vv(reduce.vvlist)",
           errMsgHeader = "fail to merge (using rbind.vv) shuffled values for key = " + k)
         // println("AHT !!! reduce.vv = \n" + RserveUtils.evalCaptureOutput(rconn, "reduce.vv"))
 
         // reduce!
-        tryEval(rconn, "reduced.kv <- reduce.func(reduce.key, reduce.vv)",
+        TransformationHandler.tryEval(rconn, "reduced.kv <- reduce.func(reduce.key, reduce.vv)",
           errMsgHeader = "fail to apply reduce func to data partition")
         // println("AHT !!! reduced.kv = \n" + RserveUtils.evalCaptureOutput(rconn, "reduced.kv"))
 
         // flatten the nested val list if needed
-        tryEval(rconn, "reduced <- handle.reduced.kv(reduced.kv)",
+        TransformationHandler.tryEval(rconn, "reduced <- handle.reduced.kv(reduced.kv)",
           errMsgHeader = "malformed reduce.func output, please run mapreduce.local to test your reduce.func")
 
         // assign reduced item to reductions list
@@ -517,7 +515,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     }
 
     // bind the reduced rows together, it contains rows of the resulting BigDataFrame
-    tryEval(rconn, "reduced.partition <- do.call(rbind.data.frame, reductions)",
+    TransformationHandler.tryEval(rconn, "reduced.partition <- do.call(rbind.data.frame, reductions)",
       errMsgHeader = "fail to use rbind.data.frame on reductions list, reduce.func cannot be combined as a BigDataFrame")
 
     // remove weird row names

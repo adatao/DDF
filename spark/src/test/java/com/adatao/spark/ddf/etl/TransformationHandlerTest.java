@@ -48,12 +48,12 @@ public class TransformationHandlerTest {
     DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef);
     System.out.println("name "+ ddf.getName());
     System.out.println("newname "+ newddf.getName());
+    System.out.println(">>>>> newddf.getColumnName(0) =  "+ newddf.getColumnName(0));
     //List<String> res =  ddf.Views.firstNRows(2);
     Assert.assertNotNull(newddf);
-    Assert.assertTrue(newddf.getColumnName(0) == "key");
-    Assert.assertTrue(newddf.getColumnName(1) == "val");
-    
-    Assert.assertTrue(newddf.getColumnNames() == Lists.newArrayList("key", "val"));
+    Assert.assertTrue(newddf.getColumnName(0).equals("key"));
+    Assert.assertTrue(newddf.getColumnName(1).equals("val"));
+   
     Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(0).getType()== ColumnType.STRING);
     Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(1).getType()== ColumnType.INT);
   }
