@@ -66,5 +66,10 @@ public class Utils {
       this.dataContainerID = getDataContainerID(ddf);
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
+    
+    public DataFrameResult(String dataContainerID, MetaInfo[] metaInfo) throws DDFException {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = metaInfo;
+    }
   }
 }
