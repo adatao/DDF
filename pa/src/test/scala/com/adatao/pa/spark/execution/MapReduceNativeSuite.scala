@@ -27,8 +27,8 @@ class MapReduceNativeSuite extends ABigRClientTest {
 
 		// aggregate sum of hp group by gear
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=part$gear, val=part$hp) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=sum(vv)) }")
+			"function(part) { keyval(key=part$gear, val=part$hp) }",
+			"function(key, vv) { keyval.row(key=key, val=sum(vv)) }", true)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -54,9 +54,9 @@ class MapReduceNativeSuite extends ABigRClientTest {
 
 		// aggregate sum of hp group by gear
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=part$gear, val=part$hp) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=sum(vv)) }",
-		  mapsideCombine = false
+			"function(part) { keyval(key=part$gear, val=part$hp) }",
+			"function(key, vv) { keyval.row(key=key, val=sum(vv)) }",
+		  false
 		)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
@@ -84,8 +84,8 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		// calculate sum of mtcars$wt
 		// global reduce with key
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('wt', 'hp')]) }",
-			reduceFuncDef = "function(key, vv) { print(vv); keyval.row(key=key, val=list(wt=sum(vv$wt), hp=sum(vv$hp))) }")
+			"function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('wt', 'hp')]) }",
+			"function(key, vv) { print(vv); keyval.row(key=key, val=list(wt=sum(vv$wt), hp=sum(vv$hp))) }", true)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -100,7 +100,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r2.result.data.get(0)(2) === 4694.0)  // sum(mtcars$hp)
 	}
 
-	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value, mapsideCombine = false") {
+	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value, false") {
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -110,9 +110,9 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		// calculate sum of mtcars$wt
 		// global reduce with key
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('wt', 'hp')]) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=list(wt=sum(vv$wt), hp=sum(vv$hp))) }",
-			mapsideCombine = false
+			"function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('wt', 'hp')]) }",
+			"function(key, vv) { keyval.row(key=key, val=list(wt=sum(vv$wt), hp=sum(vv$hp))) }",
+			false
 		)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
@@ -129,7 +129,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 
 	}
 
-	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using R mean(), mapsideCombine = false") {
+	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using R mean(), false") {
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -137,11 +137,11 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { " +
+			"function(part) { " +
 					"part <- part[ !is.na(part$solar_radiation), ]; " +
 					"keyval(key=part$month, val=part$solar_radiation) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key, mean(vv$val1)) }",
-			mapsideCombine = false)
+			"function(key, vv) { keyval.row(key, mean(vv$val1)) }",
+			false)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -158,7 +158,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
 	}
 
-	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using sum & count, mapsideCombine = false") {
+	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using sum & count, false") {
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -166,11 +166,11 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { " +
+			"function(part) { " +
 					"part <- part[ !is.na(part$solar_radiation), ]; " +
 					"keyval(key=part$month, val=data.frame(sum=part$solar_radiation, count=rep(1, nrow(part)))) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key, list(sum=sum(vv$sum), count=sum(vv$count))) }",
-			mapsideCombine = false)
+			"function(key, vv) { keyval.row(key, list(sum=sum(vv$sum), count=sum(vv$count))) }",
+			false)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -188,7 +188,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 	}
 
 
-	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing  using sum & count, mapsideCombine = true") {
+	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing  using sum & count, true") {
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -196,11 +196,11 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { " +
+			"function(part) { " +
 					"part <- part[ !is.na(part$solar_radiation), ]; " +
 					"keyval(key=part$month, val=data.frame(sum=part$solar_radiation, count=rep(1, nrow(part)))) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key, list(sum=sum(vv$sum), count=sum(vv$count))) }",
-			mapsideCombine = true)
+			"function(key, vv) { keyval.row(key, list(sum=sum(vv$sum), count=sum(vv$count))) }",
+			true)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -225,12 +225,12 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { " +
+			"function(part) { " +
 					"keyval(key=part[, 2], val=part[, c(14, 16, 8)]) }", // key = month, val = arrdelay, origin, unique carrier
-			reduceFuncDef = "function(k, vv) {" +
+			"function(k, vv) {" +
 					"keyval.row(k, val=list(arrdelay=mean(vv[, 1])," +
 					"                       origin_count=length(levels(factor(vv[, 2]))))) }",
-			mapsideCombine = false)
+			false)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -250,9 +250,9 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(part$gear, part) }",
-			reduceFuncDef = "function(k, vv) {  df <- vv; df$row_count <- nrow(vv); keyval(key=rep(k, nrow(vv)), val=df) }",
-			mapsideCombine = false)
+			"function(part) { keyval(part$gear, part) }",
+			"function(k, vv) {  df <- vv; df$row_count <- nrow(vv); keyval(key=rep(k, nrow(vv)), val=df) }",
+			false)
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -269,8 +269,8 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		// calculate sum of mtcars$wt
 		// global reduce with key
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('V4', 'V6')]) }",
-			reduceFuncDef = "function(key, vv) { print(vv); keyval.row(key=key, val=list(V4=sum(vv$V4), V6=sum(vv$V6))) }")
+			"function(part) { keyval(key=rep('global', nrow(part)), val=part[, c('V4', 'V6')]) }",
+			"function(key, vv) { print(vv); keyval.row(key=key, val=list(V4=sum(vv$V4), V6=sum(vv$V6))) }")
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
