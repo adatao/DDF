@@ -52,13 +52,16 @@ class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[
     val mymodel: IModel = ddfManager.getModel(modelID)
     val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, false)
 
-    if(predictionDDF != null) ddf.getManager().addDDF(predictionDDF);
+    var addId: String  = ""
+    if(predictionDDF != null) {
+      addId = ddf.getManager().addDDF(predictionDDF);
+    }
     
     //return DDF
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
     val uid = predictionDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
     
-    println(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid)
+    println(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + addId)
 
     new YtrueYpredResult(uid, metaInfo)
   }
