@@ -58,21 +58,16 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
     if (numSamples > MAX_SAMPLE_SIZE) {
       throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE))
     } else {
-      
-      val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
-      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed).toList.asJava
-      sampleRdd
-      //new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
-
+      val rdd = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
+      val sampleData = rdd.takeSample(withReplacement, numSamples, seed).toList.asJava
+      sampleData
     }
   }
 
   override def getRandomSample(percent: Double, withReplacement: Boolean, seed: Int): DDF = {
-
-    val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
+    val rdd = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]])
     val sampleRdd = rdd.sample(withReplacement, percent, seed)
     new SparkDDF(this.getManager(), sampleRdd, classOf[Array[Object]], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
-
   }
 }
 
