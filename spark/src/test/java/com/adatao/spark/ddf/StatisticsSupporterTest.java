@@ -28,20 +28,20 @@ public class StatisticsSupporterTest {
     Map<String, String> params = ((SparkDDFManager) manager).getSparkContextParams();
     System.out.println(System.getProperty("spark.serializer"));
     System.out.println(params.get("DDFSPARK_JAR"));
-    /*
-     * manager.sql2txt("drop table if exists airlinetest");
-     * 
-     * manager.sql2txt("create table airlinetest (Year int,Month int,DayofMonth int," +
-     * "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int," + "CRSArrTime int,UniqueCarrier string, FlightNum int, "
-     * + "TailNum string, ActualElapsedTime int, CRSElapsedTime int, " +
-     * "AirTime int, ArrDelay int, DepDelay int, Origin string, " +
-     * "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, " +
-     * "CancellationCode string, Diverted string, CarrierDelay int, " +
-     * "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) " +
-     * "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
-     * 
-     * manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airlinetest");
-     */
+    
+     manager.sql2txt("drop table if exists airline");
+     
+     manager.sql2txt("create table airline (Year int,Month int,DayofMonth int," +
+     "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int," + "CRSArrTime int,UniqueCarrier string, FlightNum int, "
+     + "TailNum string, ActualElapsedTime int, CRSElapsedTime int, " +
+     "AirTime int, ArrDelay int, DepDelay int, Origin string, " +
+     "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, " +
+     "CancellationCode string, Diverted string, CarrierDelay int, " +
+     "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) " +
+     "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
+     
+     manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
+     
     ddf = manager
         .sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance, arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
     ddf1 = manager.sql2ddf("select year, month, dayofweek, deptime from airline");
@@ -49,7 +49,7 @@ public class StatisticsSupporterTest {
 
 
   @Test
-
+  @Ignore
   public void testSimpleAggregate() throws DDFException {
 
     // aggregation: select year, month, min(depdelay), max(arrdelay) from airline group by year, month;
@@ -77,13 +77,13 @@ public class StatisticsSupporterTest {
   }
  
   @Test
-  @Ignore
   public void testSampling() throws DDFException {
     Assert.assertEquals(10, ddf1.Views.getRandomSample(10).size());
     Assert.assertEquals(16, ddf.Views.getRandomSample(0.5, false, 5).getNumRows());
   }
 
   @Test
+  @Ignore
   public void testVectorQuantiles() throws DDFException {
     // Double[] quantiles = ddf1.getVectorQuantiles("deptime", {0.3, 0.5, 0.7});
     Double[] pArray = {0.3, 0.5, 0.7};

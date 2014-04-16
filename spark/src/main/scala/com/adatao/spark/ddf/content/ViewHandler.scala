@@ -4,10 +4,12 @@
 package com.adatao.spark.ddf.content
 
 import org.apache.spark.rdd.RDD
-
 import com.adatao.ddf.DDF
 import com.adatao.ddf.content.IHandleViews
 import com.adatao.spark.ddf.SparkDDF
+import java.util.List
+import java.util.ArrayList
+import scala.collection.JavaConverters._
 /**
  * RDD-based ViewHandler
  *
@@ -34,13 +36,13 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
    */
   def get(columns: Array[Int], format: ViewFormat): DDF = {
     format match {
-      case ViewFormat.DEFAULT ⇒ ViewHandler.getDefault(columns, mDDF)
-      case ViewFormat.ARRAY_OBJECT ⇒ ViewHandler.getArrayObject(columns, mDDF)
-      case ViewFormat.ARRAY_DOUBLE ⇒ ViewHandler.getArrayDouble(columns, mDDF)
-      case ViewFormat.TABLE_PARTITION ⇒ ViewHandler.getTablePartition(columns, mDDF)
-      case ViewFormat.LABELED_POINT ⇒ ViewHandler.getLabeledPoint(columns, mDDF)
-      case ViewFormat.LABELED_POINTS ⇒ ViewHandler.getLabeledPoints(columns, mDDF)
-      case _ ⇒ {}
+      case ViewFormat.DEFAULT => ViewHandler.getDefault(columns, mDDF)
+      case ViewFormat.ARRAY_OBJECT => ViewHandler.getArrayObject(columns, mDDF)
+      case ViewFormat.ARRAY_DOUBLE => ViewHandler.getArrayDouble(columns, mDDF)
+      case ViewFormat.TABLE_PARTITION => ViewHandler.getTablePartition(columns, mDDF)
+      case ViewFormat.LABELED_POINT => ViewHandler.getLabeledPoint(columns, mDDF)
+      case ViewFormat.LABELED_POINTS => ViewHandler.getLabeledPoints(columns, mDDF)
+      case _ => {}
     }
     null
   }
@@ -57,8 +59,8 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
       throw new IllegalArgumentException("Number of samples is currently limited to %d".format(MAX_SAMPLE_SIZE))
     } else {
       
-      val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[Array[Object]]]).asInstanceOf[RDD[Array[Object]]]
-      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed).asInstanceOf[java.util.List[Array[Object]]]
+      val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
+      val sampleRdd = rdd.takeSample(withReplacement, numSamples, seed).toList.asJava
       sampleRdd
       //new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Object]], classOf[Object], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
 
@@ -67,9 +69,9 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
 
   override def getRandomSample(percent: Double, withReplacement: Boolean, seed: Int): DDF = {
 
-    val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[Array[Object]]]).asInstanceOf[RDD[Array[Object]]]
+    val rdd = mDDF.getRepresentationHandler().get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
     val sampleRdd = rdd.sample(withReplacement, percent, seed)
-    new SparkDDF(this.getManager(), sampleRdd.asInstanceOf[RDD[Array[Object]]], classOf[Array[Object]], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
+    new SparkDDF(this.getManager(), sampleRdd, classOf[Array[Object]], mDDF.getNamespace(), mDDF.getName(), mDDF.getSchema())
 
   }
 }
