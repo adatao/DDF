@@ -10,7 +10,6 @@ import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.types.ExecutorResult;
 
-// Create a DDF from an SQL Query
 @SuppressWarnings("serial")
 public class TransformNativeRserve extends CExecutor {
 

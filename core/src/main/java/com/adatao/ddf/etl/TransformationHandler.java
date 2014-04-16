@@ -76,4 +76,10 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     return null;
   }
 
+  @Override
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef, boolean mapsideCombine) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

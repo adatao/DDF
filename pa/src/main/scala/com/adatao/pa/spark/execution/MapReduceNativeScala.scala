@@ -22,7 +22,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
  *
  * Author: AHT
  */
-class MapReduceNative(val dataContainerID: String,
+class MapReduceNativeScala(val dataContainerID: String,
 											val mapFuncDef: String,
 											val reduceFuncDef: String,
 											val mapsideCombine: Boolean = true) extends AExecutor[DataFrameResult] {

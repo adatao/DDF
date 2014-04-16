@@ -9,7 +9,9 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.Summary;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
+import com.google.common.collect.Lists;
 
 public class TransformationHandlerTest {
   private DDFManager manager;
@@ -37,6 +39,26 @@ public class TransformationHandlerTest {
   }
   
   @Test
+  public void testTransformMapReduceNative() throws DDFException {
+
+    // aggregate sum of month group by year
+    
+    String mapFuncDef = "function(part) { keyval(key=part$year, val=part$month) }";
+    String reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=sum(vv)) }";
+    DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef);
+    System.out.println("name "+ ddf.getName());
+    System.out.println("newname "+ newddf.getName());
+    //List<String> res =  ddf.Views.firstNRows(2);
+    Assert.assertNotNull(newddf);
+    Assert.assertTrue(newddf.getColumnName(0) == "key");
+    Assert.assertTrue(newddf.getColumnName(1) == "val");
+    
+    Assert.assertTrue(newddf.getColumnNames() == Lists.newArrayList("key", "val"));
+    Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(0).getType()== ColumnType.STRING);
+    Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(1).getType()== ColumnType.INT);
+  }
+  
+  @Test
   @Ignore
   public void testTransformScaleMinMax() throws DDFException {
 
@@ -48,6 +70,7 @@ public class TransformationHandlerTest {
   }
   
   @Test
+  @Ignore
   public void testTransformScaleStandard() throws DDFException {
 
     DDF newddf = ddf.Transform.transformScaleStandard();
