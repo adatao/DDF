@@ -199,14 +199,6 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       hasOne = true;
     }
     
-    String min = "";
-    boolean hasZero = false;
-    if (pValues.get(0) == 0) {
-      min = "min(" + columnName + ")";
-      pValues = pValues.subList(1, pValues.size() - 1);
-      hasZero = true;
-    }
-    
     String pParams = "";
     
     if (pValues.size() > 0) {
