@@ -33,6 +33,16 @@ public class TransformFacade implements IHandleTransformations {
     this.mTransformationHandler = mTransformationHandler;
   }
 
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef) {
+    return transformMapReduceNative(mapFuncDef, reduceFuncDef, true);
+    
+  }
+  @Override
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef, boolean mapsideCombine) {
+    return mTransformationHandler.transformMapReduceNative(mapFuncDef, reduceFuncDef, mapsideCombine);
+    
+  }
+  
   @Override
   public DDF transformNativeRserve(String transformExpression) {
     return mTransformationHandler.transformNativeRserve(transformExpression);
