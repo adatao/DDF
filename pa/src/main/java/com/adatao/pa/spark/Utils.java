@@ -24,6 +24,7 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.MetaInfo;
+import com.adatao.pa.spark.execution.Xtabs.Sql2ListStringResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
 
@@ -72,4 +73,5 @@ public class Utils {
       this.metaInfo = metaInfo;
     }
   }
+
 }
