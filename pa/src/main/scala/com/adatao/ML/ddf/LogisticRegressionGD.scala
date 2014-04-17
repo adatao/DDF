@@ -39,13 +39,14 @@ import scala.collection.mutable.ArrayBuffer
 object LogisticRegressionGD {
     
 	def train(dataPartition: RDD[TupleMatrixVector],
+	numFeatures:java.lang.Integer,
     xCols: Array[Int],
     yCol: Int,
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
     initialWeights: Array[Double]): LogisticRegressionModel = {
-    val numFeatures = xCols.length + 1
+//    val numFeatures = xCols.length + 1
 //    println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
     //depend on length of weights
     val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
