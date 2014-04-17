@@ -66,8 +66,16 @@ class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) ext
 		//first check if if input data is binary classification
 		//TODO double check if ytrueypred back by table i.e has schema
 		//    val df = ctx.sparkThread.getDataManager.get(dataContainerID)
-		val ddfManager = ctx.sparkThread.getDDFManager();
-		val predictionDDF: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID));
+		val ddfManager = ctx.sparkThread.getDDFManager()
+		
+		
+		
+		val ddfId = "SparkDDF_spark_" + dataContainerID.replaceAll("-", "_")
+		
+		
+		println(">>>>>>>>>>>>>>>> ROC get ddf id=" + dataContainerID + "\tddfId=" + ddfId)
+		
+		val predictionDDF: DDF = ddfManager.getDDF((ddfId));
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
 
