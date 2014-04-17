@@ -98,7 +98,7 @@ object LinearRegressionNormalEquation {
     new TempCalculationValue(XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions)
   }
 
-  def train(dataPartition1: RDD[TupleMatrixVector], nFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
+  def train(dataPartition1: RDD[TupleMatrixVector], numFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
     //Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
     //1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
     //2. Compute w and inverse of XtX in driver program.
@@ -106,7 +106,7 @@ object LinearRegressionNormalEquation {
     //4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
     //5. Compute t-values and p-values in R based on coefficients’ standard errors
     // Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-    val numFeatures = nFeatures + 1
+//    val numFeatures = nFeatures + 1
     //        println("dataPartition")
     //        val result1 = dataPartition1.collect
     //        for (t <- result1) {println("original"); println(t.getClass.getName); println(t);}
