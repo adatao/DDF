@@ -185,15 +185,15 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
     String min = "";
     boolean hasZero = false;
-    if (pValues.get(0) == 0) {
+    if (Double.compare(pValues.get(0), 0.0) == 0) {
       min = "min(" + columnName + ")";
-      pValues = pValues.subList(1, pValues.size() - 1);
+      pValues = pValues.subList(1, pValues.size());
       hasZero = true;
     }
     
     boolean hasOne = true;
     String max = "";
-    if (pValues.get(pValues.size() - 1) == 1.0) {
+    if (Double.compare(pValues.get(pValues.size() - 1), 1.0) == 0) {
       max = "max(" + columnName + ")";
       pValues.subList(0, pValues.size() - 1);
       hasOne = true;
@@ -203,9 +203,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     if (pValues.size() > 0) {
       if (p1.matcher(colType).matches()) {
-        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + "))";
+        pParams = "percentile(" + columnName + ", array(" + StringUtils.join(pValues, ",") + "))";
       } else if (p2.matcher(colType).matches()) {
-        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + ", " + B.toString() + "))";
+        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pValues, ",") + ", " + B.toString() + "))";
       } else {
         throw new DDFException("Only support numeric verctors!!!");
       }
