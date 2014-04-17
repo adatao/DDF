@@ -54,6 +54,15 @@ class LogisticRegression(
     // project the xCols, and yCol as a new DDF
     // this is costly
     val schema = ddf.getSchema()
+
+    //call dummy coding explicitly
+    //make sure all input ddf to algorithm MUST have schema
+    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    ddf.getSchema().generateDummyCoding()
+
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+
     var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
     for (col <- xCols) columnList.add(schema.getColumn(col).getName)
     columnList.add(schema.getColumn(yCol).getName)

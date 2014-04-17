@@ -2,6 +2,7 @@ package com.adatao.spark.ddf.analytics
 
 import com.adatao.ddf.DDF
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.adatao.ddf.analytics.ABinningHandler
 import com.adatao.ddf.analytics.ABinningHandler._
 import com.adatao.ddf.analytics.IHandleBinning
@@ -46,8 +47,8 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
 
     //remove single quote in intervals
     intervals = intervals.map(x ⇒ x.replace("'", ""))
-    newddf.getSchemaHandler().setAsFactor(column);
-
+    newddf.getSchemaHandler().setAsFactor(column).setLevels(intervals.toList.asJava);
+    
     newddf
   }
 

@@ -212,15 +212,20 @@ public class Schema implements Serializable {
 
 				//TODO update this code
 				i = 0;
+				System.out.println(">>>>>>>>>>>> printing dummy coding");
 				temp = new HashMap<String, java.lang.Double>();
 				while (iterator.hasNext()) {
 					String columnValue = iterator.next();
+					
+					
+					System.out.println(">>>>>> columnValue\t" + columnValue + "\t vlaue=" + currentColumnFactor.get(columnValue));
+					
 					temp.put(columnValue, Double.parseDouble(i + ""));
 					i += 1;
 				}
 				dc.getMapping().put(currentColumnIndex, temp);
 
-				count += temp.size() - 2;
+				count += temp.size() - 1;
 			}
 		}
 		dc.setNumDummyCoding(count);
@@ -239,6 +244,8 @@ public class Schema implements Serializable {
 		_features += 1;
 		// plus the new dummy coding columns
 		_features += dc.getNumDummyCoding();
+		
+		System.out.println(">>>>> numFeatures = " + _features);
 
 		dc.setNumberFeatures(_features);
 
