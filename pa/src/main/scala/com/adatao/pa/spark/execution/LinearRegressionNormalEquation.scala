@@ -72,25 +72,30 @@ class LinearRegressionNormalEquation(
     ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     ddf.getSchema().generateDummyCoding()
 
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    columnList.add(schema.getColumn(yCol).getName)
-    val projectDDF = ddf.Views.project(columnList)
+//    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+//    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+//    columnList.add(schema.getColumn(yCol).getName)
+//    val projectDDF = ddf.Views.project(columnList)
+    
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    val numRows = ddf.getNumRows()
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)
-    val model = projectDDF.ML.train("linearRegressionNQ", xCols.length: java.lang.Integer, ridgeLambda: java.lang.Double)
+    val model = ddf.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.ml.pa.NQLinearRegressionModel]
     val itr = rawModel.weights.iterator
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
-    val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, projectDDF.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
+    val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
     LOG.info("Json model")
     LOG.info(rawModel.weights.toJson)
     LOG.info(paModel.weights.toJson)
     LOG.info(paModel.toString)
     LOG.info(rawModel.toString)
-    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, projectDDF.getNumRows)
+    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
     LOG.info(myModel.toString)
     ddfManager.addModel(model)
     // paModel.ddfModel = model
