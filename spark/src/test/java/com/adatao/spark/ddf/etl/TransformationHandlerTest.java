@@ -11,7 +11,6 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
-import com.google.common.collect.Lists;
 
 public class TransformationHandlerTest {
   private DDFManager manager;
@@ -26,7 +25,6 @@ public class TransformationHandlerTest {
   } 
   
   @Test
-  @Ignore
   public void testTransformNativeRserve() throws DDFException {
 
     DDF newddf = ddf.Transform.transformNativeRserve("newcol = deptime / arrtime");
@@ -70,7 +68,6 @@ public class TransformationHandlerTest {
   }
   
   @Test
-  @Ignore
   public void testTransformScaleStandard() throws DDFException {
 
     DDF newddf = ddf.Transform.transformScaleStandard();
