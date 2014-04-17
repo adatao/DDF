@@ -22,21 +22,20 @@ class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
  * @param decimalPlaces: number of decimal places in range format
  */
 class Binning(val dataContainerID: String,
-							val col: String,
-							val binningType: String,
-							val numBins: Int = 0,
-							var breaks: Array[Double] = null,
-							val includeLowest: Boolean = false,
-							val right: Boolean = true,
-							val decimalPlaces: Int = 2) extends AExecutor[BinningResult]{
+              val col: String,
+              val binningType: String,
+              val numBins: Int = 0,
+              var breaks: Array[Double] = null,
+              val includeLowest: Boolean = false,
+              val right: Boolean = true,
+              val decimalPlaces: Int = 2) extends AExecutor[BinningResult] {
 
-	protected override def runImpl(context: ExecutionContext): BinningResult = {
-	  
-	  val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-	  val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
-	  // binned var are now factors
-    //new GetFactor().setDataContainerID(Utils.getDataContainerId(newddf)).setColumnName(col).run(context.sparkThread)
-	  new BinningResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))
-	}
+  protected override def runImpl(context: ExecutionContext): BinningResult = {
+
+    val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
+    // binned var are now factors
+    new BinningResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))
+  }
 
 }
