@@ -17,6 +17,9 @@
 package com.adatao.pa.spark.execution;
 
 import java.util.List;
+
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import org.apache.spark.api.java.JavaRDD;
 import shark.api.JavaSharkContext;
 import com.adatao.pa.AdataoException;
@@ -31,6 +34,8 @@ import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
+import com.adatao.pa.spark.Utils;
+
 
 public class SampleDataFrame implements IExecutor {
 	String dataContainerID;
@@ -87,6 +92,11 @@ public class SampleDataFrame implements IExecutor {
 		String dataContainerID;
 		MetaInfo[] metaInfo;
 
+    public SampleDataFramePercentResult(String dcID, MetaInfo[] metaInfos) {
+      dataContainerID = dcID;
+      metaInfo = metaInfos;
+    }
+
 		public SampleDataFramePercentResult setDataContainerID(String dataContainerID) {
 			this.dataContainerID = dataContainerID;
 			return this;
@@ -120,20 +130,16 @@ public class SampleDataFrame implements IExecutor {
 	}
 	@Override
 	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		DataManager dm = sparkThread.getDataManager();
-		DataManager.DataContainer df = dm.get(dataContainerID);
-		JavaRDD<Object[]> dataTable = null;
+		DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(Utils.getDDFNameFromDataContainerID(dataContainerID));
 
-		if (df.getType().equals(ContainerType.DataFrame)) {
-			dataTable = df.getRDD();
-		}
-		else if (df.getType().equals(ContainerType.SharkDataFrame)) {
-			// Try to get JavaRDD<Object[]			
-			SharkDataFrame sdf = (SharkDataFrame) df;
-			dataTable = sdf.getRDD();
-		}	
+    if (ddf == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID, null);
+    }
+
+    //JavaRDD<Object[]> dataTable = null;
 
 		if (getPercent) {
+      /*
 			JavaRDD<Object[]> data = dataTable.sample(replace, percent, seed);
 			DataFrame tdf;
 			tdf = new DataFrame(df.getMetaInfo(), data);
@@ -144,23 +150,41 @@ public class SampleDataFrame implements IExecutor {
 
 			return new SampleDataFramePercentResult()
 			.setDataContainerID(uid)
-			.setMetaInfo(tdf.getMetaInfo());
-		} else {
+			.setMetaInfo(tdf.getMetaInfo());    */
+      DDF sampleDDF = ddf.Views.getRandomSample(percent, replace, seed);
+      try{
+        MetaInfo[] metaInfos = Utils.generateMetaInfo(sampleDDF.getSchema());
+        String dcID = Utils.getDataContainerID(sampleDDF);
+        return new SampleDataFramePercentResult(dcID, metaInfos);
+      } catch(DDFException e) {
+        throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e.getCause());
+      }
+    } else {
+
 			int MAX_SAMPLE_SIZE = Integer.parseInt(System.getProperty("sample.max.size", "10000000"));
 			if(size > MAX_SAMPLE_SIZE) {
 				throw new AdataoException(AdataoExceptionCode.ERR_SAMPLE_MAX_SIZE, String.format("Sample size exceeds limit: size %d, MAX_SAMPLE_SIZE %d", size, MAX_SAMPLE_SIZE), null);
 			}
+      /*
 			List<Object[]> data = dataTable.takeSample(replace, size, seed);
 			
 			if(data != null && data.size() > 0) {
 				return new SampleDataFrameSizeResult()
 				.setDataContainerID(dataContainerID)
-				.setData(data);
-			}
+				.setData(data);  */
+			List<Object[]> data = ddf.Views.getRandomSample(size, replace, seed);
+      if(data != null && data.size() > 0) {
+        return new SampleDataFrameSizeResult().setDataContainerID(dataContainerID).setData(data);
+      }
 			else {
 				//provide metaInfo for easy debugging. At this step it's certain that df is not null
-				if(df != null && df.getMetaInfo() != null) {
-					throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Fail to get sample data for dataframe: [MetaInfo] = " + df.getMetaInfo(), null);
+				if(ddf != null && ddf.getSchema() != null) {
+          try{
+            MetaInfo[] metaInfos = Utils.generateMetaInfo(ddf.getSchema());
+            throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Fail to get sample data for dataframe: [MetaInfo] = " + metaInfos, null);
+          } catch(DDFException e) {
+            throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e.getCause());
+          }
 				}
 				throw AdataoException.defaultException;
 			}

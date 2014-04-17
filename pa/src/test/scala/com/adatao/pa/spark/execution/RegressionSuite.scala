@@ -41,9 +41,6 @@ import com.adatao.pa.spark.execution.FiveNumSummary._
  */
 class RegressionSuite extends ABigRClientTest {
 
-	test("Single-variable linear regression - normal equation - no regularization") {
-        runSQLCmd("select * from airline")
-	}
 
 /*
 	//smoke test
@@ -660,11 +657,11 @@ class RegressionSuite extends ABigRClientTest {
 
 		//load data		
 		createTableAdmission
-		val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
+		val df = this.runSQL2RDDCmd("select v2, v3, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
-		System.setProperty("sparse.max.range", "10")
-		val iterations = 2
+		System.setProperty("sparse.max.range", "10000")
+		val iterations = 1
 
 		//get summary
 		var cmd2 = new FiveNumSummary(dataContainerId)
@@ -686,7 +683,7 @@ class RegressionSuite extends ABigRClientTest {
 		columnsSummary.put("max", hmax)
 
 		val startTime = System.currentTimeMillis()
-		val executor = new LogisticRegressionCRS(dataContainerId, Array(1, 2, 3), 0, columnsSummary, iterations, 0.1, lambda, Array(-3.0, 1.5, -0.9))
+		val executor = new LogisticRegressionCRS(dataContainerId, Array(0,1), 2, columnsSummary, iterations, 0.1, lambda, Array(-3.0, 1.5))
 		val r = bigRClient.execute[LogisticRegressionModel](executor)
 		assert(r.isSuccess)
 
@@ -740,18 +737,33 @@ class RegressionSuite extends ABigRClientTest {
 		//		println("model=" + model)
 
 	}
-<<<<<<< HEAD
     */
 
-	test("Multiple-variable logistic regression IRLS - ddf") {
+//	test("Multiple-variable logistic regression IRLS - ddf") {
+//
+//		//load data
+//		createTableAdmission
+//		val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 0.0
+//
+//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1, 2), 3, 25, 1e-8, lambda, Array(0, 0))
+//		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+//		assert(r.isSuccess)
+//	}
+	
+	test("test dummy coding") {
 
 		//load data
-		createTableAdmission
-		val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
+		createTableAirline
+//		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
+		
+		val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
+		
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
 
-		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1, 2), 3, 25, 1e-8, lambda, Array(0, 0))
+		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 		assert(r.isSuccess)
 	}

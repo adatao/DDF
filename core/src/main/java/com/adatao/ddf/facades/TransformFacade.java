@@ -2,6 +2,7 @@ package com.adatao.ddf.facades;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.etl.IHandleTransformations;
+import com.adatao.ddf.exception.DDFException;
 
 public class TransformFacade implements IHandleTransformations {
   private DDF mDDF;
@@ -32,9 +33,30 @@ public class TransformFacade implements IHandleTransformations {
     this.mTransformationHandler = mTransformationHandler;
   }
 
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef) {
+    return transformMapReduceNative(mapFuncDef, reduceFuncDef, true);
+    
+  }
+  @Override
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef, boolean mapsideCombine) {
+    return mTransformationHandler.transformMapReduceNative(mapFuncDef, reduceFuncDef, mapsideCombine);
+    
+  }
+  
   @Override
   public DDF transformNativeRserve(String transformExpression) {
     return mTransformationHandler.transformNativeRserve(transformExpression);
     
   }
+
+  @Override
+  public DDF transformScaleMinMax() throws DDFException {
+    return mTransformationHandler.transformScaleMinMax();
+  }
+
+  @Override
+  public DDF transformScaleStandard() throws DDFException {
+    return mTransformationHandler.transformScaleStandard();
+  }
+  
 }

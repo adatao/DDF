@@ -43,7 +43,7 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
         String.format("Not found dataframe with id %s", modelID), null);
     }
 
-    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, false)
     if (predictionDDF == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
         "Can not run prediction on dataContainerID: " + dataContainerID + "\t with modelID =" + modelID, null);

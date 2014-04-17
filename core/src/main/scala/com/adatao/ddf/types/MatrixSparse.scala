@@ -25,7 +25,7 @@ class MatrixSparse (numRows: Int, numCols: Int)  {
 		
 		//check dimension
 		if(numCols != other.getRows()) {
-			System.err.println(">>>>>>>>>>> Wrong dimension: matrix: " + numRows + " * "  + numCols)
+			System.err.println(">>>>>>>>>>> Wrong dimension: matrix: " + numRows + " * "  + numCols + "\tvector size=" + other.data.size)
 			sys.exit(1)
 		}
 		

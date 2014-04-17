@@ -24,6 +24,7 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.MetaInfo;
+import com.adatao.pa.spark.execution.Xtabs.Sql2ListStringResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
 
@@ -50,17 +51,27 @@ public class Utils {
     return metaInfo;
   }
 
-  public static String getDataContainerId(DDF ddf) {
+  public static String getDataContainerID(DDF ddf) {
     return ddf.getName().substring(15).replace("_", "-");
   }
-  
+
+  public static String getDDFNameFromDataContainerID(String dataContainerID) {
+    return ("SparkDDF-spark-" + dataContainerID).replace("-", "_");
+  }
+
   static public class DataFrameResult extends SuccessResult {
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 
     public DataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = getDataContainerId(ddf);
+      this.dataContainerID = getDataContainerID(ddf);
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
+    
+    public DataFrameResult(String dataContainerID, MetaInfo[] metaInfo) throws DDFException {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = metaInfo;
+    }
   }
+
 }
