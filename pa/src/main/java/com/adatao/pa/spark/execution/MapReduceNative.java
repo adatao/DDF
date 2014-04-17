@@ -11,15 +11,19 @@ import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.types.ExecutorResult;
 
 @SuppressWarnings("serial")
-public class TransformNativeRserve extends CExecutor {
+public class MapReduceNative extends CExecutor {
 
   private String dataContainerID;
-  private String transformExpression;
-  public static Logger LOG = LoggerFactory.getLogger(TransformNativeRserve.class);
-  
-  public TransformNativeRserve(String dataContainerID, String transformExpression) {
+  private String mapFuncDef;
+  private String reduceFuncDef;
+  private boolean mapsideCombine = true;
+  public static Logger LOG = LoggerFactory.getLogger(MapReduceNative.class);
+
+  public MapReduceNative(String dataContainerID, String mapFuncDef, String reduceFuncDef, boolean mapsideCombine) {
     this.dataContainerID = dataContainerID;
-    this.transformExpression = transformExpression;
+    this.mapFuncDef = mapFuncDef;
+    this.reduceFuncDef = reduceFuncDef;
+    this.mapsideCombine = mapsideCombine;
   }
 
   @Override
@@ -28,10 +32,14 @@ public class TransformNativeRserve extends CExecutor {
       
       DDFManager manager = sparkThread.getDDFManager();
       DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-      DDF newddf = ddf.Transform.transformNativeRserve(transformExpression);
+      DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef);
       LOG.info("Transformed DDF name " +newddf.getName());
+      System.err.println(">>>>>>>>>>>>>>. Transformed DDF name " +newddf.getName());
+      
       manager.addDDF(newddf);
       LOG.info(manager.getDDFs().keySet().toString());
+      
+      System.err.println(">>>>>>>>>>>>>>. manager.getDDFs().keySet().toString() " + manager.getDDFs().keySet().toString());
 
       return new Utils.DataFrameResult(newddf);
 
@@ -50,7 +58,7 @@ public class TransformNativeRserve extends CExecutor {
     return dataContainerID;
   }
 
-  public TransformNativeRserve setDataContainerID(String dataContainerID) {
+  public MapReduceNative setDataContainerID(String dataContainerID) {
     this.dataContainerID = dataContainerID;
     return this;
   }

@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.Summary;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 
 public class TransformationHandlerTest {
@@ -24,7 +25,6 @@ public class TransformationHandlerTest {
   } 
   
   @Test
-  @Ignore
   public void testTransformNativeRserve() throws DDFException {
 
     DDF newddf = ddf.Transform.transformNativeRserve("newcol = deptime / arrtime");
@@ -34,6 +34,26 @@ public class TransformationHandlerTest {
     Assert.assertNotNull(newddf);
     Assert.assertEquals("newcol", newddf.getColumnName(9));
     Assert.assertEquals(10, res.size());
+  }
+  
+  @Test
+  public void testTransformMapReduceNative() throws DDFException {
+
+    // aggregate sum of month group by year
+    
+    String mapFuncDef = "function(part) { keyval(key=part$year, val=part$month) }";
+    String reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=sum(vv)) }";
+    DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef);
+    System.out.println("name "+ ddf.getName());
+    System.out.println("newname "+ newddf.getName());
+    System.out.println(">>>>> newddf.getColumnName(0) =  "+ newddf.getColumnName(0));
+    //List<String> res =  ddf.Views.firstNRows(2);
+    Assert.assertNotNull(newddf);
+    Assert.assertTrue(newddf.getColumnName(0).equals("key"));
+    Assert.assertTrue(newddf.getColumnName(1).equals("val"));
+   
+    Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(0).getType()== ColumnType.STRING);
+    Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(1).getType()== ColumnType.INT);
   }
   
   @Test
