@@ -164,6 +164,9 @@ public class Factor<T> extends Vector<T> {
     this.setLevels(levels, null, isOrdered);
   }
 
+  public void setLevels(List<String> levels) throws DDFException {
+    this.setLevels(levels, null, false); // with default values for level codes and isOrdered
+  }
   /**
    * Similar to setLevels(levels, isOrdered),
    * 
