@@ -104,7 +104,6 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     private static final long serialVersionUID = -7809562958792876728L;
 
-
     public static AggregationResult newInstance(List<String> sqlResult, int numUnaggregatedFields) {
 
       AggregationResult result = new AggregationResult();
@@ -211,7 +210,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       if (Strings.isNullOrEmpty(sqlFieldSpecs)) return null;
 
       String[] specs = sqlFieldSpecs.split(",");
-      List<AggregateField> fields = new ArrayList<AggregateField>();
+      List<AggregateField> fields = Lists.newArrayList();
       for (String spec : specs) {
         if (Strings.isNullOrEmpty(spec)) continue;
 
