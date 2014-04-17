@@ -70,8 +70,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_MATRIX_VECTOR ⇒ {
 
         //must invoke generate dummy coding explicitly, AGAIN
-        schema.generateDummyCoding() //generateDummyCoding(schema)
-        val dummyCoding = schema.getDummyCoding()
+        schemaHandler.generateDummyCoding() //generateDummyCoding(schema)
+        val dummyCoding = schemaHandler.getSchema().getDummyCoding()
 
         rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }

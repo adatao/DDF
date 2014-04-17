@@ -180,16 +180,9 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     
     mLog.info("Column type: " + colType);
     List<Double> pValues = Arrays.asList(percentiles);
-    Pattern p1 = Pattern.compile("^[big|small|tiny]{0,1}int$");
-    Pattern p2 = Pattern.compile("^[float|double]$");
+    Pattern p1 = Pattern.compile("(big|small|tiny|int)");
+    Pattern p2 = Pattern.compile("(float|double)");
 
-    String min = "";
-    boolean hasZero = false;
-    if (pValues.get(0) == 0) {
-      min = "min(" + columnName + ")";
-      pValues = pValues.subList(1, pValues.size() - 1);
-      hasZero = true;
-    }
     
     boolean hasOne = true;
     String max = "";
@@ -199,28 +192,41 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       hasOne = true;
     }
     
+    String min = "";
+    boolean hasZero = false;
+    if (pValues.get(0) == 0) {
+      min = "min(" + columnName + ")";
+      pValues = pValues.subList(1, pValues.size() - 1);
+      hasZero = true;
+    }
+    
     String pParams = "";
     
     if (pValues.size() > 0) {
       if (p1.matcher(colType).matches()) {
         pParams = "percentile(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + "))";
       } else if (p2.matcher(colType).matches()) {
-        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(percentiles, ",") + ", " + B.toString() + "))";
+        pParams = "percentile_approx(" + columnName + ", array" + pValues.toString().replace("[", "(").replace("]", ")").replace("List", "") + ", " + B.toString() + ")";
       } else {
         throw new DDFException("Only support numeric verctors!!!");
       }
     }
     
     if (min.length() > 0) {
-      pParams += ", " + min;
+      pParams = min + ", " + pParams;
     }
     
     if (max.length() > 0) {
       pParams += ", " + max;
     }
     
+    
+    
+    
     String cmd = "SELECT " + pParams + " FROM " + getDDF().getTableName();
-    mLog.info("Command String = " + cmd);
+    mLog.info(">>>>>>>>>>>>>> Command String = " + cmd);
+    
+    		
     List<String> rs = getDDF().sql2txt(cmd, "Cannot get vector quantiles from SQL queries");
     if (rs == null || rs.size() ==0) {
       throw new DDFException("Cannot get vector quantiles from SQL queries");
