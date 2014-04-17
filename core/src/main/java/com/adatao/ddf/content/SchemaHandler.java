@@ -3,10 +3,10 @@
  */
 package com.adatao.ddf.content;
 
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
@@ -16,140 +16,153 @@ import com.adatao.ddf.util.DDFUtils;
 
 /**
  */
-public class SchemaHandler extends ADDFFunctionalGroupHandler implements IHandleSchema {
+public class SchemaHandler extends ADDFFunctionalGroupHandler implements
+		IHandleSchema {
 
+	public SchemaHandler(DDF theDDF) {
+		super(theDDF);
+	}
 
-  public SchemaHandler(DDF theDDF) {
-    super(theDDF);
-  }
+	private Schema mSchema;
 
+	@Override
+	public Schema getSchema() {
+		return mSchema;
+	}
 
-  private Schema mSchema;
+	@Override
+	public void setSchema(Schema theSchema) {
+		this.mSchema = theSchema;
+	}
 
+	/**
+	 * @return the Schema's table name
+	 */
+	@Override
+	public String getTableName() {
+		return mSchema != null ? mSchema.getTableName() : null;
+	}
 
-  @Override
-  public Schema getSchema() {
-    return mSchema;
-  }
+	@Override
+	public Column getColumn(String columnName) {
+		return mSchema.getColumn(columnName);
+	}
 
-  @Override
-  public void setSchema(Schema theSchema) {
-    this.mSchema = theSchema;
-  }
+	@Override
+	public List<Column> getColumns() {
+		return mSchema != null ? mSchema.getColumns() : null;
+	}
 
-  /**
-   * @return the Schema's table name
-   */
-  @Override
-  public String getTableName() {
-    return mSchema != null ? mSchema.getTableName() : null;
-  }
+	@Override
+	public String newTableName() {
+		return newTableName(this.getDDF());
+	}
 
-  @Override 
-  public Column getColumn(String columnName) {
-    return mSchema.getColumn(columnName);
-  }
-  @Override
-  public List<Column> getColumns() {
-    return mSchema != null ? mSchema.getColumns() : null;
-  }
+	@Override
+	public String newTableName(Object obj) {
+		return DDFUtils.generateObjectName(obj);
+	}
 
-  @Override
-  public String newTableName() {
-    return newTableName(this.getDDF());
-  }
+	@Override
+	public int getNumColumns() {
+		return mSchema != null ? mSchema.getNumColumns() : -1;
+	}
 
-  @Override
-  public String newTableName(Object obj) {
-    return DDFUtils.generateObjectName(obj);
-  }
+	@Override
+	public int getColumnIndex(String columnName) {
+		return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
+	}
 
-  @Override
-  public int getNumColumns() {
-    return mSchema != null ? mSchema.getNumColumns() : -1;
-  }
+	@Override
+	public String getColumnName(int columnIndex) {
+		return mSchema != null ? mSchema.getColumnName(columnIndex) : null;
+	}
 
-  @Override
-  public int getColumnIndex(String columnName) {
-    return mSchema != null ? mSchema.getColumnIndex(columnName) : -1;
-  }
+	@Override
+	public Schema generateSchema() {
+		if (this.getSchema() != null)
+			return this.getSchema();
 
-  @Override
-  public String getColumnName(int columnIndex) {
-    return mSchema != null ? mSchema.getColumnName(columnIndex) : null;
-  }
+		// Try to infer from the DDF's data
+		Object data = this.getDDF().getRepresentationHandler().getDefault();
 
-  @Override
-  public Schema generateSchema() {
-    if (this.getSchema() != null) return this.getSchema();
+		// TODO: for now, we'll just support the "null" case
+		if (data == null)
+			return new Schema(null, "null BLOB");
 
-    // Try to infer from the DDF's data
-    Object data = this.getDDF().getRepresentationHandler().getDefault();
+		return null;
+	}
 
-    // TODO: for now, we'll just support the "null" case
-    if (data == null) return new Schema(null, "null BLOB");
+	@Override
+	public void computeFactorLevelsAndLevelCounts() throws DDFException {
 
-    return null;
-  }
+	}
 
-  @Override
-  public void computeFactorLevelsAndLevelCounts() throws DDFException {
+	@Override
+	public Factor<?> setAsFactor(String columnName) {
+		if (this.getSchema() == null)
+			return null;
 
-  }
+		Factor<?> factor = null;
 
-  @Override
-  public Factor<?> setAsFactor(String columnName) {
-    if (this.getSchema() == null) return null;
+		Column column = this.getSchema().getColumn(columnName);
+		switch (column.getType()) {
+		case DOUBLE:
+			factor = new Factor<Double>(this.getDDF(), columnName);
+			break;
+		case FLOAT:
+			factor = new Factor<Float>(this.getDDF(), columnName);
+			break;
+		case INT:
+			factor = new Factor<Integer>(this.getDDF(), columnName);
+			break;
+		case LONG:
+			factor = new Factor<Long>(this.getDDF(), columnName);
+			break;
+		case LOGICAL:
+			factor = new Factor<Boolean>(this.getDDF(), columnName);
+			break;
+		case STRING:
+			factor = new Factor<String>(this.getDDF(), columnName);
+			break;
+		case TIMESTAMP:
+			factor = new Factor<Timestamp>(this.getDDF(), columnName);
+			break;
+		case BLOB:
+		default:
+			factor = new Factor<Object>(this.getDDF(), columnName);
+			break;
+		}
 
-    Factor<?> factor = null;
+		column.setAsFactor(factor);
 
-    Column column = this.getSchema().getColumn(columnName);
-    switch (column.getType()) {
-      case DOUBLE:
-        factor = new Factor<Double>(this.getDDF(), columnName);
-        break;
-      case FLOAT:
-        factor = new Factor<Float>(this.getDDF(), columnName);
-        break;
-      case INT:
-        factor = new Factor<Integer>(this.getDDF(), columnName);
-        break;
-      case LONG:
-        factor = new Factor<Long>(this.getDDF(), columnName);
-        break;
-      case LOGICAL:
-        factor = new Factor<Boolean>(this.getDDF(), columnName);
-        break;
-      case STRING:
-        factor = new Factor<String>(this.getDDF(), columnName);
-        break;
-      case TIMESTAMP:
-        factor = new Factor<Timestamp>(this.getDDF(), columnName);
-        break;
-      case BLOB:
-      default:
-        factor = new Factor<Object>(this.getDDF(), columnName);
-        break;
-    }
+		return factor;
+	}
 
-    column.setAsFactor(factor);
+	public void generateDummyCoding() throws NumberFormatException,
+			DDFException {
+		this.getSchema().generateDummyCoding();
+	}
 
-    return factor;
-  }
+	@Override
+	public Factor<?> setAsFactor(int columnIndex) {
+		return this.setAsFactor(this.getColumnName(columnIndex));
+	}
 
-  @Override
-  public Factor<?> setAsFactor(int columnIndex) {
-    return this.setAsFactor(this.getColumnName(columnIndex));
-  }
+	@Override
+	public void unsetAsFactor(String columnName) {
+		this.unsetAsFactor(this.getColumnIndex(columnName));
+	}
 
-  @Override
-  public void unsetAsFactor(String columnName) {
-    this.unsetAsFactor(this.getColumnIndex(columnName));
-  }
+	@Override
+	public void unsetAsFactor(int columnIndex) {
+		if (this.getSchema() != null)
+			this.getSchema().getColumn(columnIndex).unsetAsFactor();
+	}
 
-  @Override
-  public void unsetAsFactor(int columnIndex) {
-    if (this.getSchema() != null) this.getSchema().getColumn(columnIndex).unsetAsFactor();
-  }
+	public void computeFactorLevelsForAllStringColumns() throws DDFException {
+		// TODO Auto-generated method stub
+
+	}
 
 }

@@ -9,14 +9,18 @@ import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.IHandleRepresentations;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
+
 import org.apache.spark.rdd.RDD;
+
 import scala.reflect.ClassManifest$;
 import shark.api.ColumnDesc;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.google.common.collect.Lists;
+
 import shark.memstore2.TablePartition;
 
 /**
@@ -38,6 +42,17 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
     return new Schema(null, cols);
   }
 
+  
+  @Override 
+  public void computeFactorLevelsForAllStringColumns() throws DDFException {
+	  List<Column>  columns = this.getColumns();
+	  for (Column c : columns) { 
+		  if(c.getType() == ColumnType.STRING)
+			  this.setAsFactor(c.getName());
+	  }
+	  computeFactorLevelsAndLevelCounts();
+  }
+  
   @Override
   public void computeFactorLevelsAndLevelCounts() throws DDFException {
     List<Integer> columnIndexes = new ArrayList<Integer>();

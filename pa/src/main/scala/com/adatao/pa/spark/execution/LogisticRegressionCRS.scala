@@ -71,10 +71,16 @@ class LogisticRegressionCRS(
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
 		try {
 		  
+		  //call dummy coding explicitly
+		//make sure all input ddf to algorithm MUST have schema
+		ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+		ddf.getSchema().generateDummyCoding()
+		
 		  //invoke generate dummy coding explicitly
 		  ddf.getSchema().generateDummyCoding()
 		
 		  val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+		  println(">>>>>>>>>>>>>> LogisticRegressionCRS numFeatures = " + numFeatures)
 
 			val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
 				0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)

@@ -73,13 +73,14 @@ class LogisticRegressionIRLS(
 		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
 		
 		
-		//TODO call get multifactor explicitly
 		
 		//call dummy coding explicitly
 		//make sure all input ddf to algorithm MUST have schema
+		ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
 		ddf.getSchema().generateDummyCoding()
 		
 		val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+		println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 		
 		try {
 			

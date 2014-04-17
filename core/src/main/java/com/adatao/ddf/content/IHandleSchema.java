@@ -2,6 +2,7 @@ package com.adatao.ddf.content;
 
 
 import java.util.List;
+
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.exception.DDFException;
@@ -42,6 +43,8 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
   Schema generateSchema();
 
   void computeFactorLevelsAndLevelCounts() throws DDFException;
+  
+  void computeFactorLevelsForAllStringColumns() throws DDFException; 
 
   Factor<?> setAsFactor(String columnName);
 
@@ -50,4 +53,6 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
   void unsetAsFactor(String columnName);
 
   void unsetAsFactor(int columnIndex);
+  
+  public void generateDummyCoding() throws NumberFormatException, DDFException ;
 }
