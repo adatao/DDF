@@ -145,7 +145,7 @@ object TransformationHandler {
    * Eval the expr in rconn, if succeeds return null (like rconn.voidEval),
    * if fails raise AdataoException with captured R error message.
    * See: http://rforge.net/Rserve/faq.html#errors
-   */  
+   */
   def tryEval(rconn: RConnection, expr: String, errMsgHeader: String) {
     rconn.assign(".tmp.", expr)
     val r = rconn.eval("r <- try(eval(parse(text=.tmp.)), silent=TRUE); if (inherits(r, 'try-error')) r else NULL")

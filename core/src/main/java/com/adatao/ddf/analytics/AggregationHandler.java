@@ -2,7 +2,6 @@ package com.adatao.ddf.analytics;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -90,10 +89,10 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       throw new DDFException("Unable to query from " + tableName, e);
     }
   }
-  
+
   @Override
   public AggregationResult xtabs(List<AggregateField> fields) throws DDFException {
-	  return this.aggregate(fields);
+    return this.aggregate(fields);
   }
 
 
@@ -103,6 +102,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
   public static class AggregationResult extends HashMap<String, Double[]> {
 
     private static final long serialVersionUID = -7809562958792876728L;
+
 
     public static AggregationResult newInstance(List<String> sqlResult, int numUnaggregatedFields) {
 
