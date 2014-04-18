@@ -20,7 +20,7 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
   override def runImpl(ctx: ExecutionContext): ResidualsResult = {
 
     val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddfId = com.adatao.ML.Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId);
     // first, compute RDD[(ytrue, ypred)]
 

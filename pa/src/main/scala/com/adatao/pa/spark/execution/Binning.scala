@@ -8,7 +8,6 @@ import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.Utils
 import shark.api.JavaSharkContext
 import shark.api.Row
-import com.adatao.ML.Utils
 
 class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
 
@@ -34,7 +33,7 @@ class Binning(val dataContainerID: String,
 
   protected override def runImpl(context: ExecutionContext): BinningResult = {
 
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddfId = com.adatao.ML.Utils.dcID2DDFID(dataContainerID)
     val ddf = context.sparkThread.getDDFManager().getDDF(ddfId);
     val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
     // binned var are now factors

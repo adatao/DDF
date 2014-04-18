@@ -106,7 +106,7 @@ object LinearRegressionNormalEquation {
     //4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
     //5. Compute t-values and p-values in R based on coefficients’ standard errors
     // Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-//    val numFeatures = nFeatures + 1
+    //    val numFeatures = nFeatures + 1
     //        println("dataPartition")
     //        val result1 = dataPartition1.collect
     //        for (t <- result1) {println("original"); println(t.getClass.getName); println(t);}
@@ -115,7 +115,7 @@ object LinearRegressionNormalEquation {
     //        val result = dataPartition.collect
     //        for (t <- result) { println("tuple" ); println(t._1.getClass.getName); println(t._1)}
     //        for ((x, y) <- result) println("tuple-columns" + x.getColumns)
-//    val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
+    //    val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
     val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x.compute(y)))
     //val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
     var messages: Array[String] = Array()
@@ -213,18 +213,18 @@ object LinearRegressionNormalEquation {
 		val sharkvector= SharkColumnVector.fromSharkDataFrame(sdf, metaInfo(0).getHeader)
 		val res_df_id = ctx.sparkThread.getDataManager.add(sharkvector)
     */
-		// residual sum of squares or sum of squared error
-		val rss = residuals.map {
-			res ⇒ res.muli(res).sum()
-		}.reduce(_ + _)
+    // residual sum of squares or sum of squared error
+    val rss = residuals.map {
+      res ⇒ res.muli(res).sum()
+    }.reduce(_ + _)
 
-		// degree of freedom
-		val df = ret.x3 - numFeatures
+    // degree of freedom
+    val df = ret.x3 - numFeatures
 
-		// standard errors
-		val stderrs = org.jblas.MatrixFunctions.sqrt(invXtX.diag().muli(rss / df))
-		// numFeatures - 1 -> we dont count intercept as a feature. Actually, the user can specify that he dont want the model to include intercept
-        /*
+    // standard errors
+    val stderrs = org.jblas.MatrixFunctions.sqrt(invXtX.diag().muli(rss / df))
+    // numFeatures - 1 -> we dont count intercept as a feature. Actually, the user can specify that he dont want the model to include intercept
+    /*
         new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
     new NQLinearRegressionModel(Vector.apply(w), "73918a", rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
@@ -238,10 +238,10 @@ class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss:
   def predict(features: Vector): Double = 0
 }
 
-class TempCalculationValue (var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: Long, var x4: Double, var x5: Double, var x6: DoubleMatrix, var x7: Long) extends Serializable  {
-  
-  def compute(other: TempCalculationValue) : TempCalculationValue = {
-//    x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7
+class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: Long, var x4: Double, var x5: Double, var x6: DoubleMatrix, var x7: Long) extends Serializable {
+
+  def compute(other: TempCalculationValue): TempCalculationValue = {
+    //    x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7
     this.x1 = this.x1.addi(other.x1)
     this.x2 = this.x2.addi(other.x2)
     this.x3 = this.x3 + other.x3
@@ -249,9 +249,9 @@ class TempCalculationValue (var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: 
     this.x5 = this.x5 + other.x5
     this.x6 = this.x6.addi(other.x6)
     this.x7 = this.x7 + other.x7
-    
+
     var result: TempCalculationValue = new TempCalculationValue(this.x1.addi(other.x1), this.x2.addi(other.x2), this.x3 + other.x3, this.x4 + other.x4, this.x5 + other.x5, this.x6.addi(other.x6), this.x7 + other.x7)
-    
+
     return (result)
   }
 }

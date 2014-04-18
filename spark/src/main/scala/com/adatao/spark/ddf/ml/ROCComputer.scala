@@ -5,11 +5,10 @@ import com.adatao.ddf.ml.RocMetric
 import org.apache.spark.mllib.regression.LabeledPoint
 
 class ROCComputer extends Serializable {
-	
-	def ROC(XYData: RDD[Array[LabeledPoint]], alpha_length: Int): RocMetric = {
+
+  def ROC(XYData: RDD[Array[LabeledPoint]], alpha_length: Int): RocMetric = {
     var alpha: Array[Double] = new Array[Double](alpha_length)
 
-      
     //    XYData.mapPartitions(f, preservesPartitioning)
     var roc = XYData.map(mappingPredictToThreshold(alpha_length)).reduce(_.addIn(_))
 
@@ -22,9 +21,9 @@ class ROCComputer extends Serializable {
     //count number of positve, negative test instance
     var c: Int = 0
     // c= number of partition
-    
+
     //check if pred.length == 0 or not
-    if(pred.length > 0) {
+    if (pred.length > 0) {
       while (c < pred.length) {
         if (pred(c) != null) {
           P = P + pred(c)(1)
@@ -32,8 +31,7 @@ class ROCComputer extends Serializable {
         }
         c = c + 1
       }
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("Please try to run on binary classification model or contact system operators for assistance");
     }
 
@@ -54,9 +52,9 @@ class ROCComputer extends Serializable {
     while (i >= 0) {
       //0 index is for threshold value
       if (pred(i) != null) {
-        
-        if(lastNotNullIndex == 0) lastNotNullIndex = i
-        
+
+        if (lastNotNullIndex == 0) lastNotNullIndex = i
+
         tp = pred(i)(1)
         fp = pred(i)(2)
 
@@ -69,16 +67,14 @@ class ROCComputer extends Serializable {
         //true positive rate
         if (P != 0) {
           result(i)(1) = (accumulatetp / P).asInstanceOf[Double]
-        }
-        //P == 0 meaning, all accumulatetp = 0, therefore 0/0, let make it 0
+        } //P == 0 meaning, all accumulatetp = 0, therefore 0/0, let make it 0
         else {
           result(i)(1) = accumulatetp
         }
         //false positive rate
         if (N != 0) {
           result(i)(2) = (accumulatefp / N).asInstanceOf[Double]
-        }
-        else {
+        } else {
           result(i)(2) = accumulatefp
         }
 
@@ -105,7 +101,7 @@ class ROCComputer extends Serializable {
     }
 
     //filter null/NA in pred
-//    var result2: Array[Array[Double]] = new Array[Array[Double]](count)
+    //    var result2: Array[Array[Double]] = new Array[Array[Double]](count)
     val result2: Array[Array[Double]] = new Array[Array[Double]](pred.length)
     i = 0
     var j: Int = 0
@@ -124,13 +120,12 @@ class ROCComputer extends Serializable {
         previousTpr = result2(j)(1)
         previousFpr = result2(j)(2)
         j = j + 1
-      }
-      //in case some threshold data points are null, we just automatically repeated the lastNonNull metrics
+      } //in case some threshold data points are null, we just automatically repeated the lastNonNull metrics
       //the purpose is to make the data much more comprehensive for users 
       else if (i >= lastNotNullIndex + 1) {
         result2(j) = new Array[Double](result(lastNotNullIndex).length)
         var t: Int = 1
-        while(t < result(lastNotNullIndex).length) {
+        while (t < result(lastNotNullIndex).length) {
           result2(j)(t) = result(lastNotNullIndex)(t)
           t += 1
         }
@@ -145,8 +140,8 @@ class ROCComputer extends Serializable {
 
     ret
   }
-	
-	/*
+
+  /*
    * compute TP, FP for each prediction partition
    * input: partition <Vector, Vector>
    * output: Array: alpha threshold, tp, fp
@@ -168,8 +163,7 @@ class ROCComputer extends Serializable {
 
       predict = input(i).features(0)
       yTrue = input(i).label
-      
-      
+
       //model.predict(Vector(input._1.getRow(i)))
       index = getAlpha(predict, alpha_length)
       threshold = getThreshold(predict, alpha_length)
@@ -180,8 +174,7 @@ class ROCComputer extends Serializable {
         if (yTrue == 1.0) {
           //positve_frequency++
           output(index)(1) = output(index)(1) + 1.0
-        }
-        else {
+        } else {
           //negative_frequency++
           output(index)(2) = output(index)(2) + 1.0
         }
@@ -192,8 +185,7 @@ class ROCComputer extends Serializable {
         if (yTrue == 1.0) {
           //positve_frequency++
           output(index)(1) = 1.0
-        }
-        else {
+        } else {
           //negative_frequency++
           output(index)(2) = 1.0
         }
@@ -202,7 +194,7 @@ class ROCComputer extends Serializable {
     var roc = new RocMetric(output, 0.0)
     roc
   }
-  
+
   /*
    * get threshold in alpha array
    */
@@ -222,8 +214,8 @@ class ROCComputer extends Serializable {
     index * 1 / alpha_length.asInstanceOf[Double]
   }
 
-//  def AucScore(model: LogisticRegressionModel, XYData: RDD[(Matrix, Vector)]) {
-//    1.23345 // TODO(khang)
-//  }
+  //  def AucScore(model: LogisticRegressionModel, XYData: RDD[(Matrix, Vector)]) {
+  //    1.23345 // TODO(khang)
+  //  }
 
 }
