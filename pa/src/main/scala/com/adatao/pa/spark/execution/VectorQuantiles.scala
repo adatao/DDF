@@ -16,13 +16,16 @@
 
 package com.adatao.pa.spark.execution
 
+
 import com.adatao.pa.spark.DataManager.{ SharkColumnVector, DataFrame }
 import shark.api.JavaSharkContext
 import com.adatao.pa.spark.types.NumericHistogram
 import org.apache.spark.rdd.RDD
 import java.util.regex.Pattern
-import scala.collection.mutable.{ArrayBuffer, Map, HashMap}
+import scala.collection.mutable.{ ArrayBuffer, Map, HashMap }
 import com.adatao.ddf.DDF
+
+import com.adatao.ML.Utils
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,16 +35,17 @@ import com.adatao.ddf.DDF
  * To change this template use File | Settings | File Templates.
  */
 class VectorQuantiles(dataContainerID: String, pArray: Array[Double], B: Int = 10000) extends AExecutor[Array[Double]] {
-	protected override def runImpl(context: ExecutionContext): Array[Double] = {
-	    val ddfManager = context.sparkThread.getDDFManager();
-	    LOG.info("pValues = {}", pArray)
-		val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-			case x: DDF ⇒ x
-			case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
-		}
-		
-		val pArray1: Array[java.lang.Double] = for (x <- pArray) yield x.asInstanceOf[java.lang.Double]
-		val ret: Array[Double] = for (x <- ddf.getVectorQuantiles(pArray1)) yield x.asInstanceOf[Double]
-		ret
-	}
+  protected override def runImpl(context: ExecutionContext): Array[Double] = {
+    val ddfManager = context.sparkThread.getDDFManager();
+    LOG.info("pValues = {}", pArray)
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ddfManager.getDDF(ddfId) match {
+      case x: DDF ⇒ x
+      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
+    }
+
+    val pArray1: Array[java.lang.Double] = for (x <- pArray) yield x.asInstanceOf[java.lang.Double]
+    val ret: Array[Double] = for (x <- ddf.getVectorQuantiles(pArray1)) yield x.asInstanceOf[Double]
+    ret
+  }
 }
