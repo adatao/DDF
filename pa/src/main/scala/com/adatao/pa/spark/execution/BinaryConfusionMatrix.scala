@@ -7,6 +7,9 @@ import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 
+import com.adatao.ML.Utils
+
+
 import com.adatao.ddf.DDF
 
 /**
@@ -18,7 +21,8 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val xC
 
   override def runImpl(context: ExecutionContext): BinaryConfusionMatrixResult = {
     val ddfManager = context.sparkThread.getDDFManager()
-    val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
