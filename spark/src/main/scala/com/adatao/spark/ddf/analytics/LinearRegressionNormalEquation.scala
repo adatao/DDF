@@ -14,28 +14,19 @@
  *  limitations under the License.
  */
 
-package com.adatao.spark.ddf.ml.pa
+package com.adatao.spark.ddf.analytics
 
 import java.lang.String
-import com.adatao.ddf.util.Utils
-import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import com.adatao.ddf.types._
-// import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
-import java.util.HashMap
-import scala.collection.mutable.ListBuffer
 import org.jblas.exceptions.LapackArgumentException
 import org.jblas.exceptions.LapackSingularityException
 import org.jblas.exceptions.LapackException
-import scala.collection.TraversableOnce
-import scala.collection.Iterator
-import scala.collection.immutable.List
 import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.api.java.JavaRDD
-import shark.api.JavaSharkContext
+import scala.Array.canBuildFrom
 
 /**
  * Author: NhanVLC
@@ -255,13 +246,3 @@ class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: L
     return (result)
   }
 }
-
-/**
- * Entry point for SparkThread executor to execute predictions
- */
-/*
-class LinearRegressionNormalEquationPredictor(val model: NQLinearRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-
-	def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
-}
-*/

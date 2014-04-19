@@ -9,7 +9,7 @@ import com.adatao.spark.ddf.analytics._
 import com.adatao.spark.ddf.content._
 import com.adatao.spark.ddf.ml.ROCComputer
 import org.jblas.DoubleMatrix
-import com.adatao.spark.ddf.ml.pa.TempCalculationValue
+import com.adatao.spark.ddf.analytics.TempCalculationValue
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.RList
 
