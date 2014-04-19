@@ -2,6 +2,7 @@ package com.adatao.pa.spark.execution
 
 import scala.annotation.tailrec
 
+
 import com.adatao.ddf.DDF
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.Utils
@@ -22,17 +23,18 @@ class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
  * @param decimalPlaces: number of decimal places in range format
  */
 class Binning(val dataContainerID: String,
-              val col: String,
-              val binningType: String,
-              val numBins: Int = 0,
-              var breaks: Array[Double] = null,
-              val includeLowest: Boolean = false,
-              val right: Boolean = true,
-              val decimalPlaces: Int = 2) extends AExecutor[BinningResult] {
+  val col: String,
+  val binningType: String,
+  val numBins: Int = 0,
+  var breaks: Array[Double] = null,
+  val includeLowest: Boolean = false,
+  val right: Boolean = true,
+  val decimalPlaces: Int = 2) extends AExecutor[BinningResult] {
 
   protected override def runImpl(context: ExecutionContext): BinningResult = {
 
-    val ddf = context.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val ddfId = com.adatao.ML.Utils.dcID2DDFID(dataContainerID)
+    val ddf = context.sparkThread.getDDFManager().getDDF(ddfId);
     val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
     // binned var are now factors
     new BinningResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))

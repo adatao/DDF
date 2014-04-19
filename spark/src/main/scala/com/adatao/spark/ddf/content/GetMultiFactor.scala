@@ -2,11 +2,11 @@ package com.adatao.spark.ddf.content
 
 import shark.memstore2.TablePartition
 import org.apache.spark.rdd.RDD
-import java.util.{Map => JMap}
-import java.util.{HashMap => JHMap}
-import java.util.{List => JList}
-import java.lang.{Integer => JInt}
-import org.apache.hadoop.io.{Text, FloatWritable, IntWritable}
+import java.util.{ Map => JMap }
+import java.util.{ HashMap => JHMap }
+import java.util.{ List => JList }
+import java.lang.{ Integer => JInt }
+import org.apache.hadoop.io.{ Text, FloatWritable, IntWritable }
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf.content.Schema.ColumnType
 import com.adatao.ddf.exception.DDFException
@@ -17,14 +17,12 @@ import scala.collection.JavaConversions._
 object GetMultiFactor {
 
   //For Java interoperability
-  def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType], clazz: Class[T]):
-  JMap[JInt, JMap[String, JInt]] = {
+  def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType], clazz: Class[T]): JMap[JInt, JMap[String, JInt]] = {
     val colsWithTypes: List[(JInt, ColumnType)] = (columnIndexes zip columnTypes).toList
     getFactorCounts(rdd, colsWithTypes)(ClassManifest.fromClass(clazz))
   }
 
-  def getFactorCounts[T](rdd: RDD[T], columnIndexesWithTypes: List[(JInt, ColumnType)])(implicit m: ClassManifest[T]):
-  JMap[JInt, JMap[String, JInt]] = {
+  def getFactorCounts[T](rdd: RDD[T], columnIndexesWithTypes: List[(JInt, ColumnType)])(implicit m: ClassManifest[T]): JMap[JInt, JMap[String, JInt]] = {
     m match {
       case tp if tp <:< manifest[TablePartition] => {
         val mapper = new TablePartitionMapper(columnIndexesWithTypes)
@@ -140,12 +138,10 @@ object GetMultiFactor {
   }
 
   class MultiFactorReducer
-    extends Function2[JMap[JInt, JMap[String, JInt]], JMap[JInt, JMap[String, JInt]],
-      JMap[JInt, JMap[String, JInt]]]
+    extends Function2[JMap[JInt, JMap[String, JInt]], JMap[JInt, JMap[String, JInt]], JMap[JInt, JMap[String, JInt]]]
     with Serializable {
     @Override
-    def apply(map1: JMap[JInt, JMap[String, JInt]], map2: JMap[JInt, JMap[String, JInt]]):
-    JMap[JInt, JMap[String, JInt]] = {
+    def apply(map1: JMap[JInt, JMap[String, JInt]], map2: JMap[JInt, JMap[String, JInt]]): JMap[JInt, JMap[String, JInt]] = {
       for ((idx, smap1) <- map1) {
 
         Option(map2.get(idx)) match {
