@@ -17,10 +17,11 @@
 package com.adatao.pa.spark.execution
 
 import org.slf4j.Logger
+
 import org.slf4j.LoggerFactory
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
-import com.adatao.pa.spark.DataManager.{DataFrame, SharkDataFrame, MetaInfo}
-import com.adatao.pa.spark.{SharkUtils, SparkThread, DataManager}
+import com.adatao.pa.spark.DataManager.{ DataFrame, SharkDataFrame, MetaInfo }
+import com.adatao.pa.spark.{ SharkUtils, SparkThread, DataManager }
 import com.adatao.pa.spark.types.{ SuccessResult, ExecutorResult }
 import scala.collection.JavaConversions._
 import java.util.Map
@@ -29,6 +30,8 @@ import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
 import com.adatao.ddf.DDF
+
+import com.adatao.ML.Utils
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,31 +47,32 @@ import com.adatao.ddf.DDF
  */
 class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]] {
 
-	protected override def runImpl(context: ExecutionContext): Array[ASummary] = {
-	    val ddfManager = context.sparkThread.getDDFManager();
-		val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
-			case x: DDF ⇒ x
-			case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
-		}
-		val fiveNums = ddf.getFiveNumSummary
-		val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)
-		return fiveNumsResult
-	}
+  protected override def runImpl(context: ExecutionContext): Array[ASummary] = {
+    val ddfManager = context.sparkThread.getDDFManager();
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ddfManager.getDDF(ddfId) match {
+      case x: DDF ⇒ x
+      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
+    }
+    val fiveNums = ddf.getFiveNumSummary
+    val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)
+    return fiveNumsResult
+  }
 }
 
 object FiveNumSummary extends Serializable {
-	/**
-	 * [[ASummary]] extends [[TJsonSerializable]] so that when we have an array of [[ASummary]], each member
-	 * will have a "clazz" field describing its exact concrete type.
-	 */
-	//FiveNumSummary only support Numeric column
-	class ASummary(
-		val min: Double = Double.NaN,
-		val max: Double = Double.NaN,
-		val first_quartile: Double = Double.NaN,
-		val median: Double = Double.NaN,
-		val third_quartile: Double = Double.NaN) extends TJsonSerializable {
-		def this() = this(Double.NaN)
-		def this(a: Array[Double]) = this(a(0), a(1), a(2), a(3), a(4))
-	}
+  /**
+   * [[ASummary]] extends [[TJsonSerializable]] so that when we have an array of [[ASummary]], each member
+   * will have a "clazz" field describing its exact concrete type.
+   */
+  //FiveNumSummary only support Numeric column
+  class ASummary(
+    val min: Double = Double.NaN,
+    val max: Double = Double.NaN,
+    val first_quartile: Double = Double.NaN,
+    val median: Double = Double.NaN,
+    val third_quartile: Double = Double.NaN) extends TJsonSerializable {
+    def this() = this(Double.NaN)
+    def this(a: Array[Double]) = this(a(0), a(1), a(2), a(3), a(4))
+  }
 }

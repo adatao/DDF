@@ -8,7 +8,7 @@ import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 
-public class TransformationHandler extends ADDFFunctionalGroupHandler implements IHandleTransformations{
+public class TransformationHandler extends ADDFFunctionalGroupHandler implements IHandleTransformations {
 
   public TransformationHandler(DDF theDDF) {
     super(theDDF);
@@ -72,6 +72,12 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   public DDF transformNativeRserve(String transformExpression) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef, boolean mapsideCombine) {
     // TODO Auto-generated method stub
     return null;
   }

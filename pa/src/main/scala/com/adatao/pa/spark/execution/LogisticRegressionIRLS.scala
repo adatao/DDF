@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
+
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
@@ -53,67 +54,66 @@ import scala.util.Random
  * http://www.win-vector.com/blog/2011/09/the-simpler-derivation-of-logistic-regression/
  */
 class LogisticRegressionIRLS(
-	dataContainerID: String,
-	xCols: Array[Int],
-	yCol: Int,
-	var numIters: Int,
-	var eps: Double,
-	var ridgeLambda: Double,
-	var initialWeights: Array[Double],
-	mapReferenceLevel: HashMap[String, String] = null, nullModel: Boolean = false)
-		extends AModelTrainer[IRLSLogisticRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
+  dataContainerID: String,
+  xCols: Array[Int],
+  yCol: Int,
+  var numIters: Int,
+  var eps: Double,
+  var ridgeLambda: Double,
+  var initialWeights: Array[Double],
+  mapReferenceLevel: HashMap[String, String] = null, nullModel: Boolean = false)
+  extends AModelTrainer[IRLSLogisticRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
 
-	override def runImpl(ctx: ExecutionContext): IRLSLogisticRegressionModel = {
-		if (numIters == 0) // when client does not send numIters to this executor 
-			numIters = 25
-		if (eps == 0) // when client does not send eps to this executor 
-			eps = 1e-8
+  override def runImpl(ctx: ExecutionContext): IRLSLogisticRegressionModel = {
+    if (numIters == 0) // when client does not send numIters to this executor 
+      numIters = 25
+    if (eps == 0) // when client does not send eps to this executor 
+      eps = 1e-8
 
-		val ddfManager = ctx.sparkThread.getDDFManager();
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
-		
-		
-		//TODO call get multifactor explicitly
-		
-		//call dummy coding explicitly
-		//make sure all input ddf to algorithm MUST have schema
-		ddf.getSchema().generateDummyCoding()
-		
-		val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
-		
-		try {
-			
-			val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+    val ddfManager = ctx.sparkThread.getDDFManager();
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf: DDF = ddfManager.getDDF(ddfId)
 
-			//      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-			//    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
+    //call dummy coding explicitly
+    //make sure all input ddf to algorithm MUST have schema
+    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    ddf.getSchema().generateDummyCoding()
 
-			val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-			println(">>>>>>>>>>>>>model=" + model)
+    try {
 
-			return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, ddf.getNumColumns(), model.getNumIters, model.getStdErrs)
-		}
-		catch {
-			case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
-		}
+      val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
 
-	}
+      //      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+      //    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
 
-	override def train(dataContainerID: String, context: ExecutionContext): IRLSLogisticRegressionModel = {
-		null.asInstanceOf[IRLSLogisticRegressionModel]
-	}
+      val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
-	override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): IRLSLogisticRegressionModel = {
-		null.asInstanceOf[IRLSLogisticRegressionModel]
-	}
+      println(">>>>>>>>>>>>>model=" + model)
 
-	//post process, set column mapping to model
-	def instrumentModel(model: IRLSLogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): IRLSLogisticRegressionModel = {
-		null.asInstanceOf[IRLSLogisticRegressionModel]
-	}
+      return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, ddf.getNumColumns(), model.getNumIters, model.getStdErrs)
+    } catch {
+      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
+    }
+
+  }
+
+  override def train(dataContainerID: String, context: ExecutionContext): IRLSLogisticRegressionModel = {
+    null.asInstanceOf[IRLSLogisticRegressionModel]
+  }
+
+  override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): IRLSLogisticRegressionModel = {
+    null.asInstanceOf[IRLSLogisticRegressionModel]
+  }
+
+  //post process, set column mapping to model
+  def instrumentModel(model: IRLSLogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): IRLSLogisticRegressionModel = {
+    null.asInstanceOf[IRLSLogisticRegressionModel]
+  }
 }
 
 class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long, val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
-	override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
+  override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
 }

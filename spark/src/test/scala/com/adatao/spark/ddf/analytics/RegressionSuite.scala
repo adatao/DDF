@@ -141,7 +141,7 @@ class RegressionSuite extends ATestSuite {
     0.1: java.lang.Double)
 
     println("Json model")
-    val rawModel = glmModel.getRawModel.asInstanceOf[com.adatao.spark.ddf.ml.pa.NQLinearRegressionModel]
+    val rawModel = glmModel.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
     println(rawModel.weights.toJson)
 
     manager.shutdown()

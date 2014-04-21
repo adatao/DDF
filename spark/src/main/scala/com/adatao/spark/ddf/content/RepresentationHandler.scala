@@ -70,8 +70,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_MATRIX_VECTOR ⇒ {
 
         //must invoke generate dummy coding explicitly, AGAIN
-        schema.generateDummyCoding() //generateDummyCoding(schema)
-        val dummyCoding = schema.getDummyCoding()
+        schemaHandler.generateDummyCoding() //generateDummyCoding(schema)
+        val dummyCoding = schemaHandler.getSchema().getDummyCoding()
 
         rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }
@@ -170,16 +170,17 @@ object RepresentationHandler {
    */
   def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
     rdd.map {
-      row ⇒ {
-        val size = row.rawdata.asInstanceOf[Array[Object]].size
-        val array = new Array[Object](size)
-        var idx = 0
-        while(idx < size) {
-          array(idx) = row.getPrimitive(idx)
-          idx += 1
+      row ⇒
+        {
+          val size = row.rawdata.asInstanceOf[Array[Object]].size
+          val array = new Array[Object](size)
+          var idx = 0
+          while (idx < size) {
+            array(idx) = row.getPrimitive(idx)
+            idx += 1
+          }
+          array
         }
-        array
-      }
     }
   }
 

@@ -41,7 +41,7 @@ object LogisticRegressionCRS {
 
     var (sparseColumns, sparseColumnsPaddingIndex, sumAllRange) = buildParameters(columnsSummary)
     //plus bias term, old code NO NEED
-//    var nfeatures = numFeatures + 1
+    //    var nfeatures = numFeatures + 1
 
     var weights = null.asInstanceOf[Vector]
     if (sumAllRange > 0)

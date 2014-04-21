@@ -12,6 +12,7 @@ import com.adatao.ddf.DDF
 import com.adatao.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
+import com.adatao.ML.Utils
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -45,22 +46,23 @@ class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[
     //		new YtrueYpredResult(uid, metaInfo)
 
     val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf: DDF = ddfManager.getDDF(ddfId);
     // first, compute RDD[(ytrue, ypred)]
 
     //apply model on dataContainerID
     val mymodel: IModel = ddfManager.getModel(modelID)
     val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, false)
 
-    var addId: String  = ""
-    if(predictionDDF != null) {
+    var addId: String = ""
+    if (predictionDDF != null) {
       addId = ddf.getManager().addDDF(predictionDDF);
     }
-    
+
     //return DDF
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
     val uid = predictionDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
-    
+
     println(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + addId)
 
     new YtrueYpredResult(uid, metaInfo)

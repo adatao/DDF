@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution
 import scala.collection.JavaConversions._
+import com.adatao.ML.Utils
 
 //  @author aht
 
@@ -23,18 +24,20 @@ import scala.collection.JavaConversions._
 * Return an Array of Tuple (train, test) of dataContainerID
 * */
 class CVRandomSplit(dataContainerID: String, numSplits: Int, trainingSize: Double, seed: Long) extends AExecutor[Array[Array[String]]] {
-	override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
+  override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
 
-    val ddf = ctx.sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ctx.sparkThread.getDDFManager().getDDF(ddfId);
     val cvSets = ddf.ML.CVRandom(numSplits, trainingSize, seed)
     val result = cvSets.map {
-      set => {
-        val train = set(0).getName.substring(15).replace("_", "-")
-        val test = set(1).getName.substring(15).replace("_", "-")
-        Array(train, test)
-      }
+      set =>
+        {
+          val train = set(0).getName.substring(15).replace("_", "-")
+          val test = set(1).getName.substring(15).replace("_", "-")
+          Array(train, test)
+        }
     }
     result.toArray
-	}
+  }
 }
 

@@ -136,7 +136,7 @@ public class SampleDataFrame implements IExecutor {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID, null);
     }
 
-    JavaRDD<Object[]> dataTable = null;
+    //JavaRDD<Object[]> dataTable = null;
 
 		if (getPercent) {
       /*

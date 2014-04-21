@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
+
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
@@ -47,18 +48,29 @@ class LogisticRegression(
 
   override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
-    val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     // project the xCols, and yCol as a new DDF
     // this is costly
     val schema = ddf.getSchema()
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    columnList.add(schema.getColumn(yCol).getName)
-    val projectDDF = ddf.Views.project(columnList)
-    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+
+    //call dummy coding explicitly
+    //make sure all input ddf to algorithm MUST have schema
+    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    ddf.getSchema().generateDummyCoding()
+
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    //
+    //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    //    columnList.add(schema.getColumn(yCol).getName)
+    //    val projectDDF = ddf.Views.project(columnList)
+
+    val logisticModel = ddf.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]

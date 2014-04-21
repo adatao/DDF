@@ -11,6 +11,7 @@ public interface IHandleTransformations extends IHandleDDFFunctionalGroup {
   public DDF transformScaleStandard() throws DDFException;
   
   public DDF transformNativeRserve(String transformExpression);
-
+  
+  public DDF transformMapReduceNative(String mapFuncDef, String reduceFuncDef, boolean mapsideCombine);
 
 }

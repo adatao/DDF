@@ -2,7 +2,6 @@ package com.adatao.ddf.analytics;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -90,10 +89,10 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       throw new DDFException("Unable to query from " + tableName, e);
     }
   }
-  
+
   @Override
   public AggregationResult xtabs(List<AggregateField> fields) throws DDFException {
-	  return this.aggregate(fields);
+    return this.aggregate(fields);
   }
 
 
@@ -211,7 +210,7 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       if (Strings.isNullOrEmpty(sqlFieldSpecs)) return null;
 
       String[] specs = sqlFieldSpecs.split(",");
-      List<AggregateField> fields = new ArrayList<AggregateField>();
+      List<AggregateField> fields = Lists.newArrayList();
       for (String spec : specs) {
         if (Strings.isNullOrEmpty(spec)) continue;
 
