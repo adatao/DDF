@@ -61,21 +61,27 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
     Map<Integer, Map<String, Integer>> listLevelCounts;
 
     IHandleRepresentations repHandler = this.getDDF().getRepresentationHandler();
-    if(repHandler.has(RDD.class, TablePartition.class)) {
-      RDD<TablePartition> rdd =((SparkDDF) this.getDDF()).getRDD(TablePartition.class);
-      listLevelCounts = GetMultiFactor.getFactorCounts(rdd,
-          columnIndexes, columnTypes, TablePartition.class);
-    } else if(repHandler.has(RDD.class, Object[].class)) {
-      RDD<Object[]> rdd =((SparkDDF) this.getDDF()).getRDD(Object[].class);
-      listLevelCounts = GetMultiFactor.getFactorCounts(rdd,
-          columnIndexes, columnTypes, Object[].class);
-    } else {
-      RDD<Object[]> rdd = ((SparkDDF) this.getDDF()).getRDD(Object[].class);
-      if(rdd == null) {
-        throw new DDFException("Error setting factor levels counts");
+
+    try {
+      if(repHandler.has(RDD.class, TablePartition.class)) {
+        RDD<TablePartition> rdd =((SparkDDF) this.getDDF()).getRDD(TablePartition.class);
+        listLevelCounts = GetMultiFactor.getFactorCounts(rdd,
+           columnIndexes, columnTypes, TablePartition.class);
+      } else if(repHandler.has(RDD.class, Object[].class)) {
+        RDD<Object[]> rdd =((SparkDDF) this.getDDF()).getRDD(Object[].class);
+        listLevelCounts = GetMultiFactor.getFactorCounts(rdd,
+            columnIndexes, columnTypes, Object[].class);
+      } else {
+        RDD<Object[]> rdd = ((SparkDDF) this.getDDF()).getRDD(Object[].class);
+        if(rdd == null) {
+          throw new DDFException("RDD is null");
+        }
+        listLevelCounts = GetMultiFactor.getFactorCounts(rdd, columnIndexes, columnTypes, Object[].class);
       }
-      listLevelCounts = GetMultiFactor.getFactorCounts(rdd, columnIndexes, columnTypes, Object[].class);
+    } catch (DDFException e) {
+      throw new DDFException("Error getting factor level counts", e);
     }
+
     if(listLevelCounts == null) {
       throw new DDFException("Error getting factor levels counts");
     }
