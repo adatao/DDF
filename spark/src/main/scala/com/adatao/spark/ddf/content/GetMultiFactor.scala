@@ -17,9 +17,11 @@ import scala.collection.JavaConversions._
 object GetMultiFactor {
 
   //For Java interoperability
-  def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType], clazz: Class[T]): JMap[JInt, JMap[String, JInt]] = {
+  def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType], rddUnit: Class[T]):
+  JMap[JInt, JMap[String, JInt]] = {
+
     val colsWithTypes: List[(JInt, ColumnType)] = (columnIndexes zip columnTypes).toList
-    getFactorCounts(rdd, colsWithTypes)(ClassManifest.fromClass(clazz))
+    getFactorCounts(rdd, colsWithTypes)(ClassManifest.fromClass(rddUnit))
   }
 
   def getFactorCounts[T](rdd: RDD[T], columnIndexesWithTypes: List[(JInt, ColumnType)])(implicit m: ClassManifest[T]): JMap[JInt, JMap[String, JInt]] = {
