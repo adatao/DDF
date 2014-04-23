@@ -212,15 +212,13 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     }
     
     if (min.length() > 0) {
-      pParams = min + ", " + pParams;
+      // pParams = min + ", " + pParams;
+      pParams += ", " + min;
     }
     
     if (max.length() > 0) {
       pParams += ", " + max;
     }
-    
-    
-    
     
     String cmd = "SELECT " + pParams + " FROM " + getDDF().getTableName();
     mLog.info(">>>>>>>>>>>>>> Command String = " + cmd);
