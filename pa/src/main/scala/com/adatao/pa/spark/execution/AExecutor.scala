@@ -264,7 +264,7 @@ abstract class AUnsupervisedTrainer[T <: TModel](
 				case sdf: SharkDataFrame ⇒ {
 					/*
 					Catch any column's type that currently not supporting and throwing an exception.
-					Throwing exception in driver's program will result in returning meaningfull error message
+					Throwing exception in driver's program will result in returning meaningful error message
 					to client
 					*/
 					val xMetaInfo = for {
