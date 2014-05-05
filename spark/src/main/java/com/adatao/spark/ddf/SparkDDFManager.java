@@ -250,7 +250,8 @@ public class SparkDDFManager extends DDFManager {
       }
     }
 
-    String result = "Unknown";
+    // String result = "Unknown";
+    String result = "string";
 
     if (!allNA) {
       if (isNumber) {
