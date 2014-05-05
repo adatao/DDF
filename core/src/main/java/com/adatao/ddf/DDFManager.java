@@ -357,4 +357,5 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     return this.getDummyDDF().getPersistenceHandler().load(uri);
   }
   
+  public abstract DDF loadTable(String fileURL, String fieldSeparator) throws DDFException;
 }

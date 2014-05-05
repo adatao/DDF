@@ -254,7 +254,7 @@ object BigRClientTestUtils {
 	 */
 	def loadFile(bigRClient: BigRClient, fileUrl: String, hasHeader: Boolean, fieldSeparator: String, sampleSize: Int): String = {
 		bigRClient.execute[LoadTable.LoadTableResult](
-			new LoadTable().setFileURL(fileUrl).setHasHeader(hasHeader).setSeparator(fieldSeparator).setSampleSize(sampleSize)).result.getDataContainerID
+		  new LoadTable().setFileURL(fileUrl).setHasHeader(hasHeader).setSeparator(fieldSeparator).setSampleSize(sampleSize)).result.getDataContainerID
 	}
 
 	def runSQLCmd(bigRClient: BigRClient, cmdStr: String): Sql2ListStringResult = {

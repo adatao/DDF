@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
 import com.adatao.ddf.DDFManager;
+import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.ddf.content.ViewHandler.Expression;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;

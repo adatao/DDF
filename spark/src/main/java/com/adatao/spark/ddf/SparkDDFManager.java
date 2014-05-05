@@ -1,12 +1,21 @@
 package com.adatao.spark.ddf;
 
 
+import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkContext;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+
 import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
+
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
 
@@ -73,6 +82,17 @@ public class SparkDDFManager extends DDFManager {
 
   public SharkContext getSharkContext() {
     return mSharkContext;
+  }
+
+  private JavaSharkContext mJavaSharkContext;
+  
+  
+  public JavaSharkContext getmJavaSharkContext() {
+    return mJavaSharkContext;
+  }
+
+  public void setmJavaSharkContext(JavaSharkContext mJavaSharkContext) {
+    this.mJavaSharkContext = mJavaSharkContext;
   }
 
   /**
@@ -163,11 +183,152 @@ public class SparkDDFManager extends DDFManager {
     String ddfSparkJar = params.get("DDFSPARK_JAR");
     String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
-    JavaSharkContext jsc = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+    mJavaSharkContext = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
         params.get("SPARK_HOME"), jobJars, params);
-    this.setSharkContext(SharkEnv.initWithJavaSharkContext(jsc).sharkCtx());
+    this.setSharkContext(SharkEnv.initWithJavaSharkContext(mJavaSharkContext).sharkCtx());
 
 
     return this.getSparkContext();
+  }
+  
+  public DDF loadTable(String fileURL, String fieldSeparator) throws DDFException {
+    JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
+    String[] metaInfos = getMetaInfo(fileRDD, fieldSeparator);
+    SecureRandom rand = new SecureRandom();
+    String tableName = "tbl" + String.valueOf(Math.abs(rand.nextLong()));
+    String cmd = "CREATE TABLE " + tableName + "(" + StringUtils.join(metaInfos, ", ") + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '" + fieldSeparator + "'";
+    sql2txt(cmd);
+    sql2txt("LOAD DATA LOCAL INPATH '" + fileURL + "' " +
+        "INTO TABLE " + tableName);
+    return sql2ddf("SELECT * FROM " + tableName);
+  }
+  
+  /**
+   * Given a String[] vector of data values along one column, try to infer what the data type should be.
+   * 
+   * TODO: precompile regex
+   * 
+   * @param vector
+   * @return string representing name of the type "integer", "double", "character", or "logical" The algorithm will
+   *         first scan the vector to detect whether the vector contains only digits, ',' and '.', <br>
+   *         if true, then it will detect whether the vector contains '.', <br>
+   *         &nbsp; &nbsp; if true then the vector is double else it is integer <br>
+   *         if false, then it will detect whether the vector contains only 'T' and 'F' <br>
+   *         &nbsp; &nbsp; if true then the vector is logical, otherwise it is characters
+   */
+  public static String determineType(String[] vector, Boolean doPreferDouble) {
+    boolean isNumber = true;
+    boolean isInteger = true;
+    boolean isLogical = true;
+    boolean allNA = true;
+
+    for (String s : vector) {
+      if (s == null || s.startsWith("NA") || s.startsWith("Na") || s.matches("^\\s*$")) {
+        // Ignore, don't set the type based on this
+        continue;
+      }
+
+      allNA = false;
+
+      if (isNumber) {
+        // match numbers: 123,456.123 123 123,456 456.123 .123
+        if (!s.matches("(^|^-)((\\d+(,\\d+)*)|(\\d*))\\.?\\d+$")) {
+          isNumber = false;
+        }
+        // match double
+        else if (isInteger && s.matches("(^|^-)\\d*\\.{1}\\d+$")) {
+          isInteger = false;
+        }
+      }
+
+      // NOTE: cannot use "else" because isNumber changed in the previous
+      // if block
+      if (isLogical) {
+        if (!s.toLowerCase().matches("^t|f|true|false$")) {
+          isLogical = false;
+        }
+      }
+    }
+
+    String result = "Unknown";
+
+    if (!allNA) {
+      if (isNumber) {
+        if (!isInteger || doPreferDouble) {
+          result = "double";
+        }
+        else {
+          result = "int";
+        }
+      }
+      else {
+        if (isLogical) {
+          result = "boolean";
+        }
+        else {
+          result = "string";
+        }
+      }
+    }
+
+    // System.out.println(">>> CTN: got type " + result);
+
+    return result;
+  }
+  
+  /**
+   * TODO: check more than a few lines in case some lines have NA
+   * 
+   * @param fileRDD
+   * @return
+   */
+  public String[] getMetaInfo(JavaRDD<String> fileRDD, String fieldSeparator) {
+    String[] headers = null;
+    int sampleSize = 5;
+
+    // sanity check
+    if (sampleSize < 1) {
+      mLog.info("DATATYPE_SAMPLE_SIZE must be bigger than 1");
+      return null;
+    }
+
+    List<String> sampleStr = fileRDD.take(sampleSize);
+    sampleSize = sampleStr.size(); // actual sample size
+    mLog.info("Sample size: " + sampleSize);
+
+    // create sample list for getting data type
+    String[] firstSplit = sampleStr.get(0).split(fieldSeparator);
+
+    // get header
+    boolean hasHeader = false;
+    if (hasHeader) {
+      headers = firstSplit;
+    }
+    else {
+      headers = new String[firstSplit.length];
+      for (int i = 0; i < headers.length;) {
+        headers[i] = "V" + (++i);
+      }
+    }
+
+    String[][] samples = hasHeader ? (new String[firstSplit.length][sampleSize - 1])
+        : (new String[firstSplit.length][sampleSize]);
+
+    String[] metaInfoArray = new String[firstSplit.length];
+    int start = hasHeader ? 1 : 0;
+    for (int j = start; j < sampleSize; j++) {
+      firstSplit = sampleStr.get(j).split(fieldSeparator);
+      for (int i = 0; i < firstSplit.length; i++) {
+        samples[i][j - start] = firstSplit[i];
+      }
+    }
+
+    boolean doPreferDouble = true;
+    for (int i = 0; i < samples.length; i++) {
+      String[] vector = samples[i];
+      metaInfoArray[i] = headers[i] + " " + determineType(vector, doPreferDouble);
+    }
+
+    return metaInfoArray;
   }
 }
