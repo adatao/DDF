@@ -87,12 +87,12 @@ public class SparkDDFManager extends DDFManager {
   private JavaSharkContext mJavaSharkContext;
   
   
-  public JavaSharkContext getmJavaSharkContext() {
+  public JavaSharkContext getJavaSharkContext() {
     return mJavaSharkContext;
   }
 
-  public void setmJavaSharkContext(JavaSharkContext mJavaSharkContext) {
-    this.mJavaSharkContext = mJavaSharkContext;
+  public void setJavaSharkContext(JavaSharkContext javaSharkContext) {
+    this.mJavaSharkContext = javaSharkContext;
   }
 
   /**
