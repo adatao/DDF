@@ -23,6 +23,8 @@ import shark.SharkEnv
 import com.adatao.pa.spark.types.ATestBase
 import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.types.ABigRClientTest
+import com.adatao.ddf.DDFManager
+import com.adatao.spark.ddf.SparkDDFManager
 
 /**
  * @author bachbui
@@ -33,8 +35,10 @@ class SharkDataFrameSuite extends ATestBase { //ABigRClientTest {
 	private val RSERVER_JAR = System.getenv("RSERVER_JAR");
 	
 	test("Test loadTable and loadTableFromQuery on DataManager.SharkDataFrame"){
-		val jobJars = RSERVER_JAR.split(",");
-		val sharkContext = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(SPARK_MASTER, "BigR", SPARK_HOME, jobJars));
+		// val jobJars = RSERVER_JAR.split(",");
+        val ddfManager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
+		// val sharkContext = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(SPARK_MASTER, "BigR", SPARK_HOME, jobJars));
+        val sharkContext = ddfManager.getJavaSharkContext()
 //		System.setProperty("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
 //		System.setProperty("spark.kryo.registrator", classOf[shark.KryoRegistrator].getName)
 		sharkContext.sql("drop table if exists test");
