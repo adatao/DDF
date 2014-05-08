@@ -72,7 +72,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  * <p>
- * A Distributed DDF (DDF) has a number of key properties (metadata, representations, etc.) and capabilities
+ * A Distributed DataFrame (DDF) has a number of key properties (metadata, representations, etc.) and capabilities
  * (self-compute basic statistics, aggregations, etc.).
  * </p>
  * <p>

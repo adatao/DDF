@@ -38,14 +38,16 @@ class Kmeans(
 
     val wcss = rawModel.computeCost(projectedDDF.getRepresentationHandler().get(RepresentationHandler.RDD_ARRAY_DOUBLE).asInstanceOf[RDD[Array[Double]]])
     val totalWithins: ArrayBuffer[Double] = ArrayBuffer[Double]()
+
     val pointsPerCluster: ArrayBuffer[Int] = ArrayBuffer[Int]()
-    for (i ← 1 to numIterations) {
+    for (i ← 1 to numIterations-1) {
       totalWithins += 0
     }
+    totalWithins += wcss
     for (i ← 1 to K) {
       pointsPerCluster += 0
     }
-    return new KmeansModel(wcss, pointsPerCluster.toArray, rawModel.clusterCenters.toList, projectedDDF.getNumRows())
+    return new KmeansModel(totalWithins.toArray, pointsPerCluster.toArray, rawModel.clusterCenters.toList, projectedDDF.getNumRows())
   }
 
   def train(dataPartition: RDD[Array[Double]], context: ExecutionContext): KmeansModel = {

@@ -15,7 +15,7 @@ import com.adatao.pa.spark.types.SuccessResult
 import com.adatao.pa.spark.DataManager
 import shark.api.Row
 //import com.adatao.ML.Kmeans.DataPoint
-/*
+
 object Kmeans{
 	type PointType = (Array[Double], Int, Double)
 
@@ -178,8 +178,9 @@ object Kmeans{
 		}
 		return new KmeansModel(total_withinss, pointsPerCluster, centroid_coords, numSamples)
 	}
-}*/
-class KmeansModel(val totalWithins: Double,
+}
+
+class KmeansModel(val totalWithins: Array[Double],
 									val pointsPerCluster: Array[Int],
 								  centroids: java.util.List[Array[Double]],
 									numSamples: Long)

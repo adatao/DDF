@@ -141,7 +141,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
   }
 
   /**
-   * Override this to return the approriate DDF representation matching that specified in {@link ParamInfo}. The base
+   * Override this to return the appropriate DDF representation matching that specified in {@link ParamInfo}. The base
    * implementation simply returns the DDF.
    * 
    * @param paramInfo
