@@ -16,7 +16,8 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
+import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
+}
 import com.adatao.ML.spark.{ Metrics, RddUtils }
 import scala.Some
 import com.adatao.ddf.DDF
@@ -25,6 +26,8 @@ import com.adatao.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 
+import com.adatao.ML.Utils
+
 /**
  *
  */
@@ -32,7 +35,8 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
 
   def runImpl(ctx: ExecutionContext): Double = {
     val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf: DDF = ddfManager.getDDF(ddfId);
 
     // first, compute RDD[(ytrue, ypred)]
     //old API val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)

@@ -52,59 +52,59 @@ class LogisticRegressionCRSResult(model: LogisticRegressionModel) extends Succes
  * Entry point for SparkThread executor
  */
 class LogisticRegressionCRS(
-		dataContainerID: String,
-		xCols: Array[Int],
-		yCol: Int,
-		columnsSummary: HashMap[String, Array[Double]],
-		var numIters: Int,
-		var learningRate: Double,
-		var ridgeLambda: Double,
-		var initialWeights: Array[Double]) extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
+  dataContainerID: String,
+  xCols: Array[Int],
+  yCol: Int,
+  columnsSummary: HashMap[String, Array[Double]],
+  var numIters: Int,
+  var learningRate: Double,
+  var ridgeLambda: Double,
+  var initialWeights: Array[Double]) extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
 
-	var ddfManager: DDFManager = null
+  var ddfManager: DDFManager = null
 
-	//  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-	//	override def run(sparkThread: SparkThread): ExecutorResult = {
-	override def runImpl(ctx: ExecutionContext): LogisticRegressionModel = {
+  //  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+  //	override def run(sparkThread: SparkThread): ExecutorResult = {
+  override def runImpl(ctx: ExecutionContext): LogisticRegressionModel = {
 
-		ddfManager = ctx.sparkThread.getDDFManager();
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
-		try {
-		  
-		  //call dummy coding explicitly
-		//make sure all input ddf to algorithm MUST have schema
-		ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-		ddf.getSchema().generateDummyCoding()
-		
-		  //invoke generate dummy coding explicitly
-		  ddf.getSchema().generateDummyCoding()
-		
-		  val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
-		  println(">>>>>>>>>>>>>> LogisticRegressionCRS numFeatures = " + numFeatures)
+    ddfManager = ctx.sparkThread.getDDFManager();
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf: DDF = ddfManager.getDDF(ddfId)
+    try {
 
-			val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-				0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
+      //call dummy coding explicitly
+      //make sure all input ddf to algorithm MUST have schema
+      ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+      ddf.getSchema().generateDummyCoding()
 
-			val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-			val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
-			return (glm)
-		}
-		catch {
-			case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
-		}
-	}
+      //invoke generate dummy coding explicitly
+      ddf.getSchema().generateDummyCoding()
 
-	override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
-		null.asInstanceOf[LogisticRegressionModel]
-	}
+      val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+      println(">>>>>>>>>>>>>> LogisticRegressionCRS numFeatures = " + numFeatures)
 
-	override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): LogisticRegressionModel = {
-		null.asInstanceOf[LogisticRegressionModel]
-	}
+      val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+        0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
-	override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-		null.asInstanceOf[LogisticRegressionModel]
-	}
+      val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
+      val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
+      return (glm)
+    } catch {
+      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
+    }
+  }
+
+  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+    null.asInstanceOf[LogisticRegressionModel]
+  }
+
+  override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): LogisticRegressionModel = {
+    null.asInstanceOf[LogisticRegressionModel]
+  }
+
+  override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
+    null.asInstanceOf[LogisticRegressionModel]
+  }
 
 }
 

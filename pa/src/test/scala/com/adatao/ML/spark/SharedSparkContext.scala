@@ -22,6 +22,8 @@ import org.scalatest.Suite
 import org.scalatest.BeforeAndAfterAll
 import org.apache.spark.SparkContext
 import org.apache.spark.api.java.JavaSparkContext
+import com.adatao.ddf.DDFManager
+import com.adatao.spark.ddf.SparkDDFManager
 
 /**
  * After spark/core/src/test/scala/spark/SharedSparkContext.scala
@@ -36,9 +38,10 @@ trait SharedSparkContext extends BeforeAndAfterAll { self: Suite =>
   def sc = _sc
 
   override def beforeAll() {
-    _sc = new JavaSparkContext(System.getenv("SPARK_MASTER"), "BigR",
-				System.getenv("SPARK_HOME"), System.getenv("RSERVER_JAR").split(","))
-    
+    //_sc = new JavaSparkContext(System.getenv("SPARK_MASTER"), "BigR",
+	//			System.getenv("SPARK_HOME"), System.getenv("RSERVER_JAR").split(","))
+    val ddfManager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
+    _sc = ddfManager.getJavaSharkContext()
     super.beforeAll()
   }
 

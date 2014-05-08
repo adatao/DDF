@@ -16,26 +16,26 @@ import com.adatao.spark.ddf.SparkDDF
  * To change this template use File | Settings | File Templates.
  */
 class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int)
-		extends AExecutor[ResidualsResult] {
-	override def runImpl(ctx: ExecutionContext): ResidualsResult = {
+  extends AExecutor[ResidualsResult] {
+  override def runImpl(ctx: ExecutionContext): ResidualsResult = {
 
-		val ddfManager = ctx.sparkThread.getDDFManager();
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-		// first, compute RDD[(ytrue, ypred)]
+    val ddfManager = ctx.sparkThread.getDDFManager();
+    val ddfId = com.adatao.ML.Utils.dcID2DDFID(dataContainerID)
+    val ddf: DDF = ddfManager.getDDF(ddfId);
+    // first, compute RDD[(ytrue, ypred)]
 
-		val mymodel: IModel = ddfManager.getModel(modelID)
-		val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+    val mymodel: IModel = ddfManager.getModel(modelID)
+    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
 
-		val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
-		require(residualsDDF != null)
-		
+    val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
+    require(residualsDDF != null)
 
-		//return dataframe
-		val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
-		val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict","")
+    //return dataframe
+    val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
+    val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
 
-		new ResidualsResult(uid, metaInfo)
-	}
+    new ResidualsResult(uid, metaInfo)
+  }
 }
 
 class ResidualsResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
