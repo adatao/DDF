@@ -14,15 +14,8 @@ import java.util
 import com.adatao.pa.spark.types.SuccessResult
 import com.adatao.pa.spark.DataManager
 import shark.api.Row
-import com.adatao.ML.Kmeans.DataPoint
+//import com.adatao.ML.Kmeans.DataPoint
 
-/**
- * Created with IntelliJ IDEA.
- * User: daoduchuan
- * Date: 6/8/13
- * Time: 4:34 PM
- * To change this template use File | Settings | File Templates.
- */
 object Kmeans{
 	type PointType = (Array[Double], Int, Double)
 
@@ -186,6 +179,7 @@ object Kmeans{
 		return new KmeansModel(total_withinss, pointsPerCluster, centroid_coords, numSamples)
 	}
 }
+
 class KmeansModel(val totalWithins: Array[Double],
 									val pointsPerCluster: Array[Int],
 								  centroids: java.util.List[Array[Double]],
