@@ -2,6 +2,7 @@ package com.adatao.ddf.analytics;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -191,11 +192,11 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       hasZero = true;
     }
     
-    boolean hasOne = true;
+    boolean hasOne = false;
     String max = "";
     if (Double.compare(pValues.get(pValues.size() - 1), 1.0) == 0) {
       max = "max(" + columnName + ")";
-      pValues.subList(0, pValues.size() - 1);
+      pValues = pValues.subList(0, pValues.size() - 1);
       hasOne = true;
     }
     
@@ -205,22 +206,27 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
       if (p1.matcher(colType).matches()) {
         pParams = "percentile(" + columnName + ", array(" + StringUtils.join(pValues, ",") + "))";
       } else if (p2.matcher(colType).matches()) {
-        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pValues, ",") + ", " + B.toString() + "))";
+        pParams = "percentile_approx(" + columnName + ", array(" + StringUtils.join(pValues, ",") + "), " + B.toString() + ")";
       } else {
         throw new DDFException("Only support numeric verctors!!!");
       }
     }
     
+    mLog.info("pParams = {}", pParams);
+    List<String> qmm = new ArrayList<String>();
+    if (pValues.size() > 0) {
+      qmm.add(pParams);
+    }
     if (min.length() > 0) {
       // pParams = min + ", " + pParams;
-      pParams += ", " + min;
+      qmm.add(min);
     }
     
     if (max.length() > 0) {
-      pParams += ", " + max;
+      qmm.add(max);
     }
     
-    String cmd = "SELECT " + pParams + " FROM " + getDDF().getTableName();
+    String cmd = "SELECT " + StringUtils.join(qmm, ", ") + " FROM " + getDDF().getTableName();
     mLog.info(">>>>>>>>>>>>>> Command String = " + cmd);
     
     		

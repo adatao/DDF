@@ -42,7 +42,6 @@ import com.adatao.pa.spark.execution.FiveNumSummary._
 class RegressionSuite extends ABigRClientTest {
 
 
-/*
 	//smoke test
 	test("Single-variable linear regression - normal equation categorical - no regularization") {
 		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
@@ -196,7 +195,7 @@ class RegressionSuite extends ABigRClientTest {
 	}
 
 	//temporarily don't support normal dataframe just yet
-	/*test("Categorical variables linear regression on normal dataframe") {
+	test("Categorical variables linear regression on normal dataframe") {
 
 		val dataContainerId = this.loadFile(List("resources/airline.csv"), false, ",")
 		val lambda = 0.0
@@ -209,7 +208,7 @@ class RegressionSuite extends ABigRClientTest {
 
 		assert(model.weights.length === 14)
 		assert(model.dummyColumnMapping != null)
-	}*/
+	}
 
 	test("Categorical multiple variables linear regression on Shark") {
 		createTableAirline
@@ -737,7 +736,7 @@ class RegressionSuite extends ABigRClientTest {
 		//		println("model=" + model)
 
 	}
-    */
+    
 
 //	test("Multiple-variable logistic regression IRLS - ddf") {
 //
