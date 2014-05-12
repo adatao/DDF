@@ -31,8 +31,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.adatao.ML.TCanLog
 import com.adatao.ML.TModel
-import com.adatao.ML.types.TJsonSerializable
-import com.adatao.ML.types.TJsonSerializable
+import com.adatao.ddf.types.TJsonSerializable
 import java.util.Arrays
 
 /**
