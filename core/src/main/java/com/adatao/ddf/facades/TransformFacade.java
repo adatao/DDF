@@ -1,5 +1,6 @@
 package com.adatao.ddf.facades;
 
+import java.util.List;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.etl.IHandleTransformations;
 import com.adatao.ddf.exception.DDFException;
@@ -58,5 +59,9 @@ public class TransformFacade implements IHandleTransformations {
   public DDF transformScaleStandard() throws DDFException {
     return mTransformationHandler.transformScaleStandard();
   }
-  
+
+  @Override
+  public DDF transformUDF(String transformExpression, List<String> columns) throws DDFException {   
+    return mTransformationHandler.transformUDF(transformExpression, columns);
+  }
 }

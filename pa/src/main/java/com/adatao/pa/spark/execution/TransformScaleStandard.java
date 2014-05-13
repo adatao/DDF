@@ -25,9 +25,13 @@ public class TransformScaleStandard extends CExecutor {
     try {
       
       DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-      DDF newddf = ddf.Transform.transformScaleStandard();
+//      DDF newddf = ddf.Transform.transformScaleStandard();
+//
+//      return new Utils.DataFrameResult(newddf);
+      
+      ddf = ddf.Transform.transformScaleStandard();
 
-      return new Utils.DataFrameResult(newddf);
+      return new Utils.DataFrameResult(ddf);
 
     } catch (Exception e) {
       

@@ -12,6 +12,7 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
+import com.google.common.collect.Lists;
 
 public class TransformationHandlerTest {
   private DDFManager manager;
@@ -25,6 +26,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore
   public void testTransformNativeRserve() throws DDFException {
 
     DDF newddf = ddf.Transform.transformNativeRserve("newcol = deptime / arrtime");
@@ -37,6 +39,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore
   public void testTransformMapReduceNative() throws DDFException {
 
     // aggregate sum of month group by year
@@ -66,13 +69,29 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  
   public void testTransformScaleStandard() throws DDFException {
 
-    DDF newddf = ddf.Transform.transformScaleStandard();
+/*    DDF newddf = ddf.Transform.transformScaleStandard();
     Assert.assertNotNull(newddf);
 
+    Assert.assertTrue(ddf.getSchema().getTableName().equals(newddf.getSchema().getTableName()));
+    Assert.assertTrue(ddf.getName().equals(newddf.getName()));
+    Assert.assertTrue(ddf.getNumRows() == newddf.getNumRows());*/
+    
+    ddf = ddf.Transform.transformScaleStandard();
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(8, ddf.getSummary().length);
   }
 
+  @Test
+  @Ignore
+  public void testTransformSql() throws DDFException {
+    List<String> cols = Lists.newArrayList("year","month","dayofweek");
+    ddf = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(8, ddf.getSummary().length);
+  }
   @After
   public void closeTest() {
     manager.shutdown();

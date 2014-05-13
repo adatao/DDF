@@ -7,6 +7,8 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public class TransformationHandler extends ADDFFunctionalGroupHandler implements IHandleTransformations {
 
@@ -66,9 +68,17 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     sqlCmdBuffer.append("FROM ").append(this.getDDF().getTableName());
 
     DDF newddf = this.getManager().sql2ddf(sqlCmdBuffer.toString());
-    this.getManager().addDDF(newddf);
+    
+//    this.getManager().addDDF(newddf);
+//    return newddf;
+    
+    DDF curDDF = this.getDDF();
+    curDDF.getSchema().setTableName(newddf.getTableName());
 
-    return newddf;
+    curDDF.getRepresentationHandler().reset();
+    curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
+    return curDDF;
+
   }
 
   public DDF transformNativeRserve(String transformExpression) {
@@ -81,5 +91,49 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     // TODO Auto-generated method stub
     return null;
   }
+  
+  public DDF transformUDF(String RExp, List<String> columns) throws DDFException {
+    
+    String columnList;
+    if(columns != null) {
+      columnList = Joiner.on( "," ).skipNulls().join(columns);
+    } else {
+      columnList = "*";
+    }    
+    
+    String sqlCmd = String.format("SELECT %s, %s FROM %s", columnList, RToSqlUdf(RExp), this.getDDF().getTableName());
+    DDF newddf = this.getManager().sql2ddf(sqlCmd);
+    DDF curDDF = this.getDDF();
+    curDDF.getSchema().setTableName(newddf.getTableName());
 
+    curDDF.getRepresentationHandler().reset();
+    curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
+    
+    return curDDF;
+  }
+  
+  public DDF transformUDF(String RExp) throws DDFException {
+    return transformUDF(RExp, null);
+  }
+  
+  /**
+   * Parse R transform expression to Hive equivalent
+   * @param transformExpr: e.g: "foobar = arrtime - crsarrtime, speed = distance / airtime"
+   * @return "(arrtime - crsarrtime) as foobar, (distance / airtime) as speed
+   */
+  
+  private String RToSqlUdf(String RExp) {
+    List<String> udfs = Lists.newArrayList();
+    for (String str : RExp.split(",")) {
+      String[] udf = str.trim().split("[=~]");
+      if (udf.length ==1) {
+        udfs.add(String.format("(%s)", udf[0]));
+      } else {
+        udfs.add(String.format("(%s) as %s",udf[1], udf[0]));
+      }
+    }
+    return Joiner.on( "," ).join(udfs);
+  }
+
+  
 }
