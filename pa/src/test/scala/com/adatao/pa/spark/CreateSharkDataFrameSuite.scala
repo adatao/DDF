@@ -76,7 +76,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		val r= bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		val dcID= r.dataContainerID
 
-		val executor= new Kmeans(dcID, Array(0,1), 5, 4)
+		val executor= new Kmeans(dcID, Array(0,1), 5, 4, null, "random")
 		val r1= bigRClient.execute[KmeansModel](executor)
 		assert(r1.isSuccess)
 
