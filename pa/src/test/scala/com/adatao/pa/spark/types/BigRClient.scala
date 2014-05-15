@@ -287,9 +287,19 @@ object BigRClientTestUtils {
 		assert(runSQLCmd(bigRClient, "drop table if exists admission").isSuccess)
 		assert(runSQLCmd(bigRClient, "create table admission (v1 int, v2 int, v3 double, v4 int)" +
 			" row format delimited fields terminated by ' '").isSuccess)
+		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/admission.csv' " +
+			"INTO TABLE admission").isSuccess)
+	}
+	
+	def createTableAdmission2(bigRClient: BigRClient) = {
+		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
+		assert(runSQLCmd(bigRClient, "drop table if exists admission").isSuccess)
+		assert(runSQLCmd(bigRClient, "create table admission (v1 int, v2 int, v3 double, v4 int)" +
+			" row format delimited fields terminated by ' '").isSuccess)
 		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/admission2.csv' " +
 			"INTO TABLE admission").isSuccess)
 	}
+	
 	def createTableTest(bigRClient: BigRClient) = {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources/sharkfiles").isSuccess)
 		assert(runSQLCmd(bigRClient, "drop table if exists test").isSuccess)
