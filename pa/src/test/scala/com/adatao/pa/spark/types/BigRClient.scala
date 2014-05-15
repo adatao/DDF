@@ -37,8 +37,10 @@ import com.adatao.pa.spark.execution.Sql2DataFrame
 import com.adatao.pa.spark.execution.Sql2ListString
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
-
 import org.json.JSONObject
+import java.util.ArrayList
+import org.apache.commons.lang.StringUtils
+import com.adatao.pa.spark.execution.Subset.SubsetResult
 
 /**
  * Simulates an RClient communicating with BigR/server via Thrift
@@ -339,5 +341,17 @@ object BigRClientTestUtils {
 			" row format delimited fields terminated by ','").isSuccess)
 		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/airlineWithNa.csv' " +
 			"INTO TABLE airline").isSuccess)
+	}
+	
+	def projectDDF(bigRClient: BigRClient, dcID: String, xCols: Array[Int], yCol: Int): String = {
+	  val columnList = new ArrayList[String]
+	  for (xCol <- xCols) {
+	    columnList.add("{type: Column, index: " + xCol + "}")
+	  }
+	  columnList.add("{type: Column, index: " + yCol + "}")
+	  val jsCreateVectors = String.format("{columns: [%s], dataContainerID: %s}", StringUtils.join(columnList, ", "), dcID);
+	  val result= bigRClient.execute[SubsetResult]("Subset", jsCreateVectors)
+	  
+	  result.result.getDataContainerID
 	}
 } 

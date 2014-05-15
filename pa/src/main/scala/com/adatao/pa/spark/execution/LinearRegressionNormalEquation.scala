@@ -73,19 +73,18 @@ class LinearRegressionNormalEquation(
     ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     ddf.getSchema().generateDummyCoding()
 
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    columnList.add(schema.getColumn(yCol).getName)
-    val projectDDF = ddf.Views.project(columnList)
+    //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    //    columnList.add(schema.getColumn(yCol).getName)
+    //    val projectDDF = ddf.Views.project(columnList)
 
-    // val numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
-    val numFeatures = xCols.length
-    val numRows = projectDDF.getNumRows()
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    val numRows = ddf.getNumRows()
     println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)
-    val model = projectDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+    val model = ddf.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
     val itr = rawModel.weights.iterator
