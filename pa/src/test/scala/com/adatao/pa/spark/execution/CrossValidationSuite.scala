@@ -34,7 +34,10 @@ class CrossValidationSuite extends ABigRClientTest {
 	}
 
 	test("CVRandomSplit") {
-		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
+		createTableAirline
+		val df = this.runSQL2RDDCmd("select * from airline", true)
+		
+		val dataContainerId = df.dataContainerID //this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
 		val splitter = new CVRandomSplit(dataContainerId, 5, 0.75, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
 		assert(r.isSuccess)
@@ -46,7 +49,12 @@ class CrossValidationSuite extends ABigRClientTest {
 	}
 
 	test("CVKFoldSplit") {
-		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
+//		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
+		createTableAirline
+		val df = this.runSQL2RDDCmd("select * from airline", true)
+		
+		val dataContainerId = df.dataContainerID
+		
 		val splitter = new CVKFoldSplit(dataContainerId, 5, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
 		assert(r.isSuccess)
@@ -58,7 +66,11 @@ class CrossValidationSuite extends ABigRClientTest {
 	}
 
 	test("R2 score on CVRandomSplit") {
-		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
+//		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
+		createTableMtcars
+		val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
+		val dataContainerId = df.dataContainerID
+		
 		val splitter = new CVRandomSplit(dataContainerId, 1, 0.75, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
 		assert(r.isSuccess)
@@ -67,13 +79,13 @@ class CrossValidationSuite extends ABigRClientTest {
 		r.result.foreach { split ⇒
 			val Array(train, test) = split
 
-			val trainer = new LinearRegression(train, Array(5), 0, 1, 0.0, 0.0, Array(37.285, -5.344))
+			val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
 			val r = bigRClient.execute[LinearRegressionModel](trainer)
 			assert(r.isSuccess)
 
 			val persistenceID = r.persistenceID
 
-			val scorer = new R2Score(test, Array(5), 0, persistenceID)
+			val scorer = new R2Score(test, Array(0), 1, persistenceID)
 			val r2 = bigRClient.execute[Double](scorer)
 			assert(r2.isSuccess)
 
@@ -86,11 +98,11 @@ class CrossValidationSuite extends ABigRClientTest {
 	test("R2 score on CVRandomSplit on Shark") {
 		createTableMtcars
 
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
+		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
+//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
 		assert(r0.isSuccess)
 
-		val dataContainerId = r0.result.dataContainerID
+		val dataContainerId = r0.dataContainerID
 
 		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
@@ -101,13 +113,13 @@ class CrossValidationSuite extends ABigRClientTest {
 			val Array(train, test) = split
 
 			// fake the training with learningRate = 0.0
-			val trainer = new LinearRegression(train, Array(5), 0, 1, 0.0, 0.0, Array(37.285, -5.344))
+			val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
 			val r = bigRClient.execute[LinearRegressionModel](trainer)
 			assert(r.isSuccess)
 
 			val persistenceID = r.persistenceID
 
-			val scorer = new R2Score(test, Array(5), 0, persistenceID)
+			val scorer = new R2Score(test, Array(0), 1, persistenceID)
 			val r2 = bigRClient.execute[Double](scorer)
 			assert(r2.isSuccess)
 
@@ -120,11 +132,10 @@ class CrossValidationSuite extends ABigRClientTest {
 	test("LinearRegression on CVRandomSplit on Shark") {
 		createTableMtcars
 
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
+		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
 		assert(r0.isSuccess)
 
-		val dataContainerId = r0.result.dataContainerID
+		val dataContainerId = r0.dataContainerID
 
 		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
@@ -142,7 +153,10 @@ class CrossValidationSuite extends ABigRClientTest {
 	}
 
 	test("Test ROC metric with CV random split") {
-		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
+		createTableAdmission
+		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+		val dataContainerId = df.dataContainerID
+		
 		val lambda = 0.0
 
 		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
@@ -177,13 +191,9 @@ class CrossValidationSuite extends ABigRClientTest {
 	}
 
 	test("Test ROC metric with CV random split on Shark") {
-		createTableMtcars
-
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
-		assert(r0.isSuccess)
-
-		val dataContainerId = r0.result.dataContainerID
+		createTableAdmission
+		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+		val dataContainerId = df.dataContainerID
 
 		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
 		val r = bigRClient.execute[Array[Array[String]]](splitter)
@@ -198,12 +208,12 @@ class CrossValidationSuite extends ABigRClientTest {
 			val lambda = 0.0
 
 			// fake the training with learningRate = 0.0
-			val trainer = new LogisticRegression(dataContainerId, Array(4, 5), 7, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+			val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
 			val r = bigRClient.execute[LogisticRegressionModel](trainer)
 			assert(r.isSuccess)
 			val persistenceID = r.persistenceID
 
-			val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(2, 3), 0)
+			val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0, 1), 2)
 			val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 			assert(r2.isSuccess)
 			val predictionId = r2.result.dataContainerID
