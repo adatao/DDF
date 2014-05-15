@@ -62,7 +62,9 @@ class RegressionSuite extends ABigRClientTest {
 
 	}
 
-	test("Multiple-variable linear regression - normal equation - no regularization") {
+	// TODO: failed due to 
+	// TestFailedException: 37.674034 did not equal 37.22727
+  test("Multiple-variable linear regression - normal equation - no regularization") {
 		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 		val lambda = 0.0
 		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 5), 0)
@@ -92,7 +94,8 @@ class RegressionSuite extends ABigRClientTest {
 		assert(truncate(model.vif(1), 6) == 1.766625)
 	}
 
-	test("Single-variable linear regression") {
+  // OK
+  test("Single-variable linear regression") {
 		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 		val lambda = 0.0
 		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 0)
@@ -794,5 +797,4 @@ class RegressionSuite extends ABigRClientTest {
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 		assert(r.isSuccess)
 	}
-
 }
