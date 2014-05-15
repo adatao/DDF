@@ -48,7 +48,8 @@ class RegressionSuite extends ABigRClientTest {
 		val lambda = 1.0
 		//this will cause Infinity, fail
 		//		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(5,10), 0, lambda)
-		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(5, 9), 0, lambda)
+		val projDataContainerId = this.projectDDF(dataContainerId, Array(5, 10), 0)
+		val executor = new LinearRegressionNormalEquation(projDataContainerId, Array(5, 10), 0, lambda)
 		val r = bigRClient.execute[NQLinearRegressionModel](executor)
 
 		assert(r.isSuccess)

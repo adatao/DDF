@@ -55,15 +55,15 @@ class LinearRegression(
     }
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val schema = ddf.getSchema()
-    var columnList : java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    columnList.add(schema.getColumn(yCol).getName)
-    val projectDDF = ddf.Views.project(columnList)
-    val model = projectDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    // val schema = ddf.getSchema()
+    // var columnList : java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    // for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    // columnList.add(schema.getColumn(yCol).getName)
+    // val projectDDF = ddf.Views.project(columnList)
+    // val model = projectDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters:java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
                                                                     
                                                                           
-    // val model = ddf.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val model = ddf.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
