@@ -381,6 +381,7 @@ class RegressionSuite extends ABigRClientTest {
 		assert(truncate(model.stderrs(0), 6) === 6.417354)
 		assert(truncate(model.stderrs(1), 6) === 0.074349)
 		assert(truncate(model.stderrs(2), 6) === 0.062723)
+		print(">>>>>>>>>>>>>>>>>> model numFeatures =" + model.numFeatures)
 		assert(model.numFeatures == 2)
 		assert(model.numSamples == 50)
 		assert(model.numIters == 6)
