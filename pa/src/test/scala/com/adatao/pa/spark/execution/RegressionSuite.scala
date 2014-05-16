@@ -114,7 +114,7 @@ class RegressionSuite extends ABigRClientTest {
 //		assert(truncate(model.weights(1), 4) === -5.3539)
 //		assert(truncate(model.trainingLosses(0), 4) === 40.9919)
 //		assert(truncate(model.trainingLosses(1), 4) === 9.9192)
-//	}
+//	}//
 //
 //	test("Single-variable linear regression on Shark") {
 //		createTableMtcars
@@ -246,41 +246,42 @@ class RegressionSuite extends ABigRClientTest {
 //		assert(model.weights.length === 12)
 //		assert(model.dummyColumnMapping != null)
 //	}
-//
-//	test("lm categorical and reference level on shark") {
-//		createTableAirline
-//
-//		val loader = new Sql2DataFrame("select * from airline", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		val dataContainerId = r0.dataContainerID
-//
-//		val lambda = 1.0
-//
-//		var mapReferenceLevel: HashMap[String, String] = new HashMap[String, String]()
-//		mapReferenceLevel.put("v17", "ISP")
-//		mapReferenceLevel.put("v18", "LAS")
-//
-//		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 16, 17), 2)
-//		val executor = new LinearRegressionNormalEquation(projDataContainerId, Array(3, 16, 17), 2, lambda, mapReferenceLevel)
-//		val r = bigRClient.execute[NQLinearRegressionModel](executor)
-//
-//		assert(r.isSuccess)
-//
-//		val model = r.result
-//		println(">>>>>>>>>>>>>>>>> final model =" + model.toString)
-//
-//		if (model.dummyColumnMapping != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.dummyColumnMapping)
-//		assert(model.weights.length === 12)
-//		assert(model.dummyColumnMapping != null)
-//		//		//check reference level if equal 0.0
-//
+
+	test("lm categorical and reference level on shark") {
+		createTableAirline
+
+		val loader = new Sql2DataFrame("select v4, v17, v18, v3 from airline", true)
+		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+		assert(r0.isSuccess)
+
+		val dataContainerId = r0.dataContainerID
+
+		val lambda = 1.0
+
+		var mapReferenceLevel: HashMap[String, String] = new HashMap[String, String]()
+		mapReferenceLevel.put("v17", "ISP")
+		mapReferenceLevel.put("v18", "LAS")
+
+		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1, 2), 3)
+		val executor = new LinearRegressionNormalEquation(projDataContainerId, Array(0, 1, 2), 3, lambda, mapReferenceLevel)
+		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+
+		assert(r.isSuccess)
+
+		val model = r.result
+		println(">>>>>>>>>>>>>>>>> final model =" + model.toString)
+
+		if (model.dummyColumnMapping != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.dummyColumnMapping)
+		assert(model.weights.length === 12)
+		assert(model.dummyColumnMapping != null)
+		//		//check reference level if equal 0.0
+
+		//TODO need to support dummy coding reference level 
 //		assert(model.dummyColumnMapping.get(16).get("ISP") === 0.0)
 //		assert(model.dummyColumnMapping.get(17).get("LAS") === 0.0)
-//
-//	}
-//
+
+	}
+
 //	test("glm categorical and reference level on shark") {
 //		createTableAdmission
 //
@@ -594,6 +595,8 @@ class RegressionSuite extends ABigRClientTest {
 //
 //		val cmd = new Binning(dataContainerId, "v19", binningType = "equalFreq", numBins = 5, includeLowest = false, right = false)
 //		val result = bigRClient.execute[BinningResult](cmd)
+//		
+//		println(">>>>>>> result=" + result.result)
 //
 //		val cmd3 = new FetchRows().setDataContainerID(result.result.dataContainerID).setLimit(100)
 //		val res3 = bigRClient.execute[FetchRowsResult](cmd3)
@@ -770,8 +773,8 @@ class RegressionSuite extends ABigRClientTest {
 //		//		println("model=" + model)
 //
 //	}
-    
-
+//    
+//
 //	test("Multiple-variable logistic regression IRLS - ddf") {
 //
 //		//load data
@@ -784,21 +787,21 @@ class RegressionSuite extends ABigRClientTest {
 //		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 //		assert(r.isSuccess)
 //	}
-	
-	test("test dummy coding") {
-
-		//load data
-		createTableAirline
-//		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
-		
-		val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
-		
-		val dataContainerId = df.dataContainerID
-		val lambda = 1.0
-
-		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
-		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
-		assert(r.isSuccess)
-	}
+//	
+//	test("test dummy coding") {
+//
+//		//load data
+//		createTableAirline
+////		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
+//		
+//		val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
+//		
+//		val dataContainerId = df.dataContainerID
+//		val lambda = 1.0
+//
+//		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
+//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
+//		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+//		assert(r.isSuccess)
+//	}
 }

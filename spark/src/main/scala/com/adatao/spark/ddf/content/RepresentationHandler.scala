@@ -311,7 +311,8 @@ object RepresentationHandler {
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
     println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
-    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+//    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+    val X = new Matrix(numRows, dc.getNumberFeatures())
     //    var newX = new Matrix(numRows, numCols + numDummyColumns)
     //    val newY = new Vector(numRows)
 
