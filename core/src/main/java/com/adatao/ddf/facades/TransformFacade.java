@@ -64,4 +64,8 @@ public class TransformFacade implements IHandleTransformations {
   public DDF transformUDF(String transformExpression, List<String> columns) throws DDFException {   
     return mTransformationHandler.transformUDF(transformExpression, columns);
   }
+  
+  public DDF transformUDF(String transformExpression) throws DDFException {   
+    return transformUDF(transformExpression, null);
+  }
 }

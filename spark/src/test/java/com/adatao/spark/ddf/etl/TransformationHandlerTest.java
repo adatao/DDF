@@ -22,6 +22,20 @@ public class TransformationHandlerTest {
   @Before
   public void setUp() throws Exception {
     manager = DDFManager.get("spark");
+    manager.sql2txt("drop table if exists airline");
+
+    manager.sql2txt("create table airline (Year int,Month int,DayofMonth int,"
+        + "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int,"
+        + "CRSArrTime int,UniqueCarrier string, FlightNum int, "
+        + "TailNum string, ActualElapsedTime int, CRSElapsedTime int, "
+        + "AirTime int, ArrDelay int, DepDelay int, Origin string, "
+        + "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, "
+        + "CancellationCode string, Diverted string, CarrierDelay int, "
+        + "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) "
+        + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
+
+    manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
+
     ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, distance, arrdelay, depdelay from airline");
   }
 
@@ -36,6 +50,33 @@ public class TransformationHandlerTest {
     Assert.assertNotNull(newddf);
     Assert.assertEquals("newcol", newddf.getColumnName(9));
     Assert.assertEquals(10, res.size());
+  }
+
+  @Test
+  @Ignore
+  public void testTransformScaleMinMax() throws DDFException {
+
+    DDF newddf = ddf.Transform.transformScaleMinMax();
+    Summary[] summaryArr = newddf.getSummary();
+    Assert.assertTrue(summaryArr[0].min() < 1);
+    Assert.assertTrue(summaryArr[0].max() == 1);
+
+  }
+
+  @Test
+  @Ignore
+  public void testTransformScaleStandard() throws DDFException {
+
+/*    DDF newddf = ddf.Transform.transformScaleStandard();
+    Assert.assertNotNull(newddf);
+
+    Assert.assertTrue(ddf.getSchema().getTableName().equals(newddf.getSchema().getTableName()));
+    Assert.assertTrue(ddf.getName().equals(newddf.getName()));
+    Assert.assertTrue(ddf.getNumRows() == newddf.getNumRows());*/
+    
+    ddf = ddf.Transform.transformScaleStandard();
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(8, ddf.getSummary().length);
   }
 
   @Test
@@ -56,41 +97,20 @@ public class TransformationHandlerTest {
     Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(0).getType() == ColumnType.STRING);
     Assert.assertTrue(newddf.getSchemaHandler().getColumns().get(1).getType() == ColumnType.INT);
   }
-
-  @Test
-  @Ignore
-  public void testTransformScaleMinMax() throws DDFException {
-
-    DDF newddf = ddf.Transform.transformScaleMinMax();
-    Summary[] summaryArr = newddf.getSummary();
-    Assert.assertTrue(summaryArr[0].min() < 1);
-    Assert.assertTrue(summaryArr[0].max() == 1);
-
-  }
-
+  
+  
   @Test
   
-  public void testTransformScaleStandard() throws DDFException {
-
-/*    DDF newddf = ddf.Transform.transformScaleStandard();
-    Assert.assertNotNull(newddf);
-
-    Assert.assertTrue(ddf.getSchema().getTableName().equals(newddf.getSchema().getTableName()));
-    Assert.assertTrue(ddf.getName().equals(newddf.getName()));
-    Assert.assertTrue(ddf.getNumRows() == newddf.getNumRows());*/
-    
-    ddf = ddf.Transform.transformScaleStandard();
-    Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(8, ddf.getSummary().length);
-  }
-
-  @Test
-  @Ignore
   public void testTransformSql() throws DDFException {
-    List<String> cols = Lists.newArrayList("year","month","dayofweek");
-    ddf = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
     Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(8, ddf.getSummary().length);
+    Assert.assertEquals(8, ddf.getNumColumns());
+    
+    //List<String> cols = Lists.newArrayList("year","month","dayofweek");
+    DDF ddf1 = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)");
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(4, ddf.getNumColumns());
+    Assert.assertEquals("speed", ddf.getColumnName(3));
+
   }
   @After
   public void closeTest() {
