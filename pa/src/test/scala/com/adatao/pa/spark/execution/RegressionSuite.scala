@@ -277,7 +277,7 @@ class RegressionSuite extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 		val lambda = 1.0
 
-		var cmd1 = new GetFactor().setDataContainerID(dataContainerId).setColumnName("v4")
+		var cmd1 = new GetMultiFactor(dataContainerId, Array(3))
 		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
 
 		var mapReferenceLevel: HashMap[String, String] = new HashMap[String, String]()
@@ -387,7 +387,7 @@ class RegressionSuite extends ABigRClientTest {
 
 		val dataContainerId = r0.dataContainerID
 
-		var cmd1 = new GetFactor().setDataContainerID(dataContainerId).setColumnName("v4")
+		var cmd1 = new GetMultiFactor(dataContainerId, Array(3))
 		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
 
 		val lambda = 0.0
