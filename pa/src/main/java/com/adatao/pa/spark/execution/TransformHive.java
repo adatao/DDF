@@ -17,21 +17,12 @@ public class TransformHive extends CExecutor {
 
   private String dataContainerID;
   private String transformExpression;
-  private List<String> columns;
   public static Logger LOG = LoggerFactory.getLogger(TransformHive.class);
 
 
-  public void initialize(String dataContainerID, String transformExpression, List<String> columns) {
+  public TransformHive(String dataContainerID, String transformExpression) {
     this.dataContainerID = dataContainerID;
     this.transformExpression = transformExpression;
-    this.columns = columns;
-  }
-
-  public TransformHive(String dataContainerID, String transformExpression, List<String> columns) {
-    initialize(dataContainerID, transformExpression, columns);
-  }
-  public TransformHive(String dataContainerID, String transformExpression) {
-    initialize(dataContainerID, transformExpression, null);
   }
 
   @Override
@@ -41,11 +32,11 @@ public class TransformHive extends CExecutor {
       DDFManager manager = sparkThread.getDDFManager();
       DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
 
-      ddf = ddf.Transform.transformUDF(transformExpression);
+      DDF newddf = ddf.Transform.transformUDF(transformExpression);
       
-      LOG.info(manager.getDDFs().keySet().toString());
+      manager.addDDF(newddf);
 
-      return new Utils.DataFrameResult(ddf);
+      return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
       

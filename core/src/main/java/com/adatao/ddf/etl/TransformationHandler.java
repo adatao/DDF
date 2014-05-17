@@ -101,16 +101,6 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     this.getManager().addDDF(newddf);
     return newddf;
     
-//    DDF curDDF = this.getDDF();
-//    curDDF.getSchema().setTableName(newddf.getTableName());
-//    curDDF.getSchemaHandler().setSchema(newddf.getSchema());
-//    curDDF.getRepresentationHandler().reset();
-//    curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
-//    String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
-//    this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
-//    this.getManager().sql2txt(String.format("alter table %s rename to %s", newddf.getTableName(), oldname));
-//    return curDDF;
-    
   }
 
   public DDF transformUDF(String RExp) throws DDFException {
@@ -125,18 +115,17 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
    * @return "(arrtime - crsarrtime) as foobar, (distance / airtime) as speed
    */
 
-  private String RToSqlUdf(String RExp) {
+  public static String RToSqlUdf(String RExp) {
     List<String> udfs = Lists.newArrayList();
-    for (String str : RExp.split(",")) {
-      String[] udf = str.trim().split("[=~]");
+    for (String str : RExp.split(",(?![^()]*+\\))")) {
+      String[] udf = str.replaceAll("\\s","").split("[=~]");
       if (udf.length == 1) {
         udfs.add(String.format("(%s)", udf[0]));
       } else {
-        udfs.add(String.format("(%s) as %s", udf[1], udf[0]));
+        udfs.add(String.format("(%s) as %s", udf[1], udf[0].replaceAll("\\W", "")));
       }
     }
     return Joiner.on(",").join(udfs);
   }
-
 
 }

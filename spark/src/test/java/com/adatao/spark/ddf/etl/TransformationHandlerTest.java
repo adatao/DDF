@@ -35,14 +35,12 @@ public class TransformationHandlerTest {
         + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
 
     manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
-
     ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, distance, arrdelay, depdelay from airline");
   }
 
   @Test
   @Ignore
   public void testTransformNativeRserve() throws DDFException {
-
     DDF newddf = ddf.Transform.transformNativeRserve("newcol = deptime / arrtime");
     System.out.println("name " + ddf.getName());
     System.out.println("newname " + newddf.getName());
@@ -53,9 +51,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
-  @Ignore
   public void testTransformScaleMinMax() throws DDFException {
-
     DDF newddf = ddf.Transform.transformScaleMinMax();
     Summary[] summaryArr = newddf.getSummary();
     Assert.assertTrue(summaryArr[0].min() < 1);
@@ -64,25 +60,15 @@ public class TransformationHandlerTest {
   }
 
   @Test
-  @Ignore
   public void testTransformScaleStandard() throws DDFException {
-
-/*    DDF newddf = ddf.Transform.transformScaleStandard();
-    Assert.assertNotNull(newddf);
-
-    Assert.assertTrue(ddf.getSchema().getTableName().equals(newddf.getSchema().getTableName()));
-    Assert.assertTrue(ddf.getName().equals(newddf.getName()));
-    Assert.assertTrue(ddf.getNumRows() == newddf.getNumRows());*/
-    
-    ddf = ddf.Transform.transformScaleStandard();
-    Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(8, ddf.getSummary().length);
+    DDF newddf = ddf.Transform.transformScaleStandard();
+    Assert.assertEquals(31, newddf.getNumRows());
+    Assert.assertEquals(8, newddf.getSummary().length);
   }
 
   @Test
   @Ignore
   public void testTransformMapReduceNative() throws DDFException {
-
     // aggregate sum of month group by year
 
     String mapFuncDef = "function(part) { keyval(key=part$year, val=part$month) }";
@@ -100,17 +86,33 @@ public class TransformationHandlerTest {
   
   
   @Test
-  
   public void testTransformSql() throws DDFException {
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(8, ddf.getNumColumns());
     
-    //List<String> cols = Lists.newArrayList("year","month","dayofweek");
-    DDF ddf1 = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)");
-    Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(4, ddf.getNumColumns());
-    Assert.assertEquals("speed", ddf.getColumnName(3));
-
+    DDF ddf0 = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
+    Assert.assertEquals(31, ddf0.getNumRows());
+    Assert.assertEquals(9, ddf0.getNumColumns());
+    Assert.assertEquals("dist", ddf0.getColumnName(8));
+    
+    //specifying selected column list
+    List<String> cols = Lists.newArrayList("year","month","dayofweek");
+    
+    DDF ddf1 = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
+    Assert.assertEquals(31, ddf1.getNumRows());
+    Assert.assertEquals(4, ddf1.getNumColumns());
+    Assert.assertEquals("speed", ddf1.getColumnName(3));
+    
+    //udf without assigning column name
+    DDF ddf2 = ddf.Transform.transformUDF("arrtime-deptime");
+    Assert.assertEquals(31, ddf2.getNumRows());
+    Assert.assertEquals(9, ddf2.getNumColumns());
+    
+    //multiple expressions, column name with special characters
+    DDF ddf3 = ddf0.Transform.transformUDF("arrtime-deptime, (speed^*- = distance/(arrtime-deptime)", cols);
+    Assert.assertEquals(31, ddf3.getNumRows());
+    Assert.assertEquals(5, ddf3.getNumColumns());
+    Assert.assertEquals("speed", ddf3.getColumnName(4));
   }
   @After
   public void closeTest() {
