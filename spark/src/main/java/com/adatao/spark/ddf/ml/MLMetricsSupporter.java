@@ -69,6 +69,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
         outputRow[0] = (yTrue - meanYTrue) * (yTrue - meanYTrue);
         outputRow[1] = (yTrue - yPredict) * (yTrue - yPredict);
         
+        
       } else {
         throw new DDFException(String.format("Unsupported input type "));
       }
