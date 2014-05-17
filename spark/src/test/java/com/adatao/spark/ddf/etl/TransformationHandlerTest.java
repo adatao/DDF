@@ -52,8 +52,8 @@ public class TransformationHandlerTest {
 
   @Test
   public void testTransformScaleMinMax() throws DDFException {
-    DDF newddf = ddf.Transform.transformScaleMinMax();
-    Summary[] summaryArr = newddf.getSummary();
+    DDF newddf0 = ddf.Transform.transformScaleMinMax();
+    Summary[] summaryArr = newddf0.getSummary();
     Assert.assertTrue(summaryArr[0].min() < 1);
     Assert.assertTrue(summaryArr[0].max() == 1);
 
@@ -61,9 +61,9 @@ public class TransformationHandlerTest {
 
   @Test
   public void testTransformScaleStandard() throws DDFException {
-    DDF newddf = ddf.Transform.transformScaleStandard();
-    Assert.assertEquals(31, newddf.getNumRows());
-    Assert.assertEquals(8, newddf.getSummary().length);
+    DDF newddf1 = ddf.Transform.transformScaleStandard();
+    Assert.assertEquals(31, newddf1.getNumRows());
+    Assert.assertEquals(8, newddf1.getSummary().length);
   }
 
   @Test
@@ -87,6 +87,7 @@ public class TransformationHandlerTest {
   
   @Test
   public void testTransformSql() throws DDFException {
+    
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(8, ddf.getNumColumns());
     
@@ -114,6 +115,7 @@ public class TransformationHandlerTest {
     Assert.assertEquals(5, ddf3.getNumColumns());
     Assert.assertEquals("speed", ddf3.getColumnName(4));
   }
+  
   @After
   public void closeTest() {
     manager.shutdown();
