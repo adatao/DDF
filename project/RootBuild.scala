@@ -3,24 +3,26 @@ import sbt.Classpaths.publishTask
 import Keys._
 import sbtassembly.Plugin._
 import AssemblyKeys._
-//import twirl.sbt.TwirlPlugin._
 import scala.sys.process._
-// For Sonatype publishing
-//import com.jsuereth.pgp.sbtplugin.PgpKeys._
-
+import scala.util.Properties.{ envOrNone => env }
+import scala.collection.JavaConversions._
 
 
 object RootBuild extends Build {
 
 	//////// Project definitions/configs ///////
-	val SPARK_VERSION = "0.8.1-incubating"
-	//val SPARK_VERSION = "0.8.1-SNAPSHOT"
-	val SHARK_VERSION = "0.8.1-SNAPSHOT"
-	val MLLIB_VERSION = "0.8.1-incubating"
+	val SPARK_VERSION = "1.0.0-SNAPSHOT"
+	val SHARK_VERSION = "0.9.1"
+        val HIVE_VERSION = "0.11.0-shark-0.9.1"
 	
-	//val theScalaVersion = "2.10.0"
-	val theScalaVersion = "2.9.3"
-	val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
+  // Target JVM version
+  val SCALAC_JVM_VERSION = "jvm-1.6"
+  val JAVAC_JVM_VERSION = "1.6"
+	val theScalaVersion = "2.10.3"
+        val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
+	val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
+	//val theScalaVersion = "2.9.3"
+	//val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
 	val rootOrganization = "com.adatao"
 	val projectName = "ddf"
@@ -91,52 +93,41 @@ object RootBuild extends Build {
   val excludeGuava = ExclusionRule(organization = "com.google.guava", name = "guava-parent")
   val excludeJets3t = ExclusionRule(organization = "net.java.dev.jets3t", name = "jets3t")
   val excludeAsm = ExclusionRule(organization = "asm", name = "asm")
-  val excludeSpark = ExclusionRule(organization = "org.apache.spark", name = "spark-core_2.9.3")
+  val excludeSpark = ExclusionRule(organization = "org.apache.spark", name = "spark-core_2.10")
   val excludeEverthing = ExclusionRule(organization = "*", name = "*")
   val excludeEverythingHackForMakePom = ExclusionRule(organization = "_MAKE_POM_EXCLUDE_ALL_", name = "_MAKE_POM_EXCLUDE_ALL_")
 
   // We define this explicitly rather than via unmanagedJars, so that make-pom will generate it in pom.xml as well
   // org % package % version
   val com_adatao_unmanaged = Seq(
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_builtins" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_cli" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_common" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_contrib" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_exec" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_hbase_handler" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_hwi" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_jdbc" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_metastore" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_pdk" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_serde" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_service" % "0.9.0.patched",
-    "com.adatao.unmanaged.edu.berkeley.amplab" % "hive_shims" % "0.9.0.patched",
     "com.adatao.unmanaged.net.rforge" % "REngine" % "1.7.2.compiled",
     "com.adatao.unmanaged.net.rforge" % "Rserve" % "1.7.2.compiled"
   )
+
+  val scalaArtifacts = Seq("jline", "scala-compiler", "scala-library", "scala-reflect")
+  val scalaDependencies = scalaArtifacts.map( artifactId => "org.scala-lang" % artifactId % theScalaVersion)
 
   val spark_dependencies = Seq(
     "commons-configuration" % "commons-configuration" % "1.6",
     "com.google.code.gson"% "gson" % "2.2.2",
     "javax.jdo" % "jdo2-api" % "2.3-eb",
     "org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
-    "org.scalatest" %% "scalatest" % "1.9.1" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
+    //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
+    //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
     "com.novocode" % "junit-interface" % "0.9" % "test",
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
-    "org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
+    //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
     "commons-dbcp" % "commons-dbcp" % "1.4",
-    "org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
-    "org.datanucleus" % "datanucleus-enhancer" % "2.0.3" excludeAll(excludeAsm),
-    "org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
-    "org.datanucleus" % "datanucleus-core" % "2.0.3",
     "org.apache.derby" % "derby" % "10.4.2.0",
-    "org.apache.spark" % "spark-mllib_2.9.3" % MLLIB_VERSION excludeAll(excludeSpark),
-    "org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
-    "edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
+    "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
+    "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
+    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION
+//libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
   )
 
   val pa_dependencies = Seq(
@@ -169,19 +160,25 @@ object RootBuild extends Build {
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
-    resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-    resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+    //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
+resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
+resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
 		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
-    resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-    resolvers ++= Seq("BetaDriven Repository"  at "http://nexus.bedatadriven.com/content/groups/public/",
-		      "Typesafe Repository"    at "http://repo.typesafe.com/typesafe/releases/", 
-		      "scala-tools.org"        at "https://oss.sonatype.org/content/groups/scala-tools/"
-		      //"Akka Repository"        at "http://repo.akka.io/releases/"
+    resolvers ++= Seq(
+//			"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+//			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+//			"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
+//			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+//			"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
+
+ "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
+      "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+      "Sonatype Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     ),
 
 
     publishMavenStyle := true, // generate pom.xml with "sbt make-pom"
-
 
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -189,28 +186,15 @@ object RootBuild extends Build {
       "commons-configuration" % "commons-configuration" % "1.6",
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
-      //"javax.jdo" % "jdo2-api" % "2.3-eb",
-      //"org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
-      "org.scalatest" %% "scalatest" % "1.9.1" % "test",
-      "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
+      //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
+      //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
-      //"org.apache.thrift" % "libthrift" % "0.9.0",
-      //"org.apache.thrift" % "libfb303" % "0.9.0",
-      //"org.antlr" % "antlr" % "3.0.1", // needed by shark.SharkDriver.compile
-      // needed by Hive
-      //"commons-dbcp" % "commons-dbcp" % "1.4",
-      //"org.datanucleus" % "datanucleus-rdbms" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-enhancer" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-connectionpool" % "2.0.3",
-      //"org.datanucleus" % "datanucleus-core" % "2.0.3",
-      //"org.apache.derby" % "derby" % "10.4.2.0",
-      //"org.apache.spark" % "spark-mllib_2.9.3" % "0.8.1-incubating",
-      //"org.apache.spark" % "spark-core_2.9.3" % SPARK_VERSION excludeAll(excludeJets3t),
-      //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark),
       "org.easymock" % "easymock" % "3.1" % "test",
+      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1",
       "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
@@ -226,8 +210,8 @@ object RootBuild extends Build {
     publishLocalBoth <<= Seq(publishLocal in MavenCompile, publishLocal).dependOn,
 
 
-    dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
-    dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
+    //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
+    //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
     // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
@@ -467,7 +451,8 @@ object RootBuild extends Build {
     //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
-    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2"
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2",
+    libraryDependencies ++= scalaDependencies
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
