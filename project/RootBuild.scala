@@ -122,7 +122,7 @@ object RootBuild extends Build {
     // needed by Hive
     //"commons-dbcp" % "commons-dbcp" % "1.4",
     //"org.apache.derby" % "derby" % "10.4.2.0",
-    "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+   // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
@@ -165,11 +165,11 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
 resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
 		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
-			"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+			//"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
 			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
 			"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
-			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
-			"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
+			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+			//"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
 
       //"Sonatype Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     ),
