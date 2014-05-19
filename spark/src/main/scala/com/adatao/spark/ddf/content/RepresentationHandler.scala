@@ -60,6 +60,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val schema = schemaHandler.getSchema()
     mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
     typeSpecs match {
+      case RDD_ROW => srcRdd
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
       case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
@@ -75,9 +76,9 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
         rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
       }
-      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s",
+      case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s\n - %s\n - %s",
         typeSpecs,
-        RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
+        RDD_ROW, RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
   }
 
@@ -158,6 +159,7 @@ object RepresentationHandler {
   /**
    * Supported Representations
    */
+  val RDD_ROW = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Row]))
   val RDD_ARRAY_DOUBLE = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Double]]))
   val RDD_ARRAY_OBJECT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[Object]]))
   val RDD_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[LabeledPoint]))

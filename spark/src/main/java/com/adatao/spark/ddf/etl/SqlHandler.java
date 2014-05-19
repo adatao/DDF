@@ -106,6 +106,7 @@ public class SqlHandler extends ASqlHandler {
       RDD<TablePartition> rddTablePartition = (RDD<TablePartition>) rddTablePartitionOrNull.get();
       ddf.getRepresentationHandler().add(rddTablePartition, RDD.class, TablePartition.class);
     }
+
     return ddf;
   }
 

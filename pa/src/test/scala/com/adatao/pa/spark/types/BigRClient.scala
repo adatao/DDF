@@ -289,9 +289,19 @@ object BigRClientTestUtils {
 		assert(runSQLCmd(bigRClient, "drop table if exists admission").isSuccess)
 		assert(runSQLCmd(bigRClient, "create table admission (v1 int, v2 int, v3 double, v4 int)" +
 			" row format delimited fields terminated by ' '").isSuccess)
+		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/admission.csv' " +
+			"INTO TABLE admission").isSuccess)
+	}
+	
+	def createTableAdmission2(bigRClient: BigRClient) = {
+		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
+		assert(runSQLCmd(bigRClient, "drop table if exists admission").isSuccess)
+		assert(runSQLCmd(bigRClient, "create table admission (v1 int, v2 int, v3 double, v4 int)" +
+			" row format delimited fields terminated by ' '").isSuccess)
 		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/admission2.csv' " +
 			"INTO TABLE admission").isSuccess)
 	}
+	
 	def createTableTest(bigRClient: BigRClient) = {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources/sharkfiles").isSuccess)
 		assert(runSQLCmd(bigRClient, "drop table if exists test").isSuccess)
@@ -330,6 +340,20 @@ object BigRClientTestUtils {
 		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/airline.csv' " +
 			"INTO TABLE airline").isSuccess)
 	}
+	
+//	def createTableAirlineTransform(bigRClient: BigRClient) = {
+//		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
+//		assert(runSQLCmd(bigRClient, "drop table if exists airline").isSuccess)
+//		assert(runSQLCmd(bigRClient, "create table airline (v1 int, v2 double, v3 double, v4 double," +
+//			" v5 double, v6 double, v7 double, v8 double, v9 string, v10 double," +
+//			" v11 string, v12 double, v13 double, v14 double, v15 double, v16 double, " +
+//			"v17 string, v18 string, v19 double, v20 double, v21 double, v22 double, v23" +
+//			" double, v24 double, v25 double, v26 double, v27 double, v28 double, v29 double)" +
+//			" row format delimited fields terminated by ','").isSuccess)
+//		assert(this.runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/airline.csv' " +
+//			"INTO TABLE airline").isSuccess)
+//	}
+	
 	def createTableAirlineWithNA(bigRClient: BigRClient) = {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
 		assert(runSQLCmd(bigRClient, "drop table if exists airline").isSuccess)

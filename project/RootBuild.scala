@@ -174,8 +174,8 @@ object RootBuild extends Build {
 		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
     resolvers ++= Seq("BetaDriven Repository"  at "http://nexus.bedatadriven.com/content/groups/public/",
-		      "Typesafe Repository"    at "http://repo.typesafe.com/typesafe/releases/", 
-		      "scala-tools.org"        at "https://oss.sonatype.org/content/groups/scala-tools/"
+		      "Typesafe Repository"    at "http://repo.typesafe.com/typesafe/releases/"
+		      //"scala-tools.org"        at "https://oss.sonatype.org/content/groups/scala-tools/"
 		      //"Akka Repository"        at "http://repo.akka.io/releases/"
     ),
 
