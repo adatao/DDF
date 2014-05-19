@@ -79,6 +79,7 @@ class LogisticRegressionIRLS(
     ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     ddf.getSchema().generateDummyCoding()
 
+    //including bias term or intercept
     val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
     println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
@@ -91,9 +92,9 @@ class LogisticRegressionIRLS(
 
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
-      println(">>>>>>>>>>>>>model=" + model)
-
-      return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, ddf.getNumColumns(), model.getNumIters, model.getStdErrs)
+      //excluding intercept, bias term
+      val modelFeatures = numFeatures.longValue() - 1 
+      return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
