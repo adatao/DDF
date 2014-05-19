@@ -9,7 +9,7 @@ import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
+import java.util.Arrays;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

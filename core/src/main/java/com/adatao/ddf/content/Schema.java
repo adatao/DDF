@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,9 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import scala.actors.threadpool.Arrays;
-
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Strings;
