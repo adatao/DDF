@@ -18,7 +18,7 @@ object RootBuild extends Build {
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
-	val theScalaVersion = "2.10.3"
+	val theScalaVersion = "2.10.4"
         val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
 	val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
 	//val theScalaVersion = "2.9.3"
@@ -160,21 +160,18 @@ object RootBuild extends Build {
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
-    //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
+//resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
 resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
 resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
 		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
-//			"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
-//			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-//			"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
-//			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
-//			"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
+			"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+			"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
+			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+			"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
 
- "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
-      "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
-      "Sonatype Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+      //"Sonatype Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     ),
 
 
@@ -186,9 +183,9 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
       "commons-configuration" % "commons-configuration" % "1.6",
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
-      //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
-      "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-      //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
+      //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
