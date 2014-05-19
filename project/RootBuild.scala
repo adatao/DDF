@@ -110,7 +110,7 @@ object RootBuild extends Build {
   val spark_dependencies = Seq(
     "commons-configuration" % "commons-configuration" % "1.6",
     "com.google.code.gson"% "gson" % "2.2.2",
-    "javax.jdo" % "jdo2-api" % "2.3-eb",
+    //"javax.jdo" % "jdo2-api" % "2.3-ec",
     "org.eclipse.jetty" % "jetty-server" % "7.6.8.v20121106",
     //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
     //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
@@ -120,8 +120,8 @@ object RootBuild extends Build {
     "org.apache.thrift" % "libfb303" % "0.9.0",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
-    "commons-dbcp" % "commons-dbcp" % "1.4",
-    "org.apache.derby" % "derby" % "10.4.2.0",
+    //"commons-dbcp" % "commons-dbcp" % "1.4",
+    //"org.apache.derby" % "derby" % "10.4.2.0",
     "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
@@ -231,7 +231,7 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
     dependencyOverrides += "org.xerial.snappy" % "snappy-java" % "1.0.5", //spark-core conflicts with avro
     dependencyOverrides += "org.apache.httpcomponents" % "httpcore" % "4.1.4",
-    dependencyOverrides += "org.apache.avro" % "avro-ipc" % "1.7.4",
+    //dependencyOverrides += "org.apache.avro" % "avro-ipc" % "1.7.4",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
