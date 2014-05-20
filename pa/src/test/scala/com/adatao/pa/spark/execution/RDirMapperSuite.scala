@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 
 class RDirMapperSuite extends ABigRClientTest {
-	test("FileMapReduce") {
+	ignore("FileMapReduce") {
 		var fmr = new RDirMapper(
 				"args<-commandArgs(TRUE)\n" +
 				"inputFile <- args[1]\n" +
