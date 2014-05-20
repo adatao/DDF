@@ -46,48 +46,51 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 
 	}
 
-//	test("test CVFoldSplit") {
-////		val dcID = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
-//		
-//		createTableAirline
-//		val df = this.runSQL2RDDCmd("select * from airline", true)
-//		val dcID = df.dataContainerID
-//		
-//		
-//		val splitter= new CVKFoldSplit(dcID, 5, 42)
-//		val r= bigRClient.execute[Array[Array[String]]](splitter)
-//		assert(r.isSuccess)
-//		println(r.result)
-//		assert(r.result.length === 5)
-//
-//		r.result(0) match{
-//			case Array(train, test) => {
-//				val cmd= new FiveNumSummary(train)
-//				val res= bigRClient.execute[Array[ASummary]](cmd)
-//				assert(res.isSuccess)
-//				val cmd2= new FiveNumSummary(test)
-//				val res2= bigRClient.execute[Array[ASummary]](cmd)
-//				assert(res2.isSuccess)
-//			}
-//		}
-//	}
-//
-//	test("test SampleDataFrame"){
-////		val dcID = this.loadFile("resources/mtcars", false, " ")
-//		
-//		createTableMtcars
-//		val df = this.runSQL2RDDCmd("select * from mtcars", true)
-//		val dcID = df.dataContainerID
-//		
-//		val cmd= new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
-//		val res= bigRClient.execute[SampleDataFramePercentResult](cmd)
-//		assert(res.isSuccess == true)
-//		LOG.info("datacontainerID= " + dcID)
-//		val dcID2= res.result.getDataContainerID
-//		val cmd2= new GetMultiFactor(dcID2, Array(0,1,2,3,4,5))
-//		val result= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd2)
-//		assert(result.isSuccess)
-//	}
+	test("test CVFoldSplit") {
+//		val dcID = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
+		
+		createTableAirline
+		val df = this.runSQL2RDDCmd("select * from airline", true)
+		val dcID = df.dataContainerID
+		
+		
+		val splitter= new CVKFoldSplit(dcID, 5, 42)
+		val r= bigRClient.execute[Array[Array[String]]](splitter)
+		assert(r.isSuccess)
+		println(r.result)
+		assert(r.result.length === 5)
+
+		r.result(0) match{
+			case Array(train, test) => {
+				val cmd= new FiveNumSummary(train)
+				val res= bigRClient.execute[Array[ASummary]](cmd)
+				assert(res.isSuccess)
+				val cmd2= new FiveNumSummary(test)
+				val res2= bigRClient.execute[Array[ASummary]](cmd)
+				assert(res2.isSuccess)
+			}
+		}
+	}
+
+	test("test SampleDataFrame"){
+//		val dcID = this.loadFile("resources/mtcars", false, " ")
+		
+		createTableMtcars
+		val df = this.runSQL2RDDCmd("select * from mtcars", true)
+		val dcID = df.dataContainerID
+		
+		val cmd= new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
+		val res= bigRClient.execute[SampleDataFramePercentResult](cmd)
+		assert(res.isSuccess == true)
+		LOG.info("datacontainerID= " + dcID)
+		val dcID2= res.result.getDataContainerID
+		val cmd2= new GetMultiFactor(dcID2, Array(0,1,2,3,4,5))
+		
+		println(">>>>>>>>>>>>>>> dcID2 = " + dcID2)
+		
+		val result= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd2)
+		assert(result.isSuccess)
+	}
 //	test("test Kmeans prediction") {
 //		createTableKmeans
 //		val loader = new Sql2DataFrame("select * from kmeans", true)
