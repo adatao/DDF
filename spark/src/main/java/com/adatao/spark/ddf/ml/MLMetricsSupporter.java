@@ -152,7 +152,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 	IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class);
     RDD<double[]> predictionRDD =  (RDD<double[]>) gr.getObject();
     //convert from rdd[double[]] to rdd[LabeledPoint]
-    RDD<LabeledPoint[]> newrdd = RepresentationHandler.rowsToArrayLabeledPoints2(predictionRDD);
+    RDD<LabeledPoint[]> newrdd = RepresentationHandler.arrayDoubleToArrayLabeledPoints(predictionRDD);
     
     ROCComputer rc = new ROCComputer();
     return(rc.ROC(newrdd, alpha_length));

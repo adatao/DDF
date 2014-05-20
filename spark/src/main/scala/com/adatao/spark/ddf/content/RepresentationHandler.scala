@@ -36,6 +36,7 @@ import com.adatao.spark.ddf.content.MetaDataHandler._
 import com.adatao.ddf.content.Schema.ColumnClass
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
+import com.adatao.spark.ddf.util.Utils;
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -198,37 +199,18 @@ object RepresentationHandler {
     rdd.map(row ⇒ {
       val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
       val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
-      new LabeledPoint(label, features)
+      new LabeledPoint(label, Utils.arrayDoubleToVector(features));
     })
   }
 
   def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[LabeledPoint]] = {
-    val numCols = mappers.length
-    rdd.mapPartitions(rows ⇒ {
-      val numCols = mappers.length
-      var lstRows = new ArrayList[LabeledPoint]()
-      var row = 0
-      while (rows.hasNext) {
-        var currentRow = rows.next
-        val features = rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
-        val label = mappers(numCols - 1)(currentRow.getPrimitive(numCols - 1))
-        lstRows.add(row, new LabeledPoint(label, features))
-        row += 1
-      }
-
-      val numRows = lstRows.size //rows.toArray[Row].length
-      val ret = new Array[LabeledPoint](numRows)
-      row = 0
-      while (row < lstRows.size) {
-        ret(row) = lstRows(row)
-        row += 1
-      }
-      Iterator(ret)
-    })
+    val rddArrayDouble = rowsToArraysDouble(rdd, mappers)
+    arrayDoubleToArrayLabeledPoints(rddArrayDouble)
+    
   }
 
   //TODO move this method
-  def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
+  def arrayDoubleToArrayLabeledPoints(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
     rdd.mapPartitions(rows ⇒ {
       val numCols = 2
       var lstRows = new ArrayList[LabeledPoint]()
@@ -239,7 +221,7 @@ object RepresentationHandler {
         val prediction: Array[Double] = new Array(1) // rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
         prediction(0) = currentRow(1)
 
-        lstRows.add(row, new LabeledPoint(label, prediction))
+        lstRows.add(row, new LabeledPoint(label, Utils.arrayDoubleToVector(prediction)))
         row += 1
       }
 

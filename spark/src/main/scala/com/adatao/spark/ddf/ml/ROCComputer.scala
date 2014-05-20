@@ -161,7 +161,7 @@ class ROCComputer extends Serializable {
 
     for (i ← 0 until input.length - 1) {
 
-      predict = input(i).features(0)
+      predict = input(i).features.toArray(0)
       yTrue = input(i).label
 
       //model.predict(Vector(input._1.getRow(i)))
