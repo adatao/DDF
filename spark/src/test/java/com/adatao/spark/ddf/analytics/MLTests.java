@@ -41,7 +41,7 @@ public class MLTests {
     Assert.assertNotNull("Model cannot be null", model);
 
     // This uses the mapping config to go from "kmeans" to "com.adatao.spark.ddf.analytics.MLTests#dummyKMeans"
-    model = ddf.ML.train("kmeans2", 1, 2.2);
+    model = ddf.ML.train("kmeans", 1, 2.2);
     Assert.assertNotNull("Model cannot be null", model);
   }
 
