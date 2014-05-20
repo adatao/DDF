@@ -33,69 +33,40 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
+import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
+
 // Create a DDF from an SQL Query
 @SuppressWarnings("serial")
-public class Sql2DataFrame extends CExecutor {
-  String sqlCmd;
+public class GetDDF extends CExecutor {
+  String ddfName;
   Boolean cache = true;
 
   public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
 
 
-  public Sql2DataFrame(String sqlCmd, Boolean cache) {
-    this.sqlCmd = sqlCmd;
-    this.cache = cache;
+  public GetDDF(String ddfName) {
+    this.ddfName = ddfName;
   }
-
-
-  static public class Sql2DataFrameResult extends SuccessResult {
-    // public String dataContainerID;
-    // public MetaInfo[] metaInfo;
-    // public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
-    // this.dataContainerID = dataContainerID;
-    // this.metaInfo = df.getMetaInfo();
-    // }
-    public String dataContainerID;
-    public MetaInfo[] metaInfo;
-
-
-    public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
-      this.metaInfo = generateMetaInfo(ddf.getSchema());
-    }
-
-    public static MetaInfo[] generateMetaInfo(Schema schema) {
-      List<Column> columns = schema.getColumns();
-      MetaInfo[] metaInfo = new MetaInfo[columns.size()];
-      for (int i = 0; i < columns.size(); i++) {
-        metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
-      }
-      return metaInfo;
-    }
-  }
-
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    if (sqlCmd == null) {
-      return new FailResult().setMessage("Sql command string is empty");
+    if (ddfName == null) {
+      return new FailResult().setMessage("ddfName string is empty");
     }
-
-    // SharkDataFrame df = new SharkDataFrame();
-
     try {
-      // JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
-      // df.loadTableFromQuery(sc, sqlCmd, cache);
-
-      // DataManager dm = sparkThread.getDataManager();
-      // String dataContainerID = dm.add(df);
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.sql2ddf(sqlCmd);
-      String ddfName = ddfManager.addDDF(ddf);
-      LOG.info("DDF Name: " + ddfName);
-      
-      System.out.println(">>>>>>>>>>>>>>>>> add DDF name = " + ddfName);
+      DDF ddf = ddfManager.getDDF(ddfName);
+      if(ddf != null) {
+    	  System.out.println(">>>>>>>>> succesful getting ddf from name = " + ddfName);
+      }
+      else
+    	  System.out.println(">>>>>>>>> can not get ddf from name = " + ddfName);
 
+      System.out.println(">>>>>>>>> getting ddf from name = " + ddfName);
+      //set Name
+      ddf.setName(ddfName);
+      
+      
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
