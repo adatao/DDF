@@ -34,14 +34,11 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		r.result(0) match{
 			case Array(train, test) => {
 			  
-				val train2 = train.substring(15).replace("_", "-")
-				val test2 = test.substring(15).replace("_", "-")
-          
-				val cmd= new FiveNumSummary(train2)
+				val cmd= new FiveNumSummary(train)
 				val res= bigRClient.execute[Array[ASummary]](cmd)
 				
 				assert(res.isSuccess)
-				val cmd2= new FiveNumSummary(test2)
+				val cmd2= new FiveNumSummary(test)
 				val res2= bigRClient.execute[Array[ASummary]](cmd)
 				assert(res2.isSuccess)
 			}
