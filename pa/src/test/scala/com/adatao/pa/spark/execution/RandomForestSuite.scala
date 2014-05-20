@@ -6,7 +6,7 @@ import com.adatao.pa.spark.execution.RandomForest.RandomForestResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 
 class RandomForestSuite extends ABigRClientTest {
-  test("handle NA elements") {
+  ignore("handle NA elements") {
     val xCols = Array(1, 2, 3)
     val yCol = 0
     val mTry = 0
@@ -31,7 +31,7 @@ class RandomForestSuite extends ABigRClientTest {
     assert(model.numTrees == numTrees)
   }
 
-  test("test Random Forest regression") {
+  ignore("test Random Forest regression") {
     val xCols = Array(0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16)
     val yCol = 7
     val mTry = 0
@@ -59,7 +59,7 @@ class RandomForestSuite extends ABigRClientTest {
     assert(math.abs(0.9790220492182647 - r2.result) < 1E-5)
   }
 
-  test("test Random Forest classification") {
+  ignore("test Random Forest classification") {
     val xCols = Array(1, 2, 3)
     val yCol = 0
     val mTry = 0

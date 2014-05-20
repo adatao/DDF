@@ -87,7 +87,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
   }
 
   private double parseDouble(String s) {
-    return ("NULL".equalsIgnoreCase(s)) ? Double.NaN : Double.parseDouble(s);
+    return ("NULL".equalsIgnoreCase(s.trim())) ? Double.NaN : Double.parseDouble(s);
   }
 
   private String fiveNumFunction(String columnName) {

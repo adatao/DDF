@@ -6,7 +6,7 @@ import com.adatao.pa.spark.types.ATestBase
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 
 class NaiveBayesSuite extends ABigRClientTest {
-  test("handle NA elements") {
+  ignore("handle NA elements") {
     val xCols = Array(1, 2, 3)
     val yCol = 0
     val mTry = 0
@@ -30,7 +30,7 @@ class NaiveBayesSuite extends ABigRClientTest {
     assert(model.getNumFeatures() == 3)
   }
 
-  test("test Naive Bayes classification") {
+  ignore("test Naive Bayes classification") {
     val xCols = Array(1, 2, 3)
     val yCol = 0
 
