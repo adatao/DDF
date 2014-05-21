@@ -46,8 +46,8 @@ class FiveNumSuite extends ABigRClientTest {
 		val dcID = df.dataContainerID
 		LOG.info("Got dataConainterID = " + dcID)
 
-		var cmd1 = new GetFactor().setDataContainerID(dcID).setColumnName("carb")
-		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
+		// var cmd1 = new GetFactor().setDataContainerID(dcID).setColumnName("carb")
+		// bigRClient.execute[GetFactor.GetFactorResult](cmd1)
 
 		var cmd2 = new FiveNumSummary(dcID)
 		val res = bigRClient.execute[Array[ASummary]](cmd2).result

@@ -168,7 +168,8 @@ public class GetFactor extends CExecutor {
 
 		// TODO: we only support SharkDataFrame for now
 		@SuppressWarnings("deprecation")
-    JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
+//		JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
+		JavaTableRDD table = dc.getTableRDD();
 
 		/*
 		 * Do mapPartition here to avoid mapping each row element to an String

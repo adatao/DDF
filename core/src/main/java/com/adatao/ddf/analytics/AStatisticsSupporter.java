@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -47,8 +49,12 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     FiveNumSummary[] fivenums = new FiveNumSummary[columnNames.size()];
 
     List<String> specs = Lists.newArrayList();
+    Set<String> stringColumns = new HashSet<String>();
     for (String columnName : columnNames) {
-      specs.add(fiveNumFunction(columnName));
+      String query = fiveNumFunction(columnName);
+      if (query != null && query.length() > 0) {
+          specs.add(query);
+      } else stringColumns.add(columnName);
     }
 
     String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));
@@ -64,10 +70,14 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
 
       int k = 0;
-      for (int i = 0; i < rs.length; i += 5) {
-        fivenums[k] = new FiveNumSummary(parseDouble(rs[i]), parseDouble(rs[i + 1]), parseDouble(rs[i + 2]),
-            parseDouble(rs[i + 3]), parseDouble(rs[i + 4]));
-        k++;
+      for (int i = 0; i < columnNames.size(); i++) {
+        if (stringColumns.contains(columnNames.get(i))) {
+          fivenums[i] = new FiveNumSummary(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+        } else {
+          fivenums[i] = new FiveNumSummary(parseDouble(rs[5 * k]), parseDouble(rs[5 * k + 1]), parseDouble(rs[5 * k + 2]),
+            parseDouble(rs[5 * k + 3]), parseDouble(rs[5 * k + 4]));
+          k++;
+        }
       }
 
       return fivenums;
@@ -77,7 +87,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
   }
 
   private double parseDouble(String s) {
-    return ("NULL".equalsIgnoreCase(s)) ? Double.NaN : Double.parseDouble(s);
+    return ("NULL".equalsIgnoreCase(s.trim())) ? Double.NaN : Double.parseDouble(s);
   }
 
   private String fiveNumFunction(String columnName) {

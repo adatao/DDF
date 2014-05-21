@@ -306,7 +306,8 @@ object RepresentationHandler {
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
     println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
-    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+//    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+    val X = new Matrix(numRows, dc.getNumberFeatures())
     //    var newX = new Matrix(numRows, numCols + numDummyColumns)
     //    val newY = new Vector(numRows)
 
@@ -365,7 +366,7 @@ object RepresentationHandler {
     case i: java.lang.Integer => i.toDouble
     case f: java.lang.Float => f.toDouble
     case d: java.lang.Double => d
-    case _ => throw new RuntimeException("not a numeric Object")
+    case e => throw new RuntimeException("not a numeric Object " + (if (e != null) e.toString()))
   }
 
   def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {

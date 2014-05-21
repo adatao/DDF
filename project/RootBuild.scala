@@ -10,64 +10,64 @@ import scala.collection.JavaConversions._
 
 object RootBuild extends Build {
 
-	//////// Project definitions/configs ///////
-	val SPARK_VERSION = "1.0.0-SNAPSHOT"
-	val SHARK_VERSION = "0.9.1"
+  //////// Project definitions/configs ///////
+  val SPARK_VERSION = "1.0.0-SNAPSHOT"
+  val SHARK_VERSION = "0.9.1"
         val HIVE_VERSION = "0.11.0-shark-0.9.1"
-	
+  
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
-	val theScalaVersion = "2.10.4"
+  val theScalaVersion = "2.10.4"
         val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
-	val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
-	//val theScalaVersion = "2.9.3"
-	//val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
+  val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
+  //val theScalaVersion = "2.9.3"
+  //val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
-	val rootOrganization = "com.adatao"
-	val projectName = "ddf"
-	val rootProjectName = projectName
-	val rootVersion = "1.0"
+  val rootOrganization = "com.adatao"
+  val projectName = "ddf"
+  val rootProjectName = projectName
+  val rootVersion = "1.0"
 
-	val projectOrganization = rootOrganization + "." + projectName
+  val projectOrganization = rootOrganization + "." + projectName
 
-	val coreProjectName = projectName + "_core"
-	val coreVersion = rootVersion
-	val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
-	val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
+  val coreProjectName = projectName + "_core"
+  val coreVersion = rootVersion
+  val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
+  val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
 
-	val sparkProjectName = projectName + "_spark"
-	val sparkVersion = rootVersion
-	val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
-	val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
-	
-	val enterpriseProjectName = projectName + "_enterprise"
-	val enterpriseVersion = rootVersion
-	val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
-	val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
+  val sparkProjectName = projectName + "_spark"
+  val sparkVersion = rootVersion
+  val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+  val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
+  
+  val enterpriseProjectName = projectName + "_enterprise"
+  val enterpriseVersion = rootVersion
+  val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
+  val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
 
-	val paProjectName = projectName + "_pa"
-	val paVersion = rootVersion
-	val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
-	val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
+  val paProjectName = projectName + "_pa"
+  val paVersion = rootVersion
+  val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
+  val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
-	val examplesProjectName = projectName + "_examples"
-	val examplesVersion = rootVersion
-	val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
-	val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
+  val examplesProjectName = projectName + "_examples"
+  val examplesVersion = rootVersion
+  val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
+  val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
 
-	val contribProjectName = projectName + "_contrib"
-	val contribVersion = rootVersion
-	val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
-	val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
-	
-	lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
-	lazy val core = Project("core", file("core"), settings = coreSettings)
-	lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
-	lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
-	lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
-	lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
-	lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
+  val contribProjectName = projectName + "_contrib"
+  val contribVersion = rootVersion
+  val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
+  val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
+  
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
+  lazy val core = Project("core", file("core"), settings = coreSettings)
+  lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
+  lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
+  lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
+  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
+  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -163,13 +163,13 @@ object RootBuild extends Build {
 //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
 resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
 resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-		      "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+          "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
-			//"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
-			"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-			"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
-			"Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-			//"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
+      //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
+      "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+      //"Sonatype Testing" at "https://oss.sonatype.org/content/repositories/eduberkeleycs-1016"
 
       //"Sonatype Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     ),
@@ -236,10 +236,10 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
     
     pomExtra := (
       <!--
-			**************************************************************************************************
-			IMPORTANT: This file is generated by "sbt make-pom" (bin/make-poms.sh). Edits will be overwritten!
-			**************************************************************************************************
-			-->
+      **************************************************************************************************
+      IMPORTANT: This file is generated by "sbt make-pom" (bin/make-poms.sh). Edits will be overwritten!
+      **************************************************************************************************
+      -->
         <parent>
           <groupId>{rootOrganization}</groupId>
           <artifactId>{rootProjectName}</artifactId>
@@ -257,7 +257,7 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
                 <reuseForks>false</reuseForks>
                 <enableAssertions>false</enableAssertions>
                 <environmentVariables>
-                    <RSERVER_JAR>${{basedir}}/{targetDir}/*.jar,${{basedir}}/{targetDir}/lib/*</RSERVER_JAR>							
+                    <RSERVER_JAR>${{basedir}}/{targetDir}/*.jar,${{basedir}}/{targetDir}/lib/*</RSERVER_JAR>              
                 </environmentVariables>
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>

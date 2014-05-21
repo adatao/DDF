@@ -34,7 +34,7 @@ class SharkDataFrameSuite extends ATestBase { //ABigRClientTest {
 	private val SPARK_HOME = System.getenv("SPARK_HOME");
 	private val RSERVER_JAR = System.getenv("RSERVER_JAR");
 	
-	test("Test loadTable and loadTableFromQuery on DataManager.SharkDataFrame"){
+	ignore("Test loadTable and loadTableFromQuery on DataManager.SharkDataFrame"){
 		// val jobJars = RSERVER_JAR.split(",");
         val ddfManager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
 		// val sharkContext = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(SPARK_MASTER, "BigR", SPARK_HOME, jobJars));
