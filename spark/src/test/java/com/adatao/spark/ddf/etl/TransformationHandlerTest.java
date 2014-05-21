@@ -51,6 +51,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore
   public void testTransformScaleMinMax() throws DDFException {
     DDF newddf0 = ddf.Transform.transformScaleMinMax();
     Summary[] summaryArr = newddf0.getSummary();
@@ -60,6 +61,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore 
   public void testTransformScaleStandard() throws DDFException {
     DDF newddf1 = ddf.Transform.transformScaleStandard();
     Assert.assertEquals(31, newddf1.getNumRows());
