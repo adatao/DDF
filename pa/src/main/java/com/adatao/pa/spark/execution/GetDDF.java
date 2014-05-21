@@ -56,6 +56,10 @@ public class GetDDF extends CExecutor {
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.getDDF(ddfName);
+      
+      System.out.println("ddf manager namespace = " + ddfManager.getNamespace());
+      System.out.println("ddf manager engine = " + ddfManager.getEngine());
+      
       if(ddf != null) {
     	  System.out.println(">>>>>>>>> succesful getting ddf from name = " + ddfName);
       }

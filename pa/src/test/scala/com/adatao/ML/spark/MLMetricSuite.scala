@@ -68,7 +68,7 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 		Array(19.7, 6, 145.0, 175, 3.62, 2.770, 15.50, 0, 1, 5, 6),
 		Array(15.0, 8, 301.0, 335, 3.54, 3.570, 14.60, 0, 1, 5, 8),
 		Array(21.4, 4, 121.0, 109, 4.11, 2.780, 18.60, 1, 1, 4, 2)
-	).map { row => row.map {x => x.asInstanceOf[Object]} }
+	).map { row => row.map {x => x.asInstanceOf[Object]} }persist
 
 	test("RddUtils.yMean") {
 		// mean(mtcars$mpg)
