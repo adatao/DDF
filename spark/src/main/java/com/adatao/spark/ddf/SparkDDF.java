@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
-import scala.reflect.ClassManifest$;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.RepresentationHandler.GetResult;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
-import shark.api.Row;
 
 /**
  * An Apache-Spark-based implementation of DDF
@@ -72,7 +70,7 @@ public class SparkDDF extends DDF {
 
   public <T> JavaRDD<T> getJavaRDD(Class<T> unitType) throws DDFException {
     RDD<T> rdd = this.getRDD(unitType);
-    return new JavaRDD<T>(rdd, ClassManifest$.MODULE$.fromClass(unitType));
+    return rdd.toJavaRDD();
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -81,6 +79,6 @@ public class SparkDDF extends DDF {
     RDD<?> rdd = (RDD<?>) result.getObject();
     Class<?> unitType = result.getTypeSpecs()[1];
 
-    return new GetResult(new JavaRDD(rdd, ClassManifest$.MODULE$.fromClass(unitType)), unitType);
+    return new GetResult(rdd.toJavaRDD(), unitType);
   }
 }

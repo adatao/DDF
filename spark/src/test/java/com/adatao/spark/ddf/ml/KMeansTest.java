@@ -1,6 +1,5 @@
 package com.adatao.spark.ddf.ml;
 
-
 import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_DOUBLE;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.rdd.RDD;
@@ -9,6 +8,8 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
+import org.apache.spark.mllib.linalg.Vector;
+import com.adatao.spark.ddf.util.Utils;
 
 public class KMeansTest {
   @Test

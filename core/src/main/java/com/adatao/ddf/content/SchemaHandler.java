@@ -4,9 +4,7 @@
 package com.adatao.ddf.content;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;

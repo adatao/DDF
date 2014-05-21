@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
-import scala.reflect.ClassManifest$;
 
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
@@ -28,7 +27,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   public Summary[] getSummaryImpl()  throws DDFException {
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
-    JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
+    JavaRDD<Object[]> data = rdd.toJavaRDD();
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }
@@ -37,7 +36,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
    * Mapper function to accumulate summary data from each row
    */
   @SuppressWarnings("serial")
-  public static class GetSummaryMapper extends Function<Object[], Summary[]> {
+  public static class GetSummaryMapper implements Function<Object[], Summary[]> {
     private final Logger mLog = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -84,7 +83,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   }
 
   @SuppressWarnings("serial")
-  public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
+  public static class GetSummaryReducer implements Function2<Summary[], Summary[], Summary[]> {
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;

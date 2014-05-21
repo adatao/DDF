@@ -98,7 +98,7 @@ public class SqlHandler extends ASqlHandler {
       schema.setTableName(tableName);
     }
 
-    Option rddTablePartitionOrNull = SharkEnv.memoryMetadataManager().get(tableName);
+    Option rddTablePartitionOrNull = SharkEnv.memoryMetadataManager().getTable("metastore_db", tableName);
 
     DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
 

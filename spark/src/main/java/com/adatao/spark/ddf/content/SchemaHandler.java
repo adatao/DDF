@@ -11,8 +11,6 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 
 import org.apache.spark.rdd.RDD;
-
-import scala.reflect.ClassManifest$;
 import shark.api.ColumnDesc;
 
 import com.adatao.ddf.DDF;
@@ -36,7 +34,7 @@ public class SchemaHandler extends com.adatao.ddf.content.SchemaHandler {
   public static Schema getSchemaFrom(ColumnDesc[] sharkColumns) {
     List<Column> cols = Lists.newArrayList();
     for (ColumnDesc sharkColumn : sharkColumns) {
-      cols.add(new Column(sharkColumn.columnName(), sharkColumn.typeName()));
+      cols.add(new Column(sharkColumn.name(), sharkColumn.dataType().name));
     }
 
     return new Schema(null, cols);
