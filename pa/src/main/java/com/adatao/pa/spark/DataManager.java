@@ -27,13 +27,13 @@ import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
-import scala.reflect.ClassManifest$;
+import com.adatao.spark.ddf.util.MLUtils;
 import shark.api.ColumnDesc;
 import shark.api.JavaSharkContext;
 import shark.api.JavaTableRDD;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
-import com.adatao.ML.Kmeans;
+import com.adatao.pa.spark.SharkUtils;
 import com.adatao.ddf.types.Matrix;
 import com.adatao.ddf.types.Vector;
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult;
@@ -399,10 +399,10 @@ public class DataManager {
 			if(result == null){
 				RDD<Row> rdd = this.getTableRDD().rdd();
 
-				Kmeans.SharkParsePoint parser = new Kmeans.SharkParsePoint(xCols, this.metaInfo);
-				//ClassManifest$.MODULE$.fromClass
+				SharkUtils.SharkParsePoint parser = new SharkUtils.SharkParsePoint(xCols, this.metaInfo);
+				
 				result = rdd.map(parser, ClassManifest$.MODULE$.fromClass(double[].class)).
-						filter(new Kmeans.filterFunction()).cache();
+						filter(new MLUtils.filterFunction()).cache();
 				cache.put(key, result);
 			}
 			return result;

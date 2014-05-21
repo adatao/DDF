@@ -6,7 +6,9 @@ import com.adatao.ddf.types.Vector
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.DataManager.DataContainer
-import com.adatao.ML.Kmeans.{ ParsePoint, DataPoint }
+import com.adatao.spark.ddf.util.MLUtils.{ ParsePoint, DataPoint }
+import com.adatao.spark.ddf.util.Utils
+import org.apache.spark.mllib.clustering.KMeansModel
 import java.lang.Integer
 
 /**
@@ -32,10 +34,10 @@ object Predictions {
     xCols: Array[Int],
     yCol: Int): RDD[(Double, Double)] = {
 
-	  // rdd contains null-filtered instances 
-      val rdd = dataframe.getRDD().rdd.filter { row =>
-        row(yCol) != null && xCols.map(i => row(i)).forall(x => x!= null)
-      }
+    // rdd contains null-filtered instances 
+    val rdd = dataframe.getRDD().rdd.filter { row ⇒
+      row(yCol) != null && xCols.map(i ⇒ row(i)).forall(x ⇒ x != null)
+    }
 
     model match {
       case m: ALinearModel[_] ⇒ {
@@ -44,7 +46,7 @@ object Predictions {
 
         Predictions.yTrueYpred(m.asInstanceOf[ALinearModel[Double]], dataPartition)
       }
-      case m: RandomForestModel ⇒ {                
+      case m: RandomForestModel ⇒ {
         // cannot use getDataTable, we must go throw object boxing here
         if (m.dataFormat.isRegression) {
           rdd.map { row ⇒
@@ -52,11 +54,12 @@ object Predictions {
             var yTrue: Double = Double.NaN;
             if (obj.isInstanceOf[Integer])
               yTrue = obj.asInstanceOf[Integer].doubleValue();
-            else 
+            else
               yTrue = obj.asInstanceOf[Double];
             (yTrue, m.predict(row))
           }
-        } else {
+        }
+        else {
           // map categorical yCol to Double
           val map = m.dataFormat.getMapValues(m.dataFormat.getLabelId());
           rdd.map { row ⇒
@@ -69,31 +72,32 @@ object Predictions {
               mapGet = map.get(trueVal)
               predVal = m.predict(row)
               mapGetToDouble = mapGet.toDouble
-            } catch {
-              case npe: NullPointerException => {
+            }
+            catch {
+              case npe: NullPointerException ⇒ {
                 println(trueVal, mapGet, predVal)
               }
             }
-            
+
             (mapGetToDouble, predVal)
           }
         }
       }
-      case m: NaiveBayesModel => {
+      case m: NaiveBayesModel ⇒ {
         rdd.map {
-          row => (row(yCol).asInstanceOf[Double], m.predict(row));
+          row ⇒ (row(yCol).asInstanceOf[Double], m.predict(row));
         }
       }
-      
+
       case _ ⇒ throw new IllegalArgumentException("don't know how to predict from this model class: " + model.getClass)
     }
   }
 
-  def XsYpred[T <: KmeansModel](
+  def XsYpred[T <: KMeansModel](
     model: T,
     xRDD: RDD[Array[Double]]): RDD[(Array[Double], Int)] = {
 
-    xRDD.map(point => (point, model.predict(point)))
+    xRDD.map(point ⇒ (point, model.predict(Utils.arrayDoubleToVector(point))))
   }
 
   def XsYpred[T <: TModel](
@@ -101,11 +105,11 @@ object Predictions {
     dataframe: RDD[Array[Object]],
     xCols: Array[Int]): RDD[(Array[Double], Int)] = {
     model match {
-      case m: KmeansModel => {
-        require(m.centroids.get(0).size == xCols.size, "Error: dimensions of centroids and data do not match")
-        XsYpred(m, dataframe.map(new ParsePoint(xCols, true)).filter(x => x != null))
+      case m: KMeansModel ⇒ {
+        require(m.clusterCenters(0).size == xCols.size, "Error: dimensions of centroids and data do not match")
+        XsYpred(m, dataframe.map(new ParsePoint(xCols, true)).filter(x ⇒ x != null))
       }
-      case _ => throw new Exception("Don't know how to predict this model")
+      case _ ⇒ throw new Exception("Don't know how to predict this model")
     }
   }
 
@@ -114,11 +118,11 @@ object Predictions {
     dataframe: SharkDataFrame,
     xCols: Array[Int]): RDD[(Array[Double], Int)] = {
     model match {
-      case m: KmeansModel => {
-        require(m.centroids.get(0).size == xCols.size, "Error: dimensions of centroids and data do not match")
+      case m: KMeansModel ⇒ {
+        require(m.clusterCenters(0).size == xCols.size, "Error: dimensions of centroids and data do not match")
         XsYpred(m, dataframe.getDataPointTable(xCols))
       }
-      case _ => throw new Exception("Don't know how to predict this model")
+      case _ ⇒ throw new Exception("Don't know how to predict this model")
     }
   }
 }

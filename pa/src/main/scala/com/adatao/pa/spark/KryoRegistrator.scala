@@ -10,7 +10,6 @@ import com.adatao.pa.spark.execution.LinearRegression
 import com.adatao.pa.spark.execution.LogisticRegression
 import com.adatao.ML.spark.RocObject
 import com.adatao.pa.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
-import com.adatao.ML.KmeansModel
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
 import org.rosuda.REngine.{RList, REXP}
@@ -30,7 +29,7 @@ class KryoRegistrator extends SharkKryoRegistrator {
 		kryo.register(classOf[CategoricalNode])
 		kryo.register(classOf[Leaf])
 		kryo.register(classOf[Node])
-		kryo.register(classOf[KmeansModel])
+		kryo.register(classOf[org.apache.spark.mllib.clustering.KMeansModel])
 		kryo.register(classOf[LinearRegressionModel])
 		kryo.register(classOf[LogisticRegressionModel])
 		kryo.register(classOf[REXP])

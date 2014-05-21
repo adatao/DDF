@@ -213,4 +213,37 @@ private[adatao] object SharkUtils {
 		task.setWork(ddlWork)
 		task.execute(null)
 	}
+	
+	class SharkParsePoint(xCols: Array[Int], metaInfo: Array[DataManager.MetaInfo]) extends Function1[Row, Array[Double]]
+  with Serializable
+  {
+
+    val base0_XCols: ArrayBuffer[Int] = new ArrayBuffer[Int]
+    xCols.foreach(x => base0_XCols += x)
+
+    override def apply(row: Row): Array[Double] = row match {
+      case null =>  null
+      case x => {
+        val dim = base0_XCols.length
+        val result= new ArrayBuffer[Double]
+        var i = 0
+        while(i < dim){
+          val idx = base0_XCols(i)
+          metaInfo(idx).getType() match{
+            case "int" => row.getInt(idx) match{
+              case null => return null
+              case x =>    result += x.toDouble
+            }
+            case "double" => row.getDouble(idx) match{
+              case null => return null
+              case x => result += x
+            }
+            case s => throw new Exception("not supporting type" + s)
+          }
+          i+=1
+        }
+        result.toArray
+      }
+    }
+  }
 }

@@ -31,7 +31,7 @@ import com.adatao.pa.spark.DataManager.{ SharkDataFrame, DataFrame }
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessfulResult
 import com.adatao.pa.spark.types.FailedResult
-import com.adatao.ML.Kmeans.ParsePoint
+import com.adatao.spark.ddf.util.MLUtils.ParsePoint
 import scala.Some
 import com.adatao.pa.spark.types.ExecutionException
 import scala.reflect.Manifest

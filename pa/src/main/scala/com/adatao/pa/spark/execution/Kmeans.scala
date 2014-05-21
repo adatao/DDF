@@ -4,8 +4,6 @@ import scala.collection.JavaConversions.seqAsJavaList
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.rdd.RDD
-
-import com.adatao.ML.KmeansModel
 import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.content.RepresentationHandler
 
@@ -18,8 +16,8 @@ class Kmeans(
   val initializationMode: String,
   var initializationSteps: Int = 5,
   var epsilon: Double = 1e-4)
-    extends AUnsupervisedTrainer[KmeansModel](dataContainerID, xCols) {
-  override def train(dataContainerID: String, context: ExecutionContext): KmeansModel = {
+    extends AUnsupervisedTrainer[org.apache.spark.mllib.clustering.KMeansModel](dataContainerID, xCols) {
+  override def train(dataContainerID: String, context: ExecutionContext): org.apache.spark.mllib.clustering.KMeansModel = {
     val ddfManager = context.sparkThread.getDDFManager();
     val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
       case x: DDF ⇒ x
@@ -35,8 +33,9 @@ class Kmeans(
 
     // converts DDF model to old PA model
     val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
+    rawModel
 
-    val wcss = rawModel.computeCost(projectedDDF.getRepresentationHandler().get(RepresentationHandler.RDD_ARRAY_DOUBLE).asInstanceOf[RDD[Array[Double]]])
+/*    val wcss = rawModel.computeCost(projectedDDF.getRepresentationHandler().get(RepresentationHandler.RDD_MLLIB_VECTOR).asInstanceOf[RDD[org.apache.spark.mllib.linalg.Vector]])
     val totalWithins: ArrayBuffer[Double] = ArrayBuffer[Double]()
 
     val pointsPerCluster: ArrayBuffer[Int] = ArrayBuffer[Int]()
@@ -47,12 +46,9 @@ class Kmeans(
     for (i ← 1 to K) {
       pointsPerCluster += 0
     }
-    return new KmeansModel(totalWithins.toArray, pointsPerCluster.toArray, rawModel.clusterCenters.toList, projectedDDF.getNumRows())
+    return new KmeansModel(totalWithins.toArray, pointsPerCluster.toArray, rawModel.clusterCenters.toList, projectedDDF.getNumRows())*/
   }
 
-  def train(dataPartition: RDD[Array[Double]], context: ExecutionContext): KmeansModel = {
-    null
-  }
 }
 
 object Kmeans {
