@@ -131,8 +131,8 @@ object RootBuild extends Build {
   )
 
   val pa_dependencies = Seq(
-    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
-    "org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14"
+    //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
 
   /////// Common/Shared project settings ///////
