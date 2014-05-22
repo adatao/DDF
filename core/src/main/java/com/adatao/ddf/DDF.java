@@ -918,7 +918,6 @@ public abstract class DDF extends ALoggable //
   }
 
   // //// ISupportML //////
-
   public MLFacade ML;
 
 
