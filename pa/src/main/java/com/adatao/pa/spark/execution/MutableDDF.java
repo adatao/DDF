@@ -6,7 +6,12 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
+<<<<<<< HEAD
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
+=======
+import com.adatao.pa.spark.Utils;
+import com.adatao.pa.spark.execution.NRow.NRowResult;
+>>>>>>> 85427d8... add PA executor for DDF setMutable
 import com.adatao.pa.spark.types.ExecutorResult;
 
 public class MutableDDF extends CExecutor {
