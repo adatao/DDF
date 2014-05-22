@@ -112,16 +112,20 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
       curDDF.getRepresentationHandler().setRepresentations(newddf.getRepresentationHandler().getAllRepresentations());
       
       String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
-      System.out.println(">>>>>>>> Oldname:" + oldname);
-      System.out.println(">>>>>>>> Newname:" + newddf.getTableName());
-      System.out.println(">>>>>>>> Alter TABLE SQL:" + String.format("alter table %s rename to %s", newddf.getTableName().replace("-", "_"), oldname));
       
       this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
-      this.getManager().sql2txt(String.format("alter table %s rename to %s", newddf.getTableName().replace("-", "_"), oldname));
+      
+      
+      String sqlCmdNew = String.format(
+          "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS SELECT * FROM %s",
+                                  oldname, newddf.getTableName());
+      this.getManager().sql2txt(sqlCmdNew);
+//      this.getManager().sql2txt(String.format("alter table %s rename to %s", newddf.getTableName(), oldname));
+//      System.out.println(">>>>>>>> BEFORE:" + newddf.getTableName());
+//      this.getManager().sql2txt(String.format("alter table %s set tblproperties(\"shark.cache\"=\"false\")", oldname));
      
       curDDF.getSchemaHandler().setSchema(newddf.getSchema());
       curDDF.getSchema().setTableName(oldname);
-      System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +curDDF.Views.firstNRows(1).get(0));
       return curDDF;
     } else { //return new DDF
       this.getManager().addDDF(newddf);
