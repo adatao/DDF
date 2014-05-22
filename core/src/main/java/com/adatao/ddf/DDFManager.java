@@ -104,6 +104,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * For simplicity this aliasName is global name and doesn't provide namespace information etc ..
 	 */
 	public DDF getDDFByName(String aliasName) {
+		System.out.println(">>>>>>>>>>>>> meDDFs.size=" + meDDFs.size());
 		DDF data = meDDFs.get(aliasName);
 		return data;
 	}
@@ -112,6 +113,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * This name is ephemeral in the sense that it existed in cluster memory and will be disappear once we restart cluster
 	 */
 	public DDF setDDFByName(DDF data, String aliasName) {
+		System.out.println(">>>>>>>>>>>>>> putting alias = " + aliasName);
 		meDDFs.put(aliasName, data);
 		return data;
 	}
