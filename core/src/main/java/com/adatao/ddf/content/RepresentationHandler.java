@@ -5,6 +5,7 @@ package com.adatao.ddf.content;
 
 
 import java.util.HashMap;
+import java.util.Map;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.types.AGloballyAddressable;
@@ -333,5 +334,16 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     }
   }
 
+
+  @Override
+  public Map<String, Object> getAllRepresentations() {
+    return mReps;
+  }
+  
+  @Override
+  public void setRepresentations(Map<String, Object> reps) {
+    mReps.clear();
+    mReps.putAll(reps);
+  }
 
 }
