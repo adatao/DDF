@@ -92,8 +92,33 @@ public class TransformationHandlerTest {
     
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(8, ddf.getNumColumns());
+    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
+    ddf.setMutable(true);
+    ddf.Transform.transformUDF("dist= round(distance/2, 2)");
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(9, ddf.getNumColumns());
+    Assert.assertEquals("dist", ddf.getColumnName(8));
     
-    DDF ddf0 = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
+    System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + ddf.getName());
+//    Assert.assertEquals(9, ddf.Views.firstNRows(1).get(0).split("\\t").length);
+//    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
+//    ddf.getSummary();
+    
+  //specifying selected column list
+    List<String> cols = Lists.newArrayList("year","month","dayofweek");
+    
+    System.out.println(">>>>>>>>>>>>> before run second transform");
+    System.out.println(">>>>>>>>>>>" + ddf.getManager().sql2txt("select * from "+ ddf.getTableName()));
+    
+    System.out.println(">>>>>>>>>>> sql2ddf =" + ddf.getManager().sql2ddf("select * from "+ ddf.getTableName()));
+    
+    ddf = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(4, ddf.getNumColumns());
+    Assert.assertEquals("speed", ddf.getColumnName(3));
+    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 2" +ddf.Views.firstNRows(1).get(0));
+    
+/*    DDF ddf0 = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
     Assert.assertEquals(31, ddf0.getNumRows());
     Assert.assertEquals(9, ddf0.getNumColumns());
     Assert.assertEquals("dist", ddf0.getColumnName(8));
@@ -115,7 +140,7 @@ public class TransformationHandlerTest {
     DDF ddf3 = ddf0.Transform.transformUDF("arrtime-deptime, (speed^*- = distance/(arrtime-deptime)", cols);
     Assert.assertEquals(31, ddf3.getNumRows());
     Assert.assertEquals(5, ddf3.getNumColumns());
-    Assert.assertEquals("speed", ddf3.getColumnName(4));
+    Assert.assertEquals("speed", ddf3.getColumnName(4));*/
   }
   
   @After

@@ -95,11 +95,38 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
       columnList = "*";
     }
 
+    System.out.println(">>>>>>>>>>>>>>> name = " + this.getDDF().getName());
+    System.out.println(">>>>>>>>>>>>>>> getTableName = " + this.getDDF().getTableName());
     String sqlCmd = String.format("SELECT %s, %s FROM %s", columnList, RToSqlUdf(RExp), this.getDDF().getTableName());
+    
+    System.out.println(">>>>>>>>>>>>>>> sqlCmd = " + sqlCmd);
     DDF newddf = this.getManager().sql2ddf(sqlCmd);
     
-    this.getManager().addDDF(newddf);
-    return newddf;
+    
+    if (this.getDDF().isMutable()) { // return same DDF
+      
+      DDF curDDF = this.getDDF();
+      
+      // curDDF.getRepresentationHandler().reset();
+      // curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());    
+      
+      String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
+      System.out.println(">>>>>>>> Oldname:" + oldname);
+      System.out.println(">>>>>>>> Newname:" + newddf.getTableName());
+      System.out.println(">>>>>>>> Alter TABLE SQL:" + String.format("alter table %s rename to %s", newddf.getTableName().replace("-", "_"), oldname));
+      
+      this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
+      this.getManager().sql2txt(String.format("alter table %s rename to %s", newddf.getTableName().replace("-", "_"), oldname));
+     
+      curDDF.getSchemaHandler().setSchema(newddf.getSchema());
+      curDDF.getSchema().setTableName(oldname);
+      
+      return curDDF;
+    } else { //return new DDF
+      this.getManager().addDDF(newddf);
+      return newddf;
+    }
+    
     
   }
 
