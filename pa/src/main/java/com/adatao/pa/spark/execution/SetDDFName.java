@@ -48,7 +48,7 @@ public class SetDDFName extends CExecutor {
 		}
 		try {
 			DDFManager ddfManager = sparkThread.getDDFManager();
-			DDF ddf = ddfManager.setDDFByName(dataContainerId, ddfName);
+			DDF ddf = ddfManager.getDDF(dataContainerId);
 
 			System.out.println("ddf manager namespace = "
 					+ ddfManager.getNamespace());
