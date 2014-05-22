@@ -17,23 +17,17 @@
 package com.adatao.pa.spark.execution;
 
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
-import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.Utils;
+import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
-import com.adatao.pa.spark.types.SuccessResult;
-
-import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 
 // Create a DDF from an SQL Query
 @SuppressWarnings("serial")
@@ -55,7 +49,7 @@ public class GetDDF extends CExecutor {
     }
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDF(ddfName);
+      DDF ddf = ddfManager.getDDFByName(ddfName);
       
       System.out.println("ddf manager namespace = " + ddfManager.getNamespace());
       System.out.println("ddf manager engine = " + ddfManager.getEngine());
@@ -68,7 +62,7 @@ public class GetDDF extends CExecutor {
 
       System.out.println(">>>>>>>>> getting ddf from name = " + ddfName);
       //set Name
-      ddf.setName(ddfName);
+//      ddf.setName(ddfName);
       
       
       return new Sql2DataFrameResult(ddf);

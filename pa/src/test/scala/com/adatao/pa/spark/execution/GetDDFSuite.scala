@@ -23,16 +23,21 @@ class GetDDFSuite extends ABigRClientTest {
     assert(r0.isSuccess)
 
     val dataContainerId = "SparkDDF_spark_" + r0.dataContainerID.replace("-", "_");
-    
+
     println(">>>>>>>>>>>>>>>>>>>>> dataContainerId = " + dataContainerId)
-    
-    val getddf = new GetDDF(dataContainerId)
-    val r1 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](getddf).result
-    assert(r1.isSuccess)
-    
-    
-    println(">>>>>>>>>>>>>>>>> returned ddf with datacontainerId = " + r1.dataContainerID)
-    
+
+    //first set name
+    val ddfName = "my_awsome_ddf"
+    val setddf = new SetDDFName(dataContainerId, ddfName)
+    val r1 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](setddf).result
+    println(">>>>>>>>>>> after setting get r1.dataContainerID= " + r1.dataContainerID)
+
+    val getddf = new GetDDF(ddfName)
+    val r2 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](getddf).result
+    assert(r2.isSuccess)
+    println(">>>>>>>>>>> after getting get r2.dataContainerID= " + r2.dataContainerID)
+
+    assertEquals(r1.dataContainerID, r2.dataContainerID)
 
   }
 }
