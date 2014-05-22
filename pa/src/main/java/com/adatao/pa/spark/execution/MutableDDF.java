@@ -3,11 +3,13 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.execution.NRow.NRowResult;
+import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 
 public class MutableDDF extends CExecutor {
@@ -35,7 +37,9 @@ public class MutableDDF extends CExecutor {
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }
-    return null;
+//    return null;
+    //TODO re-check this return type
+    return new Sql2DataFrameResult(ddf);
   }
 
 }
