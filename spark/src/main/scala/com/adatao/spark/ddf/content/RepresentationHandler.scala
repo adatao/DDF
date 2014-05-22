@@ -57,6 +57,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val srcRdd = this.toRDDRow
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
+    mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
     val schema = schemaHandler.getSchema()
     mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
     typeSpecs match {
@@ -96,12 +97,12 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       return null // TODO
     }
 
-    val arraysObject = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Object]).asInstanceOf[RDD[Array[Object]]]
+    val arraysObject = this.get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
     if (arraysObject != null) {
       return null // TODO
     }
 
-    val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Double]).asInstanceOf[RDD[Array[Double]]]
+    val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[Double]]).asInstanceOf[RDD[Array[Double]]]
     if (arraysDouble != null) {
       return null // TODO
     }
