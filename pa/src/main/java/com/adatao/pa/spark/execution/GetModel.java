@@ -92,11 +92,10 @@ public class GetModel extends CExecutor {
 		// this.dataContainerID = dataContainerID;
 		// this.metaInfo = df.getMetaInfo();
 		// }
-		public String dataContainerID;
+		public String id;
 
 		public ModelResult(IModel model) {
-			this.dataContainerID = model.getName().substring(15)
-					.replace("_", "-");
+			this.id = model.getName();//.substring(15).replace("_", "-");
 			
 			NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
 		}
