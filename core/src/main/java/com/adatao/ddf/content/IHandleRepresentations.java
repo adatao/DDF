@@ -1,6 +1,8 @@
 package com.adatao.ddf.content;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -144,4 +146,8 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
   void setDefaultDataType(Class<?>... typeSpecs);
 
   Class<?>[] getDefaultDataType();
+  
+  Map<String, Object> getAllRepresentations();
+
+  void setRepresentations(Map<String, Object> reps);
 }

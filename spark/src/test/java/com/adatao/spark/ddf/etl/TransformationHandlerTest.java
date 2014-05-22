@@ -92,18 +92,20 @@ public class TransformationHandlerTest {
     
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(8, ddf.getNumColumns());
-    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
+//    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
     ddf.setMutable(true);
-    ddf.Transform.transformUDF("dist= round(distance/2, 2)");
+    ddf = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(9, ddf.getNumColumns());
     Assert.assertEquals("dist", ddf.getColumnName(8));
     
     System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + ddf.getName());
 //    Assert.assertEquals(9, ddf.Views.firstNRows(1).get(0).split("\\t").length);
-//    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
-//    ddf.getSummary();
+    ddf.getRepresentationHandler().getDefault();
+    System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +ddf.Views.firstNRows(1).get(0));
     
+    //Assert.assertEquals(9, ddf.getSummary().length);
+
   //specifying selected column list
     List<String> cols = Lists.newArrayList("year","month","dayofweek");
     

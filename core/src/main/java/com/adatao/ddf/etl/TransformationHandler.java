@@ -107,8 +107,9 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
       
       DDF curDDF = this.getDDF();
       
-      // curDDF.getRepresentationHandler().reset();
-      // curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());    
+      curDDF.getRepresentationHandler().reset();
+      //curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
+      curDDF.getRepresentationHandler().setRepresentations(newddf.getRepresentationHandler().getAllRepresentations());
       
       String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
       System.out.println(">>>>>>>> Oldname:" + oldname);
@@ -120,7 +121,7 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
      
       curDDF.getSchemaHandler().setSchema(newddf.getSchema());
       curDDF.getSchema().setTableName(oldname);
-      
+      System.out.println(">>>>>>>>>>>>>>>>>>>> FIRST ROW 1" +curDDF.Views.firstNRows(1).get(0));
       return curDDF;
     } else { //return new DDF
       this.getManager().addDDF(newddf);
