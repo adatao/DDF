@@ -5,9 +5,10 @@ import shark.api.Row
 import shark.memstore2.TablePartition
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
+import org.junit.Assert.assertEquals
 
 /**
- */
+  */
 class RepresentationHandlerSuite extends ATestSuite {
   createTableAirline()
 
@@ -30,19 +31,37 @@ class RepresentationHandlerSuite extends ATestSuite {
 
     assert(rddArrDouble != null, "Can get RDD[Array[Double]]")
     assert(rddArrObj != null, "Can get RDD[Array[Object]]")
-    assert(rddArrDouble.count() === 301)
+    assert(rddArrDouble.count() === 295)
     assert(rddArrObj.count() === 301)
   }
   test("Has representation after creating it") {
-    val ddf = manager.sql2ddf("select * from airline").asInstanceOf[SparkDDF]
+    val ddf = manager.sql2ddf("select month, year, dayofmonth from airline").asInstanceOf[SparkDDF]
     val repHandler = ddf.getRepresentationHandler
-    repHandler.get(classOf[RDD[_]], classOf[Array[Double]])
-    repHandler.get(classOf[RDD[_]], classOf[Array[Object]])
-    repHandler.get(classOf[RDD[_]], classOf[LabeledPoint])
+    val rddArrDouble = ddf.getRDD(classOf[Array[Double]])
+    val rddArrObj = ddf.getRDD(classOf[Array[Object]])
+    val rddArrLP = ddf.getRDD(classOf[LabeledPoint])
 
     assert(repHandler.has(classOf[RDD[_]], classOf[Array[Double]]))
     assert(repHandler.has(classOf[RDD[_]], classOf[Array[Object]]))
     assert(repHandler.has(classOf[RDD[_]], classOf[LabeledPoint]))
     assert(repHandler.has(classOf[RDD[_]], classOf[Row]))
+  }
+
+  test("Can handle null value") {
+    val ddf = manager.sql2ddf("select year, month, dayofmonth from airline").asInstanceOf[SparkDDF]
+
+    val rddArrDouble = ddf.getRDD(classOf[Array[Double]])
+    val rddArrLP = ddf.getRDD(classOf[LabeledPoint])
+
+    val ArrArrDouble = rddArrDouble.collect()
+
+    ArrArrDouble.foreach {
+      row => assert(row(0) != null, "row(0) == %s".format(row(0)) + ", expecting not 0.0")
+    }
+    val count = rddArrLP.count()
+
+
+    assertEquals(295, ArrArrDouble.size)
+    assertEquals(295, count)
   }
 }
