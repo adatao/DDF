@@ -19,6 +19,7 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
@@ -28,7 +29,6 @@ import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 
-// Create a DDF from an SQL Query
 @SuppressWarnings("serial")
 public class GetDDF extends CExecutor {
   String ddfName;
@@ -49,11 +49,18 @@ public class GetDDF extends CExecutor {
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.getDDFByName(ddfName);
-      if (ddf != null) {
-        LOG.info("succesful getting ddf from name = " + ddfName);
-      } else {
-        LOG.info("Can not get ddf from name = " + ddfName);
+      
+      System.out.println("ddf manager namespace = " + ddfManager.getNamespace());
+      System.out.println("ddf manager engine = " + ddfManager.getEngine());
+      
+      if(ddf != null) {
+    	  System.out.println(">>>>>>>>> succesful getting ddf from name = " + ddfName);
       }
+      else
+    	  System.out.println(">>>>>>>>> can not get ddf from name = " + ddfName);
+
+      System.out.println(">>>>>>>>> getting ddf from name = " + ddfName);
+
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
