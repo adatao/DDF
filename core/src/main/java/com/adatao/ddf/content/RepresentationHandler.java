@@ -104,7 +104,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
 
     if (obj == null && doCreate) {
       obj = this.createRepresentation(typeSpecs);
-      if (obj != null) this.add(obj);
+      if (obj != null)  mReps.put(typeSpecs, obj);
     }
 
     return obj;
