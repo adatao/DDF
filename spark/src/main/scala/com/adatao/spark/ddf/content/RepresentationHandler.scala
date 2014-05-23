@@ -20,7 +20,8 @@ import org.rosuda.REngine._
 import org.apache.hadoop.io.{Text, IntWritable}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf._
-import com.adatao.ddf.types._
+import com.adatao.ddf.types.{TupleMatrixVector, Vector, Matrix}
+
 import java.util.ArrayList
 import com.adatao.spark.ddf.ml.TransformRow
 
