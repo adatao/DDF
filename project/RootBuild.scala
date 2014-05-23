@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
 object RootBuild extends Build {
 
   //////// Project definitions/configs ///////
-  val SPARK_VERSION = "1.0.0"
+  val SPARK_VERSION = "1.0.0-SNAPSHOT"
   val SHARK_VERSION = "0.9.1"
         val HIVE_VERSION = "0.11.0-shark-0.9.1"
   
