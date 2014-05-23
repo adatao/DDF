@@ -95,11 +95,43 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
       columnList = "*";
     }
 
+    System.out.println(">>>>>>>>>>>>>>> name = " + this.getDDF().getName());
+    System.out.println(">>>>>>>>>>>>>>> getTableName = " + this.getDDF().getTableName());
     String sqlCmd = String.format("SELECT %s, %s FROM %s", columnList, RToSqlUdf(RExp), this.getDDF().getTableName());
+    
+    System.out.println(">>>>>>>>>>>>>>> sqlCmd = " + sqlCmd);
     DDF newddf = this.getManager().sql2ddf(sqlCmd);
     
-    this.getManager().addDDF(newddf);
-    return newddf;
+    
+    if (this.getDDF().isMutable()) { // return same DDF
+      
+      DDF curDDF = this.getDDF();
+      
+      curDDF.getRepresentationHandler().reset();
+      //curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
+      curDDF.getRepresentationHandler().setRepresentations(newddf.getRepresentationHandler().getAllRepresentations());
+      
+      String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
+      
+      this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
+      
+      
+      String sqlCmdNew = String.format(
+          "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS SELECT * FROM %s",
+                                  oldname, newddf.getTableName());
+      this.getManager().sql2txt(sqlCmdNew);
+//      this.getManager().sql2txt(String.format("alter table %s rename to %s", newddf.getTableName(), oldname));
+//      System.out.println(">>>>>>>> BEFORE:" + newddf.getTableName());
+//      this.getManager().sql2txt(String.format("alter table %s set tblproperties(\"shark.cache\"=\"false\")", oldname));
+     
+      curDDF.getSchemaHandler().setSchema(newddf.getSchema());
+      curDDF.getSchema().setTableName(oldname);
+      return curDDF;
+    } else { //return new DDF
+      this.getManager().addDDF(newddf);
+      return newddf;
+    }
+    
     
   }
 
