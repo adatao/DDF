@@ -56,10 +56,9 @@ class RepresentationHandlerSuite extends ATestSuite {
     val ArrArrDouble = rddArrDouble.collect()
 
     ArrArrDouble.foreach {
-      row => assert(row(0) != null, "row(0) == %s".format(row(0)) + ", expecting not 0.0")
+      row => assert(row(0) != 0.0, "row(0) == %s, expecting not 0.0".format(row(0)))
     }
     val count = rddArrLP.count()
-
 
     assertEquals(295, ArrArrDouble.size)
     assertEquals(295, count)
