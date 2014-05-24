@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.pa.spark.execution.RunMapReduce.RunMapReduceResult;
+//import com.adatao.pa.spark.execution.RunMapReduce.RunMapReduceResult;
 import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
@@ -28,32 +28,32 @@ import com.adatao.pa.thrift.generated.JsonResult;
 public class TestRunMapReduce extends BaseTest {
 	public static Logger LOG = LoggerFactory.getLogger(TestRunMapReduce.class);
 
-	@Ignore
-	public void test() throws Exception {
-		JsonCommand cmd = new JsonCommand().setCmdName("connect");
-//    Gson gson = new Gson();
-
-		JsonResult res = client.execJsonCommand(cmd);
-		String sid = res.sid;
-		LOG.info("Got session ID: " + sid);
-		Thread.sleep(5000);
-
-		// RunMapReduce
-		String jsCreateVectors = String
-				.format("{file: \"resources/wordcount.txt\", map: \"%s\", reduce: \"%s\", combine: \"%s\", count: %d}",
-						"function(k,v) { lapply( strsplit(x=v, split=',')[[1]], function(w) list(k=w, v=1) ) }",
-						"function(k, values) { res <- 0 \n n <- length(values) \n for (i in 1:n) {\n res <- res + as.integer(values[i]) \n } \n as.character(res) \n }",
-						"function(k, values) { res <- 0 \n n <- length(values) \n for (i in 1:n) {\n res <- res + as.integer(values[i]) \n } \n as.character(res) \n }",
-						10);
-		cmd.setSid(sid).setCmdName("RunMapReduce").setParams(jsCreateVectors);
-		res = client.execJsonCommand(cmd);
-		RunMapReduceResult rmr = ExecutionResult.fromJson(res.getResult(), RunMapReduceResult.class).result();
-		LOG.info("RunMapReduce Result = " + rmr.getResult());
-		assertTrue(rmr.getResult().startsWith("a,3"));
-
-		cmd.setCmdName("disconnect").setSid(sid).setParams(null);
-		res = client.execJsonCommand(cmd);
-		String newSid = res.sid;
-		assert (newSid.equals(sid));
-	}
+//	@Ignore
+//	public void test() throws Exception {
+//		JsonCommand cmd = new JsonCommand().setCmdName("connect");
+////    Gson gson = new Gson();
+//
+//		JsonResult res = client.execJsonCommand(cmd);
+//		String sid = res.sid;
+//		LOG.info("Got session ID: " + sid);
+//		Thread.sleep(5000);
+//
+//		// RunMapReduce
+//		String jsCreateVectors = String
+//				.format("{file: \"resources/wordcount.txt\", map: \"%s\", reduce: \"%s\", combine: \"%s\", count: %d}",
+//						"function(k,v) { lapply( strsplit(x=v, split=',')[[1]], function(w) list(k=w, v=1) ) }",
+//						"function(k, values) { res <- 0 \n n <- length(values) \n for (i in 1:n) {\n res <- res + as.integer(values[i]) \n } \n as.character(res) \n }",
+//						"function(k, values) { res <- 0 \n n <- length(values) \n for (i in 1:n) {\n res <- res + as.integer(values[i]) \n } \n as.character(res) \n }",
+//						10);
+//		cmd.setSid(sid).setCmdName("RunMapReduce").setParams(jsCreateVectors);
+//		res = client.execJsonCommand(cmd);
+//		RunMapReduceResult rmr = ExecutionResult.fromJson(res.getResult(), RunMapReduceResult.class).result();
+//		LOG.info("RunMapReduce Result = " + rmr.getResult());
+//		assertTrue(rmr.getResult().startsWith("a,3"));
+//
+//		cmd.setCmdName("disconnect").setSid(sid).setParams(null);
+//		res = client.execJsonCommand(cmd);
+//		String newSid = res.sid;
+//		assert (newSid.equals(sid));
+//	}
 }
