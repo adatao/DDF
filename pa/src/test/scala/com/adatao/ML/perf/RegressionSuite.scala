@@ -39,7 +39,7 @@ import com.adatao.ML.ATimedAlgorithmTest
 class RegressionSuite extends ATimedAlgorithmTest {
 
 	private val doRunTests = false	
-	//private val test = if (doRunTests) test_ else ignore_
+	//private val testOrIgnore = if (doRunTests) test_ else ignore_
 
 	private val X = new Matrix(
 		Array(
