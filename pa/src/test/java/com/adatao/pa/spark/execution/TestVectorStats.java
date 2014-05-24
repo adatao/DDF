@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
+//import scala.actors.threadpool.Arrays;
 import com.adatao.pa.spark.execution.LoadTable.LoadTableResult;
 import com.adatao.pa.spark.execution.Subset.SubsetResult;
 import com.adatao.pa.spark.execution.VectorCorrelation.VectorCorrelationResult;

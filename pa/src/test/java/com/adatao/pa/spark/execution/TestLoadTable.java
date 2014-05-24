@@ -30,7 +30,7 @@ import org.apache.thrift.transport.TTransportException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
+//import scala.actors.threadpool.Arrays;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.thrift.Server;
 import com.adatao.pa.thrift.generated.JsonCommand;
