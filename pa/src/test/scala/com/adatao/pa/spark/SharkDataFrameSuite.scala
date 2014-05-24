@@ -21,7 +21,7 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import shark.api.JavaSharkContext
 import shark.SharkEnv
 import com.adatao.pa.spark.types.ATestBase
-import com.adatao.pa.spark.DataManager.SharkDataFrame
+//import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.ddf.DDFManager
 import com.adatao.spark.ddf.SparkDDFManager
@@ -30,58 +30,58 @@ import com.adatao.spark.ddf.SparkDDFManager
  * @author bachbui
  */
 class SharkDataFrameSuite extends ATestBase { //ABigRClientTest {
-	private val SPARK_MASTER = System.getenv("SPARK_MASTER");
-	private val SPARK_HOME = System.getenv("SPARK_HOME");
-	private val RSERVER_JAR = System.getenv("RSERVER_JAR");
-	
-	ignore("Test loadTable and loadTableFromQuery on DataManager.SharkDataFrame"){
-		// val jobJars = RSERVER_JAR.split(",");
-        val ddfManager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
-		// val sharkContext = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(SPARK_MASTER, "BigR", SPARK_HOME, jobJars));
-        val sharkContext = ddfManager.getJavaSharkContext()
-//		System.setProperty("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
-//		System.setProperty("spark.kryo.registrator", classOf[shark.KryoRegistrator].getName)
-		sharkContext.sql("drop table if exists test");
-		sharkContext.sql("CREATE EXTERNAL TABLE test (year	INT, month	string, dayofmonth	INT, dayofweek	INT, deptime	INT, crsdeptime	INT," +
-						" arrtime	INT, crsarrtime	INT, uniquecarrier	string	, flightnum	INT, tailnum	string	, actualelapsedtime	INT, " +
-						"crselapsedtime	INT, airtime	INT, arrdelay	INT, depdelay	INT, origin	string	, dest	string	, distance	INT, " +
-						"taxiin	INT, taxiout	INT, cancelled	INT, cancellationcode	string	, diverted	string	, carrierdelay	INT, " +
-						"weatherdelay	INT, nasdelay	INT, securitydelay	INT, lateaircraftdelay	INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY \',\' " +
-						"STORED AS TEXTFILE LOCATION '/works/adatao/BigR/server/resources/sharkfiles/dataframeloading/'")
-		var df = new DataManager.SharkDataFrame()
-		df.loadTable(sharkContext, "test", true);
-		var metaData = df.metaInfo
-		assert(metaData(0).getHeader() === "year")
-		assert(metaData(0).getType() === "int")
-		assert(metaData(9).getHeader() === "flightnum")
-		assert(metaData(9).getType() === "int")
-		assert(metaData(22).getHeader() === "cancellationcode")
-		assert(metaData(22).getType() === "string")
-		assert(metaData(28).getHeader() === "lateaircraftdelay")
-		assert(metaData(28).getType() === "int")		
-		
-		df.getDataTable(Array(5,0),4).collect().foreach(r => println("Result >>>>>" +r))
-		
-		sharkContext.sql("drop table if exists "+df.tableName);
-		
-		
-		
-//		df = new DataManager.SharkDataFrame()
-//		df.loadTableFromQuery(sharkContext, "select year,flightnum,cancellationcode,lateaircraftdelay from test", true);
-//		metaData = df.metaInfo
+//	private val SPARK_MASTER = System.getenv("SPARK_MASTER");
+//	private val SPARK_HOME = System.getenv("SPARK_HOME");
+//	private val RSERVER_JAR = System.getenv("RSERVER_JAR");
+//	
+//	ignore("Test loadTable and loadTableFromQuery on DataManager.SharkDataFrame"){
+//		// val jobJars = RSERVER_JAR.split(",");
+//        val ddfManager = DDFManager.get("spark").asInstanceOf[SparkDDFManager]
+//		// val sharkContext = SharkEnv.initWithJavaSharkContext(new JavaSharkContext(SPARK_MASTER, "BigR", SPARK_HOME, jobJars));
+//        val sharkContext = ddfManager.getJavaSharkContext()
+////		System.setProperty("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
+////		System.setProperty("spark.kryo.registrator", classOf[shark.KryoRegistrator].getName)
+//		sharkContext.sql("drop table if exists test");
+//		sharkContext.sql("CREATE EXTERNAL TABLE test (year	INT, month	string, dayofmonth	INT, dayofweek	INT, deptime	INT, crsdeptime	INT," +
+//						" arrtime	INT, crsarrtime	INT, uniquecarrier	string	, flightnum	INT, tailnum	string	, actualelapsedtime	INT, " +
+//						"crselapsedtime	INT, airtime	INT, arrdelay	INT, depdelay	INT, origin	string	, dest	string	, distance	INT, " +
+//						"taxiin	INT, taxiout	INT, cancelled	INT, cancellationcode	string	, diverted	string	, carrierdelay	INT, " +
+//						"weatherdelay	INT, nasdelay	INT, securitydelay	INT, lateaircraftdelay	INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY \',\' " +
+//						"STORED AS TEXTFILE LOCATION '/works/adatao/BigR/server/resources/sharkfiles/dataframeloading/'")
+//		var df = new DataManager.SharkDataFrame()
+//		df.loadTable(sharkContext, "test", true);
+//		var metaData = df.metaInfo
 //		assert(metaData(0).getHeader() === "year")
 //		assert(metaData(0).getType() === "int")
-//		assert(metaData(1).getHeader() === "flightnum")
-//		assert(metaData(1).getType() === "int")
-//		assert(metaData(2).getHeader() === "cancellationcode")
-//		assert(metaData(2).getType() === "string")
-//		assert(metaData(3).getHeader() === "lateaircraftdelay")
-//		assert(metaData(3).getType() === "int")		
+//		assert(metaData(9).getHeader() === "flightnum")
+//		assert(metaData(9).getType() === "int")
+//		assert(metaData(22).getHeader() === "cancellationcode")
+//		assert(metaData(22).getType() === "string")
+//		assert(metaData(28).getHeader() === "lateaircraftdelay")
+//		assert(metaData(28).getType() === "int")		
+//		
+//		df.getDataTable(Array(5,0),4).collect().foreach(r => println("Result >>>>>" +r))
+//		
 //		sharkContext.sql("drop table if exists "+df.tableName);
-		
-		sharkContext.sql("drop table if exists test");
-		sharkContext.stop();
- 	}
+//		
+//		
+//		
+////		df = new DataManager.SharkDataFrame()
+////		df.loadTableFromQuery(sharkContext, "select year,flightnum,cancellationcode,lateaircraftdelay from test", true);
+////		metaData = df.metaInfo
+////		assert(metaData(0).getHeader() === "year")
+////		assert(metaData(0).getType() === "int")
+////		assert(metaData(1).getHeader() === "flightnum")
+////		assert(metaData(1).getType() === "int")
+////		assert(metaData(2).getHeader() === "cancellationcode")
+////		assert(metaData(2).getType() === "string")
+////		assert(metaData(3).getHeader() === "lateaircraftdelay")
+////		assert(metaData(3).getType() === "int")		
+////		sharkContext.sql("drop table if exists "+df.tableName);
+//		
+//		sharkContext.sql("drop table if exists test");
+//		sharkContext.stop();
+// 	}
 }
 
 //MetaInfo [header=year, type=int, columnNo=-1]
