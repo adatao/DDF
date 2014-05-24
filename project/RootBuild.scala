@@ -12,7 +12,7 @@ object RootBuild extends Build {
 
   //////// Project definitions/configs ///////
   val SPARK_VERSION = "1.0.0-SNAPSHOT"
-  val SHARK_VERSION = "0.9.1"
+  val SHARK_VERSION = "1.0.0-SNAPSHOT"
         val HIVE_VERSION = "0.11.0-shark-0.9.1"
   
   // Target JVM version
@@ -189,7 +189,7 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
       "commons-configuration" % "commons-configuration" % "1.6",
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
-      //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
+      //"org.scalatest" % "scalatest_2.10.4" % "2.1.3" % "test",
       "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
       "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
       "com.novocode" % "junit-interface" % "0.9" % "test",
@@ -213,8 +213,13 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
     publishLocalBoth <<= Seq(publishLocal in MavenCompile, publishLocal).dependOn,
 
 
-    //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
-    //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
+    dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
+    dependencyOverrides += "org.scala-lang" % "scala-reflect" % theScalaVersion,
+    dependencyOverrides += "commons-codec" % "commons-codec" % "1.5",
+    dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.3",
+    dependencyOverrides += "junit" % "junit" % "4.8.2",
+    dependencyOverrides += "org.scalatest" % "scalatest" % theScalaVersion,
+    dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
     // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",

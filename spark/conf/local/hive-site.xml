@@ -1,10 +1,10 @@
 <configuration>
 <property>
   <name>hive.metastore.warehouse.dir</name>
-  <value>/user/hive/warehouse</value>
+  <value>/tmp/hive/warehouse</value>
   <description>location of default database for the warehouse</description>
 </property>           
-<property>
+<!--<property>
             <name>javax.jdo.option.ConnectionURL</name>
             <value>jdbc:mysql://localhost/metastore_db?createDatabaseIfNotExist=true</value>
             <description>metadata is stored in a MySQL server</description>
@@ -27,4 +27,5 @@
             <value>ada!@#</value>
             <description>password for connecting to mysql server </description>
            </property>
+-->
 </configuration>
