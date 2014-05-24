@@ -8,7 +8,6 @@ import com.adatao.ddf.types.Vector
 import com.adatao.ML.ALossFunction
 import com.adatao.pa.spark.execution.LinearRegression
 import com.adatao.pa.spark.execution.LogisticRegression
-import com.adatao.ML.spark.RocObject
 import com.adatao.pa.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
@@ -24,7 +23,6 @@ class KryoRegistrator extends SharkKryoRegistrator {
 		kryo.register(classOf[LinearRegression.LossFunction],
 			new FieldSerializer[Nothing](kryo, classOf[LinearRegression.LossFunction]))
 		kryo.register(classOf[LogisticRegression.LossFunction])
-		kryo.register(classOf[RocObject])
 		kryo.register(classOf[NumericalNode])
 		kryo.register(classOf[CategoricalNode])
 		kryo.register(classOf[Leaf])

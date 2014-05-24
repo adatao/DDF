@@ -36,8 +36,8 @@ import scala.Some
 import com.adatao.pa.spark.types.ExecutionException
 import scala.reflect.Manifest
 import scala.collection.JavaConversions._
-import com.adatao.ML.spark.Predictions
-import com.adatao.ML.spark.TransformDummyCoding
+//import com.adatao.ML.spark.Predictions
+//import com.adatao.ML.spark.TransformDummyCoding
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
@@ -111,57 +111,57 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	/*
 	 * Get (ytrue, ypred) predictions RDD of Double
 	 */
-	def getYtrueYpred(
-		dataContainerID: String,
-		modelID: String,
-		xCols: Array[Int],
-		yCol: Int,
-		context: ExecutionContext): RDD[(Double, Double)] = {
-		val dm = context.sparkThread.getDataManager
+//	def getYtrueYpred(
+//		dataContainerID: String,
+//		modelID: String,
+//		xCols: Array[Int],
+//		yCol: Int,
+//		context: ExecutionContext): RDD[(Double, Double)] = {
+//		val dm = context.sparkThread.getDataManager
+//
+//		val dataContainer = dm.get(dataContainerID)
+//		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
+//
+//		val model = dm.getObject(modelID).asInstanceOf[TModel]
+//		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"modelID %s doesn't exist in user session".format(modelID), null)
+//
+//		Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//
+//		//		if (dataContainer.getType == ContainerType.SharkDataFrame) {
+//		// this execution path is fastest when data matrix was already cached,
+//		// which is typical because you'd predict on a trained model, hence cached table,
+//		// but on non-cached data, such as cross-validation it will regenerate
+//		// a throw-away RDD[(Matrix, Vector)]
+//		//			val dataframe = dataContainer.asInstanceOf[DataManager.SharkDataFrame]
+//		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//		//		}
+//		//		else {
+//		//			// normal path that goes thru DataFrame and object boxing
+//		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//		//		}
+//	}
 
-		val dataContainer = dm.get(dataContainerID)
-		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-
-		val model = dm.getObject(modelID).asInstanceOf[TModel]
-		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"modelID %s doesn't exist in user session".format(modelID), null)
-
-		Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-
-		//		if (dataContainer.getType == ContainerType.SharkDataFrame) {
-		// this execution path is fastest when data matrix was already cached,
-		// which is typical because you'd predict on a trained model, hence cached table,
-		// but on non-cached data, such as cross-validation it will regenerate
-		// a throw-away RDD[(Matrix, Vector)]
-		//			val dataframe = dataContainer.asInstanceOf[DataManager.SharkDataFrame]
-		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-		//		}
-		//		else {
-		//			// normal path that goes thru DataFrame and object boxing
-		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-		//		}
-	}
-
-	def getXsYpred(
-		dataContainerID: String,
-		modelID: String,
-		xCols: Array[Int],
-		context: ExecutionContext): RDD[(Array[Double], Int)] = {
-		val dm = context.sparkThread.getDataManager
-		val dataContainer = dm.get(dataContainerID)
-		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-
-		val model = dm.getObject(modelID).asInstanceOf[TModel]
-		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"modelID %s doesn't exist in user session".format(modelID), null)
-
-		dataContainer match {
-			case sdf: SharkDataFrame ⇒ Predictions.XsYpred(model, sdf, xCols)
-			case df: DataFrame ⇒ Predictions.XsYpred(model, df.getRDD.rdd, xCols)
-		}
-	}
+//	def getXsYpred(
+//		dataContainerID: String,
+//		modelID: String,
+//		xCols: Array[Int],
+//		context: ExecutionContext): RDD[(Array[Double], Int)] = {
+//		val dm = context.sparkThread.getDataManager
+//		val dataContainer = dm.get(dataContainerID)
+//		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
+//
+//		val model = dm.getObject(modelID).asInstanceOf[TModel]
+//		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"modelID %s doesn't exist in user session".format(modelID), null)
+//
+//		dataContainer match {
+//			case sdf: SharkDataFrame ⇒ Predictions.XsYpred(model, sdf, xCols)
+//			case df: DataFrame ⇒ Predictions.XsYpred(model, df.getRDD.rdd, xCols)
+//		}
+//	}
 
 }
 
