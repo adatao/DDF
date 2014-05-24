@@ -1,5 +1,5 @@
 package com.adatao.ML.spark
-
+/*
 import com.adatao.ML._
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
@@ -126,3 +126,4 @@ object Predictions {
     }
   }
 }
+*/

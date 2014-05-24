@@ -19,7 +19,6 @@ package com.adatao.ML
 import org.jblas.DoubleMatrix
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
-import com.adatao.ML.spark.TransformDummyCoding
 import java.util.HashMap
 import com.adatao.ddf.ml.IModel
 
@@ -143,3 +142,4 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
 		this
 	}
 }
+

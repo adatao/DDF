@@ -378,7 +378,7 @@ public class DataManager {
 				return  (TablePartition) t.rawdata();
 			}
 		}
-		
+		/*
     @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTable(int[] xCols, int yCol){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
@@ -391,7 +391,7 @@ public class DataManager {
 			}
 			return result;
 		}
-		
+		*/
 		@SuppressWarnings("unchecked")
 		public RDD<double[]> getDataPointTable(int[] xCols){
 			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
@@ -407,7 +407,7 @@ public class DataManager {
 			}
 			return result;
 		}
-
+/*
     @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTableCategorical(int[] xCols, int yCol, Map<Integer, HashMap<String, Double>> hm){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
@@ -422,7 +422,7 @@ public class DataManager {
 			
 			return result;
 		}
-		
+		*/
 
 		/**
 		 * Perform a transformation on the dataset by applying a SQL statement,
