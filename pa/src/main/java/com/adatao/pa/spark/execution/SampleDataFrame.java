@@ -28,7 +28,7 @@ import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType;
 import com.adatao.pa.spark.DataManager.DataFrame;
 import com.adatao.pa.spark.DataManager.MetaInfo;
-import com.adatao.pa.spark.DataManager.SharkDataFrame;
+//import com.adatao.pa.spark.DataManager.SharkDataFrame;
 import com.adatao.pa.spark.SharkUtils;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;

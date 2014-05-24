@@ -32,8 +32,6 @@ import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.execution.GetFactor
-import com.adatao.pa.spark.execution.GetFactor.FactorMapper
-import com.adatao.pa.spark.execution.GetFactor.FactorReducer
 import com.adatao.pa.spark.execution.GetMultiFactor.{ MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer }
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._

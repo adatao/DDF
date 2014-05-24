@@ -392,21 +392,21 @@ public class DataManager {
 			return result;
 		}
 		*/
-		@SuppressWarnings("unchecked")
-		public RDD<double[]> getDataPointTable(int[] xCols){
-			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
-			RDD<double[]> result =(RDD<double[]>) cache.get(key);
-			if(result == null){
-				RDD<Row> rdd = this.getTableRDD().rdd();
-
-				SharkUtils.SharkParsePoint parser = new SharkUtils.SharkParsePoint(xCols, this.metaInfo);
-				
-				result = rdd.map(parser, ClassManifest$.MODULE$.fromClass(double[].class)).
-						filter(new MLUtils.filterFunction()).cache();
-				cache.put(key, result);
-			}
-			return result;
-		}
+//		@SuppressWarnings("unchecked")
+//		public RDD<double[]> getDataPointTable(int[] xCols){
+//			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
+//			RDD<double[]> result =(RDD<double[]>) cache.get(key);
+//			if(result == null){
+//				RDD<Row> rdd = this.getTableRDD().rdd();
+//
+//				SharkUtils.SharkParsePoint parser = new SharkUtils.SharkParsePoint(xCols, this.metaInfo);
+//				
+//				result = rdd.map(parser, ClassManifest$.MODULE$.fromClass(double[].class)).
+//						filter(new MLUtils.filterFunction()).cache();
+//				cache.put(key, result);
+//			}
+//			return result;
+//		}
 /*
     @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTableCategorical(int[] xCols, int yCol, Map<Integer, HashMap<String, Double>> hm){

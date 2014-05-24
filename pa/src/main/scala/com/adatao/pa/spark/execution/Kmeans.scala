@@ -16,8 +16,11 @@ class Kmeans(
   val initializationMode: String,
   var initializationSteps: Int = 5,
   var epsilon: Double = 1e-4)
-    extends AUnsupervisedTrainer[org.apache.spark.mllib.clustering.KMeansModel](dataContainerID, xCols) {
-  override def train(dataContainerID: String, context: ExecutionContext): org.apache.spark.mllib.clustering.KMeansModel = {
+  extends AExecutor[org.apache.spark.mllib.clustering.KMeansModel](true) {
+  
+  override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
+  
+  def train(dataContainerID: String, context: ExecutionContext): org.apache.spark.mllib.clustering.KMeansModel = {
     val ddfManager = context.sparkThread.getDDFManager();
     val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
       case x: DDF ⇒ x
@@ -35,7 +38,7 @@ class Kmeans(
     val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
     rawModel
 
-/*    val wcss = rawModel.computeCost(projectedDDF.getRepresentationHandler().get(RepresentationHandler.RDD_MLLIB_VECTOR).asInstanceOf[RDD[org.apache.spark.mllib.linalg.Vector]])
+    /*    val wcss = rawModel.computeCost(projectedDDF.getRepresentationHandler().get(RepresentationHandler.RDD_MLLIB_VECTOR).asInstanceOf[RDD[org.apache.spark.mllib.linalg.Vector]])
     val totalWithins: ArrayBuffer[Double] = ArrayBuffer[Double]()
 
     val pointsPerCluster: ArrayBuffer[Int] = ArrayBuffer[Int]()
