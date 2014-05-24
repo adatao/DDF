@@ -39,7 +39,7 @@ import com.adatao.ML.ATimedAlgorithmTest
 class RegressionSuite extends ATimedAlgorithmTest {
 
 	private val doRunTests = false	
-	private val testOrIgnore = if (doRunTests) test _ else ignore _
+	//private val test = if (doRunTests) test_ else ignore_
 
 	private val X = new Matrix(
 		Array(
@@ -71,42 +71,42 @@ class RegressionSuite extends ATimedAlgorithmTest {
 	val lambda = 1.0
 	val numReps = 100
 
-	testOrIgnore("Single-variable linear regression 1") {
+	test("Single-variable linear regression 1") {
 		val numIters = 1
 		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable linear regression 100") {
+	test("Single-variable linear regression 100") {
 		val numIters = 100
 		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable linear regression 1000") {
+	test("Single-variable linear regression 1000") {
 		val numIters = 1000
 		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable linear regression 10000") {
+	test("Single-variable linear regression 10000") {
 		val numIters = 10000
 		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable logistic regression 1") {
+	test("Single-variable logistic regression 1") {
 		val numIters = 1
 		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable logistic regression 100") {
+	test("Single-variable logistic regression 100") {
 		val numIters = 100
 		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable logistic regression 1000") {
+	test("Single-variable logistic regression 1000") {
 		val numIters = 1000
 		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}
 
-	testOrIgnore("Single-variable logistic regression 10000") {
+	test("Single-variable logistic regression 10000") {
 		val numIters = 10000
 		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
 	}

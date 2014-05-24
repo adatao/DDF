@@ -25,7 +25,7 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import java.util.HashMap
 import com.adatao.ddf.ml.IModel
-
+import org.apache.spark.rdd.RDD
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -71,6 +71,63 @@ object LogisticRegression {
 			(weights: Vector) ⇒ this.compute(XYData._1, XYData._2, weights)
 		}
 	}
+	
+	// batch prediction on a feature-extracted RDD[(Matrix, Vector)]
+  def yTrueYpred[T <: TPredictiveModel[Vector, Double]](model: T, xyRDD: RDD[(Matrix, Vector)]): RDD[(Double, Double)] = {
+    xyRDD.flatMap { xy ⇒
+      xy match {
+        case (x, y) ⇒ for (i ← 0 until y.size) yield (y(i), model.predict(Vector(x.getRow(i))))
+      }
+    }
+  }
+	def ROC_sequential(model: LogisticRegressionModel, XYData: RDD[(Matrix, Vector)]): RocObject = {
+    val predictions = yTrueYpred(model, XYData)
+    var pred: Array[(Double, Double)] = predictions.collect()
+    var previousVal: Double = Double.MaxValue
+    var tp: Int = 0
+    var fp: Int = 0
+    var P: Int = 0
+    var N: Int = 0
+    //count number of positve, negative test instance
+    var lpred: List[(Double, Double)] = pred.toList
+    var c: Int = 0
+    while (c < pred.size) {
+      if (lpred(c)._1 == 1.0) P = P + 1
+      c = c + 1
+    }
+    N = pred.size - P
+
+    //sort by value score, INCREASING order. DO NOT change it for now 
+    //algorithm: http://people.inf.elte.hu/kiss/13dwhdm/roc.pdf
+    //time complexity: nlogn with n is the number of test instance
+
+    var result: Array[Array[Double]] = new Array[Array[Double]](pred.size)
+    var i: Int = 0
+    lpred.sortBy(_._2) foreach {
+      case (key, value) ⇒
+        if (value != previousVal) {
+          result(i) = new Array[Double](3)
+          result(i)(0) = value
+          result(i)(1) = tp / P.asInstanceOf[Double]
+          result(i)(2) = fp / N.asInstanceOf[Double]
+          previousVal = value
+          i = i + 1
+        }
+        if (key == 1.0) {
+          tp = tp + 1
+        }
+        else {
+          fp = fp + 1
+        }
+    }
+    //final: shoule be pushing equal to (1,1)
+    result(i - 1)(0) = previousVal
+    result(i - 1)(1) = tp / P.asInstanceOf[Double]
+    result(i - 1)(2) = fp / N.asInstanceOf[Double]
+    //build matrix later
+    //val rocObject = new RocObject(Matrix.newInstance(result))
+    new RocObject(result, 0.0)
+  }
 }
 
 
@@ -168,3 +225,5 @@ abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDa
 		J
 	}
 }
+
+
