@@ -388,6 +388,8 @@ object RepresentationHandler {
       case ColumnType.STRING ⇒ {
         case _ ⇒ throw new DDFException("Cannot convert string to double")
       }
+      
+      case e ⇒ throw new DDFException("Cannot convert to double")
     }
   }
 
@@ -451,6 +453,8 @@ object RepresentationHandler {
               new REXPString(buffer.toArray)
             }
             // TODO: REXPLogical
+            
+            case _ ⇒ throw new DDFException("Cannot convert to double")
           }
           rvec.asInstanceOf[REXP]
       }

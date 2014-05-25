@@ -175,7 +175,7 @@ object Utils {
     try {
       java.lang.Double.parseDouble(str)
     } catch {
-      case e ⇒ Double.NaN
+      case e : Throwable ⇒ Double.NaN
     }
   }
 
