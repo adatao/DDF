@@ -78,10 +78,10 @@ public class SqlHandler extends ASqlHandler {
       sqlCmd = String.format(
                             "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS %s",
                                                     tableName, command);
-      tableRdd = this.getSharkContext().sql2rdd(sqlCmd);
+      this.getManager().sql2txt(sqlCmd);
 
-      rddRow = this.getSharkContext().sql2rdd(String.format("SELECT * FROM %s", tableName));
-      
+      tableRdd = this.getSharkContext().sql2rdd(String.format("SELECT * FROM %s", tableName));
+      rddRow = (RDD<Row>) tableRdd;
 
     } else {
       // TODO

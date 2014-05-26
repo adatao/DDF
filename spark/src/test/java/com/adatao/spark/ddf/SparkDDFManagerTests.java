@@ -1,6 +1,7 @@
 package com.adatao.spark.ddf;
 
 
+import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -60,6 +61,12 @@ public class SparkDDFManagerTests {
 
     manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
 
+    List<String> v = manager.sql2txt("select * from airline");
+    System.out.println(">>>>>>>>>>>>>>> first row" +v.get(0));
+    
+    List<String> v1 = manager.sql2txt("select count(*) from airline");
+    System.out.println(">>>>>>>>>>>>>>> first row" +v1.get(0));
+    
     DDF ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance, arrdelay, "
         + "depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
     Assert.assertEquals(14, ddf.getSummary().length);
