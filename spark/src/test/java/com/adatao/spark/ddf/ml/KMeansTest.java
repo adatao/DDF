@@ -1,6 +1,6 @@
 package com.adatao.spark.ddf.ml;
 
-//import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_DOUBLE;
+import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_DOUBLE;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.rdd.RDD;
 import org.junit.Assert;
@@ -33,6 +33,7 @@ public class KMeansTest {
     int numIterations = 5;
     KMeansModel kmeansModel = (KMeansModel) ddf.ML.train("kmeans", k, numIterations).getRawModel();
     Assert.assertEquals(5, kmeansModel.clusterCenters().length);
+    Assert.assertTrue(kmeansModel.computeCost((RDD<double[]>)ddf.getRepresentationHandler().get(RDD_ARRAY_DOUBLE())) > 0);
     Assert.assertTrue(kmeansModel.predict(new double[] { 1232, 1341, 389, 7, 1 }) > -1);
     Assert.assertTrue(kmeansModel.predict(new double[] { 1232, 1341, 389, 7, 1 }) < 5);
 
