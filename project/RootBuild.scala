@@ -130,9 +130,9 @@ object RootBuild extends Build {
    // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
-    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION
+    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION,
+    "org.apache.spark" % "spark-core_2.10" % "SPARK_VERSION"
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
   )
 

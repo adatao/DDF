@@ -296,7 +296,7 @@ public class DataManager {
 			return this.table;
 		}
 
-		public static class MapRow implements Function<Row, Object[]> {
+		public static class MapRow extends Function<Row, Object[]> {
 			ColumnDesc[] schema;
 //			List<FieldSchema> schema;
 //			public MapRow(List<FieldSchema> schema) {
@@ -367,7 +367,7 @@ public class DataManager {
 			return this;
 		}
 		
-		static public class TablePartitionMapper implements Function<Row, TablePartition> {
+		static public class TablePartitionMapper extends Function<Row, TablePartition> {
 
 			public TablePartitionMapper() {
 				super();
@@ -528,7 +528,7 @@ public class DataManager {
 		// is the same between SharkDataFrame and its SharkColumnVector,
 		// and we want to return values from the selected column only.
 		// TODO: improve this	conversion between SharkDataFrame and RDD<Object[]> as a whole.
-		public static class MapRow implements Function<Row, Object[]> {
+		public static class MapRow extends Function<Row, Object[]> {
 			String column, type;
 			public MapRow(String column, String type) {
 				this.column = column;
