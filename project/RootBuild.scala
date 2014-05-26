@@ -168,8 +168,8 @@ object RootBuild extends Build {
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
 //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
 resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
-resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-          "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+//resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+         // "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",

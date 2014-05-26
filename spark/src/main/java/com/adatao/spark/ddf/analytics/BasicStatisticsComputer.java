@@ -36,7 +36,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
    * Mapper function to accumulate summary data from each row
    */
   @SuppressWarnings("serial")
-  public static class GetSummaryMapper implements Function<Object[], Summary[]> {
+  public static class GetSummaryMapper extends Function<Object[], Summary[]> {
     private final Logger mLog = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -83,7 +83,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   }
 
   @SuppressWarnings("serial")
-  public static class GetSummaryReducer implements Function2<Summary[], Summary[], Summary[]> {
+  public static class GetSummaryReducer extends Function2<Summary[], Summary[], Summary[]> {
     @Override
     public Summary[] call(Summary[] a, Summary[] b) {
       int dim = a.length;
