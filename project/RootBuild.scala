@@ -120,7 +120,7 @@ object RootBuild extends Build {
     "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
     //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
     //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "com.novocode" % "junit-interface" % "0.9" % "test",
+    "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
@@ -190,9 +190,10 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
       //"org.scalatest" % "scalatest_2.10.4" % "2.1.3" % "test",
-      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
-      "com.novocode" % "junit-interface" % "0.9" % "test",
+      //"org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
+      "org.scalatest" % "scalatest_2.10" % "1.9.1",
+      "org.scalacheck"   %% "scalacheck" % "1.10.0",// % "test",
+      "com.novocode" % "junit-interface" % "0.10" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
@@ -214,6 +215,10 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
 
 
     dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
+    dependencyOverrides += "org.scalacheck" % "scalacheck" % "1.10.0",
+    dependencyOverrides += "org.scala-lang" % "scala-actors" % "2.10.1",
+    dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
+    dependencyOverrides += "org.scala-lang" % "jline" % theScalaVersion,
     dependencyOverrides += "org.scala-lang" % "scala-reflect" % theScalaVersion,
     dependencyOverrides += "commons-codec" % "commons-codec" % "1.5",
     dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.3",
@@ -228,12 +233,13 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
     dependencyOverrides += "org.slf4j" % "slf4j-api" % slf4jVersion,
     dependencyOverrides += "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
+    dependencyOverrides += "org.tachyonproject" % "tachyon" % "0.4.1", 
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
-    // dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
-    dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.9.11",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.9.11",
     // dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
     // dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8"
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
