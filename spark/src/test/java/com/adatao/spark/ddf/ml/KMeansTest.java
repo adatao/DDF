@@ -1,6 +1,7 @@
 package com.adatao.spark.ddf.ml;
 
-import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_MLLIB_VECTOR;
+
+import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_DOUBLE;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.rdd.RDD;
 import org.junit.Assert;
@@ -8,8 +9,6 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
-import org.apache.spark.mllib.linalg.Vector;
-import com.adatao.spark.ddf.util.Utils;
 
 public class KMeansTest {
   @Test
@@ -35,9 +34,9 @@ public class KMeansTest {
     int numIterations = 5;
     KMeansModel kmeansModel = (KMeansModel) ddf.ML.train("kmeans", k, numIterations).getRawModel();
     Assert.assertEquals(5, kmeansModel.clusterCenters().length);
-    Assert.assertTrue(kmeansModel.computeCost((RDD<Vector>)ddf.getRepresentationHandler().get(RDD_MLLIB_VECTOR())) > 0);
-    Assert.assertTrue(kmeansModel.predict(Utils.arrayDoubleToVector(new double[] { 1232, 1341, 389, 7, 1 })) > -1);
-    Assert.assertTrue(kmeansModel.predict(Utils.arrayDoubleToVector(new double[] { 1232, 1341, 389, 7, 1 })) < 5);
+    Assert.assertTrue(kmeansModel.computeCost((RDD<double[]>)ddf.getRepresentationHandler().get(RDD_ARRAY_DOUBLE())) > 0);
+    Assert.assertTrue(kmeansModel.predict(new double[] { 1232, 1341, 389, 7, 1 }) > -1);
+    Assert.assertTrue(kmeansModel.predict(new double[] { 1232, 1341, 389, 7, 1 }) < 5);
 
     manager.shutdown();
   }
