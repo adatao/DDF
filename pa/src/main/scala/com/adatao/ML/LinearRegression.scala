@@ -19,10 +19,9 @@ package com.adatao.ML
 import org.jblas.DoubleMatrix
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
-import com.adatao.ML.spark.TransformDummyCoding
 import java.util.HashMap
 import com.adatao.ddf.ml.IModel
-
+import java.util.Arrays
 /**
  * Companion object to provide friendly-name access to clients.
  */
@@ -143,3 +142,80 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
 		this
 	}
 }
+
+class RocObject(var pred: Array[Array[Double]], var auc: Double) extends LinearRegressionModel(new Vector(1), new Vector(1), 0) {
+
+  def print() {
+    var i: Int = 0
+    while (i < this.pred.length) {
+      if (this.pred(i) != null) {
+        println(">>>\t" + i + "\t" + Arrays.toString(this.pred(i)))
+      }
+      i = i + 1
+    }
+    println(">>>>> auc=" + auc)
+  }
+  def computeAUC(): Double = {
+    //filter null/NA in pred
+    var i: Int = 0
+    var previousTpr: Double = 0
+    var previousFpr: Double = 0
+    i = pred.length - 1
+    while (i >= 0) {
+      //0 index is for threshold value
+      if (pred(i) != null) {
+        //accumulate auc
+        auc = auc + previousTpr * (pred(i)(2) - previousFpr) + 0.5 * (pred(i)(2) - previousFpr) * (pred(i)(1) - previousTpr)
+        //update previous
+        previousTpr = pred(i)(1)
+        previousFpr = pred(i)(2)
+      }
+      i = i - 1
+    }
+    auc
+  }
+
+  override def toString: String = {
+    "RocObject: pred = %.4f\t".format(
+      Arrays.toString(pred(0)))
+  }
+  /**
+   * Sum in-place to avoid new object alloc
+   */
+  def addIn(other: RocObject): RocObject = {
+    // Sum tpr, fpr for each threshold
+    var i: Int = 0
+    //start from 1, 0-index is for threshold value
+    var j: Int = 1
+    while (i < this.pred.length) {
+      if (this.pred(i) != null) {
+        if (other.pred(i) != null) {
+          j = 1
+          //P = P + P
+          //N = N + N
+          while (j < this.pred(i).length) {
+            this.pred(i)(j) = this.pred(i)(j) + other.pred(i)(j)
+            j = j + 1
+          }
+        }
+      }
+      else {
+        if (other.pred(i) != null) {
+          j = 0
+          //P = P + P
+          //N = N + N
+          //this.pred(i) is currently null so need to cretae new instance
+          this.pred(i) = new Array[Double](3)
+          while (j < other.pred(i).length) {
+            this.pred(i)(j) = other.pred(i)(j)
+            j = j + 1
+          }
+        }
+      }
+      i = i + 1
+    }
+    this
+  }
+}
+
+

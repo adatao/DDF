@@ -72,152 +72,152 @@ public class GetFactor extends CExecutor {
 
 	}
 
-	public static class FactorMapper extends FlatMapFunction<Iterator<Row>, Map<String, Integer>> {
-		String columnName = null;
-		Integer columnIndex = null;
-
-		@Override
-		public Iterable<Map<String, Integer>> call(Iterator<Row> rowIter) throws Exception {
-			Map<String, Integer> factor = new HashMap<String, Integer>();
-			ArrayList<Map<String, Integer>> res = new ArrayList<Map<String, Integer>>();
-
-			/*
-			 * this not-good-looking code is optimized for faster execution time
-			 * by avoiding having to check the value of columnName and
-			 * columnIndex at every row
-			 */
-			if (columnName != null) {
-				factor = new HashMap<String, Integer>();
-				while (rowIter.hasNext()) {
-					Row row = rowIter.next();
-					Object keyObject = row.apply(columnName);
-
-					if (keyObject != null) {
-						String key = keyObject.toString();
-						if (factor.containsKey(key)) {
-							factor.put(key, factor.get(key) + 1);
-						} else {
-							factor.put(key, 1);
-						}
-					}
-				}				
-			} else if (columnIndex != null) {
-				factor = new HashMap<String, Integer>();
-				while (rowIter.hasNext()) {
-					Row row = rowIter.next();
-					Object keyObject = row.apply(columnIndex);
-
-					if (keyObject != null) {
-						String key = keyObject.toString();
-						if (factor.containsKey(key)) {
-							factor.put(key, factor.get(key) + 1);
-						} else {
-							factor.put(key, 1);
-						}
-					}
-				}
-			}
-
-			res.add(factor);
-			return res;
-		}
-
-		public FactorMapper setColumnName(String columnName) {
-			this.columnName = columnName;
-			return this;
-		}
-
-		public FactorMapper setColumnIndex(Integer columnIndex) {
-			this.columnIndex = columnIndex;
-			return this;
-		}
-
-	}
-
-	public static class FactorReducer extends Function2<Map<String, Integer>, Map<String, Integer>, Map<String, Integer>> {
-
-		@Override
-		public Map<String, Integer> call(Map<String, Integer> factor1, Map<String, Integer> factor2) throws Exception {
-
-			/*
-			 * Since we only support factor with size of the levels to be no
-			 * bigger than MAX_LEVEL_SIZE, we will stop reducer when the size of
-			 * map is bigger than MAX_LEVEL_SIZE
-			 */
-			if (factor1.size() > MAX_LEVEL_SIZE) {
-				return factor1;
-			} else if (factor2.size() > MAX_LEVEL_SIZE) {
-				return factor2;
-			}
-
-			for (String key : factor1.keySet()) {
-				if (factor2.containsKey(key)) {
-					factor2.put(key, factor1.get(key) + factor2.get(key));
-				} else {
-					factor2.put(key, factor1.get(key));
-				}
-			}
-			return factor2;
-		}
-
-	}
-
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
-
-		// TODO: we only support SharkDataFrame for now
-		@SuppressWarnings("deprecation")
-//		JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
-		JavaTableRDD table = dc.getTableRDD();
-
-		/*
-		 * Do mapPartition here to avoid mapping each row element to an String
-		 * which will consume a lot of memory. mapPartition actually acts like a
-		 * reducer
-		 */
-
-		Map<String, Integer> factor = new HashMap<String, Integer>();
-		MetaInfo columnMetaInfo;
-		FactorMapper factorMapper;
-		if (columnName != null) {
-			columnMetaInfo = dc.getColumnMetaInfoByName(columnName);
-			factorMapper = new FactorMapper().setColumnName(columnName);
-		} else if (columnIndex != null) {
-			columnMetaInfo = dc.getColumnMetaInfoByIndex(columnIndex);
-			factorMapper = new FactorMapper().setColumnIndex(columnIndex);
-		} else {
-			return new FailResult().setMessage("Column name and index is undefined");
-		}
-		
-		/*
-		 * Since we only support factor with size of the levels to be no bigger
-		 * than MAX_LEVEL_SIZE, we will discard a factor when its size is bigger
-		 * than MAX_LEVEL_SIZE. Note that when level size is bigger than
-		 * MAX_LEVEL_SIZE the factor calculation is no longer accurate (see
-		 * FactorReducer)
-		 */
-		factor = table.mapPartitions(factorMapper).reduce(new FactorReducer());
-		if (factor.size() <= MAX_LEVEL_SIZE) {
-			columnMetaInfo.setFactor(factor);
-			return new GetFactorResult().setFactor(factor);
-		} else {
-			return new FailResult().setMessage("Level size exceeds limit " + MAX_LEVEL_SIZE);
-		}				
-	}
-
-	public GetFactor setDataContainerID(String dataContainerID) {
-		this.dataContainerID = dataContainerID;
-		return this;
-	}
-
-	public GetFactor setColumnIndex(Integer columnIndex) {
-		this.columnIndex = columnIndex;
-		return this;
-	}
-
-	public GetFactor setColumnName(String columnName) {
-		this.columnName = columnName;
-		return this;
-	}
+//	public static class FactorMapper extends FlatMapFunction<Iterator<Row>, Map<String, Integer>> {
+//		String columnName = null;
+//		Integer columnIndex = null;
+//
+//		@Override
+//		public Iterable<Map<String, Integer>> call(Iterator<Row> rowIter) throws Exception {
+//			Map<String, Integer> factor = new HashMap<String, Integer>();
+//			ArrayList<Map<String, Integer>> res = new ArrayList<Map<String, Integer>>();
+//
+//			/*
+//			 * this not-good-looking code is optimized for faster execution time
+//			 * by avoiding having to check the value of columnName and
+//			 * columnIndex at every row
+//			 */
+//			if (columnName != null) {
+//				factor = new HashMap<String, Integer>();
+//				while (rowIter.hasNext()) {
+//					Row row = rowIter.next();
+//					Object keyObject = row.apply(columnName);
+//
+//					if (keyObject != null) {
+//						String key = keyObject.toString();
+//						if (factor.containsKey(key)) {
+//							factor.put(key, factor.get(key) + 1);
+//						} else {
+//							factor.put(key, 1);
+//						}
+//					}
+//				}				
+//			} else if (columnIndex != null) {
+//				factor = new HashMap<String, Integer>();
+//				while (rowIter.hasNext()) {
+//					Row row = rowIter.next();
+//					Object keyObject = row.apply(columnIndex);
+//
+//					if (keyObject != null) {
+//						String key = keyObject.toString();
+//						if (factor.containsKey(key)) {
+//							factor.put(key, factor.get(key) + 1);
+//						} else {
+//							factor.put(key, 1);
+//						}
+//					}
+//				}
+//			}
+//
+//			res.add(factor);
+//			return res;
+//		}
+//
+//		public FactorMapper setColumnName(String columnName) {
+//			this.columnName = columnName;
+//			return this;
+//		}
+//
+//		public FactorMapper setColumnIndex(Integer columnIndex) {
+//			this.columnIndex = columnIndex;
+//			return this;
+//		}
+//
+//	}
+//
+//	public static class FactorReducer extends Function2<Map<String, Integer>, Map<String, Integer>, Map<String, Integer>> {
+//
+//		@Override
+//		public Map<String, Integer> call(Map<String, Integer> factor1, Map<String, Integer> factor2) throws Exception {
+//
+//			/*
+//			 * Since we only support factor with size of the levels to be no
+//			 * bigger than MAX_LEVEL_SIZE, we will stop reducer when the size of
+//			 * map is bigger than MAX_LEVEL_SIZE
+//			 */
+//			if (factor1.size() > MAX_LEVEL_SIZE) {
+//				return factor1;
+//			} else if (factor2.size() > MAX_LEVEL_SIZE) {
+//				return factor2;
+//			}
+//
+//			for (String key : factor1.keySet()) {
+//				if (factor2.containsKey(key)) {
+//					factor2.put(key, factor1.get(key) + factor2.get(key));
+//				} else {
+//					factor2.put(key, factor1.get(key));
+//				}
+//			}
+//			return factor2;GetFactorResult
+//		}
+//
+//	}
+//
+//	@Override
+//	public ExecutorResult run(SparkThread sparkThread) {
+//		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
+//
+//		// TODO: we only support SharkDataFrame for now
+//		@SuppressWarnings("deprecation")
+////		JavaTableRDD table = ((SharkDataFrame) dc).getTableRDD();
+//		JavaTableRDD table = dc.getTableRDD();
+//
+//		/*
+//		 * Do mapPartition here to avoid mapping each row element to an String
+//		 * which will consume a lot of memory. mapPartition actually acts like a
+//		 * reducer
+//		 */
+//
+//		Map<String, Integer> factor = new HashMap<String, Integer>();
+//		MetaInfo columnMetaInfo;
+//		FactorMapper factorMapper;
+//		if (columnName != null) {
+//			columnMetaInfo = dc.getColumnMetaInfoByName(columnName);
+//			factorMapper = new FactorMapper().setColumnName(columnName);
+//		} else if (columnIndex != null) {
+//			columnMetaInfo = dc.getColumnMetaInfoByIndex(columnIndex);
+//			factorMapper = new FactorMapper().setColumnIndex(columnIndex);
+//		} else {
+//			return new FailResult().setMessage("Column name and index is undefined");
+//		}
+//		
+//		/*
+//		 * Since we only support factor with size of the levels to be no bigger
+//		 * than MAX_LEVEL_SIZE, we will discard a factor when its size is bigger
+//		 * than MAX_LEVEL_SIZE. Note that when level size is bigger than
+//		 * MAX_LEVEL_SIZE the factor calculation is no longer accurate (see
+//		 * FactorReducer)
+//		 */
+//		factor = table.mapPartitions(factorMapper).reduce(new FactorReducer());
+//		if (factor.size() <= MAX_LEVEL_SIZE) {
+//			columnMetaInfo.setFactor(factor);
+//			return new GetFactorResult().setFactor(factor);
+//		} else {
+//			return new FailResult().setMessage("Level size exceeds limit " + MAX_LEVEL_SIZE);
+//		}				
+//	}
+//
+//	public GetFactor setDataContainerID(String dataContainerID) {
+//		this.dataContainerID = dataContainerID;
+//		return this;
+//	}
+//
+//	public GetFactor setColumnIndex(Integer columnIndex) {
+//		this.columnIndex = columnIndex;
+//		return this;
+//	}
+//
+//	public GetFactor setColumnName(String columnName) {
+//		this.columnName = columnName;
+//		return this;
+//	}
 }

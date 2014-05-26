@@ -98,10 +98,6 @@ class LogisticRegressionCRS(
     null.asInstanceOf[LogisticRegressionModel]
   }
 
-  override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): LogisticRegressionModel = {
-    null.asInstanceOf[LogisticRegressionModel]
-  }
-
   override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
     null.asInstanceOf[LogisticRegressionModel]
   }

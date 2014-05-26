@@ -35,63 +35,63 @@ import com.adatao.pa.spark.types.SuccessResult;
 public class Table extends CExecutor {
 	String dataContainerID;
 
-	static public class Sql2ListStringResult extends SuccessResult {
-		List<String> results;
-
-		public Sql2ListStringResult setResults(List<String> results) {
-			this.results = results;
-			return this;
-		}
-
-		public List<String> getResults() {
-			return results;
-		}
-	}
-
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
-		if (dc.getType() == DataContainer.ContainerType.DataFrame) {
-			List<Tuple2<String, Integer>> output = dc.getRDD()
-					.map(new PairFunction<Object[], String, Integer>() {
-						@Override
-						public Tuple2<String, Integer> call(Object[] arg0)
-								throws Exception {
-							String s = "NULL";
-							if (arg0[0] != null)
-								s = arg0[0].toString();
-							Tuple2<String, Integer> tuple = new Tuple2<String, Integer>(
-									s, 1);
-							return tuple;
-						}
-					}).reduceByKey(new Function2<Integer, Integer, Integer>() {
-						@Override
-						public Integer call(Integer arg0, Integer arg1)
-								throws Exception {
-							return arg0 + arg1;
-						}
-					}).collect();
-			
-			List<String> res = new ArrayList<String>(output.size());
-			for(int i = 0; i < output.size(); i++) {
-				Tuple2<String, Integer> t = output.get(i);
-				res.add(t._1 + "\t" + t._2);
-			}
-			return new Sql2ListStringResult().setResults(res);
-			
-		} else if (dc.getType() == DataContainer.ContainerType.SharkColumnVector) {
-			SharkColumnVector dv = (SharkColumnVector) dc;
-			JavaSharkContext sc = (JavaSharkContext) sparkThread
-					.getSparkContext();
-			String colName = dv.getColumn();
-			List<String> res = sc.sql(String.format(
-					"SELECT %s, COUNT(*) count FROM %s GROUP BY %s", colName,
-					dv.tableName, colName));
-			return new Sql2ListStringResult().setResults(res);
-		} else {
-			return new FailResult().setMessage("bad DataContainer.type: "
-					+ dc.getType());
-		}
-	}
+//	static public class Sql2ListStringResult extends SuccessResult {
+//		List<String> results;
+//
+//		public Sql2ListStringResult setResults(List<String> results) {
+//			this.results = results;
+//			return this;
+//		}
+//
+//		public List<String> getResults() {
+//			return results;
+//		}
+//	}
+//
+//	@Override
+//	public ExecutorResult run(SparkThread sparkThread) {
+//		DataContainer dc = sparkThread.getDataManager().get(dataContainerID);
+//		if (dc.getType() == DataContainer.ContainerType.DataFrame) {
+//			List<Tuple2<String, Integer>> output = dc.getRDD()
+//					.map(new PairFunction<Object[], String, Integer>() {
+//						@Override
+//						public Tuple2<String, Integer> call(Object[] arg0)
+//								throws Exception {
+//							String s = "NULL";
+//							if (arg0[0] != null)
+//								s = arg0[0].toString();
+//							Tuple2<String, Integer> tuple = new Tuple2<String, Integer>(
+//									s, 1);
+//							return tuple;
+//						}
+//					}).reduceByKey(new Function2<Integer, Integer, Integer>() {
+//						@Override
+//						public Integer call(Integer arg0, Integer arg1)
+//								throws Exception {
+//							return arg0 + arg1;
+//						}
+//					}).collect();
+//			
+//			List<String> res = new ArrayList<String>(output.size());
+//			for(int i = 0; i < output.size(); i++) {
+//				Tuple2<String, Integer> t = output.get(i);
+//				res.add(t._1 + "\t" + t._2);
+//			}
+//			return new Sql2ListStringResult().setResults(res);
+//			
+//		} else if (dc.getType() == DataContainer.ContainerType.SharkColumnVector) {
+//			SharkColumnVector dv = (SharkColumnVector) dc;
+//			JavaSharkContext sc = (JavaSharkContext) sparkThread
+//					.getSparkContext();
+//			String colName = dv.getColumn();
+//			List<String> res = sc.sql(String.format(
+//					"SELECT %s, COUNT(*) count FROM %s GROUP BY %s", colName,
+//					dv.tableName, colName));
+//			return new Sql2ListStringResult().setResults(res);
+//		} else {
+//			return new FailResult().setMessage("bad DataContainer.type: "
+//					+ dc.getType());
+//		}
+//	}
 	
 }

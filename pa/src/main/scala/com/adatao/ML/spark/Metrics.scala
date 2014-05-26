@@ -15,7 +15,7 @@
  */
 
 package com.adatao.ML.spark
-
+/*
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
@@ -441,3 +441,4 @@ object Metrics extends TCanLog {
 		1.23345 // TODO(khang)
 	}
 }
+*/

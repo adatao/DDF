@@ -5,7 +5,7 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.adatao.pa.spark.execution.Subset.SubsetResult
-import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult
+//import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult
 import java.util
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.NRow.NRowResult

@@ -1,13 +1,17 @@
 package com.adatao.pa.spark
 
-import com.adatao.pa.spark.types.ABigRClientTest
-import com.adatao.pa.spark.execution._
-import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.{HashMap => JMap}
-import scala.collection.JavaConverters._
+
+import org.junit.runner.RunWith
+
+import com.adatao.pa.spark.execution.CVKFoldSplit
+import com.adatao.pa.spark.execution.CVRandomSplit
+import com.adatao.pa.spark.execution.FiveNumSummary
+import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
+import com.adatao.pa.spark.execution.GetMultiFactor
+import com.adatao.pa.spark.execution.SampleDataFrame
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult
-import org.junit.Assert.assertEquals
-import com.adatao.ML.KmeansModel
+import com.adatao.pa.spark.types.ABigRClientTest
 
 /**
  * Created with IntelliJ IDEA.

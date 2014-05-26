@@ -18,15 +18,15 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
 }
-import com.adatao.ML.spark.{ Metrics, RddUtils }
 import scala.Some
 import com.adatao.ddf.DDF
 import com.adatao.ddf.ml.IModel
 import com.adatao.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-
 import com.adatao.ML.Utils
+import com.adatao.ddf.ml.IModel
+import com.adatao.ddf.DDF
 
 /**
  *

@@ -81,7 +81,7 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 		// lm(formula = mpg ~ hp + wt, data = mtcars)
 		val rdd = sc.parallelize(mtcars).mapPartitions(MLUtils.rowsToPartitionMapper(Array(9, 10), 8))
 		val model = new LogisticRegressionModel(Vector(Array(-3.0, 1.5, -0.9)), null, 10)
-		val result = Metrics.ROC_sequential(model, rdd)
+		val result = LogisticRegression.ROC_sequential(model, rdd)
 		println("length = " + result.pred.length)
 	}
 

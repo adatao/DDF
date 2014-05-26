@@ -25,8 +25,8 @@ import com.adatao.ML.spark.RddUtils
 import java.util.ArrayList
 import org.jblas.DoubleMatrix
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.spark.RocObject
-import com.adatao.ML.spark.Metrics
+//import com.adatao.ML.spark.RocObject
+//import com.adatao.ML.spark.Metrics
 import scala.collection.mutable.ListBuffer
 import com.adatao.ML.ALinearModel
 import com.adatao.ML.LinearRegressionModel
