@@ -69,7 +69,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
       case RDD_ARRAY_LABELED_POINT ⇒ rowsToArrayLabeledPoints(srcRdd, mappers)
-      case RDD_MLLIB_VECTOR => rowsToMllibVector(srcRdd, mappers)
+//      case RDD_MLLIB_VECTOR => rowsToMllibVector(srcRdd, mappers)
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
@@ -170,7 +170,7 @@ object RepresentationHandler {
   val RDD_REXP = RH.getKeyFor(Array(classOf[RDD[_]], classOf[REXP]))
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
-  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
+//  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
   /**
    *
    */
@@ -202,17 +202,18 @@ object RepresentationHandler {
     rdd.map(row ⇒ {
       val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
       val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
-      new LabeledPoint(label, Utils.arrayDoubleToVector(features));
+      new LabeledPoint(label, features);
+//      new LabeledPoint(label, Utils.arrayDoubleToVector(features));
     })
   }
   
-  def rowsToMllibVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[org.apache.spark.mllib.linalg.Vector] = {
-     val numCols = mappers.length
-    rdd.map(row ⇒ {
-      val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
-      Utils.arrayDoubleToVector(features)
-    })
-  }
+//  def rowsToMllibVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[org.apache.spark.mllib.linalg.Vector] = {
+//     val numCols = mappers.length
+//    rdd.map(row ⇒ {
+//      val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
+//      Utils.arrayDoubleToVector(features)
+//    })
+//  }
   
   def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[LabeledPoint]] = {
     val rddArrayDouble = rowsToArraysDouble(rdd, mappers)
@@ -232,7 +233,7 @@ object RepresentationHandler {
         val prediction: Array[Double] = new Array(1) // rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
         prediction(0) = currentRow(1)
 
-        lstRows.add(row, new LabeledPoint(label, Utils.arrayDoubleToVector(prediction)))
+        lstRows.add(row, new LabeledPoint(label, prediction))
         row += 1
       }
 

@@ -33,8 +33,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     val rMapped = dfrdd.map { partdf ⇒
       try {
         TransformationHandler.preShuffleMapper(partdf, mapFuncDef, reduceFuncDef, mapsideCombine)
-      }
-      catch {
+      } catch {
         case e: Exception ⇒ {
 
           e match {
@@ -55,8 +54,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     val rReduced = groupped.mapPartitions { partdf ⇒
       try {
         TransformationHandler.postShufflePartitionMapper(partdf, reduceFuncDef)
-      }
-      catch {
+      } catch {
         case e: Exception ⇒ {
           e match {
             case aExc: DDFException ⇒ throw aExc
@@ -115,8 +113,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
         rconn.close()
 
         partdfres
-      }
-      catch {
+      } catch {
         case e: DDFException ⇒ {
           throw new DDFException("Unable to perform NativeRserve transformation", e)
 
@@ -365,7 +362,8 @@ object TransformationHandler {
    * By now, whether mapsideCombine is true or false,
    * we both have each partition as a list of list(key=..., val=...)
    */
-  def doShuffle(rMapped: RDD[REXP]): RDD[(String, Iterable[REXP])] = {
+  //  def doShuffle(rMapped: RDD[REXP]): RDD[(String, Iterable[REXP])] = {
+  def doShuffle(rMapped: RDD[REXP]): RDD[(String, Seq[REXP])] = {
     val groupped = rMapped.flatMap { rexp ⇒
       rexp.asList().iterator.map { kv ⇒
         val kvl = kv.asInstanceOf[REXP].asList()
@@ -377,14 +375,14 @@ object TransformationHandler {
     // uncomment to debug
     // groupped.collectAsMap().foreach { case(k, vv) => println("k = " + k + ", vv = " + vv.toArray.map(_.toDebugString).mkString(",")) }
     groupped
-    
+
   }
 
   /**
    * serialize data to R, perform reduce,
    * then assemble each resulting partition as a data.frame of REXP in Java
    */
-  def postShufflePartitionMapper(input: Iterator[(String, Iterable[REXP])], reduceFuncDef: String): Iterator[REXP] = {
+  def postShufflePartitionMapper(input: Iterator[(String, Seq[REXP])], reduceFuncDef: String): Iterator[REXP] = {
     val rconn = new RConnection()
 
     // pre-amble

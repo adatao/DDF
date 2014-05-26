@@ -14,11 +14,10 @@ object RootBuild extends Build {
   val SPARK_VERSION = "0.9.1"
   val SHARK_VERSION = "0.9.1"
         val HIVE_VERSION = "0.11.0-shark-0.9.1"
-  
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
-  val theScalaVersion = "2.10.4"
+  val theScalaVersion = "2.10.3"
         val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
   val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
   //val theScalaVersion = "2.9.3"
@@ -131,6 +130,7 @@ object RootBuild extends Build {
    // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)

@@ -4,7 +4,6 @@ package com.adatao.spark.ddf.ml;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.content.Schema;
@@ -18,6 +17,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
+//import scala.actors.threadpool.Arrays;
 
 import com.adatao.ddf.types.TupleMatrixVector;
 import com.adatao.ddf.util.Utils.MethodInfo.ParamInfo;
@@ -147,7 +147,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
   }
 
 
-  private static class PredictMapper<I, O> implements FlatMapFunction<Iterator<I>, O> {
+  private static class PredictMapper<I, O> extends FlatMapFunction<Iterator<I>, O> {
 
     private static final long serialVersionUID = 1L;
     private IModel mModel;
@@ -189,7 +189,7 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
             if (sample instanceof LabeledPoint) {
               LabeledPoint s = (LabeledPoint) sample;
               label = s.label();
-              features = s.features().toArray();
+              features = s.features();
 
             } else {
               double[] s = (double[]) sample;

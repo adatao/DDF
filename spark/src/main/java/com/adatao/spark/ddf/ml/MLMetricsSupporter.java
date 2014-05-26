@@ -1,18 +1,21 @@
 package com.adatao.spark.ddf.ml;
 
 
+import java.lang.reflect.Array;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.rdd.RDD;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
+import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.IHandleRepresentations.IGetResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.AMLMetricsSupporter;
 import com.adatao.ddf.ml.RocMetric;
 import com.adatao.spark.ddf.SparkDDF;
+import org.apache.spark.mllib.regression.LabeledPoint;
+
 import com.adatao.spark.ddf.content.RepresentationHandler;
 
 public class MLMetricsSupporter extends AMLMetricsSupporter {
@@ -48,7 +51,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
   }
 
 
-  public static class MetricsMapperR2 implements Function<double[], double[]> {
+  public static class MetricsMapperR2 extends Function<double[], double[]> {
     private static final long serialVersionUID = 1L;
     public double meanYTrue = -1.0;
 
@@ -74,7 +77,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     }
   }
 
-  public static class MetricsReducerR2 implements Function2<double[], double[], double[]> {
+  public static class MetricsReducerR2 extends Function2<double[], double[], double[]> {
     private static final long serialVersionUID = 1L;
 
 
@@ -118,7 +121,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
     return residualDDF;
   }
   
-  public static class MetricsMapperResiduals implements Function<double[], double[]> {
+  public static class MetricsMapperResiduals extends Function<double[], double[]> {
     private static final long serialVersionUID = 1L;
 
     public MetricsMapperResiduals() throws DDFException {
@@ -149,10 +152,10 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 	IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class);
     RDD<double[]> predictionRDD =  (RDD<double[]>) gr.getObject();
     //convert from rdd[double[]] to rdd[LabeledPoint]
-    RDD<LabeledPoint[]> newrdd = RepresentationHandler.arrayDoubleToArrayLabeledPoints(predictionRDD);
+    RDD<LabeledPoint[]> newrdd = RepresentationHandler.rowsToArrayLabeledPoints2(predictionRDD);
     
     ROCComputer rc = new ROCComputer();
-    return (RocMetric) (rc.ROC(newrdd, alpha_length));
+    return(rc.ROC(newrdd, alpha_length));
     
   }
   
