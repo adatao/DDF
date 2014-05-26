@@ -84,6 +84,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         RDD_ROW, RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
   }
+  
 
   /**
    * Converts to an RDD[Row] from any representation
@@ -189,6 +190,8 @@ object RepresentationHandler {
         }
     }
   }
+  
+  
 
   def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[Double]] = {
     val numCols = mappers.length
@@ -466,5 +469,32 @@ object RepresentationHandler {
       // this is the per-partition Renjin data.frame
       REXP.createDataFrame(dflist)
     }
+  }
+  
+  //TODO move this method
+  def rowsToArrayLabeledPoints2(rdd: RDD[Array[Double]]): RDD[Array[LabeledPoint]] = {
+    rdd.mapPartitions(rows ⇒ {
+      val numCols = 2
+      var lstRows = new ArrayList[LabeledPoint]()
+      var row = 0
+      while (rows.hasNext) {
+        var currentRow = rows.next
+        val label = currentRow(0)
+        val prediction: Array[Double] = new Array(1) // rowToArray(currentRow, classOf[Double], new Array[Double](numCols - 1), mappers)
+        prediction(0) = currentRow(1)
+
+        lstRows.add(row, new LabeledPoint(label, prediction))
+        row += 1
+      }
+
+      val numRows = lstRows.size //rows.toArray[Row].length
+      val ret = new Array[LabeledPoint](numRows)
+      row = 0
+      while (row < lstRows.size) {
+        ret(row) = lstRows(row)
+        row += 1
+      }
+      Iterator(ret)
+    })
   }
 }
