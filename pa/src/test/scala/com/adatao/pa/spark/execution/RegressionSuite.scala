@@ -628,7 +628,7 @@ class RegressionSuite extends ABigRClientTest {
 	}
 
 	//	GOOD, result are identical with glm.gd
-	test("Multiple-variable logistic regression on sparse matrix, no sparse column") {
+	ignore("Multiple-variable logistic regression on sparse matrix, no sparse column") {
 
 		//load data
 		createTableAdmission
@@ -672,7 +672,7 @@ class RegressionSuite extends ABigRClientTest {
 		//		assertEquals(-0.9493, model.weights(2), 0.0001);
 	}
 
-	test("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
+	ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
 
 		//load data		
 		createTableAdmission
