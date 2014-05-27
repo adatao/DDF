@@ -27,6 +27,7 @@ class KryoRegistrator extends SharkKryoRegistrator {
     kryo.register(classOf[LogisticRegressionModel])
     kryo.register(classOf[IRLSLogisticRegressionModel])
     kryo.register(classOf[REXP])
+    kryo.register(classOf[org.apache.spark.mllib.clustering.KMeansModel])
     kryo.register(classOf[RList], new FieldSerializer(kryo, classOf[RList]))
     super.registerClasses(kryo)
   }

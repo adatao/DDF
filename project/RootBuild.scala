@@ -14,8 +14,8 @@ object RootBuild extends Build {
   val SPARK_VERSION = "1.0.0-SNAPSHOT"
   //val SHARK_VERSION = "0.9.1"
 
-  SHARK_VERSION = "1.0.0-SNAPSHOT"
-        val HIVE_VERSION = "0.11.0-shark-0.9.1"
+  val SHARK_VERSION = "1.0.0-SNAPSHOT"
+  val HIVE_VERSION = "0.11.0-shark-0.9.1"
   
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
