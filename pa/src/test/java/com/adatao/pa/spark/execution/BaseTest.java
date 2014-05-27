@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution;
 
 import static org.junit.Assert.fail;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -26,6 +27,8 @@ import org.apache.thrift.transport.TTransportException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
+
 import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.spark.execution.Sql2DataFrame;
 import com.adatao.pa.spark.execution.Sql2ListString;
@@ -75,6 +78,7 @@ public class BaseTest {
 		Thread.sleep(500);
 	}
 
+	
 	Sql2ListString.Sql2ListStringResult runSQLCmd(String sid, String cmdStr) throws TException {
 		Sql2ListString sql = new Sql2ListString().setSqlCmd(cmdStr);
 		JsonCommand cmd = new JsonCommand();
@@ -88,7 +92,7 @@ public class BaseTest {
 		return sResult;
 	}
 
-	Sql2DataFrame.Sql2DataFrameResult runSQL2RDDCmd(String sid, String cmdStr, Boolean cache) throws TException {
+	public  Sql2DataFrame.Sql2DataFrameResult runSQL2RDDCmd(String sid, String cmdStr, Boolean cache) throws TException {
 		Sql2DataFrame sql = new Sql2DataFrame(cmdStr, cache);
 		JsonCommand cmd = new JsonCommand();
 		Gson gson = new Gson();
@@ -99,7 +103,7 @@ public class BaseTest {
 		return ExecutionResult.fromJson(res.getResult(), Sql2DataFrame.Sql2DataFrameResult.class).result();
 	}
 
-
+	
 	void createTableMtcars(String sid) throws TException {
 		assert runSQLCmd(sid, "drop table if exists mtcars").isSuccess();
 		assert runSQLCmd(sid, "CREATE TABLE mtcars ("
