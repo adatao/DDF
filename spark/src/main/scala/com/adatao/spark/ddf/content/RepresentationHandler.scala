@@ -3,37 +3,28 @@
  */
 package com.adatao.spark.ddf.content
 
-import com.adatao.ddf.content.Schema.ColumnType
-import com.adatao.ddf.content.Schema.Column
-import com.adatao.ddf.content.Schema
+
 import java.lang.Class
 import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable
 import scala.collection.JavaConversions._
 import shark.api.Row
-import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
 import org.apache.spark.mllib.regression.LabeledPoint
-import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
+import com.adatao.ddf.content.{RepresentationHandler ⇒ RH}
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
-import org.apache.spark.api.java.function.Function
 import org.rosuda.REngine._
-import org.apache.hadoop.io.{ Text, IntWritable }
+import org.apache.hadoop.io.{Text, IntWritable}
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
-import com.adatao.ddf.types.Matrix
 import com.adatao.ddf._
-import com.adatao.ddf.types.Vector
-import com.adatao.ddf.types._
-import org.jblas.DoubleMatrix
+import com.adatao.ddf.types.{TupleMatrixVector, Vector, Matrix}
+
 import java.util.ArrayList
-import java.util.HashMap
 import com.adatao.spark.ddf.ml.TransformRow
-import com.adatao.ddf.content.AMetaDataHandler.ICustomMetaData
-import com.adatao.spark.ddf.content.MetaDataHandler._
-import com.adatao.ddf.content.Schema.ColumnClass
+
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
 import com.adatao.spark.ddf.util.Utils;
@@ -57,8 +48,9 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val schemaHandler = mDDF.getSchemaHandler
     val numCols = schemaHandler.getNumColumns.toInt
     val srcRdd = this.toRDDRow
-    val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
+    val mappers: Array[Object ⇒ Option[Double]] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
+    mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
     val schema = schemaHandler.getSchema()
     mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
     typeSpecs match {
@@ -77,7 +69,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         schemaHandler.generateDummyCoding() //generateDummyCoding(schema)
         val dummyCoding = schemaHandler.getSchema().getDummyCoding()
 
-        rowsToMatrixVectorRDD(srcRdd, mappers, dummyCoding)
+        rowsToMatrixVectorRDD(srcRdd, schemaHandler.getNumColumns, dummyCoding)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s\n - %s\n - %s",
         typeSpecs,
@@ -100,12 +92,12 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       return null // TODO
     }
 
-    val arraysObject = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Object]).asInstanceOf[RDD[Array[Object]]]
+    val arraysObject = this.get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
     if (arraysObject != null) {
       return null // TODO
     }
 
-    val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[_]], classOf[Double]).asInstanceOf[RDD[Array[Double]]]
+    val arraysDouble = this.get(classOf[RDD[_]], classOf[Array[Double]]).asInstanceOf[RDD[Array[Double]]]
     if (arraysDouble != null) {
       return null // TODO
     }
@@ -171,43 +163,48 @@ object RepresentationHandler {
   val RDD_REXP = RH.getKeyFor(Array(classOf[RDD[_]], classOf[REXP]))
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
+
 //  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
+
   /**
    *
    */
   def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
     rdd.map {
-      row ⇒
-        {
-          val size = row.rawdata.asInstanceOf[Array[Object]].size
-          val array = new Array[Object](size)
-          var idx = 0
-          while (idx < size) {
-            array(idx) = row.getPrimitive(idx)
-            idx += 1
-          }
-          array
+      row ⇒ {
+        val size = row.rawdata.asInstanceOf[Array[Object]].size
+        val array = new Array[Object](size)
+        var idx = 0
+        while (idx < size) {
+          array(idx) = row.getPrimitive(idx)
+          idx += 1
         }
+        array
+      }
     }
   }
   
   
 
-  def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[Double]] = {
+  def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Option[Double]]): RDD[Array[Double]] = {
     val numCols = mappers.length
     rdd.map {
       row ⇒ rowToArray(row, classOf[Double], new Array[Double](numCols), mappers)
-    }
+    }.filter(row => row != null)
   }
 
-  def rowsToLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[LabeledPoint] = {
+  def rowsToLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Option[Double]]): RDD[LabeledPoint] = {
     val numCols = mappers.length
     rdd.map(row ⇒ {
       val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
       val label = mappers(numCols - 1)(row.getPrimitive(numCols - 1))
-      new LabeledPoint(label, features);
-//      new LabeledPoint(label, Utils.arrayDoubleToVector(features));
-    })
+
+      if (features == null || label == None) {
+        null
+      } else {
+        new LabeledPoint(label.get, features)
+      }
+    }).filter(row => row != null)
   }
   
 //  def rowsToMllibVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[org.apache.spark.mllib.linalg.Vector] = {
@@ -218,10 +215,9 @@ object RepresentationHandler {
 //    })
 //  }
   
-  def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[Array[LabeledPoint]] = {
+  def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Option[Double]]): RDD[Array[LabeledPoint]] = {
     val rddArrayDouble = rowsToArraysDouble(rdd, mappers)
     arrayDoubleToArrayLabeledPoints(rddArrayDouble)
-    
   }
 
   //TODO move this method
@@ -251,23 +247,28 @@ object RepresentationHandler {
     })
   }
 
-  def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ T]): Array[T] = {
+  def rowToArray[T](row: Row, columnClass: Class[_], array: Array[T], mappers: Array[Object ⇒ Option[T]]): Array[T] = {
     var i = 0
-    while (i < array.size) {
-      array(i) = mappers(i)(row.getPrimitive(i))
+    var isNULL = false
+
+    while ((i < array.size) && !isNULL) {
+      mappers(i)(row.getPrimitive(i)) match {
+        case Some(number) => array(i) = number
+        case None => isNULL = true
+      }
       i += 1
     }
-    array
+    if (isNULL) null else array
   }
 
-  def rowsToMatrixVectorRDD(rdd: RDD[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): RDD[TupleMatrixVector] = {
+  def rowsToMatrixVectorRDD(rdd: RDD[Row], numColumns: Int, dc: DummyCoding): RDD[TupleMatrixVector] = {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
     println(">>>>> before calling printMetaData")
 
     //send to slave
-    rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc))
+    rdd.mapPartitions(rows => rowsToMatrixVector(rows, numColumns, dc))
   }
 
   //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
@@ -282,12 +283,9 @@ object RepresentationHandler {
   //
   //  }
 
-  def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
+  def rowsToMatrixVector(rows: Iterator[Row], numCols: Int, dc: DummyCoding): Iterator[TupleMatrixVector] = {
 
     println(">>> inside rowsToMatrixVector dummy coding = " + dc)
-
-    //number of original columns, including Y-column
-    val numCols = mappers.length
 
     //copy original data to arrayList
     var lstRows = new ArrayList[Array[Object]]()
@@ -310,7 +308,7 @@ object RepresentationHandler {
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
     println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
-//    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
+    //    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
     val X = new Matrix(numRows, dc.getNumberFeatures())
     //    var newX = new Matrix(numRows, numCols + numDummyColumns)
     //    val newY = new Vector(numRows)
@@ -379,14 +377,15 @@ object RepresentationHandler {
     }
     rdd.asInstanceOf[RDD[TablePartition]]
   }
-  private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
+
+  private def getDoubleMapper(colType: ColumnType): Object ⇒ Option[Double] = {
     colType match {
       case ColumnType.DOUBLE ⇒ {
-        case obj ⇒ obj.asInstanceOf[Double]
+        case obj ⇒ if (obj != null) Some(obj.asInstanceOf[Double]) else None
       }
 
       case ColumnType.INT ⇒ {
-        case obj ⇒ obj.asInstanceOf[Int].toDouble
+        case obj ⇒ if (obj != null) Some(obj.asInstanceOf[Int].toDouble) else None
       }
 
       case ColumnType.STRING ⇒ {
@@ -404,71 +403,74 @@ object RepresentationHandler {
    * note that a R data frame is just a list of column vectors with additional attributes
    */
   def tablePartitionsToRDataFrame(rdd: RDD[TablePartition], columnList: java.util.List[Column]): RDD[REXP] = {
-    rdd.filter { tp ⇒ tp.iterator.columnIterators.length > 0 }.map { tp ⇒
-      println("tp.numRows = " + tp.numRows)
-      println("columnIterators.length = " + tp.iterator.columnIterators.length)
+    rdd.filter {
+      tp ⇒ tp.iterator.columnIterators.length > 0
+    }.map {
+      tp ⇒
+        println("tp.numRows = " + tp.numRows)
+        println("columnIterators.length = " + tp.iterator.columnIterators.length)
 
-      // each TablePartition should not have more than MAX_INT rows,
-      // ArrayBuffer doesn't allow more than that anyway
-      val numRows = tp.numRows.asInstanceOf[Int]
+        // each TablePartition should not have more than MAX_INT rows,
+        // ArrayBuffer doesn't allow more than that anyway
+        val numRows = tp.numRows.asInstanceOf[Int]
 
-      val columns = columnList.zipWithIndex.map {
-        case (colMeta, colNo) ⇒
-          //mLog.info("processing column: {}, index = {}", colMeta, colNo)
-          val iter = tp.iterator.columnIterators(colNo)
-          val rvec = colMeta.getType match {
-            case ColumnType.INT ⇒ {
-              val builder = new mutable.ArrayBuilder.ofInt
-              var i = 0
-              while (i < tp.numRows) {
-                iter.next()
-                if (iter.current != null)
-                  builder += iter.current.asInstanceOf[IntWritable].get
-                else
-                  builder += REXPInteger.NA
-                i += 1
+        val columns = columnList.zipWithIndex.map {
+          case (colMeta, colNo) ⇒
+            //mLog.info("processing column: {}, index = {}", colMeta, colNo)
+            val iter = tp.iterator.columnIterators(colNo)
+            val rvec = colMeta.getType match {
+              case ColumnType.INT ⇒ {
+                val builder = new mutable.ArrayBuilder.ofInt
+                var i = 0
+                while (i < tp.numRows) {
+                  iter.next()
+                  if (iter.current != null)
+                    builder += iter.current.asInstanceOf[IntWritable].get
+                  else
+                    builder += REXPInteger.NA
+                  i += 1
+                }
+                new REXPInteger(builder.result)
               }
-              new REXPInteger(builder.result)
-            }
-            case ColumnType.DOUBLE ⇒ {
-              val builder = new mutable.ArrayBuilder.ofDouble
-              var i = 0
-              while (i < tp.numRows) {
-                iter.next()
-                if (iter.current != null)
-                  builder += iter.current.asInstanceOf[DoubleWritable].get
-                else
-                  builder += REXPDouble.NA
-                i += 1
+              case ColumnType.DOUBLE ⇒ {
+                val builder = new mutable.ArrayBuilder.ofDouble
+                var i = 0
+                while (i < tp.numRows) {
+                  iter.next()
+                  if (iter.current != null)
+                    builder += iter.current.asInstanceOf[DoubleWritable].get
+                  else
+                    builder += REXPDouble.NA
+                  i += 1
+                }
+                new REXPDouble(builder.result)
               }
-              new REXPDouble(builder.result)
-            }
-            case ColumnType.STRING ⇒ {
-              val buffer = new mutable.ArrayBuffer[String](numRows)
-              var i = 0
-              while (i < tp.numRows) {
-                iter.next()
-                if (iter.current != null)
-                  buffer += iter.current.asInstanceOf[Text].toString
-                else
-                  buffer += null
-                i += 1
+              case ColumnType.STRING ⇒ {
+                val buffer = new mutable.ArrayBuffer[String](numRows)
+                var i = 0
+                while (i < tp.numRows) {
+                  iter.next()
+                  if (iter.current != null)
+                    buffer += iter.current.asInstanceOf[Text].toString
+                  else
+                    buffer += null
+                  i += 1
+                }
+                new REXPString(buffer.toArray)
               }
-              new REXPString(buffer.toArray)
+              // TODO: REXPLogical
+              case _ ⇒ throw new DDFException("Cannot convert to double")
             }
-            // TODO: REXPLogical
-            
-            case _ ⇒ throw new DDFException("Cannot convert to double")
-          }
-          rvec.asInstanceOf[REXP]
-      }
+            rvec.asInstanceOf[REXP]
+        }
 
-      // named list of columns with colnames
-      val dflist = new RList(columns, columnList.map { m ⇒ m.getName })
+        // named list of columns with colnames
+        val dflist = new RList(columns, columnList.map {
+          m ⇒ m.getName
+        })
 
-      // this is the per-partition Renjin data.frame
-      REXP.createDataFrame(dflist)
+        // this is the per-partition Renjin data.frame
+        REXP.createDataFrame(dflist)
     }
   }
-  
 }

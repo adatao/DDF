@@ -5,6 +5,8 @@ package com.adatao.spark.ddf.etl;
 
 
 import java.util.List;
+
+import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.spark.rdd.RDD;
 import scala.Option;
 import scala.collection.Seq;
@@ -12,6 +14,7 @@ import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.Row;
 import shark.api.TableRDD;
+import shark.memstore2.MemoryTable;
 import shark.memstore2.TablePartition;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
@@ -21,6 +24,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
 import com.adatao.spark.ddf.SparkDDFManager;
 import com.adatao.spark.ddf.content.SchemaHandler;
+import org.apache.hadoop.hive.ql.metadata.Hive;
 /**
  * @author ctn
  * 
@@ -99,13 +103,17 @@ public class SqlHandler extends ASqlHandler {
       schema.setTableName(tableName);
     }
 
-    Option rddTablePartitionOrNull = SharkEnv.memoryMetadataManager().getTable("metastore_db", tableName);
-
     DDF ddf =  new SparkDDF(this.getManager(), rddRow, Row.class, null, tableName, schema);
 
-    if(rddTablePartitionOrNull.isDefined()){
-      RDD<TablePartition> rddTablePartition = (RDD<TablePartition>) rddTablePartitionOrNull.get();
-      ddf.getRepresentationHandler().add(rddTablePartition, RDD.class, TablePartition.class);
+    try {
+      String databaseName = Hive.get(SharkContext.hiveconf()).getCurrentDatabase();
+      Option memTableOrNull = SharkEnv.memoryMetadataManager().getMemoryTable(databaseName, tableName);
+      if(memTableOrNull.isDefined()){
+        RDD<TablePartition> rddTablePartition = (RDD<TablePartition>) ((MemoryTable) memTableOrNull.get()).getRDD().get();
+        ddf.getRepresentationHandler().add(rddTablePartition, RDD.class, TablePartition.class);
+      }
+    } catch(HiveException e) {
+      throw new DDFException(e);
     }
 
     return ddf;

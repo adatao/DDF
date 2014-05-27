@@ -7,7 +7,6 @@ import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
@@ -25,6 +24,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl()  throws DDFException {
+    System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + this.getDDF().getName());
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
     JavaRDD<Object[]> data = rdd.toJavaRDD();
