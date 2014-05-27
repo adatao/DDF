@@ -11,6 +11,8 @@ import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf.content.Schema.ColumnType
 import com.adatao.ddf.exception.DDFException
 import scala.collection.JavaConversions._
+import scala.reflect.runtime.universe._
+import scala.reflect.ClassTag
 
 /**
  */
@@ -20,24 +22,25 @@ object GetMultiFactor {
   def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType], rddUnit: Class[T]):
   JMap[JInt, JMap[String, JInt]] = {
 
-    val colsWithTypes: List[(JInt, ColumnType)] = (columnIndexes zip columnTypes).toList
-    getFactorCounts(rdd, colsWithTypes)(ClassManifest.fromClass(rddUnit))
+    getFactorCounts(rdd, columnIndexes, columnTypes)(ClassTag(rddUnit))
   }
 
-  def getFactorCounts[T](rdd: RDD[T], columnIndexesWithTypes: List[(JInt, ColumnType)])(implicit m: ClassManifest[T]): JMap[JInt, JMap[String, JInt]] = {
-    m match {
-      case tp if tp <:< manifest[TablePartition] => {
+  def getFactorCounts[T](rdd: RDD[T], columnIndexes: JList[JInt], columnTypes: JList[ColumnType])(implicit tag: ClassTag[T]): JMap[JInt, JMap[String, JInt]] = {
+    val columnIndexesWithTypes = (columnIndexes zip columnTypes).toList
+
+    tag.runtimeClass match {
+      case tp if tp == classOf[TablePartition] => {
         val mapper = new TablePartitionMapper(columnIndexesWithTypes)
         val rddTP = rdd.asInstanceOf[RDD[TablePartition]]
         rddTP.filter(table => table.numRows > 0).map(mapper).reduce(new MultiFactorReducer)
       }
-      case arrObj if arrObj <:< manifest[Array[Object]] => {
+      case arrObj if arrObj == classOf[Array[Object]] => {
         val mapper = new ArraryObjectMultiFactorMapper(columnIndexesWithTypes)
         val rddArrObj = rdd.asInstanceOf[RDD[Array[Object]]]
         rddArrObj.mapPartitions(mapper).reduce(new MultiFactorReducer)
       }
       case _ => {
-        throw new DDFException("Cannot get multi factor for RDD[%s]".format(m.toString))
+        throw new DDFException("Cannot get multi factor for RDD[%s]".format(tag.toString))
       }
     }
   }
