@@ -8,6 +8,7 @@ import org.junit.Assert._
 /**
   */
 class CrossValidationSuite extends ATestSuite {
+  createTableAirline()
 
   test("random Split") {
     val arr = for {
@@ -50,6 +51,18 @@ class CrossValidationSuite extends ATestSuite {
         val Array(a, b) = pair
         assert(a.intersect(b).isEmpty, "test set accross folds are not disjoint!")
       }
+    }
+  }
+
+  test("test with airline table") {
+    val ddf = manager.sql2ddf("select * from airline").asInstanceOf[SparkDDF]
+    for (split <- ddf.ML.CVKFold(5, 10)) {
+      val train = split(0).asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]]).collect()
+      val test = split(1).asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]]).collect().toSet
+      assertEquals(0.8, train.size / 301.0, 0.1)
+      assertEquals(0.2, test.size / 301.0, 0.1)
+      LOG.info(">>>>>> train.size = " + train.size)
+      LOG.info(">>>>>> test.size = " + test.size)
     }
   }
 }

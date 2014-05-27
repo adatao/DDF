@@ -130,7 +130,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   @Override
   public List<String> firstNRows(int numRows) throws DDFException {
     return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
-        String.format("Unable to fetch %d rows from table %%s", numRows));
+        String.format("Unable to fetch %d row(s) from table %%s", numRows));
   }
 
   @Override
@@ -139,7 +139,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
     String selectedColumns = Joiner.on(",").join(columnNames);
     return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
-        String.format("Unable to project columns %s from table %%s", selectedColumns));
+        String.format("Unable to project column(s) %s from table %%s", selectedColumns));
   }
   
   @Override
@@ -148,7 +148,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
 
     String selectedColumns = Joiner.on(",").join(columnNames);
     return sql2ddf(String.format("SELECT %s FROM %%s", selectedColumns),
-        String.format("Unable to project columns %s from table %%s", selectedColumns));
+        String.format("Unable to project column(s) %s from table %%s", selectedColumns));
   }
 
   // ///// Execute SQL command on the DDF ///////

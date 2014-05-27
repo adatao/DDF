@@ -793,6 +793,13 @@ public abstract class DDF extends ALoggable //
   }
 
 
+  public void setMutable(boolean isMutable) {
+    this.getMutabilityHandler().setMutable(isMutable);
+  }
+  
+  public boolean isMutable() {
+    return this.getMutabilityHandler().isMutable();
+  }
 
   /**
    * This will be called via the {@link ISupportPhantomReference} interface if this object was registered under
@@ -911,7 +918,6 @@ public abstract class DDF extends ALoggable //
   }
 
   // //// ISupportML //////
-
   public MLFacade ML;
 
 
