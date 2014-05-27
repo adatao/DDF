@@ -56,7 +56,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     typeSpecs match {
       case RDD_ROW => srcRdd
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
-      case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
+      case RDD_TABLE_PARTITION ⇒ throw new DDFException("Cannot get RDD[TablePartition].")
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
@@ -369,13 +369,6 @@ object RepresentationHandler {
     case f: java.lang.Float => f.toDouble
     case d: java.lang.Double => d
     case e => throw new RuntimeException("not a numeric Object " + (if (e != null) e.toString()))
-  }
-
-  def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {
-      row ⇒ row.rawdata.asInstanceOf[TablePartition]
-    }
-    rdd.asInstanceOf[RDD[TablePartition]]
   }
 
   private def getDoubleMapper(colType: ColumnType): Object ⇒ Option[Double] = {
