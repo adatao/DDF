@@ -333,7 +333,6 @@ object RepresentationHandler {
         if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
           columnStringValue = inputRow(columnIndex).toString() + ""
           newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
-          println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
         }
         //normal numeric column
         if (newValue == -1.0)
@@ -348,13 +347,11 @@ object RepresentationHandler {
       row += 1
     }
 
-    println(">>>>>>>>>>>>> final OLD X matrix = " + X.toString())
 
     if (dc.getNumDummyCoding > 0) {
       //most important step
       var newX: Matrix = trRow.instrument(X, dc.getMapping, dc.getxCols)
       //let's print the matrix
-      println(">>>>>>>>>>>>> NEWWWWWWWWWWWWWW final X matrix = " + newX.toString())
       val Z: TupleMatrixVector = new TupleMatrixVector(newX, Y)
       Iterator(Z)
     } else {

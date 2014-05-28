@@ -60,6 +60,7 @@ class LinearRegressionNormalEquation(
 
   override def train(dataContainerID: String, context: ExecutionContext): NQLinearRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
+    
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
