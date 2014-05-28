@@ -76,15 +76,6 @@ class MLMetricSuite extends FunSuite with SharedSparkContext {
 		assertEquals(20.09062, RddUtils.yMean(rdd), 0.01)
 	}
 
-	//legacy implementation
-	ignore("ROC curve unoptimized") {
-		// lm(formula = mpg ~ hp + wt, data = mtcars)
-		val rdd = sc.parallelize(mtcars).mapPartitions(MLUtils.rowsToPartitionMapper(Array(9, 10), 8))
-		val model = new LogisticRegressionModel(Vector(Array(-3.0, 1.5, -0.9)), null, 10)
-		val result = LogisticRegression.ROC_sequential(model, rdd)
-		println("length = " + result.pred.length)
-	}
-
 	//run the following in R to compare result
 	//pred <- prediction( ROCR.simple$predictions[1:10], ROCR.simple$labels[1:10])
 	//perf <- performance(pred,"auc")

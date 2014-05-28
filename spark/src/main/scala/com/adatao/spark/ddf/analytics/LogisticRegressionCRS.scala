@@ -1,15 +1,18 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
-import com.adatao.spark.ddf.analytics._
-import scala.util.Random
-import org.jblas.MatrixFunctions
-import org.jblas.DoubleMatrix
-import org.apache.spark.rdd.RDD
-import com.adatao.ddf.types._
 import java.util.HashMap
-import com.adatao.ddf.ml.IModel
+
+import scala.Array.canBuildFrom
+import scala.util.Random
+
+import org.apache.spark.rdd.RDD
+import org.jblas.DoubleMatrix
+import org.jblas.MatrixFunctions
+
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.MatrixSparse
+import com.adatao.ddf.types.TupleMatrixVector
+import com.adatao.ddf.types.Vector
 
 class LogisticRegressionCRS {
 
