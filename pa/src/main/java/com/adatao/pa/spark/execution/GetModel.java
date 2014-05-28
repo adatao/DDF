@@ -34,7 +34,7 @@ public class GetModel extends CExecutor {
 	String modelName;
 	Boolean cache = true;
 
-	public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
+	public static Logger LOG = LoggerFactory.getLogger(GetModel.class);
 
 	public GetModel(String modelName) {
 		this.modelName = modelName;
@@ -85,13 +85,7 @@ public class GetModel extends CExecutor {
 	}
 
 	static public class ModelResult extends SuccessResult {
-		// public String dataContainerID;
-		// public MetaInfo[] metaInfo;
-		// public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df)
-		// {
-		// this.dataContainerID = dataContainerID;
-		// this.metaInfo = df.getMetaInfo();
-		// }
+
 		public String id;
 
 		public ModelResult(IModel model) {

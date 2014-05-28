@@ -35,7 +35,7 @@ public class GetDDF extends CExecutor {
   String ddfName;
   Boolean cache = true;
 
-  public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
+  public static Logger LOG = LoggerFactory.getLogger(GetDDF.class);
 
 
   public GetDDF(String ddfName) {
