@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,55 +29,56 @@ import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.annotations.Expose;
 
 public class MultiContextConnect {
-	public static Logger LOG = LoggerFactory.getLogger(MultiContextConnect.class);
+  public static Logger LOG = LoggerFactory.getLogger(MultiContextConnect.class);
 
-	/**
-	 * These are created during gson deserialization process
-	 */
-	@Expose private String clientID;
-	@Expose private Boolean isShark;
+  /**
+   * These are created during gson deserialization process
+   */
+  @Expose private String clientID;
+  @Expose private Boolean isShark;
 
-	private String host;
+  private String host;
 
-	SessionManager sessionManager;
+  SessionManager sessionManager;
 
-	public MultiContextConnect(){
-		this.clientID = SessionManager.ANONYMOUS();
-		this.isShark = true;
-	}
-	
-	public JsonResult run() throws InterruptedException {
-		LOG.info("CLIENT ID: " + clientID);
-		if (sessionManager.hasClient(clientID)) {
-			String sessionID = sessionManager.getSessionID(clientID);
-			Session session = sessionManager.getSession(sessionID);
-			// fixed, however, this is a error-prone way to construct the json string, :((((((((
-			String res = String.format("{\"success\":true, \"result\":{\"host\":%s, \"thriftPort\":%s, \"uiPort\":%s, \"clientID\":\"%s\", \"sessionID\":\"%s\"}, \"resultType\":\"com.adatao.pa.spark.MultiContextConnectResult\"}", 
-					null, session.thriftPort(), session.uiPort(), session.clientID(), session.sessionID());
-			
-			return new JsonResult().setResult(res).setSid(sessionID);
-		}
 
-		ArrayBlockingQueue<ExecutionResult<MultiContextConnectResult>> resQueue 
-			= new ArrayBlockingQueue<ExecutionResult<MultiContextConnectResult>>(1);
+  public MultiContextConnect() {
+    this.clientID = SessionManager.ANONYMOUS();
+    this.isShark = true;
+  }
 
-		MultiContextThread sparkThread = (MultiContextThread) new MultiContextThread(host, resQueue)
-														.setClientID(clientID)
-														.setSessionManager(sessionManager)
-														.setShark(isShark);
-		sparkThread.start();
-		ExecutionResult<MultiContextConnectResult> res = resQueue.take();
-		System.out.println(res.toJson());
-		return new JsonResult().setResult(res.toJson()).setSid(res.result().sessionID());
-	}
+  public JsonResult run() throws InterruptedException {
+    LOG.info("CLIENT ID: " + clientID);
+    if (sessionManager.hasClient(clientID)) {
+      String sessionID = sessionManager.getSessionID(clientID);
+      Session session = sessionManager.getSession(sessionID);
+      // fixed, however, this is a error-prone way to construct the json string, :((((((((
+      String res = String
+          .format(
+              "{\"success\":true, \"result\":{\"host\":%s, \"thriftPort\":%s, \"uiPort\":%s, \"clientID\":\"%s\", \"sessionID\":\"%s\"}, \"resultType\":\"com.adatao.pa.spark.MultiContextConnectResult\"}",
+              null, session.thriftPort(), session.uiPort(), session.clientID(), session.sessionID());
 
-	public MultiContextConnect setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-		return this;
-	}
+      return new JsonResult().setResult(res).setSid(sessionID);
+    }
 
-	public MultiContextConnect setHost(String host) {
-		this.host = host;
-		return this;
-	}
+    ArrayBlockingQueue<ExecutionResult<MultiContextConnectResult>> resQueue = new ArrayBlockingQueue<ExecutionResult<MultiContextConnectResult>>(
+        1);
+
+    MultiContextThread sparkThread = (MultiContextThread) new MultiContextThread(host, resQueue).setClientID(clientID)
+        .setSessionManager(sessionManager).setShark(isShark);
+    sparkThread.start();
+    ExecutionResult<MultiContextConnectResult> res = resQueue.take();
+    System.out.println(res.toJson());
+    return new JsonResult().setResult(res.toJson()).setSid(res.result().sessionID());
+  }
+
+  public MultiContextConnect setSessionManager(SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+    return this;
+  }
+
+  public MultiContextConnect setHost(String host) {
+    this.host = host;
+    return this;
+  }
 }

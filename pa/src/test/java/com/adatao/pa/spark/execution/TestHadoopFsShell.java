@@ -33,7 +33,8 @@ public class TestHadoopFsShell extends BaseTest {
 	@Ignore
 	public void test() throws Exception {
 		JsonCommand cmd = new JsonCommand().setCmdName("connect");
-		Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+		Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues()
+				.create();
 
 		JsonResult res = client.execJsonCommand(cmd);
 		String sid = res.sid;
@@ -42,22 +43,15 @@ public class TestHadoopFsShell extends BaseTest {
 		// Test ls
 		HadoopFsShell hcmd = (HadoopFsShell) new HadoopFsShell("ls", "/");
 		LOG.info(gson.toJson(hcmd));
-		cmd.setSid(sid).setCmdName("HadoopFsShell").setParams(gson.toJson(hcmd));
+		cmd.setSid(sid).setCmdName("HadoopFsShell")
+				.setParams(gson.toJson(hcmd));
 		res = client.execJsonCommand(cmd);
 
-		HadoopFsShellResult result = ExecutionResult.fromJson(res.getResult(), HadoopFsShellResult.class).result();
+		HadoopFsShellResult result = ExecutionResult.fromJson(res.getResult(),
+				HadoopFsShellResult.class).result();
 		LOG.info("HadoopFsShell result: " + result.getResult());
 		assertEquals(true, result.getResult().indexOf("\"success\":false") < 0
 				&& result.getResult().indexOf("Error") < 0);
 
-		// Test tail
-		// hcmd = (HadoopCommand) new HadoopCommand("tail",
-		// "/Users/ngonpham/text.csv");
-		// LOG.info(gson.toJson(hcmd));
-		// cmd.setSid(sid).setCmdName("HadoopCommand").setParams(gson.toJson(hcmd));
-		// res = client.execJsonCommand(cmd);
-		//
-		// result = gson.fromJson(res.getResult(), HadoopCommandResult.class);
-		// LOG.info("HadoopCommand result: " + result.getResult());
 	}
 }

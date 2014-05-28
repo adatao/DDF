@@ -16,6 +16,7 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.DataManager.DataContainer;
@@ -25,32 +26,35 @@ import com.adatao.pa.spark.types.SuccessResult;
 
 @SuppressWarnings("serial")
 public class GetMetaInfo extends CExecutor {
-	private String dataContainerID;
+  private String dataContainerID;
 
-	static public class GetMetaInfoResult extends SuccessResult {
-		MetaInfo[] metaInfo;
 
-		public GetMetaInfoResult setMetaInfo(MetaInfo[] metaInfo) {
-			this.metaInfo = metaInfo.clone();
-			return this;
-		}
+  static public class GetMetaInfoResult extends SuccessResult {
+    MetaInfo[] metaInfo;
 
-		public MetaInfo[] getMetaInfo() {
-			return metaInfo;
-		}
-	}
 
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataManager dm = sparkThread.getDataManager();
-		DataContainer dc = dm.get(dataContainerID);
-		MetaInfo[] metaInfo = dc.getMetaInfo();
-		return new GetMetaInfoResult().setMetaInfo(metaInfo);
-	}
+    public GetMetaInfoResult setMetaInfo(MetaInfo[] metaInfo) {
+      this.metaInfo = metaInfo.clone();
+      return this;
+    }
 
-	public GetMetaInfo setDataContainerID(String dataContainerID) {
-		this.dataContainerID = dataContainerID;
-		return this;
-	}
+    public MetaInfo[] getMetaInfo() {
+      return metaInfo;
+    }
+  }
+
+
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) {
+    DataManager dm = sparkThread.getDataManager();
+    DataContainer dc = dm.get(dataContainerID);
+    MetaInfo[] metaInfo = dc.getMetaInfo();
+    return new GetMetaInfoResult().setMetaInfo(metaInfo);
+  }
+
+  public GetMetaInfo setDataContainerID(String dataContainerID) {
+    this.dataContainerID = dataContainerID;
+    return this;
+  }
 
 }
