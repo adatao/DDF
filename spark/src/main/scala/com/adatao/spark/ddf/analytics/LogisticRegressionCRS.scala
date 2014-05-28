@@ -83,7 +83,6 @@ object LogisticRegressionCRS {
   def buildParameters(columnsSummary: HashMap[String, Array[Double]]): (HashMap[Int, Array[Double]], HashMap[Int, Int], Int) = {
     val SPARSE_RANGE = Integer.parseInt(System.getProperty("sparse.max.range", "10000"))
 
-    println(">>>>>>>>>>SPARSE_RANGE=" + SPARSE_RANGE)
     //build sparse columns: column index, Array(min, max)
     //for example, ["1", [120, 10000]]
     //build column start index map
