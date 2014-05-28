@@ -19,7 +19,6 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
@@ -35,7 +34,7 @@ public class GetDDF extends CExecutor {
   String ddfName;
   Boolean cache = true;
 
-  public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
+  public static Logger LOG = LoggerFactory.getLogger(GetDDF.class);
 
 
   public GetDDF(String ddfName) {
@@ -50,21 +49,11 @@ public class GetDDF extends CExecutor {
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.getDDFByName(ddfName);
-      
-      System.out.println("ddf manager namespace = " + ddfManager.getNamespace());
-      System.out.println("ddf manager engine = " + ddfManager.getEngine());
-      
-      if(ddf != null) {
-    	  System.out.println(">>>>>>>>> succesful getting ddf from name = " + ddfName);
+      if (ddf != null) {
+        LOG.info("succesful getting ddf from name = " + ddfName);
+      } else {
+        LOG.info("Can not get ddf from name = " + ddfName);
       }
-      else
-    	  System.out.println(">>>>>>>>> can not get ddf from name = " + ddfName);
-
-      System.out.println(">>>>>>>>> getting ddf from name = " + ddfName);
-      //set Name
-//      ddf.setName(ddfName);
-      
-      
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
@@ -72,7 +61,7 @@ public class GetDDF extends CExecutor {
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
       if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
+        throw new AdataoException(AdataoExceptionCode.ERR_GETDDF_FAILED, e.getMessage(), null);
       } else {
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
@@ -30,7 +29,6 @@ import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import shark.api.JavaSharkContext;
 
 // For prototype/templating purpose
 // This executor returns the FULL result of a query as List<String>
@@ -62,28 +60,28 @@ public class Sql2ListString extends CExecutor {
       return new FailResult().setMessage("Sql command string is empty");
     }
 
-		DDFManager dm = sparkThread.getDDFManager();
-		try {
-			List<String> results = dm.sql2txt(sqlCmd);
-			if (sqlCmd.matches("^\\s*show\\s+tables\\s*$")){
-				List<String> toRemove = new ArrayList<String>(results.size());
-				//filter out ^bigrdf.+
-				for (String s: results){
-					if(s.matches("^bigrdf.+$")) {
-						toRemove.add(s);
-					}
-				}
-				results.removeAll(toRemove);
-			}
-			return new Sql2ListStringResult().setResults(results);
-		} catch (DDFException e) { 
-			// I cannot catch shark.api.QueryExecutionException directly
-			// most probably because of the problem explained in this
-			// http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-			throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
-			
-		}
-	}
+    DDFManager dm = sparkThread.getDDFManager();
+    try {
+      List<String> results = dm.sql2txt(sqlCmd);
+      if (sqlCmd.matches("^\\s*show\\s+tables\\s*$")) {
+        List<String> toRemove = new ArrayList<String>(results.size());
+        // filter out ^bigrdf.+
+        for (String s : results) {
+          if (s.matches("^bigrdf.+$")) {
+            toRemove.add(s);
+          }
+        }
+        results.removeAll(toRemove);
+      }
+      return new Sql2ListStringResult().setResults(results);
+    } catch (DDFException e) {
+      // I cannot catch shark.api.QueryExecutionException directly
+      // most probably because of the problem explained in this
+      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
+      throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
+
+    }
+  }
 
 
   public Sql2ListString setSqlCmd(String sqlCmd) {

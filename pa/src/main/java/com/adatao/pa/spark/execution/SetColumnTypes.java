@@ -16,38 +16,41 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import com.adatao.pa.spark.DataManager;
-import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.DataManager.MetaInfo;
+import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
 @SuppressWarnings("serial")
 public class SetColumnTypes extends CExecutor {
-	private MetaInfo[] metaInfos;
-	private String dataContainerID;
+  private MetaInfo[] metaInfos;
+  private String dataContainerID;
 
-	static public class SetColumnTypesResult extends SuccessResult {
 
-	}
+  static public class SetColumnTypesResult extends SuccessResult {
 
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		DataManager dm = sparkThread.getDataManager();
-		DataContainer dc = dm.get(dataContainerID);
-		MetaInfo oldMetaInfo;
+  }
 
-		for (MetaInfo mi : metaInfos) {
-			oldMetaInfo = dc.getColumnMetaInfoByName(mi.getHeader());
-			if (oldMetaInfo == null) {
-				return new FailResult().setMessage("Column name "+mi.getHeader()+" not found");
-			}
-			
-			oldMetaInfo.setType(mi.getType());
-		}
-		return new SetColumnTypesResult();
-	}
+
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) {
+    DataManager dm = sparkThread.getDataManager();
+    DataContainer dc = dm.get(dataContainerID);
+    MetaInfo oldMetaInfo;
+
+    for (MetaInfo mi : metaInfos) {
+      oldMetaInfo = dc.getColumnMetaInfoByName(mi.getHeader());
+      if (oldMetaInfo == null) {
+        return new FailResult().setMessage("Column name " + mi.getHeader() + " not found");
+      }
+
+      oldMetaInfo.setType(mi.getType());
+    }
+    return new SetColumnTypesResult();
+  }
 
 }

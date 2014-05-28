@@ -28,7 +28,6 @@ import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -93,7 +92,7 @@ public class Sql2DataFrame extends CExecutor {
       DDF ddf = ddfManager.sql2ddf(sqlCmd);
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
-      
+
       System.out.println(">>>>>>>>>>>>>>>>> add DDF name = " + ddfName);
 
       return new Sql2DataFrameResult(ddf);
