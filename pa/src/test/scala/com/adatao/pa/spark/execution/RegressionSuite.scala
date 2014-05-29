@@ -428,22 +428,27 @@ class RegressionSuite extends ABigRClientTest {
 	test("Categorical variable logistic regression IRLS - normal dataframe") {
 		createTableAdmission
 
-		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
+//		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
 
-		val lambda = 0.0
-		val projDataContainerId = this.projectDDF(dataContainerId, Array(2, 14), 12)
-		val executor = new LogisticRegressionIRLS(projDataContainerId, Array(2, 14), 12, 10, 1e-8, lambda, null, null, false)
+		createTableAirline
+		val loader = new Sql2DataFrame("select * from airline", true)
+		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+		assert(r0.isSuccess)
+		val dataContainerId = r0.dataContainerID
+		
+		val lambda = 2.0
+		val projDataContainerId = this.projectDDF(dataContainerId, Array(2, 8, 10), 3)
+		val executor = new LogisticRegressionIRLS(projDataContainerId, Array(0, 1, 2), 3, 10, 1e-8, lambda, null, null, false)
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 
 		assert(r.isSuccess)
 
 		val model = r.result
 
-		assert(model.numFeatures == 3)
-		assert(model.numSamples == 400)
-		assert(model.numIters == 4)
+		assert(model.numFeatures == 29)
+		assert(model.numSamples == 31)
 
-		assert(model.dummyColumnMapping != null)
+//		assert(model.dummyColumnMapping != null)
 	}
 
 	test("Single-variable logistic regression") {
@@ -589,7 +594,7 @@ class RegressionSuite extends ABigRClientTest {
 
 		val lambda = 0.0
 		val projDataContainerId = this.projectDDF(result.result.dataContainerID, Array(1, 18), 14)
-		val executor = new LinearRegressionNormalEquation(result.result.dataContainerID, Array(1, 18), 14, lambda)
+		val executor = new LinearRegressionNormalEquation(result.result.dataContainerID, Array(0, 1), 2, lambda)
 		val r = bigRClient.execute[NQLinearRegressionModel](executor)
 		assert(r.isSuccess)
 		val model = r.result

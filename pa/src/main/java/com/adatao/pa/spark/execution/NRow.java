@@ -28,7 +28,7 @@ import com.adatao.pa.spark.types.SuccessResult;
 @SuppressWarnings("serial")
 public class NRow extends CExecutor {
   private String dataContainerID;
-  
+
   // private String ddfName;
 
   public static Logger LOG = LoggerFactory.getLogger(NRow.class);
@@ -49,7 +49,7 @@ public class NRow extends CExecutor {
 
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     if (ddf == null) {
-      LOG.info("Cannot find the DDF " + dataContainerID);
+      LOG.error("Cannot find the DDF " + dataContainerID);
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }

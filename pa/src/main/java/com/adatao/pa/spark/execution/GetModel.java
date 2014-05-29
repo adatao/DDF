@@ -16,9 +16,9 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.ml.IModel;
 import com.adatao.pa.AdataoException;
@@ -31,74 +31,53 @@ import com.adatao.pa.spark.types.SuccessResult;
 // Create a DDF from an SQL Query
 @SuppressWarnings("serial")
 public class GetModel extends CExecutor {
-	String modelName;
-	Boolean cache = true;
+  String modelName;
+  Boolean cache = true;
 
-	public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
+  public static Logger LOG = LoggerFactory.getLogger(GetModel.class);
 
-	public GetModel(String modelName) {
-		this.modelName = modelName;
-	}
 
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		if (modelName == null) {
-			return new FailResult().setMessage("modelName string is empty");
-		}
-		try {
-			DDFManager ddfManager = sparkThread.getDDFManager();
-			IModel model = ddfManager.getModel(modelName);
-			
-			System.out.println(">>>>>>>>>> getting model by name = " + modelName);
+  public GetModel(String modelName) {
+    this.modelName = modelName;
+  }
 
-			System.out.println("ddf manager namespace = "
-					+ ddfManager.getNamespace());
-			System.out
-					.println("ddf manager engine = " + ddfManager.getEngine());
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+    if (modelName == null) {
+      return new FailResult().setMessage("modelName string is empty");
+    }
+    try {
+      DDFManager ddfManager = sparkThread.getDDFManager();
+      IModel model = ddfManager.getModel(modelName);
 
-			if (model != null) {
-				System.out
-						.println(">>>>>>>>> succesful getting model from name = "
-								+ modelName);
-			} else
-				System.out.println(">>>>>>>>> can not get model from name = "
-						+ modelName);
+      if (model != null) {
+        LOG.info(" succesful getting model from name = " + modelName);
+      } else LOG.error(" can not get model from name = " + modelName);
 
-			System.out
-					.println(">>>>>>>>> getting ddf from name = " + modelName);
-			
-			return new ModelResult(model);
+      return new ModelResult(model);
 
-		} catch (Exception e) {
-			// I cannot catch shark.api.QueryExecutionException directly
-			// most probably because of the problem explained in this
-			// http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-			if (e instanceof shark.api.QueryExecutionException) {
-				throw new AdataoException(
-						AdataoExceptionCode.ERR_LOAD_TABLE_FAILED,
-						e.getMessage(), null);
-			} else {
-				LOG.error("Cannot create a ddf from the sql command", e);
-				return null;
-			}
-		}
-	}
+    } catch (Exception e) {
+      // I cannot catch shark.api.QueryExecutionException directly
+      // most probably because of the problem explained in this
+      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
+      if (e instanceof shark.api.QueryExecutionException) {
+        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
+      } else {
+        LOG.error("Cannot create a ddf from the sql command", e);
+        return null;
+      }
+    }
+  }
 
-	static public class ModelResult extends SuccessResult {
-		// public String dataContainerID;
-		// public MetaInfo[] metaInfo;
-		// public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df)
-		// {
-		// this.dataContainerID = dataContainerID;
-		// this.metaInfo = df.getMetaInfo();
-		// }
-		public String id;
 
-		public ModelResult(IModel model) {
-			this.id = model.getName();//.substring(15).replace("_", "-");
-			
-			NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
-		}
-	}
+  static public class ModelResult extends SuccessResult {
+    public String id;
+
+    public ModelResult(IModel model) {
+      this.id = model.getName();// .substring(15).replace("_", "-");
+      //TODO change NQLinearRegressionModel to be generic
+      NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
+    }
+  }
 
 }

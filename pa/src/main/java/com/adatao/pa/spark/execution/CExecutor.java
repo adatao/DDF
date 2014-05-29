@@ -28,58 +28,56 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.google.gson.Gson;
 
-
 /**
  * Base implementation for all Executors, with helper methods for extracting parameters, etc.
  * 
  * @author ctn
  * 
- * This class is going to be deprecated and replaced by AExecutor
+ *         This class is going to be deprecated and replaced by AExecutor
  */
 @SuppressWarnings("serial")
 @Deprecated
 public abstract class CExecutor implements IExecutor, Serializable {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.adatao.pa.spark.types.IExecutor#run(com.adatao.pa.spark.SparkThread)
-	 */
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.adatao.pa.spark.types.IExecutor#run(com.adatao.pa.spark.SparkThread)
+   */
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	/**
-	 * Default implementation: prints out class name and all public fields
-	 */
-	@Override
-	public String toString() {
-		StringBuilder output = new StringBuilder(this.getClass().getSimpleName());
-		output.append("[");
+  /**
+   * Default implementation: prints out class name and all public fields
+   */
+  @Override
+  public String toString() {
+    StringBuilder output = new StringBuilder(this.getClass().getSimpleName());
+    output.append("[");
 
-		Gson gson = new Gson();
+    Gson gson = new Gson();
 
-		Field[] fields = this.getClass().getFields();
+    Field[] fields = this.getClass().getFields();
 
-		for (Field field : fields) {
-			output.append(field.getName());
+    for (Field field : fields) {
+      output.append(field.getName());
 
-			output.append("=");
+      output.append("=");
 
-			try {
-				output.append(gson.toJson(field.get(this)));
-			}
-			catch (Exception e) {
-				output.append(e.getMessage());
-			}
+      try {
+        output.append(gson.toJson(field.get(this)));
+      } catch (Exception e) {
+        output.append(e.getMessage());
+      }
 
-			output.append(",");
-		}
+      output.append(",");
+    }
 
-		output.append("]");
+    output.append("]");
 
-		return output.toString();
-	}
+    return output.toString();
+  }
 }

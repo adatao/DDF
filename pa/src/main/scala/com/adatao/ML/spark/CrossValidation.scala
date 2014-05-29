@@ -21,6 +21,7 @@ package com.adatao.ML.spark
 import org.apache.spark.{TaskContext, Partition}
 import org.apache.spark.rdd.RDD
 import java.util.Random
+import scala.reflect.ClassTag
 
 private[adatao]
 class SeededPartition(val prev: Partition, val seed: Int) extends Partition with Serializable {
@@ -28,7 +29,7 @@ class SeededPartition(val prev: Partition, val seed: Int) extends Partition with
 }
 
 private[adatao]
-class RandomSplitRDD[T: ClassManifest](
+class RandomSplitRDD[T: ClassTag](
     prev: RDD[T],
     seed: Long,
     lower: Double,
@@ -63,7 +64,7 @@ object CrossValidation {
 	  * for which the probability of each element belonging to each split is (trainingSize, 1-trainingSize).
 	  * The train & test data across k split are shuffled differently (different random seed for each iteration).
 	  */
-	def randomSplit[T](rdd: RDD[T], numSplits: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+	def randomSplit[T](rdd: RDD[T], numSplits: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassTag[T]): Iterator[(RDD[T], RDD[T])] = {
 		require(0 < trainingSize && trainingSize < 1)
 		val rg = new Random(seed)
 		(1 to numSplits).map(_ => rg.nextInt).map(z =>
@@ -76,7 +77,7 @@ object CrossValidation {
 	  * The location of the test data is shifted consistently between folds
 	  * so that the resulting test sets are pair-wise disjoint.
 	  */
-	def kFoldSplit[T](rdd: RDD[T], numSplits: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
+	def kFoldSplit[T](rdd: RDD[T], numSplits: Int, seed: Long)(implicit _cm: ClassTag[T]): Iterator[(RDD[T], RDD[T])] = {
 		require(numSplits > 0)
 		(for (lower <- 0.0 until 1.0 by 1.0/numSplits)
 			yield (new RandomSplitRDD(rdd, seed, lower, lower+1.0/numSplits, true),
