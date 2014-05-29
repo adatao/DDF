@@ -24,6 +24,10 @@ object CanConvertToTablePartition {
   implicit object SeqCanConvertToTablePartition extends CanConvertToTablePartition[Seq[_]] {
     def toTablePartition(rdd: RDD[Seq[_]], columns: JList[Column], tableName: String): RDD[TablePartition]  = {
 
+      if(columns == null | tableName == null) {
+        throw new DDFException("columns or tableName is null")
+      }
+
       val classTags = columns.map{col =>  getClassTagFromColumnType(col.getType)}
       val fields = columns.map{col => col.getName}
       val rddTableFunction = new RDDTableFunctions(rdd, classTags)
