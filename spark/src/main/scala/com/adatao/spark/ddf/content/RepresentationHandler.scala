@@ -43,7 +43,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
    */
   override def createRepresentation(typeSpecs: String): Object = {
     mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
-    mLog.info(s">>>>>>> TablePartition typeSpecs = $RDD_TABLE_PARTITION")
+
     typeSpecs match {
       case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
       case _ => this.fromRDDRow(typeSpecs)
