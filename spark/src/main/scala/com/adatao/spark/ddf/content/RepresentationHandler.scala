@@ -45,8 +45,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
     mLog.info(s">>>>>>> TablePartition typeSpecs = $RDD_TABLE_PARTITION")
     typeSpecs match {
-      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDSEQ(typeSpecs)
-      case rddSeq if rddSeq == RDD_SEQ => this.fromRDDArrayObject(typeSpecs)
+      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
       case _ => this.fromRDDRow(typeSpecs)
     }
   }
@@ -85,14 +84,10 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val rddArrObj = this.get(RDD_ARRAY_OBJECT).asInstanceOf[RDD[Array[Object]]]
 
     typeSpecs match {
-      case RDD_SEQ => rddArrObj.map(row => row.toSeq)
-    }
-  }
-
-  protected def fromRDDSEQ(typeSpecs: String): Object = {
-    val rddSEQ = this.fromRDDArrayObject(RDD_SEQ).asInstanceOf[RDD[Seq[_]]]
-    typeSpecs match {
-      case RDD_TABLE_PARTITION => this.getRDDTablePartition(rddSEQ, mDDF.getSchemaHandler.getColumns)
+      case RDD_TABLE_PARTITION => {
+        val rddSeq = rddArrObj.map{row => row.toSeq}.asInstanceOf[RDD[Seq[_]]]
+        this.getRDDTablePartition(rddSeq, mDDF.getSchemaHandler.getColumns)
+      }
     }
   }
 
@@ -186,7 +181,6 @@ object RepresentationHandler {
   val RDD_REXP = RH.getKeyFor(Array(classOf[RDD[_]], classOf[REXP]))
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
-  val RDD_SEQ = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Seq[_]]))
 //  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
 
   /**

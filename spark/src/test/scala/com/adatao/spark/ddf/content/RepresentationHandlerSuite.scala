@@ -39,7 +39,7 @@ class RepresentationHandlerSuite extends ATestSuite {
     val repHandler = ddf.getRepresentationHandler
     val rddArrDouble = ddf.getRDD(classOf[Array[Double]])
     val rddArrObj = ddf.getRDD(classOf[Array[Object]])
-    val rddArrLP = ddf.getRDD(classOf[LabeledPoint])
+    val rddArrLP = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[LabeledPoint])
 
     assert(repHandler.has(classOf[RDD[_]], classOf[TablePartition]))
     assert(repHandler.has(classOf[RDD[_]], classOf[Array[Double]]))
