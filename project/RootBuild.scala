@@ -130,9 +130,13 @@ object RootBuild extends Build {
     // needed by Hive
     //"commons-dbcp" % "commons-dbcp" % "1.4",
     //"org.apache.derby" % "derby" % "10.4.2.0",
-   // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    "org.apache.spark" %% "spark-sql" % SPARK_VERSION excludeAll(excludeSpark),
+     "org.apache.spark" %% "spark-mllib" % SPARK_VERSION excludeAll(excludeSpark),
+   // "org.apache.spark" %% "spark-catalyst" % SPARK_VERSION excludeAll(excludeSpark),
+  "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+     // "org.apache.spark" %% "spark-hive" % SPARK_VERSION excludeAll(excludeSpark),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
@@ -170,8 +174,8 @@ object RootBuild extends Build {
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
 //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
 resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
-resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-          "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+//resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+//         "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",

@@ -11,6 +11,9 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
+import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.api.java.JavaSQLContext;
+
 import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
@@ -76,6 +79,23 @@ public class SparkDDFManager extends DDFManager {
     this.mSparkContext = sparkContext;
   }
 
+  private SQLContext mSQLContext;
+  
+  public SQLContext getSQLContext() {
+    return mSQLContext;
+  }
+  
+  private JavaSQLContext mJavaSQLContext;
+  
+
+  public JavaSQLContext getmJavaSQLContext() {
+    return mJavaSQLContext;
+  }
+
+  public void setJavaSQLContext(JavaSQLContext javaSQLContext) {
+    this.mJavaSQLContext = javaSQLContext;
+  }
+
 
   private SharkContext mSharkContext;
 
@@ -105,7 +125,7 @@ public class SparkDDFManager extends DDFManager {
     this.setSparkContext(sharkContext);
   }
 
-
+  
   private Map<String, String> mSparkContextParams;
 
 
@@ -133,7 +153,6 @@ public class SparkDDFManager extends DDFManager {
     { "SPARK_APPNAME", "spark.appname" },
     { "SPARK_MASTER", "spark.master" }, 
     { "SPARK_HOME", "spark.home" }, 
-    { "SPARK_SERIALIZER", "spark.serializer" },
     { "SPARK_SERIALIZER", "spark.serializer" },
     { "HIVE_HOME", "hive.home" },
     { "HADOOP_HOME", "hadoop.home" },
