@@ -7,6 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.junit.Assert.assertEquals
 import scala.collection.JavaConversions._
+import com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_LABELED_POINT
 
 /**
  */
@@ -87,4 +88,24 @@ class RepresentationHandlerSuite extends ATestSuite {
       assert(ddf1.getNumRows + ddf2.getNumRows == 301)
     }
   }
+  
+  test("Can handle null value with generic DDF") {
+    val ddf = manager.sql2ddf("select year, month, dayofmonth from airline")
+
+    val rddArrDouble = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[Array[Double]])
+    val rddLP = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[LabeledPoint])
+    val rddArrLP = ddf.getRepresentationHandler().get(RepresentationHandler.RDD_ARRAY_LABELED_POINT);
+
+    val ArrArrDouble = rddArrDouble.asInstanceOf[RDD[Array[Double]]].collect()
+
+    ArrArrDouble.foreach {
+      row => assert(row(0) != 0.0, "row(0) == %s, expecting not 0.0".format(row(0)))
+    }
+    val count = rddLP.asInstanceOf[RDD[LabeledPoint]].count()
+    val count1 = rddArrLP.asInstanceOf[RDD[LabeledPoint]].count()
+
+    assertEquals(295, ArrArrDouble.size)
+    assertEquals(295, count)
+  }
+
 }
