@@ -36,8 +36,7 @@ import com.adatao.spark.ddf.content.MetaDataHandler._
 import com.adatao.ddf.content.Schema.ColumnClass
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
-import com.adatao.spark.ddf.util.Utils;
-//import org.apache.spark.mllib.linalg.Vector;
+
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -51,7 +50,15 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
   /**
    * Converts from an RDD[Row] to any representation
    */
-  override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
+  override def createRepresentation(typeSpecs: String): Object = {
+    mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
+    mLog.info(s">>>>>>> TablePartition typeSpecs = $RDD_TABLE_PARTITION")
+    typeSpecs match {
+      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDSEQ(typeSpecs)
+      case rddSeq if rddSeq == RDD_SEQ => this.fromRDDArrayObject(typeSpecs)
+      case _ => this.fromRDDRow(typeSpecs)
+    }
+  }
 
   protected def fromRDDRow(typeSpecs: String): Object = {
     val schemaHandler = mDDF.getSchemaHandler
@@ -61,6 +68,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
     val schema = schemaHandler.getSchema()
     mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
+    
     typeSpecs match {
       case RDD_ROW => srcRdd
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
@@ -83,6 +91,26 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         typeSpecs,
         RDD_ROW, RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
+  }
+
+  protected def fromRDDArrayObject(typeSpecs: String): Object = {
+    val rddArrObj = this.get(RDD_ARRAY_OBJECT).asInstanceOf[RDD[Array[Object]]]
+
+    typeSpecs match {
+      case RDD_SEQ => rddArrObj.map(row => row.toSeq)
+    }
+  }
+
+  protected def fromRDDSEQ(typeSpecs: String): Object = {
+    val rddSEQ = this.fromRDDArrayObject(RDD_SEQ).asInstanceOf[RDD[Seq[_]]]
+    typeSpecs match {
+      case RDD_TABLE_PARTITION => this.getRDDTablePartition(rddSEQ, mDDF.getSchemaHandler.getColumns)
+    }
+  }
+
+  protected def getRDDTablePartition[T](rdd: RDD[T], columns: java.util.List[Column])(implicit ev: CanConvertToTablePartition[T]): RDD[TablePartition] = {
+    val tableName = mDDF.getTableName
+    ev.toTablePartition(rdd, columns, tableName.replace("-", "_"))
   }
 
   /**
@@ -171,6 +199,7 @@ object RepresentationHandler {
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
   val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
+  val RDD_SEQ = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Seq[_]]))
   /**
    *
    */
