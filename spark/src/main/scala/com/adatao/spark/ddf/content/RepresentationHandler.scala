@@ -51,8 +51,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
    * Converts from an RDD[Row] to any representation
    */
   override def createRepresentation(typeSpecs: String): Object = {
-    mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
-    mLog.info(s">>>>>>> TablePartition typeSpecs = $RDD_TABLE_PARTITION")
+
     typeSpecs match {
       case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
       case _ => this.fromRDDRow(typeSpecs)
@@ -66,7 +65,6 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
     val schema = schemaHandler.getSchema()
-    mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
     
     typeSpecs match {
       case RDD_ROW => srcRdd
@@ -285,23 +283,10 @@ object RepresentationHandler {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
-    println(">>>>> before calling printMetaData")
 
     //send to slave
     rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc))
   }
-
-  //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-  //
-  //    println(">>>>> calling printMetaData")
-  //
-  //    if (dc == null) {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
-  //    } else {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
-  //    }
-  //
-  //  }
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
 
