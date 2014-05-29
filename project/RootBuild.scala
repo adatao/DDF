@@ -197,8 +197,8 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
       //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test" exclude("org.scala-lang", "scala-library") exclude("org.scala-lang", "scala-reflect"),
+      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test" exclude("org.scala-lang", "scala-library") exclude("org.scala-lang", "scala-reflect"),
       "com.novocode" % "junit-interface" % "0.9" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
@@ -256,8 +256,10 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
 
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
+    dependencyOverrides += "org.scala-lang" % "scala-compiler" % "2.10.4",
+    dependencyOverrides += "junit" % "junit" % "4.8.2",
+    dependencyOverrides += "commons-codec" % "commons-codec" % "1.4",
 
-    
     pomExtra := (
       <!--
       **************************************************************************************************
