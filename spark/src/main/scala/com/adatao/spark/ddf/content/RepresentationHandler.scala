@@ -36,6 +36,7 @@ import com.adatao.spark.ddf.content.MetaDataHandler._
 import com.adatao.ddf.content.Schema.ColumnClass
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
+import com.adatao.spark.ddf.util.Utils;
 
 
 /**
@@ -290,8 +291,6 @@ object RepresentationHandler {
 
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
 
-    println(">>> inside rowsToMatrixVector dummy coding = " + dc)
-
     //number of original columns, including Y-column
     val numCols = mappers.length
 
@@ -313,8 +312,6 @@ object RepresentationHandler {
 
     val numRows = lstRows.size
     var Y = new Vector(numRows)
-    //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
-    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
 //    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
     val X = new Matrix(numRows, dc.getNumberFeatures())
@@ -411,7 +408,6 @@ object RepresentationHandler {
 
       val columns = columnList.zipWithIndex.map {
         case (colMeta, colNo) ⇒
-          //mLog.info("processing column: {}, index = {}", colMeta, colNo)
           val iter = tp.iterator.columnIterators(colNo)
           val rvec = colMeta.getType match {
             case ColumnType.INT ⇒ {
