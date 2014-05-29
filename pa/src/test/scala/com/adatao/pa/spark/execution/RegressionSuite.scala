@@ -210,7 +210,7 @@ class RegressionSuite extends ABigRClientTest {
 	test("Categorical multiple variables linear regression on Shark") {
 		createTableAirline
 
-		val loader = new Sql2DataFrame("select * from airline", true)
+		val loader = new Sql2DataFrame("select v4, v17, v18, v3 from airline", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
 
@@ -379,7 +379,7 @@ class RegressionSuite extends ABigRClientTest {
 	test("Categorical variable logistic regression IRLS - no regularization - Shark ") {
 		createTableAdmission
 
-		val loader = new Sql2DataFrame("select * from admission", true)
+		val loader = new Sql2DataFrame("select v4, v1 from admission", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
 
@@ -387,12 +387,12 @@ class RegressionSuite extends ABigRClientTest {
 
 		val dataContainerId = r0.dataContainerID
 
-		var cmd1 = new GetMultiFactor(dataContainerId, Array(3))
+		var cmd1 = new GetMultiFactor(dataContainerId, Array(0))
 		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
 
 		val lambda = 0.0
-		val projDataContainerId = this.projectDDF(dataContainerId, Array(3), 0)
-		val executor = new LogisticRegressionIRLS(projDataContainerId, Array(3), 0, 25, 1e-8, lambda, null, null, false)
+		val projDataContainerId = this.projectDDF(dataContainerId, Array(0), 1)
+		val executor = new LogisticRegressionIRLS(projDataContainerId, Array(0), 1, 25, 1e-8, lambda, null, null, false)
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 
 		assert(r.isSuccess)
