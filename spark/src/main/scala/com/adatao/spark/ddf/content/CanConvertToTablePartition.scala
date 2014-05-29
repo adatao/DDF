@@ -59,6 +59,8 @@ object CanConvertToTablePartition {
       case ColumnType.INT    => ClassTag(classOf[Int])
       case ColumnType.DOUBLE => ClassTag(classOf[Double])
       case ColumnType.LONG   => ClassTag(classOf[Long])
+      case ColumnType.FLOAT  => ClassTag(classOf[Float])
+      case ColumnType.LOGICAL => ClassTag(classOf[Boolean])
       case x                 => throw new DDFException("Unknown type " + x.toString)
     }
   }
