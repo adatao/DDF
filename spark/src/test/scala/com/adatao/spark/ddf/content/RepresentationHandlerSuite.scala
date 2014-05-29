@@ -6,7 +6,7 @@ import shark.memstore2.TablePartition
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.junit.Assert.assertEquals
-
+import scala.collection.JavaConversions._
 /**
   */
 class RepresentationHandlerSuite extends ATestSuite {
@@ -63,5 +63,28 @@ class RepresentationHandlerSuite extends ATestSuite {
 
     assertEquals(295, ArrArrDouble.size)
     assertEquals(295, count)
+  }
+
+  test("Can do sql queries after CrossValidation ") {
+    val ddf = manager.sql2ddf("select * from airline").asInstanceOf[SparkDDF]
+    val tableName = ddf.getTableName
+    for (split <- ddf.ML.CVKFold(5, 10)) {
+      val train = split(0).asInstanceOf[SparkDDF]
+      val test = split(1).asInstanceOf[SparkDDF]
+
+      assert(train.getRepresentationHandler.has(classOf[RDD[_]], classOf[TablePartition]))
+      assert(test.getRepresentationHandler.has(classOf[RDD[_]], classOf[TablePartition]))
+
+      val tableName1 = train.getTableName.replace("-", "_")
+      val tableName2 = test.getTableName.replace("-", "_")
+
+      val ddf1 = train.getSqlHandler.sql2ddf(s"select month, year, dayofmonth from $tableName1")
+      val ddf2 = test.getSqlHandler.sql2ddf(s"select * from $tableName2")
+
+      assert(ddf1 != null)
+      assert(ddf2 != null)
+      assert(ddf1.getNumColumns == 3)
+      assert(ddf1.getNumRows + ddf2.getNumRows == 301)
+    }
   }
 }
