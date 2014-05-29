@@ -85,6 +85,10 @@ public class SparkDDFManager extends DDFManager {
     return mSQLContext;
   }
   
+  private void setSQLContext(SQLContext sqlContext) {
+    this.mSQLContext = sqlContext;
+  }
+  
   private JavaSQLContext mJavaSQLContext;
   
 
@@ -206,6 +210,7 @@ public class SparkDDFManager extends DDFManager {
         params.get("SPARK_HOME"), jobJars, params);
     this.setSharkContext(SharkEnv.initWithJavaSharkContext(mJavaSharkContext).sharkCtx());
 
+    mSQLContext = new SQLContext(mSparkContext);
 
     return this.getSparkContext();
   }
