@@ -51,6 +51,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore
   public void testTransformScaleMinMax() throws DDFException {
     DDF newddf0 = ddf.Transform.transformScaleMinMax();
     Summary[] summaryArr = newddf0.getSummary();
@@ -60,6 +61,7 @@ public class TransformationHandlerTest {
   }
 
   @Test
+  @Ignore 
   public void testTransformScaleStandard() throws DDFException {
     DDF newddf1 = ddf.Transform.transformScaleStandard();
     Assert.assertEquals(31, newddf1.getNumRows());
@@ -88,32 +90,36 @@ public class TransformationHandlerTest {
   @Test
   public void testTransformSql() throws DDFException {
     
+    ddf.setMutable(true);
+    ddf = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
+    
     Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(8, ddf.getNumColumns());
-    
-    DDF ddf0 = ddf.Transform.transformUDF("dist= round(distance/2, 2)");
-    Assert.assertEquals(31, ddf0.getNumRows());
-    Assert.assertEquals(9, ddf0.getNumColumns());
-    Assert.assertEquals("dist", ddf0.getColumnName(8));
-    
-    //specifying selected column list
-    List<String> cols = Lists.newArrayList("year","month","dayofweek");
-    
-    DDF ddf1 = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
-    Assert.assertEquals(31, ddf1.getNumRows());
-    Assert.assertEquals(4, ddf1.getNumColumns());
-    Assert.assertEquals("speed", ddf1.getColumnName(3));
+    Assert.assertEquals(9, ddf.getNumColumns());
+    Assert.assertEquals("dist", ddf.getColumnName(8));    
+    Assert.assertEquals(9, ddf.Views.firstNRows(1).get(0).split("\\t").length);
     
     //udf without assigning column name
-    DDF ddf2 = ddf.Transform.transformUDF("arrtime-deptime");
-    Assert.assertEquals(31, ddf2.getNumRows());
-    Assert.assertEquals(9, ddf2.getNumColumns());
+    ddf.Transform.transformUDF("arrtime-deptime");
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(10, ddf.getNumColumns());
+    Assert.assertEquals(10, ddf.getSummary().length);
+    
+   //specifying selected column list
+    List<String> cols = Lists.newArrayList("distance","arrtime","deptime");
+    
+    ddf = ddf.Transform.transformUDF("speed = distance/(arrtime-deptime)", cols);
+    Assert.assertEquals(31, ddf.getNumRows());
+    Assert.assertEquals(4, ddf.getNumColumns());
+    Assert.assertEquals("speed", ddf.getColumnName(3));
+    
+    ddf.setMutable(false);
     
     //multiple expressions, column name with special characters
-    DDF ddf3 = ddf0.Transform.transformUDF("arrtime-deptime, (speed^*- = distance/(arrtime-deptime)", cols);
+    DDF ddf3 = ddf.Transform.transformUDF("arrtime-deptime, (speed^*- = distance/(arrtime-deptime)", cols);
     Assert.assertEquals(31, ddf3.getNumRows());
     Assert.assertEquals(5, ddf3.getNumColumns());
     Assert.assertEquals("speed", ddf3.getColumnName(4));
+    Assert.assertEquals(5, ddf3.getSummary().length);
   }
   
   @After

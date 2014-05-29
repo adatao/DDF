@@ -4,4 +4,7 @@ import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 public interface IHandleMutability extends IHandleDDFFunctionalGroup {
 
+  public void setMutable(boolean isMutable);
+  
+  public boolean isMutable();
 }

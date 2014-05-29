@@ -16,12 +16,13 @@
 
 package com.adatao.pa.spark.execution;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
@@ -34,7 +35,6 @@ public class SetDDFName extends CExecutor {
   String ddfName;
 
   public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
-
 
   public SetDDFName(String dataContainerId, String ddfName) {
     this.dataContainerId = dataContainerId;
@@ -50,11 +50,23 @@ public class SetDDFName extends CExecutor {
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.getDDF(dataContainerId);
 
+      System.out.println("ddf manager namespace = "
+          + ddfManager.getNamespace());
+      System.out
+          .println("ddf manager engine = " + ddfManager.getEngine());
 
       if (ddf != null) {
-        LOG.info(" succesful setting ddf to alias name = " + ddfName);
+        System.out
+            .println(">>>>>>>>> succesful setting ddf to alias name = "
+                + ddfName);
         ddfManager.setDDFByName(ddf, ddfName);
-      } else LOG.error("Can not set ddf to alias name = " + ddfName);
+      } else
+        System.out.println(">>>>>>>>> can not set ddf to alias name = "
+            + ddfName);
+
+      System.out.println(">>>>>>>>> setting ddf from name = " + ddfName);
+      // set Name
+      // ddf.setName(ddfName);
 
       return new Sql2DataFrameResult(ddf);
 
@@ -62,7 +74,14 @@ public class SetDDFName extends CExecutor {
       // I cannot catch shark.api.QueryExecutionException directly
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      return null;
+      if (e instanceof shark.api.QueryExecutionException) {
+        throw new AdataoException(
+            AdataoExceptionCode.ERR_LOAD_TABLE_FAILED,
+            e.getMessage(), null);
+      } else {
+        LOG.error("Cannot create a ddf from the sql command", e);
+        return null;
+      }
     }
   }
 }
