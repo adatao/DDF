@@ -17,12 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -30,62 +28,56 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
-// For prototype/templating purpose
-// This executor returns the FULL result of a query as List<String>
+// Create a DDF from an SQL Query
 @SuppressWarnings("serial")
-public class Sql2ListString extends CExecutor {
-  String sqlCmd;
+public class GetModel extends CExecutor {
+  String modelName;
+  Boolean cache = true;
 
-  public static Logger LOG = LoggerFactory.getLogger(Sql2ListString.class);
-
-
-  public static class Sql2ListStringResult extends SuccessResult {
-    List<String> results;
+  public static Logger LOG = LoggerFactory.getLogger(GetModel.class);
 
 
-    public Sql2ListStringResult setResults(List<String> results) {
-      this.results = results;
-      return this;
-    }
-
-    public List<String> getResults() {
-      return results;
-    }
+  public GetModel(String modelName) {
+    this.modelName = modelName;
   }
-
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    if (sqlCmd == null) {
-      return new FailResult().setMessage("Sql command string is empty");
+    if (modelName == null) {
+      return new FailResult().setMessage("modelName string is empty");
     }
-
-    DDFManager dm = sparkThread.getDDFManager();
     try {
-      List<String> results = dm.sql2txt(sqlCmd);
-      if (sqlCmd.matches("^\\s*show\\s+tables\\s*$")) {
-        List<String> toRemove = new ArrayList<String>(results.size());
-        // filter out ^bigrdf.+
-        for (String s : results) {
-          if (s.matches("^bigrdf.+$")) {
-            toRemove.add(s);
-          }
-        }
-        results.removeAll(toRemove);
-      }
-      return new Sql2ListStringResult().setResults(results);
-    } catch (DDFException e) {
+      DDFManager ddfManager = sparkThread.getDDFManager();
+      IModel model = ddfManager.getModel(modelName);
+
+      if (model != null) {
+        LOG.info(" succesful getting model from name = " + modelName);
+      } else LOG.error(" can not get model from name = " + modelName);
+
+      return new ModelResult(model);
+
+    } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
-
+      if (e instanceof shark.api.QueryExecutionException) {
+        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
+      } else {
+        LOG.error("Cannot create a ddf from the sql command", e);
+        return null;
+      }
     }
   }
 
 
-  public Sql2ListString setSqlCmd(String sqlCmd) {
-    this.sqlCmd = sqlCmd;
-    return this;
+  static public class ModelResult extends SuccessResult {
+    public String id;
+
+    public ModelResult(IModel model) {
+      this.id = model.getName();// .substring(15).replace("_", "-");
+      //TODO change NQLinearRegressionModel to be generic
+      NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
+    }
   }
+
 }

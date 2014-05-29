@@ -1,9 +1,10 @@
 package com.adatao.ddf.ml;
 
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class RocMetric {
+public class RocMetric implements Serializable {
 
   public double[][] pred;
   public double auc;

@@ -88,6 +88,7 @@ object RootBuild extends Build {
   //val HADOOP_MAJOR_VERSION = "2"
 
   val slf4jVersion = "1.7.2"
+  val excludeAvro = ExclusionRule(organization = "org.apache.avro" , name = "avro-ipc")
   val excludeJacksonCore = ExclusionRule(organization = "org.codehaus.jackson", name = "jackson-core-asl")
   val excludeJacksonMapper = ExclusionRule(organization = "org.codehaus.jackson", name = "jackson-mapper-asl")
   val excludeNetty = ExclusionRule(organization = "org.jboss.netty", name = "netty")
@@ -130,11 +131,15 @@ object RootBuild extends Build {
     // needed by Hive
     //"commons-dbcp" % "commons-dbcp" % "1.4",
     //"org.apache.derby" % "derby" % "10.4.2.0",
-   // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
     "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    "org.apache.spark" %% "spark-sql" % SPARK_VERSION excludeAll(excludeSpark),
+     "org.apache.spark" %% "spark-mllib" % SPARK_VERSION excludeAll(excludeSpark),
+   // "org.apache.spark" %% "spark-catalyst" % SPARK_VERSION excludeAll(excludeSpark),
+  "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+     // "org.apache.spark" %% "spark-hive" % SPARK_VERSION excludeAll(excludeSpark),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
-    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION
+    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
   )
 
@@ -170,8 +175,8 @@ object RootBuild extends Build {
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
 //resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
 resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
-resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-          "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+//resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+//         "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
@@ -236,8 +241,19 @@ resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvn
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
     dependencyOverrides += "org.xerial.snappy" % "snappy-java" % "1.0.5", //spark-core conflicts with avro
     dependencyOverrides += "org.apache.httpcomponents" % "httpcore" % "4.1.4",
-    //dependencyOverrides += "org.apache.avro" % "avro-ipc" % "1.7.4",
+    dependencyOverrides += "org.apache.avro" % "avro-ipc" % "1.7.4",
+    dependencyOverrides += "org.apache.avro" % "avro" % "1.7.4",
+    dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.5",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
+    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
+    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
+     dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
+
     dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 

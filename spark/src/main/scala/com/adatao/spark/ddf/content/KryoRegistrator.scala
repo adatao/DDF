@@ -12,6 +12,7 @@ import org.jblas.DoubleMatrix
 import com.adatao.spark.ddf.analytics.TempCalculationValue
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.RList
+import com.adatao.ddf.ml.RocMetric
 
 class KryoRegistrator extends SharkKryoRegistrator {
   override def registerClasses(kryo: Kryo) {
@@ -25,6 +26,7 @@ class KryoRegistrator extends SharkKryoRegistrator {
       new FieldSerializer[Nothing](kryo, classOf[LossFunction]))
     kryo.register(classOf[TempCalculationValue])
     kryo.register(classOf[LogisticRegressionModel])
+    kryo.register(classOf[RocMetric])
     kryo.register(classOf[IRLSLogisticRegressionModel])
     kryo.register(classOf[REXP])
     kryo.register(classOf[org.apache.spark.mllib.clustering.KMeansModel])

@@ -17,76 +17,43 @@
 package com.adatao.pa.spark.execution;
 
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
-import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.SparkThread;
+import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
-import com.adatao.pa.spark.types.SuccessResult;
 
 // Create a DDF from an SQL Query
 @SuppressWarnings("serial")
-public class Sql2DataFrame extends CExecutor {
-  String sqlCmd;
+public class GetDDF extends CExecutor {
+  String ddfName;
   Boolean cache = true;
 
-  public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
+  public static Logger LOG = LoggerFactory.getLogger(GetDDF.class);
 
 
-  public Sql2DataFrame(String sqlCmd, Boolean cache) {
-    this.sqlCmd = sqlCmd;
-    this.cache = cache;
+  public GetDDF(String ddfName) {
+    this.ddfName = ddfName;
   }
-
-
-  static public class Sql2DataFrameResult extends SuccessResult {
-    // public String dataContainerID;
-    // public MetaInfo[] metaInfo;
-    // public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
-    // this.dataContainerID = dataContainerID;
-    // this.metaInfo = df.getMetaInfo();
-    // }
-    public String dataContainerID;
-    public MetaInfo[] metaInfo;
-
-
-    public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
-      this.metaInfo = generateMetaInfo(ddf.getSchema());
-    }
-
-    public static MetaInfo[] generateMetaInfo(Schema schema) {
-      List<Column> columns = schema.getColumns();
-      MetaInfo[] metaInfo = new MetaInfo[columns.size()];
-      for (int i = 0; i < columns.size(); i++) {
-        metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
-      }
-      return metaInfo;
-    }
-  }
-
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    if (sqlCmd == null) {
-      return new FailResult().setMessage("Sql command string is empty");
+    if (ddfName == null) {
+      return new FailResult().setMessage("ddfName string is empty");
     }
-
     try {
-      
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.sql2ddf(sqlCmd);
-      String ddfName = ddfManager.addDDF(ddf);
-      LOG.info("DDF Name: " + ddfName);
-
+      DDF ddf = ddfManager.getDDFByName(ddfName);
+      if (ddf != null) {
+        LOG.info("succesful getting ddf from name = " + ddfName);
+      } else {
+        LOG.info("Can not get ddf from name = " + ddfName);
+      }
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
@@ -94,7 +61,7 @@ public class Sql2DataFrame extends CExecutor {
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
       if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
+        throw new AdataoException(AdataoExceptionCode.ERR_GETDDF_FAILED, e.getMessage(), null);
       } else {
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;

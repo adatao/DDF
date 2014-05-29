@@ -37,7 +37,7 @@ import com.adatao.ddf.content.Schema.ColumnClass
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
 import com.adatao.spark.ddf.util.Utils;
-//import org.apache.spark.mllib.linalg.Vector;
+
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -51,7 +51,13 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
   /**
    * Converts from an RDD[Row] to any representation
    */
-  override def createRepresentation(typeSpecs: String): Object = this.fromRDDRow(typeSpecs)
+  override def createRepresentation(typeSpecs: String): Object = {
+
+    typeSpecs match {
+      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
+      case _ => this.fromRDDRow(typeSpecs)
+    }
+  }
 
   protected def fromRDDRow(typeSpecs: String): Object = {
     val schemaHandler = mDDF.getSchemaHandler
@@ -60,11 +66,11 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     val mappers: Array[Object ⇒ Double] = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
 
     val schema = schemaHandler.getSchema()
-    mLog.info(">>>>>>> typeSpecs = " + typeSpecs)
+    
     typeSpecs match {
       case RDD_ROW => srcRdd
       case RDD_REXP ⇒ tablePartitionsToRDataFrame(mReps.get(RDD_TABLE_PARTITION).asInstanceOf[RDD[TablePartition]], schemaHandler.getColumns)
-      case RDD_TABLE_PARTITION ⇒ rowsToTablePartitions(srcRdd)
+      case RDD_TABLE_PARTITION ⇒ throw new DDFException("Cannot get RDD[TablePartition].")
       case RDD_ARRAY_OBJECT ⇒ rowsToArraysObject(srcRdd)
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
@@ -83,6 +89,22 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         typeSpecs,
         RDD_ROW, RDD_REXP, RDD_TABLE_PARTITION, RDD_ARRAY_OBJECT, RDD_ARRAY_DOUBLE, RDD_LABELED_POINT, RH.NATIVE_TABLE))
     }
+  }
+
+  protected def fromRDDArrayObject(typeSpecs: String): Object = {
+    val rddArrObj = this.get(RDD_ARRAY_OBJECT).asInstanceOf[RDD[Array[Object]]]
+
+    typeSpecs match {
+      case RDD_TABLE_PARTITION => {
+        val rddSeq = rddArrObj.map{row => row.toSeq}.asInstanceOf[RDD[Seq[_]]]
+        this.getRDDTablePartition(rddSeq, mDDF.getSchemaHandler.getColumns)
+      }
+    }
+  }
+
+  protected def getRDDTablePartition[T](rdd: RDD[T], columns: java.util.List[Column])(implicit ev: CanConvertToTablePartition[T]): RDD[TablePartition] = {
+    val tableName = mDDF.getTableName
+    ev.toTablePartition(rdd, columns, tableName.replace("-", "_"))
   }
 
   /**
@@ -171,6 +193,8 @@ object RepresentationHandler {
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
   val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
+  val RDD_SEQ = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Seq[_]]))
+
   /**
    *
    */
@@ -260,27 +284,12 @@ object RepresentationHandler {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
-    println(">>>>> before calling printMetaData")
 
     //send to slave
     rdd.mapPartitions(rows => rowsToMatrixVector(rows, mappers, dc))
   }
 
-  //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-  //
-  //    println(">>>>> calling printMetaData")
-  //
-  //    if (dc == null) {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
-  //    } else {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
-  //    }
-  //
-  //  }
-
   def rowsToMatrixVector(rows: Iterator[Row], mappers: Array[Object ⇒ Double], dc: DummyCoding): Iterator[TupleMatrixVector] = {
-
-    println(">>> inside rowsToMatrixVector dummy coding = " + dc)
 
     //number of original columns, including Y-column
     val numCols = mappers.length
@@ -303,8 +312,6 @@ object RepresentationHandler {
 
     val numRows = lstRows.size
     var Y = new Vector(numRows)
-    //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
-    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
 
 //    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
     val X = new Matrix(numRows, dc.getNumberFeatures())
@@ -331,7 +338,6 @@ object RepresentationHandler {
         if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
           columnStringValue = inputRow(columnIndex).toString() + ""
           newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
-          println("\tcolumnIndex=" + columnIndex + "\tcolumnStringValue=" + columnStringValue + "\tnewValue=" + newValue)
         }
         //normal numeric column
         if (newValue == -1.0)
@@ -346,13 +352,11 @@ object RepresentationHandler {
       row += 1
     }
 
-    println(">>>>>>>>>>>>> final OLD X matrix = " + X.toString())
 
     if (dc.getNumDummyCoding > 0) {
       //most important step
       var newX: Matrix = trRow.instrument(X, dc.getMapping, dc.getxCols)
       //let's print the matrix
-      println(">>>>>>>>>>>>> NEWWWWWWWWWWWWWW final X matrix = " + newX.toString())
       val Z: TupleMatrixVector = new TupleMatrixVector(newX, Y)
       Iterator(Z)
     } else {
@@ -369,13 +373,7 @@ object RepresentationHandler {
     case e => throw new RuntimeException("not a numeric Object " + (if (e != null) e.toString()))
   }
 
-  def rowsToTablePartitions(rdd: RDD[Row]): RDD[TablePartition] = {
-    rdd.map {
-      row ⇒ row.rawdata.asInstanceOf[TablePartition]
-    }
-    rdd.asInstanceOf[RDD[TablePartition]]
-  }
-  private def getDoubleMapper(colType: ColumnType): Object ⇒ Double = {
+  private def getDoubleMapper(colType: ColumnType): Object ⇒ Option[Double] = {
     colType match {
       case ColumnType.DOUBLE ⇒ {
         case obj ⇒ obj.asInstanceOf[Double]
@@ -410,7 +408,6 @@ object RepresentationHandler {
 
       val columns = columnList.zipWithIndex.map {
         case (colMeta, colNo) ⇒
-          //mLog.info("processing column: {}, index = {}", colMeta, colNo)
           val iter = tp.iterator.columnIterators(colNo)
           val rvec = colMeta.getType match {
             case ColumnType.INT ⇒ {

@@ -11,6 +11,9 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
+import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.api.java.JavaSQLContext;
+
 import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
@@ -55,7 +58,17 @@ public class SparkDDFManager extends DDFManager {
   private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
     this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
 
-    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
+    //it will never go here
+    //TODO remove later
+    if (sparkContext instanceof SharkContext) {
+    	this.setSharkContext((SharkContext) sparkContext);
+    	sparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	mSharkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	mSparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	
+    	System.out.println(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
+    	System.out.println(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSparkContext.conf().get("spark.kryo.registrator"));
+    }
   }
 
 
@@ -74,6 +87,27 @@ public class SparkDDFManager extends DDFManager {
 
   private void setSparkContext(SparkContext sparkContext) {
     this.mSparkContext = sparkContext;
+  }
+
+  private SQLContext mSQLContext;
+  
+  public SQLContext getSQLContext() {
+    return mSQLContext;
+  }
+  
+  private void setSQLContext(SQLContext sqlContext) {
+    this.mSQLContext = sqlContext;
+  }
+  
+  private JavaSQLContext mJavaSQLContext;
+  
+
+  public JavaSQLContext getmJavaSQLContext() {
+    return mJavaSQLContext;
+  }
+
+  public void setJavaSQLContext(JavaSQLContext javaSQLContext) {
+    this.mJavaSQLContext = javaSQLContext;
   }
 
 
@@ -105,7 +139,7 @@ public class SparkDDFManager extends DDFManager {
     this.setSparkContext(sharkContext);
   }
 
-
+  
   private Map<String, String> mSparkContextParams;
 
 
@@ -133,7 +167,6 @@ public class SparkDDFManager extends DDFManager {
     { "SPARK_APPNAME", "spark.appname" },
     { "SPARK_MASTER", "spark.master" }, 
     { "SPARK_HOME", "spark.home" }, 
-    { "SPARK_SERIALIZER", "spark.serializer" },
     { "SPARK_SERIALIZER", "spark.serializer" },
     { "HIVE_HOME", "hive.home" },
     { "HADOOP_HOME", "hadoop.home" },
@@ -187,8 +220,13 @@ public class SparkDDFManager extends DDFManager {
         params.get("SPARK_HOME"), jobJars, params);
     this.setSharkContext(SharkEnv.initWithJavaSharkContext(mJavaSharkContext).sharkCtx());
 
+    mSQLContext = new SQLContext(mSparkContext);
 
-    return this.getSparkContext();
+    //set up serialization from System property
+	mSharkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
+	mSparkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
+    
+	return this.getSparkContext();
   }
   
   public DDF loadTable(String fileURL, String fieldSeparator) throws DDFException {

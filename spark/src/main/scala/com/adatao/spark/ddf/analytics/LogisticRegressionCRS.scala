@@ -1,15 +1,18 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
-import com.adatao.spark.ddf.analytics._
-import scala.util.Random
-import org.jblas.MatrixFunctions
-import org.jblas.DoubleMatrix
-import org.apache.spark.rdd.RDD
-import com.adatao.ddf.types._
 import java.util.HashMap
-import com.adatao.ddf.ml.IModel
+
+import scala.Array.canBuildFrom
+import scala.util.Random
+
+import org.apache.spark.rdd.RDD
+import org.jblas.DoubleMatrix
+import org.jblas.MatrixFunctions
+
+import com.adatao.ddf.types.Matrix
+import com.adatao.ddf.types.MatrixSparse
+import com.adatao.ddf.types.TupleMatrixVector
+import com.adatao.ddf.types.Vector
 
 class LogisticRegressionCRS {
 
@@ -83,7 +86,6 @@ object LogisticRegressionCRS {
   def buildParameters(columnsSummary: HashMap[String, Array[Double]]): (HashMap[Int, Array[Double]], HashMap[Int, Int], Int) = {
     val SPARSE_RANGE = Integer.parseInt(System.getProperty("sparse.max.range", "10000"))
 
-    println(">>>>>>>>>>SPARSE_RANGE=" + SPARSE_RANGE)
     //build sparse columns: column index, Array(min, max)
     //for example, ["1", [120, 10000]]
     //build column start index map
