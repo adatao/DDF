@@ -209,22 +209,14 @@ public class Schema implements Serializable {
 
 				//TODO update this code
 				i = 0;
-				System.out.println(">>>>>>>>>>>> printing dummy coding");
 				temp = new HashMap<String, java.lang.Double>();
 				while (iterator.hasNext()) {
 					String columnValue = iterator.next();
-					
-					
-					System.out.println(">>>>>> columnValue\t" + columnValue + "\t vlaue=" + currentColumnFactor.get(columnValue));
-					
 					temp.put(columnValue, Double.parseDouble(i + ""));
 					i += 1;
 				}
 				dc.getMapping().put(currentColumnIndex, temp);
-
-				
 				count += temp.size() - 1;
-				System.out.println(">>>>>>>>>>>> count = " + count + "\t tempsize = " + temp.size());
 			}
 		}
 		dc.setNumDummyCoding(count);
@@ -246,11 +238,7 @@ public class Schema implements Serializable {
 		
 		//dc.getMapping().size() means number of factor column
 		_features -= (dc.getMapping().size() > 0) ? dc.getMapping().size() : 0;
-		
-		System.out.println(">>>>> numFeatures = " + _features);
-
 		dc.setNumberFeatures(_features);
-
 		// set number of features in schema
 
 		this.setDummyCoding(dc);

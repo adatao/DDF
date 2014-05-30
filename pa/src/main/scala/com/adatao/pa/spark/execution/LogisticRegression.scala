@@ -63,7 +63,7 @@ class LogisticRegression(
     ddf.getSchema().generateDummyCoding()
 
     val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
-    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
     //
     //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
     //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)

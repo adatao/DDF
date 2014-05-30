@@ -48,7 +48,6 @@ public class CategoricalNode extends Node {
 
 	@Override
 	public double classify(Instance instance) {
-		//System.out.println(this.toString());
 		int index = -1;
 		for (int i = 0; i < values.length; i++) {
 			if (instance.get(attr) == values[i]) {

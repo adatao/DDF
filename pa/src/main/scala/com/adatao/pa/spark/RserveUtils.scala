@@ -40,8 +40,8 @@ object RserveUtils extends TCanLog {
 	 */
 	def TablePartitionsAsRDataFrame(rdd: RDD[TablePartition], metaInfo: Array[MetaInfo]): RDD[REXP] = {
 		rdd.filter { tp => tp.iterator.columnIterators.length > 0 }.map { tp =>
-			println("AHT !!! tp.numRows = "+tp.numRows)
-			println("AHT !!! columnIterators.length = "+tp.iterator.columnIterators.length)
+			LOG.info("AHT !!! tp.numRows = "+tp.numRows)
+			LOG.info("AHT !!! columnIterators.length = "+tp.iterator.columnIterators.length)
 
 			// each TablePartition should not have more than MAX_INT rows,
 			// ArrayBuffer doesn't allow more than that anyway
@@ -128,8 +128,8 @@ object RserveUtils extends TCanLog {
 			val dflist = partdf.asList()
 			val partitionSize = (0 until dflist.size()).map(j => dflist.at(j).length()).reduce{ (x,y) => math.max(x,y) }
 
-			println("AHT !!! partdf.len = " + partdf.length())
-			println("AHT !!! partitionSize = " + partitionSize)
+			LOG.info("AHT !!! partdf.len = " + partdf.length())
+			LOG.info("AHT !!! partitionSize = " + partitionSize)
 
 			// big allocation!
 			val jdata = Array.ofDim[Object](partitionSize, dflist.size())

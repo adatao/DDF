@@ -28,38 +28,33 @@ class GradientDescent {
 
 object GradientDescent extends TCanLog {
 
-	def runBatch[XYDataType](
-		lossFunction: ALossFunction,
-		initialWeights: Vector,
-		learningRate: Double,
-		numIters: Int): (Vector, Vector, Long) = {
+  def runBatch[XYDataType](
+    lossFunction: ALossFunction,
+    initialWeights: Vector,
+    learningRate: Double,
+    numIters: Int): (Vector, Vector, Long) = {
 
-		println(">>>>>>>>>>>>>>>> GradientDescent initial weights rows = " + initialWeights.getRows() + "\tnumColumns=" + initialWeights.getColumns())
+    _LOG.info(" GradientDescent initial weights rows = " + initialWeights.getRows() + "\tnumColumns=" + initialWeights.getColumns())
 
-		// Track training errors for all iterations, plus 1 more for the error before the first iteration
-		val trainingLosses = new Vector(numIters + 1)
-		val weights = initialWeights.dup
+    // Track training errors for all iterations, plus 1 more for the error before the first iteration
+    val trainingLosses = new Vector(numIters + 1)
+    val weights = initialWeights.dup
 
-		var iter = 0
-		var computedLoss: ALossFunction = null
-		while (iter < numIters + 1) {
-			
-			computedLoss = lossFunction.compute(weights)
-			
-			// Update the weights, except for the last iteration
-			// weights = weights - alpha * averageGradient
-			if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
-			trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
-			
-			println(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
+    var iter = 0
+    var computedLoss: ALossFunction = null
+    while (iter < numIters + 1) {
 
-			iter += 1
-		}
+      computedLoss = lossFunction.compute(weights)
 
-		
-		//		LOG.info("final weights = %s".format(weights.toString))
-		//		LOG.info("trainingLosses = %s".format(trainingLosses.toString))
+      // Update the weights, except for the last iteration
+      // weights = weights - alpha * averageGradient
+      if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
+      trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
 
-		(weights, trainingLosses, computedLoss.numSamples)
-	}
+      _LOG.info(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
+
+      iter += 1
+    }
+    (weights, trainingLosses, computedLoss.numSamples)
+  }
 }

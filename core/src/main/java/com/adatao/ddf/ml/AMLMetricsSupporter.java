@@ -2,9 +2,10 @@ package com.adatao.ddf.ml;
 
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.misc.ALoggable;
 import com.adatao.ddf.ml.RocMetric;
 
-public class AMLMetricsSupporter implements ISupportMLMetrics {
+public class AMLMetricsSupporter extends ALoggable implements ISupportMLMetrics {
 
   public AMLMetricsSupporter(DDF theDDF) {
     // TODO Auto-generated constructor stub

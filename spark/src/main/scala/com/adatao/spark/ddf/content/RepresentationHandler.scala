@@ -265,28 +265,12 @@ object RepresentationHandler {
 
     //initialize xCols, in Representation Handler, we are asuming xCol have length = mapper.length -1 ALSO xCols[0] = 0, xCols[1] = 1 and so on
     //TODO initialize xCols
-    println(">>>>> before calling printMetaData")
-
     //send to slave
     rdd.mapPartitions(rows => rowsToMatrixVector(rows, numColumns, dc))
   }
 
-  //  def printMetaData(dc: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-  //
-  //    println(">>>>> calling printMetaData")
-  //
-  //    if (dc == null) {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy coding is null")
-  //    } else {
-  //      println(">>>>>>>>>>>>>>> printMetaData dummy codingNOT null = " + dc)
-  //    }
-  //
-  //  }
 
   def rowsToMatrixVector(rows: Iterator[Row], numCols: Int, dc: DummyCoding): Iterator[TupleMatrixVector] = {
-
-    println(">>> inside rowsToMatrixVector dummy coding = " + dc)
-
     //copy original data to arrayList
     var lstRows = new ArrayList[Array[Object]]()
     var row = 0
@@ -306,8 +290,6 @@ object RepresentationHandler {
     val numRows = lstRows.size
     var Y = new Vector(numRows)
     //    val X = new Matrix(numRows, numCols + trRow.numDummyCols)
-    println(">>>>>>>>>>>>>>>.. numDummyColumns= " + dc.getNumDummyCoding)
-
     //    val X = new Matrix(numRows, numCols + dc.getNumDummyCoding)
     val X = new Matrix(numRows, dc.getNumberFeatures())
     //    var newX = new Matrix(numRows, numCols + numDummyColumns)
@@ -397,9 +379,8 @@ object RepresentationHandler {
       tp ⇒ tp.iterator.columnIterators.length > 0
     }.map {
       tp ⇒
-        println("tp.numRows = " + tp.numRows)
-        println("columnIterators.length = " + tp.iterator.columnIterators.length)
-
+        mLog.info("columnIterators.length = " + tp.iterator.columnIterators.length)
+        mLog.info("tp.numRows = " + tp.numRows)
         // each TablePartition should not have more than MAX_INT rows,
         // ArrayBuffer doesn't allow more than that anyway
         val numRows = tp.numRows.asInstanceOf[Int]

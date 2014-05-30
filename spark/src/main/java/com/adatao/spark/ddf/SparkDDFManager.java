@@ -63,8 +63,7 @@ public class SparkDDFManager extends DDFManager {
     	mSharkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
     	mSparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
     	
-    	System.out.println(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
-    	System.out.println(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSparkContext.conf().get("spark.kryo.registrator"));
+    	mLog.info(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
     }
   }
 
@@ -284,9 +283,6 @@ public class SparkDDFManager extends DDFManager {
         }
       }
     }
-
-    // System.out.println(">>> CTN: got type " + result);
-
     return result;
   }
   

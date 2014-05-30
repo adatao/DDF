@@ -166,7 +166,6 @@ private class ExecutionResultDeserializer extends JsonDeserializer[ExecutionResu
 	 */
 	override def deserialize(jElem: JsonElement, theType: java.lang.reflect.Type, context: JsonDeserializationContext): ExecutionResult[Any] = {
 
-		//		println("CTN >>> jElem is %s".format(jElem))
 		jElem match {
 			case executionResultObj: JsonObject ⇒ {
 
@@ -183,8 +182,6 @@ private class ExecutionResultDeserializer extends JsonDeserializer[ExecutionResu
 							}
 							case None ⇒ theType
 						}
-
-						//						println("CTN >>> resultClass is %s".format(resultClass))
 						_gson.fromJson(resultElem, resultClass)
 					}
 					case _ ⇒ null // no resultElem found, so no resultObj
@@ -199,8 +196,6 @@ private class ExecutionResultDeserializer extends JsonDeserializer[ExecutionResu
 
 				// And add that result object back in
 				execResult.result = resultObj
-
-				//				println("CTN >>> execResult is %s".format(execResult))
 				execResult
 			}
 			case _ ⇒ new FailedResult[Any]("Result is not JsonObject: %s".format(jElem))

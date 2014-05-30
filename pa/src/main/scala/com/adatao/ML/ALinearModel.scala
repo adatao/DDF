@@ -39,8 +39,7 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
 	 * A Vector is built from the Array with a bias term.
 	 */
 	def predict(features: Array[Double]): OutputType = {
-	  
-	  println(">>>>>>>>>>>>>>>>>>>>>>> calling predict inside ALinearModel")
+	  _LOG.info("calling predict inside ALinearModel")
 	  this.predict(Vector(Array[Double](1) ++ features))
 	}
 
