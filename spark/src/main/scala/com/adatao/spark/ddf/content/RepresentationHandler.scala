@@ -396,8 +396,8 @@ object RepresentationHandler {
       tp ⇒ tp.iterator.columnIterators.length > 0
     }.map {
       tp ⇒
-        mLog.info("columnIterators.length = " + tp.iterator.columnIterators.length)
-        mLog.info("tp.numRows = " + tp.numRows)
+//        mLog.info("columnIterators.length = " + tp.iterator.columnIterators.length)
+//        mLog.info("tp.numRows = " + tp.numRows)
         // each TablePartition should not have more than MAX_INT rows,
         // ArrayBuffer doesn't allow more than that anyway
         val numRows = tp.numRows.asInstanceOf[Int]

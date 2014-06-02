@@ -6,12 +6,8 @@ import shark.memstore2.TablePartition
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.junit.Assert.assertEquals
-<<<<<<< HEAD
 import scala.collection.JavaConversions._
-=======
 import com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_LABELED_POINT
-
->>>>>>> ddf-branch-0.9
 /**
   */
 class RepresentationHandlerSuite extends ATestSuite {

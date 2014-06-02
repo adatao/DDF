@@ -181,8 +181,8 @@ object TransformationHandler {
       val dflist = partdf.asList()
       val partitionSize = (0 until dflist.size()).map(j ⇒ dflist.at(j).length()).reduce { (x, y) ⇒ math.max(x, y) }
 
-      mLog.info("partdf.len = " + partdf.length())
-      mLog.info("partitionSize = " + partitionSize)
+//      mLog.info("partdf.len = " + partdf.length())
+//      mLog.info("partitionSize = " + partitionSize)
 
       // big allocation!
       val jdata = Array.ofDim[Object](partitionSize, dflist.size())
