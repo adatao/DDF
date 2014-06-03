@@ -248,7 +248,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
      dependencyOverrides += "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
      dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
 
-    dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
+    dependencyOverrides += "io.netty" % "netty" % "3.6.6.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 
     
