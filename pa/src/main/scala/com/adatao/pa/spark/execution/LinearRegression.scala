@@ -53,9 +53,20 @@ class LinearRegression(
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
+
+    //call dummy coding explicitly
+    //make sure all input ddf to algorithm MUST have schema
+    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    ddf.getSchema().generateDummyCoding()
+
+    //invoke generate dummy coding explicitly
+    ddf.getSchema().generateDummyCoding()
+
+    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val model = ddf.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val model = ddf.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights, numFeatures)
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]

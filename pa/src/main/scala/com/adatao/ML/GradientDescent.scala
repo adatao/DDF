@@ -34,7 +34,7 @@ object GradientDescent extends TCanLog {
     learningRate: Double,
     numIters: Int): (Vector, Vector, Long) = {
 
-    _LOG.info(" GradientDescent initial weights rows = " + initialWeights.getRows() + "\tnumColumns=" + initialWeights.getColumns())
+//    _LOG.info(" GradientDescent initial weights rows = " + initialWeights.getRows() + "\tnumColumns=" + initialWeights.getColumns())
 
     // Track training errors for all iterations, plus 1 more for the error before the first iteration
     val trainingLosses = new Vector(numIters + 1)
@@ -51,7 +51,7 @@ object GradientDescent extends TCanLog {
       if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
       trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
 
-      _LOG.info(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
+//      _LOG.info(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
 
       iter += 1
     }
