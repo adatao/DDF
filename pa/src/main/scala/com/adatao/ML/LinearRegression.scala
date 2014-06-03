@@ -145,11 +145,9 @@ class RocObject(var pred: Array[Array[Double]], var auc: Double) extends LinearR
     var i: Int = 0
     while (i < this.pred.length) {
       if (this.pred(i) != null) {
-        _LOG.info(">>>\t" + i + "\t" + Arrays.toString(this.pred(i)))
       }
       i = i + 1
     }
-    _LOG.info(">>>>> auc=" + auc)
   }
   def computeAUC(): Double = {
     //filter null/NA in pred

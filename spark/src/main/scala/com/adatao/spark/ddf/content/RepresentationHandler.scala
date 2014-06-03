@@ -3,7 +3,6 @@
  */
 package com.adatao.spark.ddf.content
 
-
 import java.lang.Class
 import scala.reflect.Manifest
 import org.apache.spark.rdd.RDD
@@ -13,21 +12,20 @@ import shark.api.Row
 import com.adatao.spark.ddf.content.RepresentationHandler._
 import com.adatao.ddf.exception.DDFException
 import org.apache.spark.mllib.regression.LabeledPoint
-import com.adatao.ddf.content.{RepresentationHandler ⇒ RH}
+import com.adatao.ddf.content.{ RepresentationHandler ⇒ RH }
 import com.adatao.ddf.content.RepresentationHandler.NativeTable
 import shark.memstore2.TablePartition
 import org.rosuda.REngine._
-import org.apache.hadoop.io.{Text, IntWritable}
+import org.apache.hadoop.io.{ Text, IntWritable }
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf._
-import com.adatao.ddf.types.{TupleMatrixVector, Vector, Matrix}
+import com.adatao.ddf.types.{ TupleMatrixVector, Vector, Matrix }
 
 import java.util.ArrayList
 import com.adatao.spark.ddf.ml.TransformRow
 
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
-
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -64,14 +62,16 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_ARRAY_DOUBLE ⇒ rowsToArraysDouble(srcRdd, mappers)
       case RDD_LABELED_POINT ⇒ rowsToLabeledPoints(srcRdd, mappers)
       case RDD_ARRAY_LABELED_POINT ⇒ rowsToArrayLabeledPoints(srcRdd, mappers)
-//      case RDD_MLLIB_VECTOR => rowsToMllibVector(srcRdd, mappers)
+      //      case RDD_MLLIB_VECTOR => rowsToMllibVector(srcRdd, mappers)
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
         //must invoke generate dummy coding explicitly, AGAIN
-        schemaHandler.generateDummyCoding() //generateDummyCoding(schema)
-        val dummyCoding = schemaHandler.getSchema().getDummyCoding()
-
+        //         mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+        //        mDDF.getSchemaHandler().generateDummyCoding() //generateDummyCoding(schema)
+//        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+//        mDDF.getSchema().generateDummyCoding
+        val dummyCoding = mDDF.getSchema().getDummyCoding()
         rowsToMatrixVectorRDD(srcRdd, schemaHandler.getNumColumns, dummyCoding)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s\n - %s\n - %s",
@@ -85,7 +85,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
     typeSpecs match {
       case RDD_TABLE_PARTITION => {
-        val rddSeq = rddArrObj.map{row => row.toSeq}.asInstanceOf[RDD[Seq[_]]]
+        val rddSeq = rddArrObj.map { row => row.toSeq }.asInstanceOf[RDD[Seq[_]]]
         this.getRDDTablePartition(rddSeq, mDDF.getSchemaHandler.getColumns)
       }
     }
@@ -181,27 +181,26 @@ object RepresentationHandler {
   val RDD_REXP = RH.getKeyFor(Array(classOf[RDD[_]], classOf[REXP]))
   val RDD_MATRIX_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[TupleMatrixVector]))
   val RDD_ARRAY_LABELED_POINT = RH.getKeyFor(Array(classOf[RDD[_]], classOf[Array[LabeledPoint]]))
-//  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
+  //  val RDD_MLLIB_VECTOR = RH.getKeyFor(Array(classOf[RDD[_]], classOf[org.apache.spark.mllib.linalg.Vector]))
 
   /**
    *
    */
   def rowsToArraysObject(rdd: RDD[Row]): RDD[Array[Object]] = {
     rdd.map {
-      row ⇒ {
-        val size = row.rawdata.asInstanceOf[Array[Object]].size
-        val array = new Array[Object](size)
-        var idx = 0
-        while (idx < size) {
-          array(idx) = row.getPrimitive(idx)
-          idx += 1
+      row ⇒
+        {
+          val size = row.rawdata.asInstanceOf[Array[Object]].size
+          val array = new Array[Object](size)
+          var idx = 0
+          while (idx < size) {
+            array(idx) = row.getPrimitive(idx)
+            idx += 1
+          }
+          array
         }
-        array
-      }
     }
   }
-  
-  
 
   def rowsToArraysDouble(rdd: RDD[Row], mappers: Array[Object ⇒ Option[Double]]): RDD[Array[Double]] = {
     val numCols = mappers.length
@@ -223,15 +222,15 @@ object RepresentationHandler {
       }
     }).filter(row => row != null)
   }
-  
-//  def rowsToMllibVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[org.apache.spark.mllib.linalg.Vector] = {
-//     val numCols = mappers.length
-//    rdd.map(row ⇒ {
-//      val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
-//      Utils.arrayDoubleToVector(features)
-//    })
-//  }
-  
+
+  //  def rowsToMllibVector(rdd: RDD[Row], mappers: Array[Object ⇒ Double]): RDD[org.apache.spark.mllib.linalg.Vector] = {
+  //     val numCols = mappers.length
+  //    rdd.map(row ⇒ {
+  //      val features = rowToArray(row, classOf[Double], new Array[Double](numCols - 1), mappers)
+  //      Utils.arrayDoubleToVector(features)
+  //    })
+  //  }
+
   def rowsToArrayLabeledPoints(rdd: RDD[Row], mappers: Array[Object ⇒ Option[Double]]): RDD[Array[LabeledPoint]] = {
     val rddArrayDouble = rowsToArraysDouble(rdd, mappers)
     arrayDoubleToArrayLabeledPoints(rddArrayDouble)
@@ -286,7 +285,6 @@ object RepresentationHandler {
     rdd.mapPartitions(rows => rowsToMatrixVector(rows, numColumns, dc))
   }
 
-
   def rowsToMatrixVector(rows: Iterator[Row], numCols: Int, dc: DummyCoding): Iterator[TupleMatrixVector] = {
     //copy original data to arrayList
     var lstRows = new ArrayList[Array[Object]]()
@@ -325,27 +323,28 @@ object RepresentationHandler {
       val paddingBiasIndex = 1
       var columnIndex = 0
 
-      while (columnIndex < numCols - 1) {
-
-        var columnStringValue = ""
-        //if this column is categorical column
-        if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
-          columnStringValue = inputRow(columnIndex).toString() + ""
-          newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
+      var skipRowBecauseNullCell = false
+      while (columnIndex < numCols - 1 && !skipRowBecauseNullCell) {
+        if (inputRow(columnIndex) == null) skipRowBecauseNullCell = true;
+        if (!skipRowBecauseNullCell) {
+          var columnStringValue = ""
+          //if this column is categorical column
+          if (trRow.hasCategoricalColumn() && trRow.hasCategoricalColumn(columnIndex)) {
+            columnStringValue = inputRow(columnIndex).toString() + ""
+            newValue = dc.getMapping.get(columnIndex).get(columnStringValue)
+          }
+          //normal numeric column
+          if (newValue == -1.0)
+            newValue = objectToDouble(inputRow(columnIndex))
+          X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
+          columnIndex += 1
+          newValue = -1.0 // TODO: dirty and quick fix, need proper review
         }
-        //normal numeric column
-        if (newValue == -1.0)
-          newValue = objectToDouble(inputRow(columnIndex))
-
-        X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
-
-        columnIndex += 1
-        newValue = -1.0 // TODO: dirty and quick fix, need proper review
       }
-      Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
+      if (!skipRowBecauseNullCell) Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
+
       row += 1
     }
-
 
     if (dc.getNumDummyCoding > 0) {
       //most important step
@@ -380,7 +379,7 @@ object RepresentationHandler {
       case ColumnType.STRING ⇒ {
         case _ ⇒ throw new DDFException("Cannot convert string to double")
       }
-      
+
       case e ⇒ throw new DDFException("Cannot convert to double")
     }
   }
@@ -396,8 +395,8 @@ object RepresentationHandler {
       tp ⇒ tp.iterator.columnIterators.length > 0
     }.map {
       tp ⇒
-//        mLog.info("columnIterators.length = " + tp.iterator.columnIterators.length)
-//        mLog.info("tp.numRows = " + tp.numRows)
+        //        mLog.info("columnIterators.length = " + tp.iterator.columnIterators.length)
+        //        mLog.info("tp.numRows = " + tp.numRows)
         // each TablePartition should not have more than MAX_INT rows,
         // ArrayBuffer doesn't allow more than that anyway
         val numRows = tp.numRows.asInstanceOf[Int]

@@ -4,8 +4,22 @@ import java.util.{HashMap => JMap}
 
 import org.junit.runner.RunWith
 
-import com.adatao.pa.spark.execution._
+
+import com.adatao.pa.spark.execution.CVKFoldSplit
+import com.adatao.pa.spark.execution.Kmeans
+import org.apache.spark.mllib.clustering.KMeansModel
+import com.adatao.pa.spark.execution.CVRandomSplit
+import com.adatao.pa.spark.execution.LinearRegressionNormalEquation
+import com.adatao.pa.spark.execution.NQLinearRegressionModel
+import com.adatao.pa.spark.execution.MapReduceNative
+import com.adatao.pa.spark.execution.Sql2DataFrame
+import com.adatao.pa.spark.execution.FiveNumSummary
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
+import com.adatao.pa.spark.execution.GetMultiFactor
+import com.adatao.pa.spark.execution.TransformNativeRserve
+import com.adatao.pa.spark.execution.YtrueYpred
+import com.adatao.pa.spark.execution.YtrueYpredResult
+import com.adatao.pa.spark.execution.SampleDataFrame
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.Utils.DataFrameResult
@@ -90,9 +104,9 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 	}
 //	test("test Kmeans prediction") {
 //		createTableKmeans
-//		val loader = new Sql2DataFrame("select * from kmeans", true)
-//		val r= bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		val dcID= r.dataContainerID
+//		
+//		val df = this.runSQL2RDDCmd("select * from kmeans", true)
+//    val dcID = df.dataContainerID
 //
 //		val executor= new Kmeans(dcID, Array(0,1), 5, 4, null, "random")
 //		val r1= bigRClient.execute[KmeansModel](executor)
@@ -143,6 +157,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 //		val r1 = bigRClient.execute[DataFrameResult](transformer)
 //		assert(r1.isSuccess)
 
+
 //		val cmd2= new FiveNumSummary(r1.result.dataContainerID)
 //		val r2= bigRClient.execute[Array[ASummary]](cmd2)
 //		assert(r2.isSuccess)
@@ -151,6 +166,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 //		val r3= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd3)
 //		assert(r3.isSuccess)
 //	}
+
 
 	test("test MapReduceNative") {
 		createTableMtcars
@@ -163,6 +179,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
       "function(part) { keyval(key=part$gear, val=part$hp) }",
       "function(key, vv) { keyval.row(key=key, val=sum(vv)) }")
 		val r1 = bigRClient.execute[DataFrameResult](mr)
+
 		assert(r1.isSuccess)
 
 		val cmd2= new FiveNumSummary(r1.result.dataContainerID)
