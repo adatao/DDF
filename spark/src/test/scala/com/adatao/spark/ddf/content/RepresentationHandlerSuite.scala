@@ -7,7 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.junit.Assert.assertEquals
 import scala.collection.JavaConversions._
-import com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_LABELED_POINT
+
 /**
   */
 class RepresentationHandlerSuite extends ATestSuite {

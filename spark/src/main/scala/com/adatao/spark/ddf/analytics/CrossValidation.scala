@@ -173,8 +173,12 @@ object CrossValidation {
       //Ensure that testDDF and trainDDF are backed by a table
       testDDF.getRDD(classOf[TablePartition])
       trainDDF.getRDD(classOf[TablePartition])
+
       println(s">>>>>> train's TableName = $tableName1")
       println(s">>>>>> test's TableName = $tableName2")
+
+      manager.addDDF(trainDDF)
+      manager.addDDF(testDDF)
       aSet.add(trainDDF)
       aSet.add(testDDF)
       cvSets.add(aSet)

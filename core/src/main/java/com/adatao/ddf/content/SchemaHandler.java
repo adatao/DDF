@@ -58,7 +58,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements
 
 	@Override
 	public String newTableName(Object obj) {
-		return DDFUtils.generateObjectName(obj);
+		return DDFUtils.generateObjectName(obj).replace("-", "_");
 	}
 
 	@Override
