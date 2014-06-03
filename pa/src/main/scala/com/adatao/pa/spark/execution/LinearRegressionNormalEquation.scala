@@ -82,6 +82,8 @@ class LinearRegressionNormalEquation(
     val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
     val numRows = ddf.getNumRows()
     println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS ddf.getSchema().getDummyCoding() = " + ddf.getSchema().getDummyCoding().toPrint())
 
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)

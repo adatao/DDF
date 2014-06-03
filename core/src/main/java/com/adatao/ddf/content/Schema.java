@@ -197,6 +197,8 @@ public class Schema implements Serializable {
 			HashMap<String, java.lang.Double> temp = new HashMap<String, java.lang.Double>();
 			// loop
 			if (currentColumn.getColumnClass() == ColumnClass.FACTOR) {
+			  
+			  System.out.println(">>>>>>>>>>>> generateDummyCoding currentColumn\t" + currentColumn.getName() + "\t" + currentColumn.getColumnClass());
 				
 				//set as factor
 				//recompute level
@@ -250,6 +252,8 @@ public class Schema implements Serializable {
 	}
 
 	public void setDummyCoding(DummyCoding dummyCoding) {
+	  System.out.println(">>>>>>>>> setting up dummy coding: " );
+	  dummyCoding.toPrint();
 		this.dummyCoding = dummyCoding;
 	}
 
@@ -548,6 +552,21 @@ public class Schema implements Serializable {
 		private Integer numDummyCoding;
 		public int[] xCols;
 		private Integer numberFeatures = 0;
+		
+		public void toPrint() {
+		  System.out.println(">>>>>>>>>>> print dummy coding");
+		  Iterator it = mapping.keySet().iterator();
+		  while(it.hasNext()) {
+		    HashMap<String, Double> a = getMapping().get(it.next());
+		    Iterator<String> b = a.keySet().iterator();
+		    
+		    while(b.hasNext()) {
+		      String c = b.next();
+		      System.out.println(">>>>key: " + c + "\t" + a.get(c));
+		    }
+		    
+		  }
+		}
 
 		public HashMap<Integer, HashMap<String, Double>> getMapping() {
 			return mapping;

@@ -21,7 +21,7 @@ class TransformNativeRserveSuite extends ABigRClientTest {
 
 	test("can add column") {
 		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[com.adatao.pa.spark.Utils.DataFrameResult](loader).result
+		val r0 = bigRClient.execute[com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
 
 		val dataContainerId = r0.dataContainerID
