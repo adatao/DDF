@@ -28,8 +28,12 @@ object CanConvertToTablePartition {
         throw new DDFException("columns or tableName is null")
       }
 
+
       val classTags = columns.map{col =>  getClassTagFromColumnType(col.getType)}
       val fields = columns.map{col => col.getName}
+      classTags.foreach{
+        ct => println(">>>>> classTags = " + ct.toString())
+      }
       val rddTableFunction = new RDDTableFunctions(rdd, classTags)
 
       try {

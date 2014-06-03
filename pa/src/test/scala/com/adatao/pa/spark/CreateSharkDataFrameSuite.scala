@@ -4,15 +4,11 @@ import java.util.{HashMap => JMap}
 
 import org.junit.runner.RunWith
 
-import com.adatao.pa.spark.execution.CVKFoldSplit
-import com.adatao.pa.spark.execution.CVRandomSplit
-import com.adatao.pa.spark.execution.FiveNumSummary
+import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
-import com.adatao.pa.spark.execution.GetMultiFactor
-import com.adatao.pa.spark.execution.SampleDataFrame
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult
 import com.adatao.pa.spark.types.ABigRClientTest
-
+import com.adatao.pa.spark.Utils.DataFrameResult
 /**
  * Created with IntelliJ IDEA.
  * User: daoduchuan
@@ -136,40 +132,36 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 //		assert(r3.isSuccess)
 //
 //	}
-	/*
-	test("test TransformNativeRserve") {
-		createTableMtcars
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-		assert(r0.isSuccess)
 
-		val dataContainerId = r0.dataContainerID
+//	test("test TransformNativeRserve") {
+//		createTableMtcars
+//    val df = this.runSQL2RDDCmd("select mpg, gear from mtcars", true)
+//
+//		val dataContainerId = df.dataContainerID
+//
+//		val transformer = new TransformNativeRserve(dataContainerId, "newcol = mpg / gear")
+//		val r1 = bigRClient.execute[DataFrameResult](transformer)
+//		assert(r1.isSuccess)
 
-		val transformer = new TransformNativeRserve(dataContainerId, "newcol = mpg / gear")
-		val r1 = bigRClient.execute[DataFrameResult](transformer)
-		assert(r1.isSuccess)
+//		val cmd2= new FiveNumSummary(r1.result.dataContainerID)
+//		val r2= bigRClient.execute[Array[ASummary]](cmd2)
+//		assert(r2.isSuccess)
+//
+//		val cmd3= new GetMultiFactor(r1.result.dataContainerID, Array(0,1))
+//		val r3= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd3)
+//		assert(r3.isSuccess)
+//	}
 
-		val cmd2= new FiveNumSummary(r1.result.dataContainerID)
-		val r2= bigRClient.execute[Array[ASummary]](cmd2)
-		assert(r2.isSuccess)
-
-		val cmd3= new GetMultiFactor(r1.result.dataContainerID, Array(0,1))
-		val r3= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd3)
-		assert(r3.isSuccess)
-	}  */
-	/*
 	test("test MapReduceNative") {
 		createTableMtcars
-		val loader = new Sql2DataFrame("select * from mtcars", true)
-		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-		assert(r0.isSuccess)
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
-		val dataContainerId = r0.dataContainerID
+		val dataContainerId = df.dataContainerID
 
 		// aggregate sum of hp group by gear
 		val mr = new MapReduceNative(dataContainerId,
-			mapFuncDef = "function(part) { keyval(key=part$gear, val=part$hp) }",
-			reduceFuncDef = "function(key, vv) { keyval.row(key=key, val=sum(vv)) }")
+      "function(part) { keyval(key=part$gear, val=part$hp) }",
+      "function(key, vv) { keyval.row(key=key, val=sum(vv)) }")
 		val r1 = bigRClient.execute[DataFrameResult](mr)
 		assert(r1.isSuccess)
 
@@ -180,5 +172,5 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		val cmd3= new GetMultiFactor(r1.result.dataContainerID, Array(0,1))
 		val r3= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd3)
 		assert(r3.isSuccess)
-	}   */
+	}
 }

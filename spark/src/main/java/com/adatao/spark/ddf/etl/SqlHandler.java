@@ -5,6 +5,8 @@ package com.adatao.spark.ddf.etl;
 
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.spark.rdd.RDD;
@@ -41,6 +43,16 @@ public class SqlHandler extends ASqlHandler {
 
   // ////// IHandleDataCommands ////////
 
+  protected void createTableForDDF(String tableName) throws DDFException {
+
+    try {
+      DDF ddf = this.getManager().getDDF(tableName);
+      ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
+    } catch(Exception e) {
+      throw new DDFException(String.format("Can not create table for DDF %s", tableName), e);
+    }
+  }
+
   @Override
   public DDF sql2ddf(String command) throws DDFException {
     return this.sql2ddf(command, null, null, null);
@@ -73,9 +85,24 @@ public class SqlHandler extends ASqlHandler {
     // TODO: handle other dataSources and dataFormats
 
     String tableName = this.getDDF().getSchemaHandler().newTableName();
-    if (tableName != null) {
-      tableName = tableName.replace("-", "_");
+
+    /**
+     * Make sure that the ddf needed was backed by a table
+     * Find tableName that match the pattern
+     * "... from tableName ..."
+     */
+    String ddfTableNameFromQuery;
+    Pattern p = Pattern.compile("(?<=.from\\s)([a-zA-Z0-9_]+)", Pattern.CASE_INSENSITIVE);
+    Matcher m = p.matcher(command);
+    mLog.info(">>>>>>> DDF's TableName from query command = " + command);
+    if(m.find()) {
+      ddfTableNameFromQuery = m.group();
+      mLog.info(">>>>>>> DDF's TableName from query = " + ddfTableNameFromQuery);
+      if(this.getManager().getDDF(ddfTableNameFromQuery) != null) {
+        this.createTableForDDF(ddfTableNameFromQuery);
+      }
     }
+
     if (dataSource == null) {
       String sqlCmd;
 
@@ -139,6 +166,22 @@ public class SqlHandler extends ASqlHandler {
   @Override
   public List<String> sql2txt(String command, Integer maxRows, String dataSource) throws DDFException {
     // TODO: handle other dataSources
+    /**
+     * Make sure that the ddf needed was backed by a table
+     * Find tableName that match the pattern
+     * "... from tableName ..."
+     */
+    String ddfTableNameFromQuery;
+    Pattern p = Pattern.compile("(?<=.from\\s)([a-zA-Z0-9_]+)", Pattern.CASE_INSENSITIVE);
+    Matcher m = p.matcher(command);
+    mLog.info(">>>>>>> DDF's TableName from query command = " + command);
+    if(m.find()) {
+      ddfTableNameFromQuery = m.group();
+      mLog.info(">>>>>>> DDF's TableName from query = " + ddfTableNameFromQuery);
+      if(this.getManager().getDDF(ddfTableNameFromQuery) != null) {
+        this.createTableForDDF(ddfTableNameFromQuery);
+      }
+    }
     return this.toList(getSharkContext().sql(command, maxRows==null?MAX_COMMAND_RESULT_ROWS:maxRows));
   }
 }

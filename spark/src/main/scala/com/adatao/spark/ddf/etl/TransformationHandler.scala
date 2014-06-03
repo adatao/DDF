@@ -81,7 +81,11 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
+    val manager = this.getManager
+    val ddf = new SparkDDF (manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+    manager.addDDF(ddf)
+    ddf
   }
 
   override def transformNativeRserve(transformExpression: String): DDF = {
@@ -129,9 +133,12 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
-    //mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
-    //mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
+    val manager = this.getManager
+    val ddf = new SparkDDF(manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+    mLog.info(">>>>> adding ddf to manager: " + ddf.getName)
+    manager.addDDF(ddf)
+    ddf
   }
 
 }
