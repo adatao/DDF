@@ -31,62 +31,59 @@ import com.adatao.pa.spark.types.ABigRClientTest
  */
 class CreateSharkDataFrameSuite extends ABigRClientTest{
 
-//	test("test CVRandomSplit"){
-////		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
-//		
-//		createTableMtcars
-//		val df = this.runSQL2RDDCmd("select * from mtcars", true)
-//		val dataContainerId = df.dataContainerID
-//		
-//		val splitter = new CVRandomSplit(dataContainerId, 2, 0.75, 42)
-//		val r = bigRClient.execute[Array[Array[String]]](splitter)
-//		assert(r.isSuccess)
-//		println(r.result)
-//		assert(r.result.length === 2)
-//
-//		r.result(0) match{
-//			case Array(train, test) => {
-//
-//				val cmd= new FiveNumSummary(train)
-//				val res= bigRClient.execute[Array[ASummary]](cmd)
-//
-//				assert(res.isSuccess)
-//				val cmd2= new FiveNumSummary(test)
-//				val res2= bigRClient.execute[Array[ASummary]](cmd2)
-//				assert(res2.isSuccess)
-//			}
-//		}
-//
-//	}
-//
-//	test("test CVFoldSplit") {
-////		val dcID = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
-//
-//    createTableMtcars
-//		val df = this.runSQL2RDDCmd("select * from mtcars", true)
-//		val dcID = df.dataContainerID
-//
-//
-//		val splitter= new CVKFoldSplit(dcID, 5, 42)
-//		val r= bigRClient.execute[Array[Array[String]]](splitter)
-//		assert(r.isSuccess)
-//		println(r.result)
-//		assert(r.result.length === 5)
-//
-//		r.result(0) match{
-//			case Array(train, test) => {
-//				val cmd= new FiveNumSummary(train)
-//				val res= bigRClient.execute[Array[ASummary]](cmd)
-//				assert(res.isSuccess)
-//				val cmd2= new FiveNumSummary(test)
-//				val res2= bigRClient.execute[Array[ASummary]](cmd)
-//				assert(res2.isSuccess)
-//			}
-//		}
-//	}
+	test("test CVRandomSplit"){
 
-	ignore("test SampleDataFrame"){
-//		val dcID = this.loadFile("resources/mtcars", false, " ")
+		createTableMtcars
+		val df = this.runSQL2RDDCmd("select * from mtcars", true)
+		val dataContainerId = df.dataContainerID
+
+		val splitter = new CVRandomSplit(dataContainerId, 2, 0.75, 42)
+		val r = bigRClient.execute[Array[Array[String]]](splitter)
+		assert(r.isSuccess)
+		println(r.result)
+		assert(r.result.length === 2)
+
+		r.result(0) match{
+			case Array(train, test) => {
+
+				val cmd= new FiveNumSummary(train)
+				val res= bigRClient.execute[Array[ASummary]](cmd)
+
+				assert(res.isSuccess)
+				val cmd2= new FiveNumSummary(test)
+				val res2= bigRClient.execute[Array[ASummary]](cmd2)
+				assert(res2.isSuccess)
+			}
+		}
+
+	}
+
+	test("test CVFoldSplit") {
+
+    createTableMtcars
+		val df = this.runSQL2RDDCmd("select * from mtcars", true)
+		val dcID = df.dataContainerID
+
+
+		val splitter= new CVKFoldSplit(dcID, 5, 42)
+		val r= bigRClient.execute[Array[Array[String]]](splitter)
+		assert(r.isSuccess)
+		println(r.result)
+		assert(r.result.length === 5)
+
+		r.result(0) match{
+			case Array(train, test) => {
+				val cmd= new FiveNumSummary(train)
+				val res= bigRClient.execute[Array[ASummary]](cmd)
+				assert(res.isSuccess)
+				val cmd2= new FiveNumSummary(test)
+				val res2= bigRClient.execute[Array[ASummary]](cmd)
+				assert(res2.isSuccess)
+			}
+		}
+	}
+
+	test("test SampleDataFrame"){
 
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select * from mtcars", true)
