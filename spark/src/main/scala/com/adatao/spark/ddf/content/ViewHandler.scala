@@ -68,7 +68,11 @@ class ViewHandler(mDDF: DDF) extends com.adatao.ddf.content.ViewHandler(mDDF) wi
     val sampleRdd = rdd.sample(withReplacement, percent, seed)
     val columns = mDDF.getSchema.getColumns
     val schema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columns)
-    new SparkDDF(this.getManager(), sampleRdd, classOf[Array[Object]], null, null, schema)
+    val manager = this.getManager
+    val sampleDdf = new SparkDDF(manager, sampleRdd, classOf[Array[Object]], manager.getNamespace, null, schema)
+    mLog.info(">>>>>>> adding ddf to DDFManager " + sampleDdf.getName)
+    manager.addDDF(sampleDdf)
+    sampleDdf
   }
 }
 
