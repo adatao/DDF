@@ -37,33 +37,31 @@ import scala.collection.mutable.ArrayBuffer
  * Entry point for SparkThread executor
  */
 object LogisticRegressionGD {
-    
-	def train(dataPartition: RDD[TupleMatrixVector],
-	numFeatures:java.lang.Integer,
+
+  def train(dataPartition: RDD[TupleMatrixVector],
+    numFeatures: java.lang.Integer,
     xCols: Array[Int],
     yCol: Int,
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
     initialWeights: Array[Double]): LogisticRegressionModel = {
-//    val numFeatures = xCols.length + 1
-//    println(">>>>> lm-numFeatures:" + numFeatures + "\tdataPartition.take(1).rows=" + dataPartition.take(1).rows)
+    //    val numFeatures = xCols.length + 1
     //depend on length of weights
-    val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-    
+    val weights = if (initialWeights == null || initialWeights.length != numFeatures) Utils.randWeights(numFeatures) else Vector(initialWeights)
+
     var model = ML.LogisticRegression.train(
-      new LogisticRegressionGD.LossFunction(dataPartition.map {row => (row._1, row._2)}, ridgeLambda), numIters, learningRate, weights, numFeatures
-    )
+      new LogisticRegressionGD.LossFunction(dataPartition.map { row => (row._1, row._2) }, ridgeLambda), numIters, learningRate, weights, numFeatures)
     model
   }
-	
-	//post process, set column mapping to model
-	def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) :LogisticRegressionModel = {
-	  model.dummyColumnMapping = mapping
-	  model
-	}
-	
-	/**
+
+  //post process, set column mapping to model
+  def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
+    model.dummyColumnMapping = mapping
+    model
+  }
+
+  /**
    * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
    * knows how to handle that data.
    *

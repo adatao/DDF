@@ -48,7 +48,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
       
       if (paramInfo.paramMatches(LabeledPoint.class)) {
         rdd = (RDD<LabeledPoint>) this.getDDF().getRepresentationHandler().get(RDD.class, LabeledPoint.class);
-        // System.out.println("RDD<LabeledPoint>");
 
       } else if (paramInfo.paramMatches(double[].class)) {
         rdd = (RDD<double[]>) this.getDDF().getRepresentationHandler().get(RDD.class, double[].class);
@@ -59,7 +58,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
       } 
       else if (paramInfo.paramMatches(Object.class)) {
         rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
-        // System.out.println("RDD<Object>");
       }
       return rdd;
     }

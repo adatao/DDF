@@ -97,16 +97,6 @@ object LinearRegressionNormalEquation {
     //4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
     //5. Compute t-values and p-values in R based on coefficients’ standard errors
     // Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-    //    val numFeatures = nFeatures + 1
-    //        println("dataPartition")
-    //        val result1 = dataPartition1.collect
-    //        for (t <- result1) {println("original"); println(t.getClass.getName); println(t);}
-    //        println(dataPartition1)
-    //        val dataPartition = dataPartition1.map(t => (t._1, t._2))
-    //        val result = dataPartition.collect
-    //        for (t <- result) { println("tuple" ); println(t._1.getClass.getName); println(t._1)}
-    //        for ((x, y) <- result) println("tuple-columns" + x.getColumns)
-    //    val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7))
     val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x.compute(y)))
     //val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
     var messages: Array[String] = Array()
@@ -114,10 +104,6 @@ object LinearRegressionNormalEquation {
     if (ret.x3 == 0)
       throw new RuntimeException("No data to run, there is no rows, may be it is due to the null filtering process.")
 
-    //val ret2 = dataPartition.collect()
-
-    //println(ret2(0)._1.toString(), ret2(0)._2.toString())
-    //println(ret2(1)._1.toString(), ret2(1)._2.toString())
     // sum of squared total
     val sst = ret.x4 - (ret.x5 * ret.x5) / ret.x3
 
@@ -167,7 +153,6 @@ object LinearRegressionNormalEquation {
     // Refs:
     // http://www3.nd.edu/~rwilliam/stats1/x91.pdf
     // https://sociology.byu.edu/Hoffmann/SiteAssets/Hoffmann%20_%20Linear%20Regression%20Analysis.pdf
-    //println(invXtX.diag().muli(sdX).toString())
     var vif = invXtX.diag().muli(sdX).toArray()
     vif = vif.takeRight(vif.length - 1) // remove the 1st element which corresponds to the intercept
 

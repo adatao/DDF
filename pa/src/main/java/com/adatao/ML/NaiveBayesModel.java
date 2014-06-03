@@ -1,9 +1,11 @@
 package com.adatao.ML;
 
+
 import java.io.Serializable;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.adatao.ddf.misc.ALoggable;
 
 @SuppressWarnings("serial")
 /**
@@ -22,104 +24,106 @@ import org.slf4j.LoggerFactory;
  * @author phamnamlong
  *
  */
-public class NaiveBayesModel implements TModel, Serializable {
-	private double[] classPrior; // log(P(C=c))
-	private double[][][] featureDistribution; // fD[c][i] contains variables that can express log(P(Fi|C=c))
-	private int[] xCols;
-	private int yCol;
-	private int numClasses;
-	private int numFeatures;
+public class NaiveBayesModel extends ALoggable implements TModel, Serializable {
+  private double[] classPrior; // log(P(C=c))
+  private double[][][] featureDistribution; // fD[c][i] contains variables that can express log(P(Fi|C=c))
+  private int[] xCols;
+  private int yCol;
+  private int numClasses;
+  private int numFeatures;
 
-	public static Logger LOG = LoggerFactory.getLogger(NaiveBayesModel.class);
+  public static Logger LOG = LoggerFactory.getLogger(NaiveBayesModel.class);
 
-	public NaiveBayesModel(int numClasses, int numFeatures, int[] xCols, int yCol) {
-		this.numClasses = numClasses;
-		this.numFeatures = numFeatures;
-		this.xCols = xCols.clone();
-		this.yCol = yCol;
-		classPrior = new double[numClasses];
-		// TODO: other type of Naive Bayes model will have different number of variables to represent the feature distribution. 
-		// We proceed to other type if time allowed or requested by customer.
-		featureDistribution = new double[numClasses][numFeatures][2]; 
-	}
 
-	// For Binary classification ONLY, 
-	// return the probability of the instance belonging to class 1.
-	public double predict(Object[] row) {
-		double[] logProb = new double[numClasses];
-		double[] prob = new double[numClasses];
-		double sumProb = 0;
-		for (int c = 0; c < numClasses; c++) {
-			logProb[c] = Math.log(classPrior[c]); // already computed as log
-			for (int i = 0; i < xCols.length; i++) {
-				double v = ((Double) row[xCols[i]]).doubleValue();
-				double probD = probDistr(c, i, v);
-				logProb[c] += Math.log(probD);
-			}
-			
-			// no underflow here because we do not aggregate the products of probablities
-			prob[c] = Math.pow(Math.E, logProb[c]); 
-			sumProb += prob[c];
-		}
-		for (int c = 0; c < numClasses; c++) {
-			prob[c] /= sumProb;
-		}
-		return prob[1];
-	}
-	
-	private double probDistr(int c, int i, double v) {
-		double m = featureDistribution[c][i][0];  // mean 
-		double var = featureDistribution[c][i][1];  // variance
-		double prob = 1/Math.sqrt(2*Math.PI*var) * Math.pow(Math.E, - (v-m)*(v-m)/(2*var));
-		
-		if (!(0 <= prob && prob <= 1)) {
-			// this should never be reached!
-			System.out.println("class=" + c + " feature=" + i + " mean=" + m + " var=" + var + " prob=" + prob);
-		}
-		return prob;
-	}
+  public NaiveBayesModel(int numClasses, int numFeatures, int[] xCols, int yCol) {
+    this.numClasses = numClasses;
+    this.numFeatures = numFeatures;
+    this.xCols = xCols.clone();
+    this.yCol = yCol;
+    classPrior = new double[numClasses];
+    // TODO: other type of Naive Bayes model will have different number of variables to represent the feature
+    // distribution.
+    // We proceed to other type if time allowed or requested by customer.
+    featureDistribution = new double[numClasses][numFeatures][2];
+  }
 
-	public void setPrior(int i, double v) {
-		classPrior[i] = v;
-	}
-	
-	public void setFeatureDistribution(int c, int i, List<Double> v) {
-		for (int j = 0; j < v.size(); j++) {
-			featureDistribution[c][i][j] = v.get(j);
-		}
-	}
-	
-	public void printAll() {
-		for (int c = 0; c < numClasses; c++) {
-			LOG.info("class prior: " + this.classPrior[c]);
-			for (int i = 0; i < numFeatures; i++) {
-				LOG.info("feature " + i + " mean=" + featureDistribution[c][i][0]);
-				LOG.info("feature " + i + " var=" + featureDistribution[c][i][1]);
-			}
-		}
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("NaiveBayes[numClasses=%d numFeatures=%d]", numClasses, numFeatures);
-	}
+  // For Binary classification ONLY,
+  // return the probability of the instance belonging to class 1.
+  public double predict(Object[] row) {
+    double[] logProb = new double[numClasses];
+    double[] prob = new double[numClasses];
+    double sumProb = 0;
+    for (int c = 0; c < numClasses; c++) {
+      logProb[c] = Math.log(classPrior[c]); // already computed as log
+      for (int i = 0; i < xCols.length; i++) {
+        double v = ((Double) row[xCols[i]]).doubleValue();
+        double probD = probDistr(c, i, v);
+        logProb[c] += Math.log(probD);
+      }
 
-	@Override
-	public Logger _LOG() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+      // no underflow here because we do not aggregate the products of probablities
+      prob[c] = Math.pow(Math.E, logProb[c]);
+      sumProb += prob[c];
+    }
+    for (int c = 0; c < numClasses; c++) {
+      prob[c] /= sumProb;
+    }
+    return prob[1];
+  }
 
-	@Override
-	public void _LOG_$eq(Logger x$1) {
-		// TODO Auto-generated method stub
-	}
+  private double probDistr(int c, int i, double v) {
+    double m = featureDistribution[c][i][0]; // mean
+    double var = featureDistribution[c][i][1]; // variance
+    double prob = 1 / Math.sqrt(2 * Math.PI * var) * Math.pow(Math.E, -(v - m) * (v - m) / (2 * var));
 
-	@Override
-	public Logger LOG() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    if (!(0 <= prob && prob <= 1)) {
+      // this should never be reached!
+      mLog.info("class=" + c + " feature=" + i + " mean=" + m + " var=" + var + " prob=" + prob);
+    }
+    return prob;
+  }
+
+  public void setPrior(int i, double v) {
+    classPrior[i] = v;
+  }
+
+  public void setFeatureDistribution(int c, int i, List<Double> v) {
+    for (int j = 0; j < v.size(); j++) {
+      featureDistribution[c][i][j] = v.get(j);
+    }
+  }
+
+  public void printAll() {
+    for (int c = 0; c < numClasses; c++) {
+      LOG.info("class prior: " + this.classPrior[c]);
+      for (int i = 0; i < numFeatures; i++) {
+        LOG.info("feature " + i + " mean=" + featureDistribution[c][i][0]);
+        LOG.info("feature " + i + " var=" + featureDistribution[c][i][1]);
+      }
+    }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("NaiveBayes[numClasses=%d numFeatures=%d]", numClasses, numFeatures);
+  }
+
+  @Override
+  public Logger _LOG() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void _LOG_$eq(Logger x$1) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public Logger LOG() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
   public int getYCol() {
     return yCol;

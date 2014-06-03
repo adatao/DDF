@@ -93,8 +93,6 @@ public class Sql2DataFrame extends CExecutor {
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
 
-      System.out.println(">>>>>>>>>>>>>>>>> add DDF name = " + ddfName);
-
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
