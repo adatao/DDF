@@ -26,7 +26,7 @@ object RootBuild extends Build {
   val rootOrganization = "com.adatao"
   val projectName = "ddf"
   val rootProjectName = projectName
-  val rootVersion = "1.0"
+  val rootVersion = "0.9"
 
   val projectOrganization = rootOrganization + "." + projectName
 
@@ -226,7 +226,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
-    dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
+    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
     // dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
