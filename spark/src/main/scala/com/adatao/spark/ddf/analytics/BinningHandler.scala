@@ -37,7 +37,7 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
       }
       case _ ⇒ throw new DDFException(String.format("Binning type %s is not supported", binningTypeString))
     }
-    mLog.info("breaks = " + breaks.mkString(", "))
+//    mLog.info("breaks = " + breaks.mkString(", "))
 
     var intervals = createIntervals(breaks, includeLowest, right)
 
@@ -48,6 +48,7 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
     //remove single quote in intervals
     intervals = intervals.map(x ⇒ x.replace("'", ""))
     newddf.getSchemaHandler().setAsFactor(column).setLevels(intervals.toList.asJava);
+//    newddf.getSchemaHandler().computeFactorLevelsAndLevelCounts()
     
     newddf
   }
@@ -112,6 +113,9 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
       }
     }.mkString(", ") + " FROM " + mDDF.getTableName
     mLog.info("Transform sql = {}", sqlCmd)
+    
+    println(">>>>>>>sqlCmd=" + sqlCmd)
+    
     sqlCmd
   }
 
