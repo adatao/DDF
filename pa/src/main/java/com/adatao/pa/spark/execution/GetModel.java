@@ -68,15 +68,9 @@ public class GetModel extends CExecutor {
     }
   }
 
-
-<<<<<<< HEAD
 	static public class ModelResult extends SuccessResult {
 
 		public String id;
-=======
-  static public class ModelResult extends SuccessResult {
-    public String id;
->>>>>>> bb5f3ee2caa9970320433cfa58f8984c649e9379
 
     public ModelResult(IModel model) {
       this.id = model.getName();// .substring(15).replace("_", "-");
