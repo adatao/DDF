@@ -32,7 +32,8 @@ class GetDDFSuite extends ABigRClientTest {
     val r1 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](setddf).result
     println(">>>>>>>>>>> after setting get r1.dataContainerID= " + r1.dataContainerID)
 
-    val getddf = new GetDDF(ddfName)
+    val newname = "ddf://com.example/" + ddfName
+    val getddf = new GetDDF(newname)
     val r2 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](getddf).result
     assert(r2.isSuccess)
     println(">>>>>>>>>>> after getting get r2.dataContainerID= " + r2.dataContainerID)

@@ -113,7 +113,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * This name is ephemeral in the sense that it existed in cluster memory and will be disappear once we restart cluster
 	 */
 	public DDF setDDFByName(DDF data, String aliasName) {
-		meDDFs.put(aliasName, data);
+	  String newuri = data.getUri().substring(0, data.getUri().lastIndexOf("/")) + "/" + aliasName;
+	  System.out.println(">>>>>>>>>>>> newuri = " + newuri);
+		meDDFs.put(newuri, data);
 		return data;
 	}
 	
