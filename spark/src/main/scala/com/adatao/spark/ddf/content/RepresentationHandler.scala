@@ -43,6 +43,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
 
     typeSpecs match {
+      case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(typeSpecs)
       case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
       case _ => this.fromRDDRow(typeSpecs)
     }
@@ -87,6 +88,11 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_TABLE_PARTITION => {
         val rddSeq = rddArrObj.map { row => row.toSeq }.asInstanceOf[RDD[Seq[_]]]
         this.getRDDTablePartition(rddSeq, mDDF.getSchemaHandler.getColumns)
+      }
+      case RDD_ARRAY_DOUBLE => {
+        val schemaHandler = mDDF.getSchemaHandler
+        val mappers =  (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
+        arrObjectToArrDouble(rddArrObj, mappers)
       }
     }
   }
@@ -458,6 +464,23 @@ object RepresentationHandler {
 
         // this is the per-partition Renjin data.frame
         REXP.createDataFrame(dflist)
+    }
+  }
+  def arrObjectToArrDouble(rdd: RDD[Array[Object]], mappers: Array[Object => Option[Double]]): RDD[Array[Double]] = {
+    rdd.map{
+      array => {
+        val arr = new Array[Double](array.size)
+        var i = 0
+        var isNULL = false
+        while((i < array.size) && !isNULL) {
+          mappers(i)(array(i)) match {
+            case Some(number) => arr(i) = number
+            case None => isNULL = true
+          }
+          i += 1
+        }
+        if(isNULL) null else arr
+      }
     }
   }
 }
