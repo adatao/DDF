@@ -11,9 +11,21 @@ import scala.collection.JavaConversions._
 object RootBuild extends Build {
 
   //////// Project definitions/configs ///////
-  val SPARK_VERSION = "0.9.1"
-  val SHARK_VERSION = "0.9.1"
-        val HIVE_VERSION = "0.11.0-shark-0.9.1"
+  //////// Project definitions/configs ///////
+  val OBSELETE_HADOOP_VERSION = "1.0.4"
+  val DEFAULT_HADOOP_VERSION = "2.2.0"
+
+  lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
+    DEFAULT_HADOOP_VERSION
+
+  lazy val MAIN_SHARK_VERSION = "0.9.2"
+  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
+  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+
+  lazy val MAIN_SPARK_VERSION = "0.9.2"
+  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
+  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
@@ -130,8 +142,9 @@ object RootBuild extends Build {
     //"org.apache.derby" % "derby" % "10.4.2.0",
    // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-mllib_2.10" % MAIN_SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
