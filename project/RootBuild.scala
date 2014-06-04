@@ -180,10 +180,6 @@ object RootBuild extends Build {
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
-//resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
-//resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-         // "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
       "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
