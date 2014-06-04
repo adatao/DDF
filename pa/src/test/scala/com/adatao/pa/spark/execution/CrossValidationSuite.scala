@@ -23,205 +23,210 @@ import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.ML.RocObject
+
 /**
  *
  */
 class CrossValidationSuite extends ABigRClientTest {
 
-	private def loadTestFile: String = {
-		this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
-		//		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
-	}
+  private def loadTestFile: String = {
+    this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
+    //		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
+  }
 
-	test("CVRandomSplit") {
-		createTableAirline
-		val df = this.runSQL2RDDCmd("select * from airline", true)
-		
-		val dataContainerId = df.dataContainerID //this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
-		val splitter = new CVRandomSplit(dataContainerId, 5, 0.75, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 5)
-		r.result.foreach { split ⇒
-			assert(split.length === 2)
-		}
-	}
+  test("CVRandomSplit") {
+    createTableMtcars
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
-	test("CVKFoldSplit") {
-//		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
-		createTableAirline
-		val df = this.runSQL2RDDCmd("select * from airline", true)
-		
-		val dataContainerId = df.dataContainerID
-		
-		val splitter = new CVKFoldSplit(dataContainerId, 5, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 5)
-		r.result.foreach { split ⇒
-			assert(split.length === 2)
-		}
-	}
+    val dataContainerId = df.dataContainerID //this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
+    val splitter = new CVRandomSplit(dataContainerId, 5, 0.75, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 5)
+    r.result.foreach {
+      split ⇒
+        assert(split.length === 2)
+    }
+  }
 
-	test("R2 score on CVRandomSplit") {
-//		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
-		createTableMtcars
-		val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
-		val dataContainerId = df.dataContainerID
-		
-		val splitter = new CVRandomSplit(dataContainerId, 1, 0.75, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 1)
-		r.result.foreach { split ⇒
-			val Array(train, test) = split
+  test("CVKFoldSplit") {
+    //		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, " ")
+    createTableMtcars
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
-			val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
-			val r = bigRClient.execute[LinearRegressionModel](trainer)
-			assert(r.isSuccess)
+    val dataContainerId = df.dataContainerID
 
-			val persistenceID = r.persistenceID
+    val splitter = new CVKFoldSplit(dataContainerId, 5, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 5)
+    r.result.foreach {
+      split ⇒
+        assert(split.length === 2)
+    }
+  }
 
-			val scorer = new R2Score(test, Array(0), 1, persistenceID)
-			val r2 = bigRClient.execute[Double](scorer)
-			assert(r2.isSuccess)
+  test("R2 score on CVRandomSplit") {
+    createTableMtcars
+    val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
+    val dataContainerId = df.dataContainerID
 
-			println("!!! AHT !!! " + r2.result)
-			// no assertion here because result are dependent on random draw
-			// though deterministic given the seed
-		}
-	}
+    val splitter = new CVRandomSplit(dataContainerId, 1, 0.75, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 1)
+    r.result.foreach {
+      split ⇒
+        val Array(train, test) = split
 
-	test("R2 score on CVRandomSplit on Shark") {
-		createTableMtcars
+        val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
+        val r = bigRClient.execute[LinearRegressionModel](trainer)
+        assert(r.isSuccess)
 
-		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
-		assert(r0.isSuccess)
+        val persistenceID = r.persistenceID
 
-		val dataContainerId = r0.dataContainerID
+        val scorer = new R2Score(test, Array(0), 1, persistenceID)
+        val r2 = bigRClient.execute[Double](scorer)
+        assert(r2.isSuccess)
 
-		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 1)
-		r.result.foreach { split ⇒
-			val Array(train, test) = split
+        println("!!! AHT !!! " + r2.result)
+      // no assertion here because result are dependent on random draw
+      // though deterministic given the seed
+    }
+  }
 
-			// fake the training with learningRate = 0.0
-			val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
-			val r = bigRClient.execute[LinearRegressionModel](trainer)
-			assert(r.isSuccess)
+  //	test("R2 score on CVRandomSplit on Shark") {
+  //		createTableMtcars
+  //
+  //		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
+  ////		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
+  //		assert(r0.isSuccess)
+  //
+  //		val dataContainerId = r0.dataContainerID
+  //
+  //		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
+  //		val r = bigRClient.execute[Array[Array[String]]](splitter)
+  //		assert(r.isSuccess)
+  //		println(r.result)
+  //		assert(r.result.length === 1)
+  //		r.result.foreach { split ⇒
+  //			val Array(train, test) = split
+  //
+  //			// fake the training with learningRate = 0.0
+  //			val trainer = new LinearRegression(train, Array(0), 1, 1, 0.0, 0.0, Array(37.285, -5.344))
+  //			val r = bigRClient.execute[LinearRegressionModel](trainer)
+  //			assert(r.isSuccess)
+  //
+  //			val persistenceID = r.persistenceID
+  //
+  //			val scorer = new R2Score(test, Array(0), 1, persistenceID)
+  //			val r2 = bigRClient.execute[Double](scorer)
+  //			assert(r2.isSuccess)
+  //
+  //			println("!!! AHT !!! " + r2.result)
+  //			// no assertion here because result are dependent on random draw
+  //			// though deterministic given the seed
+  //		}
+  //	}
+  //
+  //	test("LinearRegression on CVRandomSplit on Shark") {
+  //		createTableMtcars
+  //
+  //		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
+  //		assert(r0.isSuccess)
+  //
+  //		val dataContainerId = r0.dataContainerID
+  //
+  //		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
+  //		val r = bigRClient.execute[Array[Array[String]]](splitter)
+  //		assert(r.isSuccess)
+  //		println(r.result)
+  //		assert(r.result.length === 1)
+  //		r.result.foreach { split ⇒
+  //			val Array(train, test) = split
+  //
+  //			// fake the training with learningRate = 0.0
+  //			val trainer = new LinearRegressionNormalEquation(train, Array(5), 0, 0.0)
+  //			val r = bigRClient.execute[LinearRegressionModel](trainer)
+  //			assert(r.isSuccess)
+  //		}
+  //	}
+  //
+  test("Test ROC metric with CV random split") {
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
 
-			val persistenceID = r.persistenceID
+    val lambda = 0.0
 
-			val scorer = new R2Score(test, Array(0), 1, persistenceID)
-			val r2 = bigRClient.execute[Double](scorer)
-			assert(r2.isSuccess)
+    val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 1)
 
-			println("!!! AHT !!! " + r2.result)
-			// no assertion here because result are dependent on random draw
-			// though deterministic given the seed
-		}
-	}
+    val alpha_length: Int = 100
 
-	test("LinearRegression on CVRandomSplit on Shark") {
-		createTableMtcars
+    r.result.foreach {
+      split ⇒
+        val Array(train, test) = split
+        val lambda = 0.0
 
-		val r0 = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
-		assert(r0.isSuccess)
+        // fake the training with learningRate = 0.0
+        val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+        val r = bigRClient.execute[LogisticRegressionModel](trainer)
+        assert(r.isSuccess)
 
-		val dataContainerId = r0.dataContainerID
+        val persistenceID = r.persistenceID
 
-		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 1)
-		r.result.foreach { split ⇒
-			val Array(train, test) = split
+        val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(2, 3), 0)
+        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+        assert(r2.isSuccess)
+        val predictionId = r2.result.dataContainerID
 
-			// fake the training with learningRate = 0.0
-			val trainer = new LinearRegressionNormalEquation(train, Array(5), 0, 0.0)
-			val r = bigRClient.execute[LinearRegressionModel](trainer)
-			assert(r.isSuccess)
-		}
-	}
+        val executor = new ROC(predictionId, Array(0, 1), alpha_length)
+        val ret = bigRClient.execute[RocObject](executor)
+        println(ret.toJson)
+        assert(ret.isSuccess)
+    }
+  }
 
-	test("Test ROC metric with CV random split") {
-		createTableAdmission
-		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
-		val dataContainerId = df.dataContainerID
-		
-		val lambda = 0.0
+  test("Test ROC metric with CV random split on Shark") {
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
 
-		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 1)
+    val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 1)
 
-		val alpha_length: Int = 100
+    val alpha_length: Int = 100
 
-		r.result.foreach { split ⇒
-			val Array(train, test) = split
-			val lambda = 0.0
+    r.result.foreach {
+      split ⇒
+        val Array(train, test) = split
+        val lambda = 0.0
 
-			// fake the training with learningRate = 0.0
-			val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-			val r = bigRClient.execute[LogisticRegressionModel](trainer)
-			assert(r.isSuccess)
+        // fake the training with learningRate = 0.0
+        val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+        val r = bigRClient.execute[LogisticRegressionModel](trainer)
+        assert(r.isSuccess)
+        val persistenceID = r.persistenceID
 
-			val persistenceID = r.persistenceID
+        val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0, 1), 2)
+        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+        assert(r2.isSuccess)
+        val predictionId = r2.result.dataContainerID
 
-			val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(2, 3), 0)
-			val r2 = bigRClient.execute[YtrueYpredResult](predictor)
-			assert(r2.isSuccess)
-			val predictionId = r2.result.dataContainerID
+        val executor = new ROC(predictionId, Array(0, 1), alpha_length)
+        val ret = bigRClient.execute[RocObject](executor)
+        assert(ret.isSuccess)
 
-			val executor = new ROC(predictionId, Array(0, 1), alpha_length)
-			val ret = bigRClient.execute[RocObject](executor)
-			println(ret.toJson)
-			assert(ret.isSuccess)
-		}
-	}
-
-	test("Test ROC metric with CV random split on Shark") {
-		createTableAdmission
-		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
-		val dataContainerId = df.dataContainerID
-
-		val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
-		val r = bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 1)
-
-		val alpha_length: Int = 100
-
-		r.result.foreach { split ⇒
-			val Array(train, test) = split
-			val lambda = 0.0
-
-			// fake the training with learningRate = 0.0
-			val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-			val r = bigRClient.execute[LogisticRegressionModel](trainer)
-			assert(r.isSuccess)
-			val persistenceID = r.persistenceID
-
-			val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0, 1), 2)
-			val r2 = bigRClient.execute[YtrueYpredResult](predictor)
-			assert(r2.isSuccess)
-			val predictionId = r2.result.dataContainerID
-
-			val executor = new ROC(predictionId, Array(0, 1), alpha_length)
-			val ret = bigRClient.execute[RocObject](executor)
-			assert(ret.isSuccess)
-
-		}
-	}
+    }
+  }
 }

@@ -80,54 +80,6 @@ object LogisticRegression {
       }
     }
   }
-	def ROC_sequential(model: LogisticRegressionModel, XYData: RDD[(Matrix, Vector)]): RocObject = {
-    val predictions = yTrueYpred(model, XYData)
-    var pred: Array[(Double, Double)] = predictions.collect()
-    var previousVal: Double = Double.MaxValue
-    var tp: Int = 0
-    var fp: Int = 0
-    var P: Int = 0
-    var N: Int = 0
-    //count number of positve, negative test instance
-    var lpred: List[(Double, Double)] = pred.toList
-    var c: Int = 0
-    while (c < pred.size) {
-      if (lpred(c)._1 == 1.0) P = P + 1
-      c = c + 1
-    }
-    N = pred.size - P
-
-    //sort by value score, INCREASING order. DO NOT change it for now 
-    //algorithm: http://people.inf.elte.hu/kiss/13dwhdm/roc.pdf
-    //time complexity: nlogn with n is the number of test instance
-
-    var result: Array[Array[Double]] = new Array[Array[Double]](pred.size)
-    var i: Int = 0
-    lpred.sortBy(_._2) foreach {
-      case (key, value) ⇒
-        if (value != previousVal) {
-          result(i) = new Array[Double](3)
-          result(i)(0) = value
-          result(i)(1) = tp / P.asInstanceOf[Double]
-          result(i)(2) = fp / N.asInstanceOf[Double]
-          previousVal = value
-          i = i + 1
-        }
-        if (key == 1.0) {
-          tp = tp + 1
-        }
-        else {
-          fp = fp + 1
-        }
-    }
-    //final: shoule be pushing equal to (1,1)
-    result(i - 1)(0) = previousVal
-    result(i - 1)(1) = tp / P.asInstanceOf[Double]
-    result(i - 1)(2) = fp / N.asInstanceOf[Double]
-    //build matrix later
-    //val rocObject = new RocObject(Matrix.newInstance(result))
-    new RocObject(result, 0.0)
-  }
 }
 
 
@@ -140,27 +92,9 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
   }
   
   override def predict(features: Vector): Double = {
-    println(">>>>>>>>>>>>>>>. calling predict")
+    LOG.info(">>>>>>>>>>>>>>>. calling predict")
     ALossFunction.sigmoid(this.linearPredictor(features))
   }
-  
-//  override def predict(features: Array[Double]): java.lang.Double = {
-//    //convert double[] to Vector
-//    val a = Vector(features)
-//    println(">>>>>>>>>>>>>>>. calling predict a= " + a	) 
-//    predict(a)
-//  }
-  
-//  def predict(point: Array[Double]): java.lang.Double = {
-//	println(">>>>>>>>>>>calling predict point = " + point)
-//    val features = Vector(Array[Double](1) ++ point)
-//    println(">>>>>>>>>>>calling predict features = " + features)
-//    println(">>>>>>>>>>>calling predict weights = " + weights)
-//    val linearPredictor = weights.dot(features)
-//    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
-//    ALossFunction.sigmoid(linearPredictor)
-//  }
-
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {

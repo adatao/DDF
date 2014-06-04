@@ -22,6 +22,7 @@ import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.google.common.collect.Lists;
 
+//Note we current no longer need it, if you want to know please take a look at BigR
 @SuppressWarnings("serial")
 public class NaiveBayes { //implements IExecutor, Serializable {
 	private String dataContainerID;

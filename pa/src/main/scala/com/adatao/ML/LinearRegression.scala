@@ -27,56 +27,52 @@ import java.util.Arrays
  */
 object LinearRegression {
 
-	/**
-	 * This is the signature to be used by clients that can represent their data using [[Matrix]] and [[Vector]]
-	 */
-	def train(
-		XYData: (Matrix, Vector),
-		numIters: Int,
-		learningRate: Double,
-		ridgeLambda: Double,
-		initialWeights: Vector,
-		numFeatures: Int
-		): LinearRegressionModel = {
+  /**
+   * This is the signature to be used by clients that can represent their data using [[Matrix]] and [[Vector]]
+   */
+  def train(
+    XYData: (Matrix, Vector),
+    numIters: Int,
+    learningRate: Double,
+    ridgeLambda: Double,
+    initialWeights: Vector,
+    numFeatures: Int): LinearRegressionModel = {
 
-		this.train(new LinearRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
-	}
+    this.train(new LinearRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
+  }
 
-	/**
-	 * This is the signature to be used by clients wishing to inject their own loss function that can handle their own
-	 * data representation (e.g., [[spark.RDD]]).
-	 */
-	def train[XYDataType](
-		lossFunction: ALinearGradientLossFunction[XYDataType],
-		numIters: Int,
-		learningRate: Double,
-		initialWeights: Vector,
-		numFeatures: Int
-		)(implicit m: Manifest[XYDataType]): LinearRegressionModel = {
+  /**
+   * This is the signature to be used by clients wishing to inject their own loss function that can handle their own
+   * data representation (e.g., [[spark.RDD]]).
+   */
+  def train[XYDataType](
+    lossFunction: ALinearGradientLossFunction[XYDataType],
+    numIters: Int,
+    learningRate: Double,
+    initialWeights: Vector,
+    numFeatures: Int)(implicit m: Manifest[XYDataType]): LinearRegressionModel = {
 
-		val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
-		new LinearRegressionModel(weights, trainingLosses, numSamples)
-	}
+    val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
+    new LinearRegressionModel(weights, trainingLosses, numSamples)
+  }
 
-	/**
-	 * Provide computeFunction supporting (Matrix, Vector) XYDataType to GradientDescent computer
-	 */
-	class LossFunction(XYData: (Matrix, Vector), ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
-		override def compute: Vector ⇒ ALossFunction = {
-			(weights: Vector) ⇒ this.compute(XYData._1, XYData._2, weights)
-		}
-	}
+  /**
+   * Provide computeFunction supporting (Matrix, Vector) XYDataType to GradientDescent computer
+   */
+  class LossFunction(XYData: (Matrix, Vector), ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
+    override def compute: Vector ⇒ ALossFunction = {
+      (weights: Vector) ⇒ this.compute(XYData._1, XYData._2, weights)
+    }
+  }
 }
 
-
-class LinearRegressionModel(weights: Vector, trainingLosses: Vector,  numSamples: Long) extends
-	AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
-	// The base class already sufficiently implements the predictor as [weights DOT features]
-    @transient var ddfModel: IModel = null
-    override def ddfModelID: String = {
-        if (ddfModel != null) ddfModel.getName()
-        else null
-    }
+class LinearRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
+  // The base class already sufficiently implements the predictor as [weights DOT features]
+  @transient var ddfModel: IModel = null
+  override def ddfModelID: String = {
+    if (ddfModel != null) ddfModel.getName()
+    else null
+  }
 }
 
 /**
@@ -86,61 +82,61 @@ class LinearRegressionModel(weights: Vector, trainingLosses: Vector,  numSamples
  * com.adatao.ML.LinearGradientLossFunction.
  */
 abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
-		extends ALossFunction {
-	
-	final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = X.mmul(weights)
-	
-	/**
-	 * May override this to define a hypothesis function. The base implementation is
-	 *
-	 * hypothesis[vector] = weights*X
-	 * 
-	 * @returns - tuple of (linearPredictor, hypothesis), as they may be different
-	 */
-	protected def computeHypothesis(X: Matrix, weights: Vector): (DoubleMatrix, DoubleMatrix) = {
-		val linearPredictor = this.computeLinearPredictor(X, weights)
-		(linearPredictor, linearPredictor)
-	}
+  extends ALossFunction {
 
-	/**
-	 * May override this to define a specific gradient (dJ/dWeights). The base implementation
-	 * computes the linear gradients with ridge regularization.
-	 *
-	 * errors = hypothesis - Y
-	 * totalGradients[vector] = errors*X + lambda*weights
-	 */
-	protected def computeGradients(X: Matrix, weights: Vector, errors: DoubleMatrix): Vector = {
-		val gradients = Vector(errors.transpose().mmul(X)) // (h - Y) x X = errors.transpose[1 x m] * X[m x n] = [1 x n] => Vector[n]
-		if (ridgeLambda != 0.0) gradients.addi(weights.mul(ridgeLambda)) // regularization term, (h - Y) x X + L*weights
-		gradients
-	}
+  final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = X.mmul(weights)
 
-	/**
-	 * May override this to define a specific loss (J) function. The base implementation
-	 * computes the linear loss function with ridge regularization.
-	 *
-	 * J[scalar] = errors^2 + lambda*weights^2
-	 */
-	protected def computeLoss(X: Matrix, Y: Vector, weights: Vector, errors: DoubleMatrix, linearPredictor: DoubleMatrix, hypothesis: DoubleMatrix): Double = {
-		var J = errors.dot(errors)
-		if (ridgeLambda != 0.0) J += ridgeLambda * weights.dot(weights)
-		J / 2
-	}
+  /**
+   * May override this to define a hypothesis function. The base implementation is
+   *
+   * hypothesis[vector] = weights*X
+   *
+   * @returns - tuple of (linearPredictor, hypothesis), as they may be different
+   */
+  protected def computeHypothesis(X: Matrix, weights: Vector): (DoubleMatrix, DoubleMatrix) = {
+    val linearPredictor = this.computeLinearPredictor(X, weights)
+    (linearPredictor, linearPredictor)
+  }
 
-	/**
-	 * Note that the losses are computed only for records and analysis. If we wanted to be even faster
-	 * we could skip computing losses altogether.
-	 */
-	override def compute(X: Matrix, Y: Vector, theWeights: Vector): ALossFunction = {
-		val (linearPredictor, hypothesis) = this.computeHypothesis(X, theWeights)
-		val errors = hypothesis.sub(Y)
-		gradients = this.computeGradients(X, theWeights, errors)
-		loss = this.computeLoss(X, Y, theWeights, errors, linearPredictor, hypothesis)
-		weights = theWeights
-		numSamples = Y.rows
+  /**
+   * May override this to define a specific gradient (dJ/dWeights). The base implementation
+   * computes the linear gradients with ridge regularization.
+   *
+   * errors = hypothesis - Y
+   * totalGradients[vector] = errors*X + lambda*weights
+   */
+  protected def computeGradients(X: Matrix, weights: Vector, errors: DoubleMatrix): Vector = {
+    val gradients = Vector(errors.transpose().mmul(X)) // (h - Y) x X = errors.transpose[1 x m] * X[m x n] = [1 x n] => Vector[n]
+    if (ridgeLambda != 0.0) gradients.addi(weights.mul(ridgeLambda)) // regularization term, (h - Y) x X + L*weights
+    gradients
+  }
 
-		this
-	}
+  /**
+   * May override this to define a specific loss (J) function. The base implementation
+   * computes the linear loss function with ridge regularization.
+   *
+   * J[scalar] = errors^2 + lambda*weights^2
+   */
+  protected def computeLoss(X: Matrix, Y: Vector, weights: Vector, errors: DoubleMatrix, linearPredictor: DoubleMatrix, hypothesis: DoubleMatrix): Double = {
+    var J = errors.dot(errors)
+    if (ridgeLambda != 0.0) J += ridgeLambda * weights.dot(weights)
+    J / 2
+  }
+
+  /**
+   * Note that the losses are computed only for records and analysis. If we wanted to be even faster
+   * we could skip computing losses altogether.
+   */
+  override def compute(X: Matrix, Y: Vector, theWeights: Vector): ALossFunction = {
+    val (linearPredictor, hypothesis) = this.computeHypothesis(X, theWeights)
+    val errors = hypothesis.sub(Y)
+    gradients = this.computeGradients(X, theWeights, errors)
+    loss = this.computeLoss(X, Y, theWeights, errors, linearPredictor, hypothesis)
+    weights = theWeights
+    numSamples = Y.rows
+
+    this
+  }
 }
 
 class RocObject(var pred: Array[Array[Double]], var auc: Double) extends LinearRegressionModel(new Vector(1), new Vector(1), 0) {
@@ -149,11 +145,9 @@ class RocObject(var pred: Array[Array[Double]], var auc: Double) extends LinearR
     var i: Int = 0
     while (i < this.pred.length) {
       if (this.pred(i) != null) {
-        println(">>>\t" + i + "\t" + Arrays.toString(this.pred(i)))
       }
       i = i + 1
     }
-    println(">>>>> auc=" + auc)
   }
   def computeAUC(): Double = {
     //filter null/NA in pred
@@ -198,8 +192,7 @@ class RocObject(var pred: Array[Array[Double]], var auc: Double) extends LinearR
             j = j + 1
           }
         }
-      }
-      else {
+      } else {
         if (other.pred(i) != null) {
           j = 0
           //P = P + P

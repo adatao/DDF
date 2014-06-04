@@ -45,12 +45,12 @@ class RegressionSuite extends ABigRClientTest {
 		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
 	}
 
-  test("Single-variable linear regression") {
+  ignore("Single-variable linear regression") {
 		val executor = new LinearRegression(this.loadTestFile, Array(5), 4, numIters, 0.05, lambda, Array(38, -3))
 		val r = bigRClient.execute[LinearRegressionModel](executor)
 
 		assert(r.isSuccess)
 
-		LOG.info("result is %s".format(r.toString))
+//		LOG.info("result is %s".format(r.toString))
 	}
 }

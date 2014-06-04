@@ -51,7 +51,7 @@ class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]]
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF ⇒ x
-      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
+      case _ ⇒ throw new IllegalArgumentException(s"Only accept DDF, ddfID: $ddfId")
     }
     val fiveNums = ddf.getFiveNumSummary
     val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)

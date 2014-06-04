@@ -29,6 +29,7 @@ import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 
+//Note: we no longer need it, if you want to know it, please check at BigR.
 @SuppressWarnings("serial")
 public class RunMapReduceTextFile { //implements IExecutor, Serializable {
 	private String input = null;
@@ -37,46 +38,4 @@ public class RunMapReduceTextFile { //implements IExecutor, Serializable {
 	private String reduce = null;
 	private String combine = null;
 	private String data = null;
-
-//	static public class RunMapReduceTextFileResult extends SuccessResult{
-//		String result;
-//
-//		public String getResult() {
-//			return result;
-//		}
-//
-//		public RunMapReduceTextFileResult setResult(String result) {
-//			this.result = result;
-//			return this;
-//		}
-//
-//	}
-//
-//	@Override
-//	public ExecutorResult run(SparkThread sparkThread) {
-//		try {
-//			// Check MapReduce R syntax
-//			MapReduce.getInstance().checkMapReduceFunc(map, reduce, combine);
-//			JavaRDD<String> lines = sparkThread.getSparkContext()
-//					.textFile(input);
-//			JavaPairRDD<String, String> resPair = MapReduce.getInstance()
-//					.runMapReduceWithHadoopReducer(lines, map, reduce, combine, data);
-//			//resPair.saveAsTextFile(output);
-//			JavaRDD<String> res = resPair.map(new Function<Tuple2<String, String>, String>() {
-//				public String call( Tuple2<String, String> t) throws Exception {
-//					return t._1 + "," + t._2;
-//				}
-//			}
-//			);
-//			System.out.println(res.take(10).toString());
-//			res.saveAsTextFile(output);
-//			
-//			return new RunMapReduceTextFileResult().setResult(output);
-//		} catch (ScriptException e) {
-//			return new FailResult().setMessage(e.getMessage());
-//		} catch (Exception e) {
-//			return new FailResult().setMessage(e.getMessage());
-//		}
-//	}
-
 }

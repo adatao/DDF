@@ -50,7 +50,8 @@ class SqlExecutionSuite extends ABigRClientTest {
 		}
 	}
 
-	test("Test LoadHiveTable"){
+	//no longer support loadHiveTable command
+	ignore("Test LoadHiveTable"){
 		this.runSQLCmd("drop table if exists test")
 		this.runSQLCmd("CREATE TABLE test (uid Int, type String)")
 		this.runSQLCmd("LOAD DATA LOCAL INPATH 'resources/sharkfiles/kv3.txt' INTO TABLE test")

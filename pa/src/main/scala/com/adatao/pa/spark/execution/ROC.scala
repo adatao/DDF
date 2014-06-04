@@ -67,14 +67,7 @@ class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) ext
 		//TODO double check if ytrueypred back by table i.e has schema
 		//    val df = ctx.sparkThread.getDataManager.get(dataContainerID)
 		val ddfManager = ctx.sparkThread.getDDFManager()
-		
-		
-		
 		val ddfId = "SparkDDF_spark_" + dataContainerID.replaceAll("-", "_")
-		
-		
-		println(">>>>>>>>>>>>>>>> ROC get ddf id=" + dataContainerID + "\tddfId=" + ddfId)
-		
 		val predictionDDF: DDF = ddfManager.getDDF((ddfId));
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
@@ -116,7 +109,6 @@ class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) ext
 	//			val aRow = inputRows.next
 	//			if (aRow != null) {
 	//				if (aRow(YTRUE_INDEX) != 0 && aRow(YTRUE_INDEX) != 1) {
-	//					println(">>>isNotBinary=" + isNotBinary(0))
 	//					return (Iterator(isNotBinary))
 	//				}
 	//			}

@@ -55,7 +55,16 @@ public class SparkDDFManager extends DDFManager {
   private void initialize(SparkContext sparkContext, Map<String, String> params) throws DDFException {
     this.setSparkContext(sparkContext == null ? this.createSparkContext(params) : sparkContext);
 
-    if (sparkContext instanceof SharkContext) this.setSharkContext((SharkContext) sparkContext);
+    //it will never go here
+    //TODO remove later
+    if (sparkContext instanceof SharkContext) {
+    	this.setSharkContext((SharkContext) sparkContext);
+    	sparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	mSharkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	mSparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+    	
+    	mLog.info(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
+    }
   }
 
 
@@ -187,8 +196,11 @@ public class SparkDDFManager extends DDFManager {
         params.get("SPARK_HOME"), jobJars, params);
     this.setSharkContext(SharkEnv.initWithJavaSharkContext(mJavaSharkContext).sharkCtx());
 
-
-    return this.getSparkContext();
+    //set up serialization from System property
+	mSharkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
+	mSparkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
+    
+	return this.getSparkContext();
   }
   
   public DDF loadTable(String fileURL, String fieldSeparator) throws DDFException {
@@ -271,9 +283,6 @@ public class SparkDDFManager extends DDFManager {
         }
       }
     }
-
-    // System.out.println(">>> CTN: got type " + result);
-
     return result;
   }
   

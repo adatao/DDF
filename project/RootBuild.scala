@@ -26,7 +26,7 @@ object RootBuild extends Build {
   val rootOrganization = "com.adatao"
   val projectName = "ddf"
   val rootProjectName = projectName
-  val rootVersion = "1.0"
+  val rootVersion = "0.9"
 
   val projectOrganization = rootOrganization + "." + projectName
 
@@ -129,9 +129,9 @@ object RootBuild extends Build {
     //"commons-dbcp" % "commons-dbcp" % "1.4",
     //"org.apache.derby" % "derby" % "10.4.2.0",
    // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
-    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t),
-    "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark),
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
 //libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
@@ -198,7 +198,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
       "org.easymock" % "easymock" % "3.1" % "test",
-      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1",
+      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
       "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
@@ -226,7 +226,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
-    dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
+    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
     // dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
@@ -248,7 +248,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
      dependencyOverrides += "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
      dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
 
-    dependencyOverrides += "io.netty" % "netty" % "3.5.4.Final",
+    dependencyOverrides += "io.netty" % "netty" % "3.6.6.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
 
     
@@ -491,7 +491,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
 
   def paSettings = commonSettings ++ Seq(
     name := paProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
     libraryDependencies ++= pa_dependencies

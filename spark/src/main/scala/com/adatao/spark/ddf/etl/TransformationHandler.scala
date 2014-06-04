@@ -81,7 +81,11 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
+    val manager = this.getManager
+    val ddf = new SparkDDF (manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+    manager.addDDF(ddf)
+    ddf
   }
 
   override def transformNativeRserve(transformExpression: String): DDF = {
@@ -100,7 +104,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
         val expr = String.format("%s <- transform(%s, %s)", dfvarname, dfvarname, transformExpression)
 
-        println(">>>>>>>>>>>>.expr=" + expr.toString())
+//        mLog.info(">>>>>>>>>>>>.expr=" + expr.toString())
 
         // compute!
         TransformationHandler.tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")
@@ -129,9 +133,12 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
-    //mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
-    //mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
+    val manager = this.getManager
+    val ddf = new SparkDDF(manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+//    mLog.info(">>>>> adding ddf to manager: " + ddf.getName)
+    manager.addDDF(ddf)
+    ddf
   }
 
 }
@@ -181,8 +188,8 @@ object TransformationHandler {
       val dflist = partdf.asList()
       val partitionSize = (0 until dflist.size()).map(j ⇒ dflist.at(j).length()).reduce { (x, y) ⇒ math.max(x, y) }
 
-      println("partdf.len = " + partdf.length())
-      println("partitionSize = " + partitionSize)
+//      mLog.info("partdf.len = " + partdf.length())
+//      mLog.info("partitionSize = " + partitionSize)
 
       // big allocation!
       val jdata = Array.ofDim[Object](partitionSize, dflist.size())

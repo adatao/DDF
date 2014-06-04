@@ -21,6 +21,8 @@ public class AdataoException extends Exception {
             "This error happens when running ROC on not non-binary classification data"),
         ERR_LOAD_TABLE_FAILED("Failed to create the distributed dataframe.",
             "This error happens when the shark query used to load the table failed"),
+        ERR_GETDDF_FAILED("Failed to get distributed dataframe by name.",
+            "This error happens when ddf name is not existed or wrong ddfName, dataContainerId mapping"),
         ERR_SHARK_QUERY_FAILED("Unable to execute the query.",
             "This error happens when the shark query failed to run"),
         ERR_SHARK_RESULT_EMPTY("The dataframe may have data being NA or there is no data at all",

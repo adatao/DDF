@@ -60,6 +60,7 @@ class LinearRegressionNormalEquation(
 
   override def train(dataContainerID: String, context: ExecutionContext): NQLinearRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
+    
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
@@ -81,6 +82,8 @@ class LinearRegressionNormalEquation(
     val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
     val numRows = ddf.getNumRows()
     println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    
+    println(">>>>>>>>>>>>>> LogisticRegressionIRLS ddf.getSchema().getDummyCoding() = " + ddf.getSchema().getDummyCoding().toPrint())
 
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)

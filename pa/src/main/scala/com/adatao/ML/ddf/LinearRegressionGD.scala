@@ -39,8 +39,9 @@ object LinearRegressionGD {
         numIters: Int,
         learningRate: Double,
         ridgeLambda: Double,
-        initialWeights: Array[Double]): LinearRegressionModel = {
-        val numFeatures = xCols.length + 1
+        initialWeights: Array[Double],
+        numFeatures: Int): LinearRegressionModel = {
+        //val numFeatures = xCols.length + 1
         //depend on length of weights
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
         var model = ML.LinearRegression.train(
