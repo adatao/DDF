@@ -540,6 +540,8 @@ object RootBuild extends Build {
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
     mergeStrategy in assembly := {
       case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+      case m if m.toLowerCase.endsWith("eclipsef.sf") => MergeStrategy.discard
+      case m if m.toLowerCase.endsWith("eclipsef.rsa") => MergeStrategy.discard
       case "reference.conf" => MergeStrategy.concat
       case _ => MergeStrategy.first
     }
