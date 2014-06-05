@@ -61,10 +61,10 @@ public class DDFUtils {
     if (obj == null) return UUID.randomUUID().toString();
 
     if (obj instanceof DDF) {
-      return String.format("%s_%s_%s", obj.getClass().getSimpleName(), ((DDF) obj).getEngine(), UUID.randomUUID());
+      return String.format("%s_%s_%s", obj.getClass().getSimpleName(), ((DDF) obj).getEngine(), UUID.randomUUID()).replace("-", "_");
     }
 
-    return String.format("%s_%s", obj.getClass().getSimpleName(), UUID.randomUUID());
+    return String.format("%s_%s", obj.getClass().getSimpleName(), UUID.randomUUID()).replace("-", "_");
   }
 
   private static String ensureUniqueness(String desiredName) {
