@@ -944,7 +944,7 @@ public abstract class DDF extends ALoggable //
    * before persistence, to avoid the situtation of null schemas being persisted.
    */
   @Override
-  public void beforePersisting() {
+  public void beforePersisting() throws DDFException {
     if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
   }
 

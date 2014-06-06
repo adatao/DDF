@@ -77,7 +77,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements
 	}
 
 	@Override
-	public Schema generateSchema() {
+	public Schema generateSchema() throws DDFException {
 		if (this.getSchema() != null)
 			return this.getSchema();
 
