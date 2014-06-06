@@ -58,17 +58,17 @@ public class DDFUtils {
   }
 
   private static String generateUniqueName(Object obj) {
-    if (obj == null) return UUID.randomUUID().toString();
+    if (obj == null) return UUID.randomUUID().toString().replace("-", "_");
 
     if (obj instanceof DDF) {
-      return String.format("%s_%s_%s", obj.getClass().getSimpleName(), ((DDF) obj).getEngine(), UUID.randomUUID());
+      return String.format("%s_%s_%s", obj.getClass().getSimpleName(), ((DDF) obj).getEngine(), UUID.randomUUID()).replace("-", "_");
     }
 
-    return String.format("%s_%s", obj.getClass().getSimpleName(), UUID.randomUUID());
+    return String.format("%s_%s", obj.getClass().getSimpleName(), UUID.randomUUID()).replace("-", "_");
   }
 
   private static String ensureUniqueness(String desiredName) {
-    return desiredName + UUID.randomUUID(); // FIXME: this should really be done by calling into the REGISTRY subsystem
+    return (desiredName + UUID.randomUUID()).replace("-", "_"); // FIXME: this should really be done by calling into the REGISTRY subsystem
   }
   
   public static String saveDDFName(String ddfName) {

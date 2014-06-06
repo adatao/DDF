@@ -105,7 +105,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * For simplicity this aliasName is global name and doesn't provide namespace information etc ..
 	 */
 	public DDF getDDFByName(String aliasName) {
-		DDF data = meDDFs.get(aliasName);
+	  String aliasNameSub = aliasName.substring(aliasName.lastIndexOf("/")+1);
+		DDF data = meDDFs.get(aliasNameSub);
 		return data;
 	}
 	/*

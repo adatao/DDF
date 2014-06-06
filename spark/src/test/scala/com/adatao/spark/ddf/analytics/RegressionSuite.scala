@@ -103,7 +103,7 @@ class RegressionSuite extends ATestSuite {
     manager.shutdown()
   }
 
-  test("Linear Regression with Normal Equation") {
+  ignore("Linear Regression with Normal Equation") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 

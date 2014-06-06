@@ -120,4 +120,17 @@ class RepresentationHandlerSuite extends ATestSuite {
       }
     }
   }
+
+  test("Can do sql queries after Transform Rserve") {
+    createTableMtcars()
+    val ddf = manager.sql2ddf("select * from mtcars")
+    val newDDF = ddf.Transform.transformNativeRserve("z1 = mpg / cyl, " +
+      "z2 = disp * 0.4251437075, " +
+      "z3 = rpois(nrow(df.partition), 1000)")
+
+    val st= newDDF.Views.firstNRows(32)
+    val ddf1 = manager.sql2ddf(s"select * from ${newDDF.getTableName}")
+
+    assert(ddf1 != null)
+  }
 }

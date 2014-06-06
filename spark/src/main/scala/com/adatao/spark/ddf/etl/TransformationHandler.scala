@@ -104,7 +104,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
         val expr = String.format("%s <- transform(%s, %s)", dfvarname, dfvarname, transformExpression)
 
-        mLog.info(">>>>>>>>>>>>.expr=" + expr.toString())
+//        mLog.info(">>>>>>>>>>>>.expr=" + expr.toString())
 
         // compute!
         TransformationHandler.tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")
@@ -136,7 +136,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     val manager = this.getManager
     val ddf = new SparkDDF(manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
 
-    mLog.info(">>>>> adding ddf to manager: " + ddf.getName)
+//    mLog.info(">>>>> adding ddf to manager: " + ddf.getName)
     manager.addDDF(ddf)
     ddf
   }

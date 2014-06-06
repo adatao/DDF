@@ -36,7 +36,6 @@ public class GetModel extends CExecutor {
 
   public static Logger LOG = LoggerFactory.getLogger(GetModel.class);
 
-
   public GetModel(String modelName) {
     this.modelName = modelName;
   }
@@ -51,8 +50,8 @@ public class GetModel extends CExecutor {
       IModel model = ddfManager.getModel(modelName);
 
       if (model != null) {
-        LOG.info(" succesful getting model from name = " + modelName);
-      } else LOG.error(" can not get model from name = " + modelName);
+        LOG.info("Succesfully getting model from name = " + modelName);
+      } else LOG.error("Can not get model from name = " + modelName);
 
       return new ModelResult(model);
 
@@ -69,9 +68,9 @@ public class GetModel extends CExecutor {
     }
   }
 
+	static public class ModelResult extends SuccessResult {
 
-  static public class ModelResult extends SuccessResult {
-    public String id;
+		public String id;
 
     public ModelResult(IModel model) {
       this.id = model.getName();// .substring(15).replace("_", "-");
