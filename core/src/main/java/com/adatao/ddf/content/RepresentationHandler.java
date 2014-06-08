@@ -7,6 +7,7 @@ package com.adatao.ddf.content;
 import java.util.HashMap;
 import java.util.Map;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.types.AGloballyAddressable;
 import com.adatao.ddf.types.IGloballyAddressable;
@@ -53,18 +54,18 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @return null if no matching representation available
    */
   @Override
-  public Object get(Class<?>... typeSpecs) {
+  public Object get(Class<?>... typeSpecs) throws DDFException {
     return this.get(this.getSpecsAsString(typeSpecs), true);
   }
 
 
   @Override
-  public Object get(String typeSpecs) {
+  public Object get(String typeSpecs) throws DDFException {
     return this.get(typeSpecs, true);
   }
 
   @Override
-  public IGetResult get(Class<?>[][] acceptableTypeSpecs) {
+  public IGetResult get(Class<?>[][] acceptableTypeSpecs) throws DDFException {
     if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
 
     // First check what formats are *already* there, so we can save the effort of having to create it
@@ -82,7 +83,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   @Override
-  public IGetResult get(String[] acceptableTypeSpecs) {
+  public IGetResult get(String[] acceptableTypeSpecs) throws DDFException {
     if (acceptableTypeSpecs == null || acceptableTypeSpecs.length == 0) return null;
 
     // First check what formats are *already* there, so we can save the effort of having to create it
@@ -99,7 +100,10 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
     return null;
   }
 
-  private Object get(String typeSpecs, boolean doCreate) {
+  private Object get(String typeSpecs, boolean doCreate) throws DDFException {
+    if(this.mReps.size() == 0) {
+      throw new DDFException("DDF contains no representation");
+    }
     Object obj = mReps.get(typeSpecs);
 
     if (obj == null && doCreate) {
@@ -141,7 +145,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   }
 
   @Override
-  public Object getDefault() {
+  public Object getDefault() throws DDFException {
     return this.get(this.getDefaultDataType());
   }
 
@@ -168,7 +172,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
    * @param dataType
    * @return
    */
-  public Object createRepresentation(String typeSpecs) {
+  public Object createRepresentation(String typeSpecs) throws DDFException {
     if (typeSpecs != null && typeSpecs.equalsIgnoreCase(this.getSpecsAsString(this.getDefaultDataType()))) {
       return this.get(typeSpecs, false);
 

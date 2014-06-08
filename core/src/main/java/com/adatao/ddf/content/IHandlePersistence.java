@@ -15,7 +15,7 @@ public interface IHandlePersistence extends IHandleDDFFunctionalGroup {
 
     void unpersist() throws DDFException;
 
-    void beforePersisting();
+    void beforePersisting() throws DDFException;
 
     void afterPersisting();
 
