@@ -124,6 +124,7 @@ object RootBuild extends Build {
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
+    "org.apache.hbase" % "hbase" % "0.94.6",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
     //"commons-dbcp" % "commons-dbcp" % "1.4",
