@@ -69,12 +69,16 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
       }
 
     } catch (Exception ex) {
-
+      System.err.println("Error while building join sql");
     }
+    
+    System.out.println(">>> joinSqlCommand = " + joinSqlCommand);
+    
+    
     try {
       DDF resultDDF = this.getManager().sql2ddf(joinSqlCommand);
+      this.getDDF().getManager().addDDF(resultDDF);
       return resultDDF;
-
     } catch (Exception e) {
       e.printStackTrace();
       return null;
