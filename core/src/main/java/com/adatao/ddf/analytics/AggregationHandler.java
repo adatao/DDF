@@ -281,4 +281,45 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
     }
   }
+  
+
+  @Override
+  public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
+   
+    String tableName = this.getDDF().getTableName();
+
+    String groupedColSql = groupedColumns.get(0);
+    for (int i = 1; i < groupedColumns.size(); i++) {
+      groupedColSql += "," + groupedColumns.get(i);
+    }
+
+    String selectFuncSql = convertFunc2Sql(aggregateFunctions.get(0));
+    for (int i = 1; i < aggregateFunctions.size(); i++) {
+      selectFuncSql += "," + convertFunc2Sql(aggregateFunctions.get(i));
+    }
+
+    String sqlCmd = String.format("SELECT %s FROM %s GROUP BY %s", selectFuncSql, tableName, groupedColSql);
+    mLog.info("SQL Command: " + sqlCmd);
+
+    try {
+      DDF resultDDF = this.getManager().sql2ddf(sqlCmd);
+      return resultDDF;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new DDFException("Unable to query from " + tableName, e);
+    }
+  }
+
+  private String convertFunc2Sql(String s) {
+    if (s == null) return s;
+
+    String[] splits = s.trim().split("=");
+    if (splits != null && splits.length == 2) {
+      return splits[1] + " AS " + splits[0];
+    }
+    return s;
+  }
+  
+
 }
