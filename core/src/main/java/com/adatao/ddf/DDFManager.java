@@ -88,6 +88,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	protected HashMap<String, DDF> meDDFs = new HashMap<String, DDF>();
 
 	protected Map<String, IModel> mModels = new HashMap<String, IModel>();
+	
+	//lookup name (name, aliasName)
+	protected Map<String, String> mLookUpName = new HashMap<String, String>();
 
 	public String addDDF(DDF data) {
 		mDDFs.put(data.getName().replace("-", "_"), data);
