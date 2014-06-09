@@ -201,6 +201,9 @@ public abstract class DDF extends ALoggable //
 
   @Expose
   private String mName;
+  
+  @Expose
+  private String mAliasName;
 
 
   /**
@@ -219,6 +222,13 @@ public abstract class DDF extends ALoggable //
     return mNamespace;
   }
 
+  public String getAliasName() {
+    return mAliasName;
+  }
+  
+  public void setAliasName(String aliasName) {
+    this.mAliasName = aliasName;
+  }
   /**
    * @param namespace
    *          the namespace to place this DDF in
@@ -786,7 +796,8 @@ public abstract class DDF extends ALoggable //
 
   @Override
   public String getUri() {
-    return AGloballyAddressable.getUri(this);
+    String uri = AGloballyAddressable.getUri(this);
+    return  uri.substring(0, uri.lastIndexOf("/")+1) + this.getAliasName();
   }
 
 
