@@ -7,6 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.junit.Assert.assertEquals
 import scala.collection.JavaConversions._
+import com.adatao.ddf.exception.DDFException
 
 /**
   */
@@ -108,4 +109,28 @@ class RepresentationHandlerSuite extends ATestSuite {
     assertEquals(295, count)
   }
 
+  test("Handle empty DDF") {
+    val ddf = manager.newDDF();
+    try {
+      ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[TablePartition])
+      fail()
+    } catch {
+      case e: Throwable => {
+        assert(e.getMessage == "DDF contains no representation")
+      }
+    }
+  }
+
+  test("Can do sql queries after Transform Rserve") {
+    createTableMtcars()
+    val ddf = manager.sql2ddf("select * from mtcars")
+    val newDDF = ddf.Transform.transformNativeRserve("z1 = mpg / cyl, " +
+      "z2 = disp * 0.4251437075, " +
+      "z3 = rpois(nrow(df.partition), 1000)")
+
+    val st= newDDF.Views.firstNRows(32)
+    val ddf1 = manager.sql2ddf(s"select * from ${newDDF.getTableName}")
+
+    assert(ddf1 != null)
+  }
 }

@@ -88,7 +88,7 @@ public class BasicDDF extends DDF {
 
 
   @SuppressWarnings("unchecked")
-  public <T> List<T> getList(Class<T> rowType) {
+  public <T> List<T> getList(Class<T> rowType) throws DDFException {
     return (List<T>) this.getRepresentationHandler().get(List.class, rowType);
   }
 
