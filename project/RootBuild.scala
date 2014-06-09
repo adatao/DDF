@@ -125,6 +125,7 @@ object RootBuild extends Build {
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
     "org.apache.hbase" % "hbase" % "0.94.6",
+    "com.google.protobuf" % "protobuf-java" % "2.4.1",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
     //"commons-dbcp" % "commons-dbcp" % "1.4",

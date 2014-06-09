@@ -14,7 +14,7 @@ import com.adatao.ddf.DDFManager;
 public class SparkDDFManagerTests {
 
   @Test
-  @Ignore
+//  @Ignore
   public void testDDFConfig() throws Exception {
     DDFManager manager = DDFManager.get("spark");
     Assert.assertEquals("spark", manager.getEngine());
