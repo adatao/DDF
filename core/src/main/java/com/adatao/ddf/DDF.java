@@ -371,6 +371,9 @@ public abstract class DDF extends ALoggable //
     return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
   }
   
+  public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
+    return this.getAggregationHandler().groupBy(groupedColumns, aggregateFunctions);
+  }
   // ///// binning 
   public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
       boolean right) throws DDFException {
