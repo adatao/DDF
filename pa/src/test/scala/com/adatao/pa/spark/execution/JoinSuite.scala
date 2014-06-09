@@ -8,6 +8,7 @@ import com.adatao.pa.spark.execution.QuickSummary
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.ddf.DDF.JoinType
 import com.adatao.pa.spark.DataManager.MetaInfo
+import com.adatao.pa.spark.execution.NRow.NRowResult
 
 class JoinSuite extends ABigRClientTest {
 
@@ -32,11 +33,11 @@ class JoinSuite extends ABigRClientTest {
     cmd.setByColumns(Arrays.asList("cyl"));
     cmd.setJoinType(JoinType.INNER);
     val result = bigRClient.execute[DataFrameResult](cmd).result
-    println(">>>>result=" + result)
+    
+    
     var cmd2 = new QuickSummary();
     cmd2.setDataContainerID(result.dataContainerID)
     val result2 = bigRClient.execute[DataframeStatsResult](cmd2).result
-    println(">>>>result2=" + result2)
 
     val metaInfo: Array[MetaInfo] = result.metaInfo;
     assert(metaInfo(11).getHeader() === "r_name");
@@ -60,13 +61,11 @@ class JoinSuite extends ABigRClientTest {
     cmd.setByColumns(Arrays.asList("cyl"));
     cmd.setJoinType(JoinType.LEFT);
     val result = bigRClient.execute[DataFrameResult](cmd).result
-    println(">>>>result=" + result)
 
     val nrow = new NRow().setDataContainerID(result.dataContainerID)
-    val result2 = bigRClient.execute[DataframeStatsResult](nrow).result
-    println(">>>>result2=" + result2)
+    val result2 = bigRClient.execute[NRowResult](nrow).result
 
-    assert(result2.count(0) === 39);
+    assert(result2.nrow === 39);
   }
 
   test("test right join") {
@@ -84,13 +83,11 @@ class JoinSuite extends ABigRClientTest {
     cmd.setByColumns(Arrays.asList("cyl"));
     cmd.setJoinType(JoinType.RIGHT);
     val result = bigRClient.execute[DataFrameResult](cmd).result
-    println(">>>>result=" + result)
 
     val nrow = new NRow().setDataContainerID(result.dataContainerID)
-    val result2 = bigRClient.execute[DataframeStatsResult](nrow).result
-    println(">>>>result2=" + result2)
+    val result2 = bigRClient.execute[NRowResult](nrow).result
 
-    assert(result2.count(0) === 26);
+    assert(result2.nrow === 26);
 
   }
 

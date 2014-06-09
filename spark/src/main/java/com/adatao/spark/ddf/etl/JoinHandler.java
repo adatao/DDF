@@ -20,7 +20,7 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
   }
 
   public DDF join(DDF anotherDDF, JoinType joinType, List<String> byColumns, List<String> byLeftColumns,
-      List<String> byRightColumns) {
+      List<String> byRightColumns)  throws DDFException {
 
     String leftTableName = getDDF().getTableName();
     String rightTableName = anotherDDF.getTableName();
@@ -47,7 +47,7 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
           rightColumNameSet.remove(byRightColumns.get(i));
         }
       } else {
-        // TODO throw exceptions
+        throw new DDFException(String.format("Left and right column specifications are missing or not compatible"), null);
       }
     }
     columnString = columnString.substring(0, columnString.length() - 5);
@@ -67,13 +67,9 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
         joinSqlCommand = String.format(joinSqlCommand, rightSelectColumns, leftTableName, joinType.getStringRepr(),
             rightTableName, columnString);
       }
-
     } catch (Exception ex) {
-      System.err.println("Error while building join sql");
+      throw new DDFException(String.format("Error while joinType.getStringRepr()"), null);
     }
-    
-    System.out.println(">>> joinSqlCommand = " + joinSqlCommand);
-    
     
     try {
       DDF resultDDF = this.getManager().sql2ddf(joinSqlCommand);
@@ -81,7 +77,9 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
       return resultDDF;
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      if (e instanceof shark.api.QueryExecutionException) {
+        throw new DDFException(String.format("Error while executing query QueryExecutionException"), e);
+      } else throw new DDFException(String.format("Error while executing query QueryExecutionException"), e);
     }
 
   }
