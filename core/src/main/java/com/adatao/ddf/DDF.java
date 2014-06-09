@@ -68,6 +68,7 @@ import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 
 /**
@@ -379,6 +380,10 @@ public abstract class DDF extends ALoggable //
 
   public AggregationResult xtabs(String fields) throws DDFException {
     return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
+  }
+  
+  public DDF join(DDF anotherDDF, JoinType joinType, List<String> byColumns, List<String> byLeftColumns, List<String> byRightColumns) throws DDFException {
+    return this.getJoinsHandler().join(anotherDDF, joinType,byColumns, byLeftColumns, byRightColumns);
   }
   
   public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
@@ -987,4 +992,17 @@ public abstract class DDF extends ALoggable //
       throws DDFException {
     return deserializedObject;
   }
+  
+  static public enum JoinType {
+    @SerializedName("inner") INNER, @SerializedName("left") LEFT, @SerializedName("right") RIGHT, @SerializedName("full") FULL, @SerializedName("leftsemi") LEFTSEMI;
+
+    public String getStringRepr() throws Exception {
+      if (this == LEFTSEMI) return "LEFT SEMI";
+      else if (this == INNER) return "";
+      else if (this == LEFT) return "LEFT OUTER";
+      else if (this == RIGHT) return "RIGHT OUTER";
+      else if (this == FULL) return "FULL OUTER";
+      return null;
+    }
+  };
 }
