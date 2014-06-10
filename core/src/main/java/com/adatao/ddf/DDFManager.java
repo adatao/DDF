@@ -174,7 +174,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 
 		} catch (Exception e) {
 			throw new DDFException("Cannot get DDFManager for engine "
-					+ engineName, e);
+					+ engineName + "\t" + className, e);
 		}
 
 		return manager;
