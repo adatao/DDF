@@ -131,6 +131,8 @@ public class BasicDDF extends DDF {
   @Override
   public PersistenceUri persist(boolean doOverwrite) throws DDFException {
     PersistenceUri uri = new PersistenceUri(this.getUri());
+
+    mLog.info(">>>>>> namespace = " + this.getNamespace());
     mLog.info(">>>>>> uri = " + this.getUri());
     String path =  System.getProperty("user.home") + "/" + uri.getPath();
     try {
