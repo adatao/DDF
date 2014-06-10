@@ -138,6 +138,7 @@ public class BasicDDF extends DDF {
     try {
       FileOutputStream fos = new FileOutputStream(path);
       ObjectOutputStream oos = new ObjectOutputStream(fos);
+      mLog.info(">>>>> this.mInternal.getRawModel  = " + this.mInternalObject.getRawModel().getClass());
       oos.writeObject(this.mInternalObject);
       oos.close();
     } catch (Exception e) {
