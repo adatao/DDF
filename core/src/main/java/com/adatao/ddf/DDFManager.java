@@ -107,10 +107,12 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
   public DDF loadDDF(String uri) throws DDFException {
     PersistenceUri persistenceUri = new PersistenceUri(uri);
     String path = System.getProperty("user.home") + "/" + persistenceUri.getPath();
+    mLog.info(">>>>>>>>> path = " + path);
     try{
       FileInputStream fis = new FileInputStream(path);
       ObjectInputStream ois = new ObjectInputStream(fis);
       Object obj = ois.readObject();
+      mLog.info(">>>>>> obj.getClass = " + obj.getClass());
       if(obj instanceof IModel) {
         DDF newDDF = new BasicDDF((IModel) obj);
         String name = persistenceUri.getPath().split("/")[1];
