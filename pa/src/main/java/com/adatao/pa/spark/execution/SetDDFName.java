@@ -23,7 +23,7 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
+import com.adatao.pa.spark.Utils.DataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 
@@ -56,7 +56,7 @@ public class SetDDFName extends CExecutor {
         ddfManager.setDDFByName(ddf, ddfName);
       } else LOG.error("Can not set ddf to alias name = " + ddfName);
 
-      return new Sql2DataFrameResult(ddf);
+      return new DataFrameResult(ddf);
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly

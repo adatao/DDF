@@ -91,5 +91,36 @@ public class Utils {
       return metaInfo;
     }
   }
+  
+  static public class MutableDataFrameResult extends SuccessResult {
+    public String dataContainerID;
+    public MetaInfo[] metaInfo;
+    public boolean isMutable;
+
+    public MutableDataFrameResult(DDF ddf) throws DDFException {
+      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.metaInfo = generateMetaInfo(ddf.getSchema());
+      this.isMutable =  ddf.isMutable();
+    }
+    
+    public MutableDataFrameResult(String dataContainerID, MetaInfo[] metaInfo, boolean isMutable) throws DDFException {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = metaInfo;
+      this.isMutable = isMutable;
+    }
+    
+    public String getDataContainerID() {
+      return dataContainerID;
+    }
+
+
+    public MetaInfo[] getMetaInfo() {
+      return metaInfo;
+    }
+    
+    public boolean isMutable() {
+      return isMutable;
+    }
+  }
 
 }
