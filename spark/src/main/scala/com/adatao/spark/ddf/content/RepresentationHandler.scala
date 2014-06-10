@@ -70,8 +70,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         //must invoke generate dummy coding explicitly, AGAIN
         //         mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
         //        mDDF.getSchemaHandler().generateDummyCoding() //generateDummyCoding(schema)
-//        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-//        mDDF.getSchema().generateDummyCoding
+        //        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+        //        mDDF.getSchema().generateDummyCoding
         val dummyCoding = mDDF.getSchema().getDummyCoding()
         rowsToMatrixVectorRDD(srcRdd, schemaHandler.getNumColumns, dummyCoding)
       }
@@ -91,7 +91,7 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       }
       case RDD_ARRAY_DOUBLE => {
         val schemaHandler = mDDF.getSchemaHandler
-        val mappers =  (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
+        val mappers = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
         arrObjectToArrDouble(rddArrObj, mappers)
       }
     }
@@ -346,8 +346,23 @@ object RepresentationHandler {
           columnIndex += 1
           newValue = -1.0 // TODO: dirty and quick fix, need proper review
         }
+        //TODO handle it more gracefully
+        else {
+          X.put(row, columnIndex + paddingBiasIndex, 0) // x-feature #i
+        }
       }
-      if (!skipRowBecauseNullCell) Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
+      skipRowBecauseNullCell = skipRowBecauseNullCell || (inputRow(numCols - 1) == null)
+      //TODO do this more gratefully
+      try {
+        inputRow(numCols - 1).toString().toDouble
+      } catch {
+        case e: Exception => skipRowBecauseNullCell = true
+      }
+
+      //TODO need to handle this as in na.action
+      if (skipRowBecauseNullCell) 
+        Y.put(row, 0) // y-value
+      else Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
 
       row += 1
     }
@@ -467,20 +482,21 @@ object RepresentationHandler {
     }
   }
   def arrObjectToArrDouble(rdd: RDD[Array[Object]], mappers: Array[Object => Option[Double]]): RDD[Array[Double]] = {
-    rdd.map{
-      array => {
-        val arr = new Array[Double](array.size)
-        var i = 0
-        var isNULL = false
-        while((i < array.size) && !isNULL) {
-          mappers(i)(array(i)) match {
-            case Some(number) => arr(i) = number
-            case None => isNULL = true
+    rdd.map {
+      array =>
+        {
+          val arr = new Array[Double](array.size)
+          var i = 0
+          var isNULL = false
+          while ((i < array.size) && !isNULL) {
+            mappers(i)(array(i)) match {
+              case Some(number) => arr(i) = number
+              case None => isNULL = true
+            }
+            i += 1
           }
-          i += 1
+          if (isNULL) null else arr
         }
-        if(isNULL) null else arr
-      }
     }
   }
 }

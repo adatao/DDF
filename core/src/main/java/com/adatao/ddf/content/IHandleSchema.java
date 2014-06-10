@@ -40,7 +40,7 @@ public interface IHandleSchema extends IHandleDDFFunctionalGroup {
   /**
    * Generate a basic schema for the current DDF
    */
-  Schema generateSchema();
+  Schema generateSchema() throws DDFException;
 
   void computeFactorLevelsAndLevelCounts() throws DDFException;
   

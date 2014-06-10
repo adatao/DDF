@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
-//import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.pa.spark.execution.GetURI.StringResult
 
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.types.ExecutionResult
@@ -40,5 +40,10 @@ class GetDDFSuite extends ABigRClientTest {
 
     assertEquals(r1.dataContainerID, r2.dataContainerID)
 
+    //get URI
+    val uri = new GetURI().setDataContainerID(r0.dataContainerID)
+    val resUri = bigRClient.execute[StringResult](uri)
+    assert(resUri.isSuccess)
+    println(">>>>>>>>>>> URI = " + resUri.result.str)
   }
 }

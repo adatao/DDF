@@ -201,6 +201,9 @@ public abstract class DDF extends ALoggable //
 
   @Expose
   private String mName;
+  
+  @Expose
+  private String mAliasName;
 
 
   /**
@@ -219,6 +222,13 @@ public abstract class DDF extends ALoggable //
     return mNamespace;
   }
 
+  public String getAliasName() {
+    return mAliasName;
+  }
+  
+  public void setAliasName(String aliasName) {
+    this.mAliasName = aliasName;
+  }
   /**
    * @param namespace
    *          the namespace to place this DDF in
@@ -371,6 +381,9 @@ public abstract class DDF extends ALoggable //
     return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
   }
   
+  public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
+    return this.getAggregationHandler().groupBy(groupedColumns, aggregateFunctions);
+  }
   // ///// binning 
   public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
       boolean right) throws DDFException {
@@ -783,7 +796,8 @@ public abstract class DDF extends ALoggable //
 
   @Override
   public String getUri() {
-    return AGloballyAddressable.getUri(this);
+    String uri = AGloballyAddressable.getUri(this);
+    return  uri.substring(0, uri.lastIndexOf("/")+1) + this.getAliasName();
   }
 
 
@@ -944,7 +958,7 @@ public abstract class DDF extends ALoggable //
    * before persistence, to avoid the situtation of null schemas being persisted.
    */
   @Override
-  public void beforePersisting() {
+  public void beforePersisting() throws DDFException {
     if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
   }
 

@@ -115,6 +115,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 */
 	public DDF setDDFByName(DDF data, String aliasName) {
 		meDDFs.put(aliasName, data);
+		data.setAliasName(aliasName);
 		return data;
 	}
 	
