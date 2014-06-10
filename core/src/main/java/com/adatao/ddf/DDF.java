@@ -354,6 +354,9 @@ public abstract class DDF extends ALoggable //
 
   public RFacade R;
 
+  public DDF transform(String transformExpression) throws DDFException {
+    return Transform.transformUDF(transformExpression);
+  }
 
   /**
    * 
