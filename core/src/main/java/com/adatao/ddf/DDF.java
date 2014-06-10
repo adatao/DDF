@@ -48,6 +48,7 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
@@ -353,6 +354,9 @@ public abstract class DDF extends ALoggable //
 
   public RFacade R;
 
+  public DDF transform(String transformExpression) throws DDFException {
+    return Transform.transformUDF(transformExpression);
+  }
 
   /**
    * 
@@ -997,16 +1001,4 @@ public abstract class DDF extends ALoggable //
     return deserializedObject;
   }
   
-  static public enum JoinType {
-    @SerializedName("inner") INNER, @SerializedName("left") LEFT, @SerializedName("right") RIGHT, @SerializedName("full") FULL, @SerializedName("leftsemi") LEFTSEMI;
-
-    public String getStringRepr() throws Exception {
-      if (this == LEFTSEMI) return "LEFT SEMI";
-      else if (this == INNER) return "";
-      else if (this == LEFT) return "LEFT OUTER";
-      else if (this == RIGHT) return "RIGHT OUTER";
-      else if (this == FULL) return "FULL OUTER";
-      return null;
-    }
-  };
 }

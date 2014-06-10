@@ -1,3 +1,5 @@
+package com.adatao.pa.spark.execution;
+
 /*
  *  Copyright (C) 2013 Adatao, Inc.
  *
@@ -14,55 +16,39 @@
  *  limitations under the License.
  */
 
-package com.adatao.pa.spark.execution;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.Utils.DataFrameResult;
+import com.adatao.pa.spark.execution.GetURI.StringResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 
 // Create a DDF from an SQL Query
 @SuppressWarnings("serial")
-public class SetDDFName extends CExecutor {
-  String dataContainerId;
-  String ddfName;
+public class SetModelName extends CExecutor {
+  String modelId;
+  String modelName;
 
   public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
 
 
-  public SetDDFName(String dataContainerId, String ddfName) {
-    this.dataContainerId = dataContainerId;
-    this.ddfName = ddfName;
+  public SetModelName(String modelId, String modelName) {
+    this.modelId = modelId;
+    this.modelName = modelName;
   }
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    if (ddfName == null) {
-      return new FailResult().setMessage("ddfName string is empty");
+    if (modelName == null) {
+      return new FailResult().setMessage("modelName string is empty");
     }
-    try {
+    
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDF(dataContainerId);
+      ddfManager.setModelName(modelId, modelName);
+      return new StringResult("object://adatao.com/" +modelName);
 
-
-      if (ddf != null) {
-        LOG.info(" succesful setting ddf to alias name = " + ddfName);
-        ddfManager.setDDFByName(ddf, ddfName);
-      } else LOG.error("Can not set ddf to alias name = " + ddfName);
-
-      return new DataFrameResult(ddf);
-
-    } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      return null;
-    }
   }
 }
+

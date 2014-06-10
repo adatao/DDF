@@ -32,7 +32,6 @@ import com.adatao.pa.spark.types.SuccessResult;
 @SuppressWarnings("serial")
 public class GetModel extends CExecutor {
   String modelName;
-  Boolean cache = true;
 
   public static Logger LOG = LoggerFactory.getLogger(GetModel.class);
 
@@ -47,7 +46,7 @@ public class GetModel extends CExecutor {
     }
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
-      IModel model = ddfManager.getModel(modelName);
+      IModel model = ddfManager.getModelByName(modelName);
 
       if (model != null) {
         LOG.info("Succesfully getting model from name = " + modelName);

@@ -2,17 +2,16 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
-import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shark.api.JavaSharkContext;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDF.JoinType;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
+import com.adatao.pa.spark.Utils;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Implement an join interface similar like what in plyr:
@@ -87,10 +86,10 @@ public class Join extends CExecutor {
   
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-//    Utils.assertNull(joinType, new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_JOIN_SYNTAX,
-//          String.format("Unsupported join type"), null));
-//    Utils.assertNull(leftDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
-//    Utils.assertNull(rightDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
+    Utils.assertNull(joinType, new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_JOIN_SYNTAX,
+          String.format("Unsupported join type"), null));
+    Utils.assertNull(leftDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
+    Utils.assertNull(rightDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     
     String leftDdfId = com.adatao.ML.Utils.dcID2DDFID(leftDataContainerID);
     String rightDdfId = com.adatao.ML.Utils.dcID2DDFID(rightDataContainerID);
