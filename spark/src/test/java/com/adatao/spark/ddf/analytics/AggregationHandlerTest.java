@@ -1,8 +1,9 @@
-package com.adatao.spark.ddf;
+package com.adatao.spark.ddf.analytics;
 
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,13 +11,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.spark.ddf.SparkDDFManager;
 
-
-
-public class StatisticsSupporterTest {
-
+public class AggregationHandlerTest {
   private DDFManager manager;
   private DDF ddf, ddf1;
 
@@ -44,12 +42,11 @@ public class StatisticsSupporterTest {
 
     ddf = manager
         .sql2ddf("select year, month, dayofweek, deptime, arrtime,origin, distance, arrdelay, depdelay, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay from airline");
-    ddf1 = manager.sql2ddf("select year, month, dayofweek, deptime from airline");
+    //ddf1 = manager.sql2ddf("select year, month, dayofweek, deptime from airline");
   }
 
 
   @Test
-  @Ignore
   public void testSimpleAggregate() throws DDFException {
 
     // aggregation: select year, month, min(depdelay), max(arrdelay) from airline group by year, month;
@@ -61,43 +58,19 @@ public class StatisticsSupporterTest {
     Assert.assertEquals(3, ddf.Views.project(new String[] { "year", "month", "deptime" }).getNumColumns());
     Assert.assertEquals(5, ddf.Views.firstNRows(5).size());
     // manager.shutdown();
-
   }
 
   @Test
-  @Ignore
-  public void testSummary() throws DDFException {
-
-    Assert.assertEquals(14, ddf.getSummary().length);
-    Assert.assertEquals(31, ddf.getNumRows());
-    Assert.assertEquals(4, ddf1.getFiveNumSummary().length);
-    Assert.assertEquals(FiveNumSummary.class, ddf1.getFiveNumSummary()[0].getClass());
-    // manager.shutdown();
-  }
-
-  @Test
-  public void testSampling() throws DDFException {
-    DDF ddf2 = manager.sql2ddf("select * from airline");
-    Assert.assertEquals(25, ddf2.Views.getRandomSample(25).size());
-    SparkDDF sampleDDF = (SparkDDF) ddf2.Views.getRandomSample(0.5, false, 1);
-    Assert.assertTrue(sampleDDF.getRDD(Object[].class).count() > 10);
-  }
-
-  @Test
-  @Ignore
-  public void testVectorQuantiles() throws DDFException {
-    // Double[] quantiles = ddf1.getVectorQuantiles("deptime", {0.3, 0.5, 0.7});
-    Double[] pArray = { 0.3, 0.5, 0.7 };
-    Double[] expectedQuantiles = { 801.0, 1416.0, 1644.0 };
-    Double[] quantiles = ddf1.getVectorQuantiles("deptime", pArray);
-    System.out.println("Quantiles: " + StringUtils.join(quantiles, ", "));
-    Assert.assertArrayEquals(expectedQuantiles, quantiles);
+  public void testGroupBy() throws DDFException {
+    List<String> l1 = Arrays.asList("year", "month");
+    List<String> l2 = Arrays.asList("m=avg(depdelay)");
+    
+    Assert.assertEquals(13, ddf.groupBy(l1, l2).getNumRows());
   }
 
   @After
   public void closeTest() {
     manager.shutdown();
   }
-
 
 }
