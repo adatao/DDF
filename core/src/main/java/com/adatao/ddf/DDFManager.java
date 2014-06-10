@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import scala.tools.jline.internal.Log;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
 import com.adatao.ddf.content.IHandleRepresentations;
@@ -104,8 +105,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * For simplicity this aliasName is global name and doesn't provide namespace information etc ..
 	 */
 	public DDF getDDFByName(String aliasName) {
-		System.out.println(">>>>>>>>>>>>> meDDFs.size=" + meDDFs.size());
-		DDF data = meDDFs.get(aliasName);
+	  String aliasNameSub = aliasName.substring(aliasName.lastIndexOf("/")+1);
+		DDF data = meDDFs.get(aliasNameSub);
 		return data;
 	}
 	/*
@@ -113,8 +114,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * This name is ephemeral in the sense that it existed in cluster memory and will be disappear once we restart cluster
 	 */
 	public DDF setDDFByName(DDF data, String aliasName) {
-		System.out.println(">>>>>>>>>>>>>> putting alias = " + aliasName);
 		meDDFs.put(aliasName, data);
+		data.setAliasName(aliasName);
 		return data;
 	}
 	
@@ -126,8 +127,9 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 		DDF data = getDDF(dataContainerId);
 		if(data != null)
 			meDDFs.put(aliasName, data);
-		else
-			System.out.println(">>>>>>>>>>> data is null for dataContainerId = " + dataContainerId);
+		else {
+		    Log.error("Cannot get ddf for dataContainerId = " + dataContainerId);
+		}
 	}
 	
 	public HashMap<String, DDF> getDDFs() {

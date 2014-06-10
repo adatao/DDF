@@ -35,7 +35,7 @@ import com.adatao.pa.spark.types.ExecutionResult
 class RegressionSuite extends ABigRClientTest {
 	
 	private val doRunTests = false
-	private val testOrIgnore = if (doRunTests) test _ else ignore _
+	//private val testOrIgnore = if (doRunTests) test _ else ignore _
 	
 	def numIters = 300
 	def lambda = 1.0
@@ -45,12 +45,12 @@ class RegressionSuite extends ABigRClientTest {
 		this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
 	}
 
-  testOrIgnore("Single-variable linear regression") {
+  ignore("Single-variable linear regression") {
 		val executor = new LinearRegression(this.loadTestFile, Array(5), 4, numIters, 0.05, lambda, Array(38, -3))
 		val r = bigRClient.execute[LinearRegressionModel](executor)
 
 		assert(r.isSuccess)
 
-		LOG.info("result is %s".format(r.toString))
+//		LOG.info("result is %s".format(r.toString))
 	}
 }

@@ -17,7 +17,7 @@ public class MapReduceNative extends CExecutor {
   private String dataContainerID;
   private String mapFuncDef;
   private String reduceFuncDef;
-  private boolean mapsideCombine = true;
+  private boolean mapsideCombine;
   public static Logger LOG = LoggerFactory.getLogger(MapReduceNative.class);
 
 
@@ -28,13 +28,17 @@ public class MapReduceNative extends CExecutor {
     this.mapsideCombine = mapsideCombine;
   }
 
+  public MapReduceNative(String dataContainerID, String mapFuncDef, String reduceFuncDef) {
+    this(dataContainerID, mapFuncDef, reduceFuncDef, true);
+  }
+
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
 
       DDFManager manager = sparkThread.getDDFManager();
       DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-      DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef);
+      DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef, mapsideCombine);
       LOG.info("Transformed DDF name " + newddf.getName());
 
       manager.addDDF(newddf);

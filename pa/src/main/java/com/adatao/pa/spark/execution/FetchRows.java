@@ -21,14 +21,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.pa.AdataoException;
-import com.adatao.pa.spark.DataManager;
-import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import com.esotericsoftware.minlog.Log;
 
 @SuppressWarnings("serial")
 public class FetchRows extends CExecutor {
@@ -56,7 +51,8 @@ public class FetchRows extends CExecutor {
       return data;
     }
   }
-  
+
+
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
 

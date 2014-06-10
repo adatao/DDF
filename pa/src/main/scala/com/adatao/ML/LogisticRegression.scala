@@ -25,7 +25,7 @@ import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.Vector
 import java.util.HashMap
 import com.adatao.ddf.ml.IModel
-
+import org.apache.spark.rdd.RDD
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -71,6 +71,15 @@ object LogisticRegression {
 			(weights: Vector) ⇒ this.compute(XYData._1, XYData._2, weights)
 		}
 	}
+	
+	// batch prediction on a feature-extracted RDD[(Matrix, Vector)]
+  def yTrueYpred[T <: TPredictiveModel[Vector, Double]](model: T, xyRDD: RDD[(Matrix, Vector)]): RDD[(Double, Double)] = {
+    xyRDD.flatMap { xy ⇒
+      xy match {
+        case (x, y) ⇒ for (i ← 0 until y.size) yield (y(i), model.predict(Vector(x.getRow(i))))
+      }
+    }
+  }
 }
 
 
@@ -83,27 +92,9 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
   }
   
   override def predict(features: Vector): Double = {
-    println(">>>>>>>>>>>>>>>. calling predict")
+    LOG.info(">>>>>>>>>>>>>>>. calling predict")
     ALossFunction.sigmoid(this.linearPredictor(features))
   }
-  
-//  override def predict(features: Array[Double]): java.lang.Double = {
-//    //convert double[] to Vector
-//    val a = Vector(features)
-//    println(">>>>>>>>>>>>>>>. calling predict a= " + a	) 
-//    predict(a)
-//  }
-  
-//  def predict(point: Array[Double]): java.lang.Double = {
-//	println(">>>>>>>>>>>calling predict point = " + point)
-//    val features = Vector(Array[Double](1) ++ point)
-//    println(">>>>>>>>>>>calling predict features = " + features)
-//    println(">>>>>>>>>>>calling predict weights = " + weights)
-//    val linearPredictor = weights.dot(features)
-//    println(">>>>>>>>>>>calling predict linearPredictor = " + linearPredictor)
-//    ALossFunction.sigmoid(linearPredictor)
-//  }
-
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {
@@ -168,3 +159,5 @@ abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDa
 		J
 	}
 }
+
+

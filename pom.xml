@@ -11,7 +11,7 @@
 	<artifactId>ddf</artifactId>
 	<packaging>pom</packaging>
 	<description>Adatao Distributed DataFrame</description>
-	<version>1.0</version>
+	<version>0.9</version>
 	<name>ddf</name>
 	<organization>
 		<name>com.adatao</name>
@@ -46,6 +46,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<repositories>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>scala-tools.org</id>
+			<name>Scala-tools Maven2 Repository</name>
+			<url>http://scala-tools.org/repo-releases</url>
+		</pluginRepository>
+	</pluginRepositories>
 	
 	<modules>
 	  <module>core</module>

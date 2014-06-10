@@ -283,6 +283,13 @@ object BigRClientTestUtils {
 			+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '").isSuccess);
 		assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/mtcars' INTO TABLE mtcars").isSuccess);
 	}
+	
+	 def createTableCarowner(bigRClient: BigRClient) = {
+    assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
+    assert(runSQLCmd(bigRClient, "drop table if exists carowner").isSuccess);
+    assert(runSQLCmd(bigRClient, "CREATE TABLE carowner (name string, cyl int, disp double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '").isSuccess());
+    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/carowner' INTO TABLE carowner").isSuccess);
+  }
 
 	def createTableAdmission(bigRClient: BigRClient) = {
 		assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)

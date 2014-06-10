@@ -56,13 +56,24 @@ class CrossValidationSuite extends ATestSuite {
 
   test("test with airline table") {
     val ddf = manager.sql2ddf("select * from airline").asInstanceOf[SparkDDF]
+    val tableName = ddf.getTableName
     for (split <- ddf.ML.CVKFold(5, 10)) {
-      val train = split(0).asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]]).collect()
-      val test = split(1).asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]]).collect().toSet
+
+      val trainddf = split(0).asInstanceOf[SparkDDF]
+      val testddf =  split(1).asInstanceOf[SparkDDF]
+
+      val train = trainddf.getRDD(classOf[Array[Object]]).collect()
+      val test = testddf.getRDD(classOf[Array[Object]]).collect().toSet
       assertEquals(0.8, train.size / 301.0, 0.1)
       assertEquals(0.2, test.size / 301.0, 0.1)
-      LOG.info(">>>>>> train.size = " + train.size)
-      LOG.info(">>>>>> test.size = " + test.size)
+
+      //Ensure train's tableName and test's tableName are different
+      val trainTableName = trainddf.getTableName
+      val testTableName = testddf.getTableName
+
+      assert(trainTableName != testTableName, "trainddf's tableName and testddf's tableName must be different")
+      assert(trainTableName != tableName)
+      assert(testTableName != tableName)
     }
   }
 }

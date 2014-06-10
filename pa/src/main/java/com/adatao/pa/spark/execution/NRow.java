@@ -17,16 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.pa.AdataoException;
-import com.adatao.pa.AdataoException.AdataoExceptionCode;
-import com.adatao.pa.spark.DataManager.DataContainer;
-import com.adatao.pa.spark.DataManager.DataFrame;
-import com.adatao.pa.spark.DataManager.SharkDataFrame;
-import com.adatao.pa.spark.SharkQueryUtils;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -34,7 +28,7 @@ import com.adatao.pa.spark.types.SuccessResult;
 @SuppressWarnings("serial")
 public class NRow extends CExecutor {
   private String dataContainerID;
-  
+
   // private String ddfName;
 
   public static Logger LOG = LoggerFactory.getLogger(NRow.class);
@@ -55,7 +49,7 @@ public class NRow extends CExecutor {
 
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
     if (ddf == null) {
-      LOG.info("Cannot find the DDF " + dataContainerID);
+      LOG.error("Cannot find the DDF " + dataContainerID);
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }

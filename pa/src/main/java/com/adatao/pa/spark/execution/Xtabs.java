@@ -16,12 +16,11 @@
 
 package com.adatao.pa.spark.execution;
 
+
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
@@ -37,60 +36,61 @@ import com.google.common.base.Joiner;
 // This executor returns the FULL result of a query as List<String>
 @SuppressWarnings("serial")
 public class Xtabs extends CExecutor {
-	String dataContainerID;
-	String gcols;
-	String scols;
-	Integer maxLevels = 1000;
-	
-	public static Logger LOG = LoggerFactory.getLogger(Xtabs.class);
+  String dataContainerID;
+  String gcols;
+  String scols;
+  Integer maxLevels = 1000;
 
-	static public class Sql2ListStringResult extends SuccessResult {
-		List<String> results;
+  public static Logger LOG = LoggerFactory.getLogger(Xtabs.class);
 
-		public Sql2ListStringResult setResults(List<String> results) {
-			this.results = results;
-			return this;
-		}
 
-		public List<String> getResults() {
-			return results;
-		}
-	}
+  static public class Sql2ListStringResult extends SuccessResult {
+    List<String> results;
 
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-		DDFManager dm = sparkThread.getDDFManager();
-		DDF ddf = (DDF) dm.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-	    if (ddf == null) {
-	      LOG.info("Cannot find the DDF " + dataContainerID);
-	    } else {
-	      LOG.info("Found the DDF " + dataContainerID);
-	    }
-		
-		try {
-			AggregationResult agg = null;
-			if (!scols.equalsIgnoreCase("count")) {
-				agg = ddf.xtabs(String.format("%s, SUM(%s)",
-						gcols, scols));
-			} else {
-				agg = ddf.xtabs(String.format(
-						"%s, COUNT(*)", gcols));
-			}
-			List<String> res = new ArrayList<String>();
-			for(String k: agg.keySet()) {
-				res.add(String.format("%s,%s", k, Joiner.on(",").join(agg.get(k))));
-			}
-			return new Sql2ListStringResult().setResults(res);
-		} catch (DDFException e) {
-			throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
-		}
-		
-	}
 
-	public Xtabs setSqlCmd(String dataContainerID, String gcols, String scols) {
-		this.dataContainerID = dataContainerID;
-		this.gcols = gcols;
-		this.scols = scols;
-		return this;
-	}
+    public Sql2ListStringResult setResults(List<String> results) {
+      this.results = results;
+      return this;
+    }
+
+    public List<String> getResults() {
+      return results;
+    }
+  }
+
+
+  @Override
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+    DDFManager dm = sparkThread.getDDFManager();
+    DDF ddf = (DDF) dm.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    if (ddf == null) {
+      LOG.info("Cannot find the DDF " + dataContainerID);
+    } else {
+      LOG.info("Found the DDF " + dataContainerID);
+    }
+
+    try {
+      AggregationResult agg = null;
+      if (!scols.equalsIgnoreCase("count")) {
+        agg = ddf.xtabs(String.format("%s, SUM(%s)", gcols, scols));
+      } else {
+        agg = ddf.xtabs(String.format("%s, COUNT(*)", gcols));
+      }
+      List<String> res = new ArrayList<String>();
+      for (String k : agg.keySet()) {
+        res.add(String.format("%s,%s", k, Joiner.on(",").join(agg.get(k))));
+      }
+      return new Sql2ListStringResult().setResults(res);
+    } catch (DDFException e) {
+      throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, e.getMessage(), null);
+    }
+
+  }
+
+  public Xtabs setSqlCmd(String dataContainerID, String gcols, String scols) {
+    this.dataContainerID = dataContainerID;
+    this.gcols = gcols;
+    this.scols = scols;
+    return this;
+  }
 }

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult;
 import com.adatao.pa.spark.execution.LoadTable.LoadTableResult;
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult;
@@ -50,7 +49,6 @@ public class TestSampleDataFrame extends BaseTest {
 		res = client.execJsonCommand(cmd);
 
 		LoadTableResult result = ExecutionResult.fromJson(res.getResult(), LoadTableResult.class).result();
-		LOG.info("LoadTable result: " + Arrays.toString(result.getMetaInfo()));
 		String dcID = result.getDataContainerID();
 
 		res = client.execJsonCommand(cmd

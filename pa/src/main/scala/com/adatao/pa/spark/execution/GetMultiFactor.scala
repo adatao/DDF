@@ -32,7 +32,7 @@ class GetMultiFactor(dataContainerID: String,
     val ddf = context.sparkThread.getDDFManager.getDDF(ddfId)
 
     if (ddf == null) {
-      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID, null)
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + ddfId, null)
     }
     val schemaHandler = ddf.getSchemaHandler
     for (columnIndex <- columnIndexs) {

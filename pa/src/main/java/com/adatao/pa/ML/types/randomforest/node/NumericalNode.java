@@ -52,7 +52,6 @@ public class NumericalNode extends Node {
 
 	@Override
 	public double classify(Instance instance) {
-		//System.out.println(this.toString());
 		return (instance.get(attr) < split) ? loChild.classify(instance) : hiChild.classify(instance);
 	}
 

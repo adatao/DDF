@@ -31,13 +31,13 @@ import com.adatao.pa.spark.DataManager.{ SharkDataFrame, DataFrame }
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessfulResult
 import com.adatao.pa.spark.types.FailedResult
-import com.adatao.ML.Kmeans.ParsePoint
+import com.adatao.spark.ddf.util.MLUtils.ParsePoint
 import scala.Some
 import com.adatao.pa.spark.types.ExecutionException
 import scala.reflect.Manifest
 import scala.collection.JavaConversions._
-import com.adatao.ML.spark.Predictions
-import com.adatao.ML.spark.TransformDummyCoding
+//import com.adatao.ML.spark.Predictions
+//import com.adatao.ML.spark.TransformDummyCoding
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
@@ -111,57 +111,57 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	/*
 	 * Get (ytrue, ypred) predictions RDD of Double
 	 */
-	def getYtrueYpred(
-		dataContainerID: String,
-		modelID: String,
-		xCols: Array[Int],
-		yCol: Int,
-		context: ExecutionContext): RDD[(Double, Double)] = {
-		val dm = context.sparkThread.getDataManager
+//	def getYtrueYpred(
+//		dataContainerID: String,
+//		modelID: String,
+//		xCols: Array[Int],
+//		yCol: Int,
+//		context: ExecutionContext): RDD[(Double, Double)] = {
+//		val dm = context.sparkThread.getDataManager
+//
+//		val dataContainer = dm.get(dataContainerID)
+//		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
+//
+//		val model = dm.getObject(modelID).asInstanceOf[TModel]
+//		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"modelID %s doesn't exist in user session".format(modelID), null)
+//
+//		Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//
+//		//		if (dataContainer.getType == ContainerType.SharkDataFrame) {
+//		// this execution path is fastest when data matrix was already cached,
+//		// which is typical because you'd predict on a trained model, hence cached table,
+//		// but on non-cached data, such as cross-validation it will regenerate
+//		// a throw-away RDD[(Matrix, Vector)]
+//		//			val dataframe = dataContainer.asInstanceOf[DataManager.SharkDataFrame]
+//		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//		//		}
+//		//		else {
+//		//			// normal path that goes thru DataFrame and object boxing
+//		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
+//		//		}
+//	}
 
-		val dataContainer = dm.get(dataContainerID)
-		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-
-		val model = dm.getObject(modelID).asInstanceOf[TModel]
-		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"modelID %s doesn't exist in user session".format(modelID), null)
-
-		Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-
-		//		if (dataContainer.getType == ContainerType.SharkDataFrame) {
-		// this execution path is fastest when data matrix was already cached,
-		// which is typical because you'd predict on a trained model, hence cached table,
-		// but on non-cached data, such as cross-validation it will regenerate
-		// a throw-away RDD[(Matrix, Vector)]
-		//			val dataframe = dataContainer.asInstanceOf[DataManager.SharkDataFrame]
-		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-		//		}
-		//		else {
-		//			// normal path that goes thru DataFrame and object boxing
-		//			Predictions.yTrueYpred(model, dataContainer, xCols, yCol)
-		//		}
-	}
-
-	def getXsYpred(
-		dataContainerID: String,
-		modelID: String,
-		xCols: Array[Int],
-		context: ExecutionContext): RDD[(Array[Double], Int)] = {
-		val dm = context.sparkThread.getDataManager
-		val dataContainer = dm.get(dataContainerID)
-		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-
-		val model = dm.getObject(modelID).asInstanceOf[TModel]
-		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-			"modelID %s doesn't exist in user session".format(modelID), null)
-
-		dataContainer match {
-			case sdf: SharkDataFrame ⇒ Predictions.XsYpred(model, sdf, xCols)
-			case df: DataFrame ⇒ Predictions.XsYpred(model, df.getRDD.rdd, xCols)
-		}
-	}
+//	def getXsYpred(
+//		dataContainerID: String,
+//		modelID: String,
+//		xCols: Array[Int],
+//		context: ExecutionContext): RDD[(Array[Double], Int)] = {
+//		val dm = context.sparkThread.getDataManager
+//		val dataContainer = dm.get(dataContainerID)
+//		if (dataContainer == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
+//
+//		val model = dm.getObject(modelID).asInstanceOf[TModel]
+//		if (model == null) throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//			"modelID %s doesn't exist in user session".format(modelID), null)
+//
+//		dataContainer match {
+//			case sdf: SharkDataFrame ⇒ Predictions.XsYpred(model, sdf, xCols)
+//			case df: DataFrame ⇒ Predictions.XsYpred(model, df.getRDD.rdd, xCols)
+//		}
+//	}
 
 }
 
@@ -210,36 +210,37 @@ abstract class AModelTrainer[T <: TModel](
 	/**
 	 * Gets an Option(RDD[[(Matrix, Vector)]]) from dataContainerID in context
 	 */
-	def getDataPartition(dataContainerID: String, xCols: Array[Int], yCol: Int, context: ExecutionContext): Option[RDD[(Matrix, Vector)]] = {
-
-		//update numFeatures
-		numFeatures = xCols.length + 1
-		//handle both shark dataframe and normal dataframe
-
-		val ddfManager: DDFManager = context.sparkThread.getDDFManager()
-		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
-
-		val dataPartition: RDD[(Matrix, Vector)] = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).asInstanceOf[RDD[(Matrix, Vector)]]
-		Option(dataPartition)
-
-	}
-
-	/*
-	 * 
-	 */
+//	def getDataPartition(dataContainerID: String, xCols: Array[Int], yCol: Int, context: ExecutionContext): Option[RDD[(Matrix, Vector)]] = {
+//
+//		//update numFeatures
+//		numFeatures = xCols.length + 1
+//		//handle both shark dataframe and normal dataframe
+//
+//		val ddfManager: DDFManager = context.sparkThread.getDDFManager()
+//		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
+//
+//		val dataPartition: RDD[(Matrix, Vector)] = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).asInstanceOf[RDD[(Matrix, Vector)]]
+//		Option(dataPartition)
+//
+//	}
+//
+//	/*
+//	 * 
+//	 */
 	def train(dataContainerID: String, context: ExecutionContext): T = {
-		this.getDataPartition(dataContainerID, xCols, yCol, context) match {
-			case Some(dataPartition) ⇒ {
-				dataPartition.cache()
-				var model = this.train(dataPartition, context)
-				// dataPartition.unpersist()
-				//instrument model with dummy column mapping
-				model = this.instrumentModel(model, dummyColumnMapping)
-				model
-			}
-			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
-		}
+	  null.asInstanceOf[T]
+//		this.getDataPartition(dataContainerID, xCols, yCol, context) match {
+//			case Some(dataPartition) ⇒ {
+//				dataPartition.cache()
+//				var model = this.train(dataPartition, context)
+//				// dataPartition.unpersist()
+//				//instrument model with dummy column mapping
+//				model = this.instrumentModel(model, dummyColumnMapping)
+//				model
+//			}
+//			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
+//		}
 		
 	}
 	
@@ -247,75 +248,75 @@ abstract class AModelTrainer[T <: TModel](
 	//adding property to model
 	def instrumentModel(model: T, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): T
 
-	def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): T
+//	def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): T
 
 }
 
 abstract class AUnsupervisedTrainer[T <: TModel](
 		val dataContainerID: String,
 		val xCols: Array[Int])(implicit m: Manifest[T]) extends AExecutor[T](doPersistResult = true) {
-	override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
+//	override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
 	/*
 	 * Get an Option(RDD[DataPoint]) from dataContainerID in context
 	 */
-	def getDataPartition(dataContainerID: String, xCols: Array[Int], context: ExecutionContext): Option[RDD[Array[Double]]] = {
-		Option(context.sparkThread.getDataManager.get(dataContainerID)) match {
-			case Some(dataContainer) ⇒ dataContainer match {
-				case sdf: SharkDataFrame ⇒ {
-					/*
-					Catch any column's type that currently not supporting and throwing an exception.
-					Throwing exception in driver's program will result in returning meaningful error message
-					to client
-					*/
-					val xMetaInfo = for {
-						idx ← xCols
-					} yield (sdf.getMetaInfo.apply(idx))
-
-					xMetaInfo.find(x ⇒ x.getType != "double" && x.getType != "int") match {
-						case Some(x) ⇒ throw new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_COLUMN_TYPE,
-							"Column %s has unsupported type : %s".format(x.getHeader, x.getType), null)
-						case None ⇒
-					}
-
-					Option(sdf.getDataPointTable(xCols))
-				}
-
-				case df: DataFrame ⇒ {
-
-					val xMetaInfo = for {
-						idx ← xCols
-					} yield (df.getMetaInfo.apply(idx))
-
-					xMetaInfo.find(x ⇒ x.getType != "java.lang.Double" && x.getType != "java.lang.Int") match {
-						case Some(x) ⇒ throw new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_COLUMN_TYPE,
-							"Column %s has unsupported type : %s".format(x.getHeader, x.getType), null)
-						case None ⇒
-					}
-
-					Option(df.getRDD.rdd) match {
-						case Some(rdd) ⇒ Option(rdd.map(new ParsePoint(xCols, true)).filter(x ⇒ x != null).cache())
-						case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-							"Cannot getRDD for given dataContainerId: %s".format(dataContainerID), null)
-					}
-				}
-			}
-			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-				"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
-		}
-	}
-	def train(dataContainerID: String, context: ExecutionContext): T = {
-		this.getDataPartition(dataContainerID, xCols, context) match {
-			case Some(dataPartition) ⇒ {
-
-				val model = this.train(dataPartition, context)
-				// dataPartition.unpersist()
-				model
-			}
-			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
-		}
-	}
-	def train(dataPartition: RDD[Array[Double]], context: ExecutionContext): T
+//	def getDataPartition(dataContainerID: String, xCols: Array[Int], context: ExecutionContext): Option[RDD[Array[Double]]] = {
+//		Option(context.sparkThread.getDataManager.get(dataContainerID)) match {
+//			case Some(dataContainer) ⇒ dataContainer match {
+//				case sdf: SharkDataFrame ⇒ {
+//					/*
+//					Catch any column's type that currently not supporting and throwing an exception.
+//					Throwing exception in driver's program will result in returning meaningful error message
+//					to client
+//					*/
+//					val xMetaInfo = for {
+//						idx ← xCols
+//					} yield (sdf.getMetaInfo.apply(idx))
+//
+//					xMetaInfo.find(x ⇒ x.getType != "double" && x.getType != "int") match {
+//						case Some(x) ⇒ throw new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_COLUMN_TYPE,
+//							"Column %s has unsupported type : %s".format(x.getHeader, x.getType), null)
+//						case None ⇒
+//					}
+//
+//					Option(sdf.getDataPointTable(xCols))
+//				}
+//
+//				case df: DataFrame ⇒ {
+//
+//					val xMetaInfo = for {
+//						idx ← xCols
+//					} yield (df.getMetaInfo.apply(idx))
+//
+//					xMetaInfo.find(x ⇒ x.getType != "java.lang.Double" && x.getType != "java.lang.Int") match {
+//						case Some(x) ⇒ throw new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_COLUMN_TYPE,
+//							"Column %s has unsupported type : %s".format(x.getHeader, x.getType), null)
+//						case None ⇒
+//					}
+//
+//					Option(df.getRDD.rdd) match {
+//						case Some(rdd) ⇒ Option(rdd.map(new ParsePoint(xCols, true)).filter(x ⇒ x != null).cache())
+//						case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//							"Cannot getRDD for given dataContainerId: %s".format(dataContainerID), null)
+//					}
+//				}
+//			}
+//			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//				"dataContainerID %s doesn't exist in user session".format(dataContainerID), null)
+//		}
+//	}
+//	def train(dataContainerID: String, context: ExecutionContext): T = {
+//		this.getDataPartition(dataContainerID, xCols, context) match {
+//			case Some(dataPartition) ⇒ {
+//
+//				val model = this.train(dataPartition, context)
+//				// dataPartition.unpersist()
+//				model
+//			}
+//			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+//				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
+//		}
+//	}
+//	def train(dataPartition: RDD[Array[Double]], context: ExecutionContext): T
 }
 
 /**

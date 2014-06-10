@@ -159,7 +159,7 @@ class ROCComputer extends Serializable {
     var index: Int = 0
     var threshold: Double = 0.0
 
-    for (i ← 0 until input.length - 1) {
+    for (i <- 0 until input.length - 1) {
 
       predict = input(i).features(0)
       yTrue = input(i).label

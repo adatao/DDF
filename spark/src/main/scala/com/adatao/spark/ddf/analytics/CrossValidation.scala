@@ -10,6 +10,7 @@ import shark.api.Row
 import com.adatao.ddf.exception.DDFException
 import java.util
 import com.adatao.ddf.content.Schema
+import shark.memstore2.TablePartition
 
 private[adatao]
 class SeededPartition(val prev: Partition, val seed: Int) extends Partition with Serializable {
@@ -153,11 +154,31 @@ object CrossValidation {
 
     for ((train, test) <- splits) {
       val aSet = new util.ArrayList[DDF]();
-      val trainDDF = new SparkDDF(manager, train, unitType, nameSpace,
-        null, schema)
-      val testDDF = new SparkDDF(manager, test, unitType, nameSpace,
-        null, schema)
 
+      val trainSchema = new Schema(null, schema.getColumns)
+      val trainDDF = new SparkDDF(manager, train, unitType, nameSpace,
+        null, trainSchema)
+
+      val tableName1 = trainDDF.getSchemaHandler.newTableName()
+      trainDDF.getSchema.setTableName(tableName1)
+
+
+      val testSchema = new Schema(null, schema.getColumns)
+      val testDDF = new SparkDDF(manager, test, unitType, nameSpace,
+        null, testSchema)
+
+      val tableName2 = testDDF.getSchemaHandler.newTableName()
+      testDDF.getSchema.setTableName(tableName2)
+
+      //Ensure that testDDF and trainDDF are backed by a table
+      testDDF.getRDD(classOf[TablePartition])
+      trainDDF.getRDD(classOf[TablePartition])
+
+      println(s">>>>>> train's TableName = $tableName1")
+      println(s">>>>>> test's TableName = $tableName2")
+
+      manager.addDDF(trainDDF)
+      manager.addDDF(testDDF)
       aSet.add(trainDDF)
       aSet.add(testDDF)
       cvSets.add(aSet)

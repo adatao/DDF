@@ -21,7 +21,6 @@ import java.util.Map;
 import javax.script.ScriptException;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import com.adatao.pa.spark.MapReduce;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -34,46 +33,46 @@ public class RunMapReduce extends CExecutor {
 	private String combine = null;
 	private int count = 10;
 
-	static public class RunMapReduceResult extends SuccessResult {
-		String result;
-
-		public String getResult() {
-			return result;
-		}
-
-		public RunMapReduceResult setResult(String result) {
-			this.result = result;
-			return this;
-		}
-
-	}
-
-	@Override
-	public ExecutorResult run(SparkThread sparkThread) {
-		try {
-			// Check MapReduce R syntax
-			MapReduce.getInstance().checkMapReduceFunc(map, reduce, combine);
-			JavaRDD<String> lines = sparkThread.getSparkContext()
-					.textFile(file);
-			JavaPairRDD<String, String> resPair = MapReduce.getInstance()
-					.runMapReduceWithHadoopReducer(lines, map, reduce, combine, null);
-
-			Map<String, String> map = resPair.collectAsMap();
-			Iterator<String> ite = map.keySet().iterator();
-			StringBuffer values = new StringBuffer();
-			int i = 0;
-			while (ite.hasNext() && i < count) {
-				String key = ite.next();
-				String value = map.get(key);
-				values.append(key + "," + value + "\n");
-				i++;
-			}
-			return new RunMapReduceResult().setResult(values.toString());
-		} catch (ScriptException e) {
-			return new RunMapReduceResult().setResult(e.getMessage());
-		} catch (Exception e) {
-			return new RunMapReduceResult().setResult(e.getMessage());
-		}
-	}
+//	static public class RunMapReduceResult extends SuccessResult {
+//		String result;
+//
+//		public String getResult() {
+//			return result;
+//		}
+//
+//		public RunMapReduceResult setResult(String result) {
+//			this.result = result;
+//			return this;
+//		}
+//
+//	}
+//
+//	@Override
+//	public ExecutorResult run(SparkThread sparkThread) {
+//		try {
+//			// Check MapReduce R syntax
+//			MapReduce.getInstance().checkMapReduceFunc(map, reduce, combine);
+//			JavaRDD<String> lines = sparkThread.getSparkContext()
+//					.textFile(file);
+//			JavaPairRDD<String, String> resPair = MapReduce.getInstance()
+//					.runMapReduceWithHadoopReducer(lines, map, reduce, combine, null);
+//
+//			Map<String, String> map = resPair.collectAsMap();
+//			Iterator<String> ite = map.keySet().iterator();
+//			StringBuffer values = new StringBuffer();
+//			int i = 0;
+//			while (ite.hasNext() && i < count) {
+//				String key = ite.next();
+//				String value = map.get(key);
+//				values.append(key + "," + value + "\n");
+//				i++;
+//			}
+//			return new RunMapReduceResult().setResult(values.toString());
+//		} catch (ScriptException e) {
+//			return new RunMapReduceResult().setResult(e.getMessage());
+//		} catch (Exception e) {
+//			return new RunMapReduceResult().setResult(e.getMessage());
+//		}
+//	}
 
 }

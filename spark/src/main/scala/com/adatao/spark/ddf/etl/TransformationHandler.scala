@@ -33,8 +33,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     val rMapped = dfrdd.map { partdf ⇒
       try {
         TransformationHandler.preShuffleMapper(partdf, mapFuncDef, reduceFuncDef, mapsideCombine)
-      }
-      catch {
+      } catch {
         case e: Exception ⇒ {
 
           e match {
@@ -55,8 +54,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
     val rReduced = groupped.mapPartitions { partdf ⇒
       try {
         TransformationHandler.postShufflePartitionMapper(partdf, reduceFuncDef)
-      }
-      catch {
+      } catch {
         case e: Exception ⇒ {
           e match {
             case aExc: DDFException ⇒ throw aExc
@@ -83,7 +81,11 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
+    val manager = this.getManager
+    val ddf = new SparkDDF (manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+    manager.addDDF(ddf)
+    ddf
   }
 
   override def transformNativeRserve(transformExpression: String): DDF = {
@@ -102,7 +104,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
         val expr = String.format("%s <- transform(%s, %s)", dfvarname, dfvarname, transformExpression)
 
-        println(">>>>>>>>>>>>.expr=" + expr.toString())
+//        mLog.info(">>>>>>>>>>>>.expr=" + expr.toString())
 
         // compute!
         TransformationHandler.tryEval(rconn, expr, errMsgHeader = "failed to eval transform expression")
@@ -115,8 +117,7 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
         rconn.close()
 
         partdfres
-      }
-      catch {
+      } catch {
         case e: DDFException ⇒ {
           throw new DDFException("Unable to perform NativeRserve transformation", e)
 
@@ -132,9 +133,12 @@ class TransformationHandler(mDDF: DDF) extends CoreTransformationHandler(mDDF) {
 
     val newSchema = new Schema(mDDF.getSchemaHandler.newTableName().replace("-", "_"), columnArr.toList);
 
-    new SparkDDF(mDDF.getManager, rdd, classOf[Array[Object]], null, null, newSchema)
-    //mDDF.getSchemaHandler.getSchema().setColumns(columnArr.toList)
-    //mDDF.getRepresentationHandler.set(rdd, classOf[RDD[_]], classOf[Array[_]], classOf[Object])
+    val manager = this.getManager
+    val ddf = new SparkDDF(manager, rdd, classOf[Array[Object]], manager.getNamespace, null, newSchema)
+
+//    mLog.info(">>>>> adding ddf to manager: " + ddf.getName)
+    manager.addDDF(ddf)
+    ddf
   }
 
 }
@@ -184,8 +188,8 @@ object TransformationHandler {
       val dflist = partdf.asList()
       val partitionSize = (0 until dflist.size()).map(j ⇒ dflist.at(j).length()).reduce { (x, y) ⇒ math.max(x, y) }
 
-      println("partdf.len = " + partdf.length())
-      println("partitionSize = " + partitionSize)
+//      mLog.info("partdf.len = " + partdf.length())
+//      mLog.info("partitionSize = " + partitionSize)
 
       // big allocation!
       val jdata = Array.ofDim[Object](partitionSize, dflist.size())
@@ -365,6 +369,7 @@ object TransformationHandler {
    * By now, whether mapsideCombine is true or false,
    * we both have each partition as a list of list(key=..., val=...)
    */
+  //  def doShuffle(rMapped: RDD[REXP]): RDD[(String, Iterable[REXP])] = {
   def doShuffle(rMapped: RDD[REXP]): RDD[(String, Seq[REXP])] = {
     val groupped = rMapped.flatMap { rexp ⇒
       rexp.asList().iterator.map { kv ⇒
@@ -376,8 +381,8 @@ object TransformationHandler {
 
     // uncomment to debug
     // groupped.collectAsMap().foreach { case(k, vv) => println("k = " + k + ", vv = " + vv.toArray.map(_.toDebugString).mkString(",")) }
-
     groupped
+
   }
 
   /**

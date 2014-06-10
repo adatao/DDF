@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
-import scala.reflect.ClassManifest$;
 
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
@@ -28,7 +27,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
     System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + this.getDDF().getName());
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
-    JavaRDD<Object[]> data = new JavaRDD<Object[]>(rdd, ClassManifest$.MODULE$.fromClass(Object[].class));
+    JavaRDD<Object[]> data = rdd.toJavaRDD();
     Summary[] stats = data.map(new GetSummaryMapper()).reduce(new GetSummaryReducer());
     return stats;
   }

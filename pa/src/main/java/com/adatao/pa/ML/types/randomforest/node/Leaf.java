@@ -40,7 +40,6 @@ public class Leaf extends Node {
 
 	@Override
 	public double classify(Instance instance) {
-		//System.out.println(this.toString());
 		return label;
 	}
 

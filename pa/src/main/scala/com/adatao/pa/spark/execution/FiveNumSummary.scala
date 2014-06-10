@@ -17,11 +17,10 @@
 package com.adatao.pa.spark.execution
 
 import org.slf4j.Logger
-
 import org.slf4j.LoggerFactory
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
-import com.adatao.pa.spark.DataManager.{ DataFrame, SharkDataFrame, MetaInfo }
-import com.adatao.pa.spark.{ SharkUtils, SparkThread, DataManager }
+import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
+import com.adatao.pa.spark.{ SparkThread, DataManager }
 import com.adatao.pa.spark.types.{ SuccessResult, ExecutorResult }
 import scala.collection.JavaConversions._
 import java.util.Map
@@ -30,8 +29,8 @@ import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
 import com.adatao.ddf.DDF
-
 import com.adatao.ML.Utils
+import com.adatao.ddf.DDF
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,7 +51,7 @@ class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]]
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF ⇒ x
-      case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
+      case _ ⇒ throw new IllegalArgumentException(s"Only accept DDF, ddfID: $ddfId")
     }
     val fiveNums = ddf.getFiveNumSummary
     val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)

@@ -3,8 +3,8 @@ package com.adatao.ddf.ml;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import scala.actors.threadpool.Arrays;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
@@ -105,17 +105,9 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     // Now we need to map the DDF and its column specs to the input format expected by the method we're invoking
     Object[] allArgs = this.buildArgsForMethod(trainMethod.getMethod(), paramArgs);
     
-    for(int i=0; i< allArgs.length; i++) {
-      System.out.println(">>>>>>>>>.. allArgs= " + i + "\t" + allArgs[i]);
-    }
     // Invoke the training method
     Object rawModel = trainMethod.classInvoke(allArgs);
     IModel model = new  Model(rawModel);
-//<<<<<<< HEAD
-//
-//    this.getManager().addModel(model);
-//    return model;
-//=======
     this.getManager().addModel(model);
     return new Model(rawModel);
   }

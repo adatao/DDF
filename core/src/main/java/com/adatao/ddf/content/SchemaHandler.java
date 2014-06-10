@@ -4,9 +4,7 @@
 package com.adatao.ddf.content;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.content.Schema.Column;
@@ -60,7 +58,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements
 
 	@Override
 	public String newTableName(Object obj) {
-		return DDFUtils.generateObjectName(obj);
+		return DDFUtils.generateObjectName(obj).replace("-", "_");
 	}
 
 	@Override
@@ -79,7 +77,7 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements
 	}
 
 	@Override
-	public Schema generateSchema() {
+	public Schema generateSchema() throws DDFException {
 		if (this.getSchema() != null)
 			return this.getSchema();
 

@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.jblas.SimpleBlas
 import org.jblas.NativeBlas
-
+import org.scalatest.Tag
 @RunWith(classOf[JUnitRunner])
 class JBlasSuite extends ATimedAlgorithmTest {
 	val doTest = false
@@ -46,30 +46,30 @@ class JBlasSuite extends ATimedAlgorithmTest {
 	val alpha = 1.0
 	val beta = 0.0
 
-	testOrIgnore("Automatic Java Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
+	ignore("Automatic Java Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
 		(1 to REPS).foreach({ i ⇒ a.mmul(x) })
 	}
 
-	testOrIgnore("BLAS Level 2: SimpleBlas.gemv Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
+	ignore("BLAS Level 2: SimpleBlas.gemv Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
 		(1 to REPS).foreach({ i ⇒ SimpleBlas.gemv(alpha, a, x, beta, y) })
 	}
 
-	testOrIgnore("BLAS Level 2: NativeBlas.dgemv Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
+	ignore("BLAS Level 2: NativeBlas.dgemv Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
 		(1 to REPS).foreach({ i ⇒ NativeBlas.dgemv('N', a.rows, a.columns, alpha, a.data, 0, a.rows, x.data, 0, 1, beta, y.data, 0, 1) })
 	}
 
-	testOrIgnore("BLAS Level 3: NativeBlas.dgemm Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
+	ignore("BLAS Level 3: NativeBlas.dgemm Matrix-Vector [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, 1, REPS)) {
 		val c = y
 		(1 to REPS).foreach({ i ⇒ NativeBlas.dgemm('N', 'N', c.rows, c.columns, a.columns, alpha, a.data, 0, a.rows, b.data, 0, b.rows, beta, c.data, 0, c.rows) })
 	}
 
-	testOrIgnore("Automatic Java Matrix-Matrix [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, K, REPS)) {
+	ignore("Automatic Java Matrix-Matrix [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, K, REPS)) {
 	  val x = x2
 		val y = y2
 		(1 to REPS).foreach({ i ⇒ a.mmul(x) })
 	}
 
-	testOrIgnore("BLAS Level 3: NativeBlas.dgemm Matrix-Matrix [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, K, REPS)) {
+	ignore("BLAS Level 3: NativeBlas.dgemm Matrix-Matrix [%dx%d]x[%dx%d] multiplication, %d reps".format(M, N, N, K, REPS)) {
 	  val x = x2
 		val y = y2
 		val c = y

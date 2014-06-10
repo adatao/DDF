@@ -104,17 +104,17 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 
     JavaRDD<double[]> result = predictionRDD.map(new MetricsMapperResiduals());
 
-    if(result== null) System.err.println(">> javaRDD result of MetricMapper residuals is null");
-    if(predictionDDF.getManager()== null) System.err.println(">> predictionDDF.getManager() is null");
-    if(result.rdd()== null) System.err.println(">> result.rdd() is null");
-    if(predictionDDF.getNamespace()== null) System.err.println(">> predictionDDF.getNamespace() is null");
-    if(predictionDDF.getSchema()== null) System.err.println(">> predictionDDF.getSchema() is null");
-    if(predictionDDF.getName()== null) System.err.println(">> predictionDDF.getName() is null");
+    if(result== null) mLog.error(">> javaRDD result of MetricMapper residuals is null");
+    if(predictionDDF.getManager()== null) mLog.error(">> predictionDDF.getManager() is null");
+    if(result.rdd()== null) mLog.error(">> result.rdd() is null");
+    if(predictionDDF.getNamespace()== null) mLog.error(">> predictionDDF.getNamespace() is null");
+    if(predictionDDF.getSchema()== null) mLog.error(">> predictionDDF.getSchema() is null");
+    if(predictionDDF.getName()== null) mLog.error(">> predictionDDF.getName() is null");
     
     Schema schema = new Schema("doubble residuals");
     DDF residualDDF = new SparkDDF(predictionDDF.getManager(), result.rdd(), double[].class, predictionDDF.getNamespace(), null, schema);
     
-    if(residualDDF == null) System.err.println(">>>>>>>>>>>.residualDDF is null");
+    if(residualDDF == null) mLog.error(">>>>>>>>>>>.residualDDF is null");
     
     if(residualDDF != null) predictionDDF.getManager().addDDF(residualDDF);
 //        predictionDDF.getManager().newDDF(result, new Class[] { Array.class, double[].class}, predictionDDF.getNamespace(), predictionDDF.getName(), predictionDDF.getSchema());
@@ -152,7 +152,7 @@ public class MLMetricsSupporter extends AMLMetricsSupporter {
 	IGetResult gr = ((SparkDDF) predictionDDF).getRDD(double[].class, double.class);
     RDD<double[]> predictionRDD =  (RDD<double[]>) gr.getObject();
     //convert from rdd[double[]] to rdd[LabeledPoint]
-    RDD<LabeledPoint[]> newrdd = RepresentationHandler.rowsToArrayLabeledPoints2(predictionRDD);
+    RDD<LabeledPoint[]> newrdd = RepresentationHandler.arrayDoubleToArrayLabeledPoints(predictionRDD);
     
     ROCComputer rc = new ROCComputer();
     return(rc.ROC(newrdd, alpha_length));

@@ -3,6 +3,8 @@ package com.adatao.ddf.content;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 
 /**
@@ -52,7 +54,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    *          RDD<List<Double>> would be (RDD.class, List.class, Double.class)
    * @return a pointer to the specified
    */
-  Object get(Class<?>... typeSpecs);
+  Object get(Class<?>... typeSpecs) throws DDFException;
 
   /**
    * Retrieves a representation of the specified type specs.
@@ -62,7 +64,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    *          {@link IHandleRepresentations#getSpecsAsString(Class...)}
    * @return a pointer to the specified
    */
-  Object get(String typeSpecs);
+  Object get(String typeSpecs) throws DDFException;
 
   /**
    * Allows client to specify a list of acceptable type specs
@@ -70,7 +72,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * @param acceptableTypeSpecs
    * @return a representation matching one of the acceptable type specs
    */
-  IGetResult get(Class<?>[][] acceptableTypeSpecs);
+  IGetResult get(Class<?>[][] acceptableTypeSpecs) throws DDFException;
 
   /**
    * Allows client to specify a list of acceptable type specs
@@ -78,7 +80,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * @param acceptableTypeSpecs
    * @return a representation matching one of the acceptable type specs
    */
-  IGetResult get(String[] acceptableTypeSpecs);
+  IGetResult get(String[] acceptableTypeSpecs) throws DDFException;
 
 
   interface IGetResult {
@@ -141,7 +143,7 @@ public interface IHandleRepresentations extends IHandleDDFFunctionalGroup {
    * 
    * @return
    */
-  Object getDefault();
+  Object getDefault() throws DDFException;
 
   void setDefaultDataType(Class<?>... typeSpecs);
 

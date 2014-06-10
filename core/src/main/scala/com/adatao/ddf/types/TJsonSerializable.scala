@@ -125,8 +125,6 @@ object TJsonSerializable {
 private class TJsonSerializableDeserializer extends JsonDeserializer[TJsonSerializable] {
 
 	def deserialize(jElem: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TJsonSerializable = {
-		//		println("CTN >> deserialize jElem = %s".format(jElem))
-
 		// First determine class name from "clazz" field or typeOfT, in that order
 		val className: String = jElem match {
 			case jObj: JsonObject ⇒ Option(jObj.get("clazz")) match {
@@ -137,7 +135,6 @@ private class TJsonSerializableDeserializer extends JsonDeserializer[TJsonSerial
 		}
 
 		// Now use that class name to deserialize
-		//		println("CTN >> now instantiating an object of type %s".format(className))
 		Option(Class.forName(className)) match {
 			case Some(validClass) ⇒ Option(validClass.getConstructor()) match {
 				case Some(validConstructor) ⇒ validConstructor.newInstance() match {

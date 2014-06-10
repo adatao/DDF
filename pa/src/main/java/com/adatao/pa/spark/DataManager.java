@@ -27,13 +27,13 @@ import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
-import scala.reflect.ClassManifest$;
+import com.adatao.spark.ddf.util.MLUtils;
 import shark.api.ColumnDesc;
 import shark.api.JavaSharkContext;
 import shark.api.JavaTableRDD;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
-import com.adatao.ML.Kmeans;
+import com.adatao.pa.spark.SharkUtils;
 import com.adatao.ddf.types.Matrix;
 import com.adatao.ddf.types.Vector;
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult;
@@ -361,7 +361,7 @@ public class DataManager {
 			ColumnDesc[] fs = table.schema();
 			this.metaInfo = new MetaInfo[fs.length];
 			for (int i = 0; i < fs.length; i++) {
-				this.metaInfo[i] = new MetaInfo(fs[i].columnName(), fs[i].typeName(), i);
+				this.metaInfo[i] = new MetaInfo(fs[i].name(), fs[i].dataType().name, i);
 			}
 
 			return this;
@@ -378,7 +378,7 @@ public class DataManager {
 				return  (TablePartition) t.rawdata();
 			}
 		}
-		
+		/*
     @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTable(int[] xCols, int yCol){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
@@ -391,23 +391,23 @@ public class DataManager {
 			}
 			return result;
 		}
-		
-		@SuppressWarnings("unchecked")
-		public RDD<double[]> getDataPointTable(int[] xCols){
-			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
-			RDD<double[]> result =(RDD<double[]>) cache.get(key);
-			if(result == null){
-				RDD<Row> rdd = this.getTableRDD().rdd();
-
-				Kmeans.SharkParsePoint parser = new Kmeans.SharkParsePoint(xCols, this.metaInfo);
-				//ClassManifest$.MODULE$.fromClass
-				result = rdd.map(parser, ClassManifest$.MODULE$.fromClass(double[].class)).
-						filter(new Kmeans.filterFunction()).cache();
-				cache.put(key, result);
-			}
-			return result;
-		}
-
+		*/
+//		@SuppressWarnings("unchecked")
+//		public RDD<double[]> getDataPointTable(int[] xCols){
+//			String key = String.format("xdatapointtable:%s", Arrays.toString(xCols));
+//			RDD<double[]> result =(RDD<double[]>) cache.get(key);
+//			if(result == null){
+//				RDD<Row> rdd = this.getTableRDD().rdd();
+//
+//				SharkUtils.SharkParsePoint parser = new SharkUtils.SharkParsePoint(xCols, this.metaInfo);
+//				
+//				result = rdd.map(parser, ClassManifest$.MODULE$.fromClass(double[].class)).
+//						filter(new MLUtils.filterFunction()).cache();
+//				cache.put(key, result);
+//			}
+//			return result;
+//		}
+/*
     @SuppressWarnings("unchecked")
 		public RDD<Tuple2<Matrix, Vector>> getDataTableCategorical(int[] xCols, int yCol, Map<Integer, HashMap<String, Double>> hm){
 			String key = String.format("xytable:%s:%s", Arrays.toString(xCols), yCol);
@@ -422,7 +422,7 @@ public class DataManager {
 			
 			return result;
 		}
-		
+		*/
 
 		/**
 		 * Perform a transformation on the dataset by applying a SQL statement,

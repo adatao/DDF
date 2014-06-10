@@ -105,10 +105,6 @@ class LogisticRegressionIRLS(
     null.asInstanceOf[IRLSLogisticRegressionModel]
   }
 
-  override def train(dataPartition: RDD[(Matrix, Vector)], context: ExecutionContext): IRLSLogisticRegressionModel = {
-    null.asInstanceOf[IRLSLogisticRegressionModel]
-  }
-
   //post process, set column mapping to model
   def instrumentModel(model: IRLSLogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): IRLSLogisticRegressionModel = {
     null.asInstanceOf[IRLSLogisticRegressionModel]

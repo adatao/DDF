@@ -63,7 +63,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
     val uid = predictionDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
 
-    println(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + addId)
+    LOG.info(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + addId)
 
     new YtrueYpredResult(uid, metaInfo)
   }

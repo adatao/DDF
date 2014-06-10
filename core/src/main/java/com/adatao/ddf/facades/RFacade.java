@@ -93,4 +93,10 @@ public class RFacade implements IHandleAggregation {
     return null;
   }
 
+  @Override
+  public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
