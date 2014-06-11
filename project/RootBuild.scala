@@ -18,13 +18,13 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  lazy val MAIN_SHARK_VERSION = "0.9.2"
+  lazy val MAIN_SHARK_VERSION = "0.9.1"
   lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
 
-  lazy val MAIN_SPARK_VERSION = "0.9.2"
+  lazy val MAIN_SPARK_VERSION = "0.9.1"
   lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
