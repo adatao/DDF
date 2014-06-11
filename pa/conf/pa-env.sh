@@ -55,10 +55,14 @@ export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
 export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
-echo $RSERVER_JAR
+export DDF_CORE_JAR=`find ${PA_HOME}/../core/ -name ddf_core_*.jar | grep -v '\-tests.jar'`
+export DDF_SPARK_JAR=`find ${PA_HOME}/../spark/ -name ddf_spark_*.jar | grep -v '\-tests.jar'`
+echo RSERVER_JAR=$RSERVER_JAR
+echo DDF_CORE_JAR=$DDF_CORE_JAR
+echo DDF_SPARK_JAR=$DDF_SPARK_JAR
 SPARK_CLASSPATH=$RSERVER_JAR
-SPARK_CLASSPATH+=:"${PA_HOME}/../core/target/scala-2.10/ddf_core_2.10-0.9.jar"
-SPARK_CLASSPATH+=:"${PA_HOME}/../spark/target/scala-2.10/ddf_spark_2.10-0.9.jar"
+SPARK_CLASSPATH+=:"$DDF_CORE_JAR"
+SPARK_CLASSPATH+=:"$DDF_SPARK_JAR"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/bundles/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/orbits/*"
