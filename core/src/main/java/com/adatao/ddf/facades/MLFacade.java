@@ -77,6 +77,10 @@ public class MLFacade implements ISupportML {
       double miniBatchFraction) throws DDFException {
     return this.train("LinearRegressionWithSGD", featureColumnIndexes, targetColumnIndex, stepSize, miniBatchFraction);
   }
+  
+  public IModel linearRegressionNQ(int numFeatures, double ridgeLambda) throws DDFException {
+    return this.train("linearRegressionNQ", numFeatures, ridgeLambda);
+  }
 
   public IModel logisticRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
       double miniBatchFraction) throws DDFException {

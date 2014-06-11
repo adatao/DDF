@@ -3,8 +3,10 @@ package com.adatao.spark.ddf;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.math.util.OpenIntToDoubleHashMap.Iterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -22,9 +24,12 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.exception.DDFException;
 
 public class HBaseDDFManagerTests {
@@ -136,16 +141,63 @@ public class HBaseDDFManagerTests {
       e.printStackTrace();
     }
   }
+  
+  /*
+   * helpfer function to create and import csv file to hbase table
+   */
+  public static void importHbaseTable(String csvFile) {
+    
+  }
+  
+  private DDFManager manager;
+
+
+  @Before
+  public void setUp() throws Exception {
+    manager = DDFManager.get("spark");
+    manager.sql2txt("drop table if exists airline");
+
+    manager.sql2txt("create table airline (Year int,Month int,DayofMonth int,"
+        + "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int,"
+        + "CRSArrTime int,UniqueCarrier string, FlightNum int, "
+        + "TailNum string, ActualElapsedTime int, CRSElapsedTime int, "
+        + "AirTime int, ArrDelay int, DepDelay int, Origin string, "
+        + "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, "
+        + "CancellationCode string, Diverted string, CarrierDelay int, "
+        + "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) "
+        + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
+
+    manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
+    
+  }
 
   @Test
   public void testLongSparkDDFManagerRetrieval() throws DDFException {
     try {
-      HBaseDDFManager manager = (HBaseDDFManager) DDFManager.get("hbase");
-      Assert.assertEquals("hbase", manager.getEngine());
-      
+      SparkDDFManager manager = (SparkDDFManager) DDFManager.get("spark");
+      Assert.assertEquals("spark", manager.getEngine());
 //      HBaseDDFManager hb = (HBaseDDFManager) manager;
-//      manager.loadTable("test", ",");
+      DDF ddf = manager.loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
 
+//      long nrow = ddf.getNumRows();
+//      System.out.println(">>>>>>>>>>> numrows = " + nrow);
+      List<List<DDF>> lstDDFs = ddf.ML.CVKFold(3, (long) 1);
+      java.util.Iterator<List<DDF>> it = lstDDFs.iterator();
+      while(it.hasNext()) {
+        List<DDF> a = it.next();
+        System.out.println(">>>>>>>>>>>>> a.size=" + a.size());
+      }
+      
+      //load another ddf from Shark
+      DDF sharkDdf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, distance, arrdelay, depdelay from airline");
+//      ddf.getJoinsHandler().
+      
+//      ddf.ML.linearRegressionNQ(1, 0.1);
+      
+//      List<String> b = ddf.getSqlHandler().sql2txt("select * from test2");
+//    System.out.println(">>>>>:b=" + b.get(0));
+    
+//      FiveNumSummary[] fnum = ddf.getFiveNumSummary();
 
 //      String tablename = "scores";
 //      String[] familys = { "grade", "course" };

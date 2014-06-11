@@ -1,22 +1,36 @@
 package com.adatao.spark.ddf;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
+import org.apache.hadoop.hbase.util.Base64;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.rdd.RDD;
+import scala.Tuple2;
 import shark.SharkContext;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
-
+import shark.memstore2.TablePartition;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
 
 /**
@@ -341,4 +355,145 @@ public class SparkDDFManager extends DDFManager {
 
     return metaInfoArray;
   }
+  
+  
+  // experiemntal stuffs
+  public DDF loadTable(String tableName, List<String> columns) throws DDFException {
+    // JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
+    Configuration config = HBaseConfiguration.create();
+    // config.set("hbase.zookeeper.znode.parent", "hostname1");
+    // config.set("hbase.zookeeper.quorum","hostname1");
+    // config.set("hbase.zookeeper.property.clientPort","2181");
+    config.set("hbase.master", "localhost:");
+    // config.set("fs.defaultFS","hdfs://hostname1/");
+    // config.set("dfs.namenode.rpc-address","localhost:8020");
+
+    config.set(TableInputFormat.INPUT_TABLE, tableName);
+
+    
+    String columnsNameType = "";
+    
+    // init scan object
+    Scan scan = new Scan();
+    Iterator it = columns.iterator();
+    String c = "";
+    String cf = "";
+    String cq = "";
+    while (it.hasNext()) {
+      c = (String) it.next();
+      if (c.contains(":")) {
+        cf = c.split(":")[0];
+        cq = c.split(":")[1];
+        scan.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cq));
+        
+        //convert to Shark table
+        columnsNameType += cf + "_" + cq + " string" + ",";
+      } else {
+        cf = c;
+        scan.addFamily(Bytes.toBytes(cf));
+        columnsNameType += " " + cf + " string" + ",";
+      }
+    }
+    //remove last comma
+    if(columnsNameType.contains(",")) columnsNameType.substring(0, columnsNameType.length()-1);
+    
+    System.out.println(">>>>>>>.columnsNameType=" + columnsNameType);
+    // set SCAN in conf
+    try {
+      config.set(TableInputFormat.SCAN, convertScanToString(scan));
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    RDD<Tuple2<ImmutableBytesWritable, Result>> hBaseRDD = getSparkContext().newAPIHadoopRDD(config,
+        TableInputFormat.class, ImmutableBytesWritable.class, Result.class);
+    //convert to RDD[Row] or RDD[Array[Double]]
+//    RDD<double[]> result = convertRDD(hBaseRDD);
+    RDD<Object[]> result = convertRDD2(hBaseRDD);
+    long a = result.count();
+    System.out.println(">>>> count table = " + a);
+    
+    
+    Schema schema = new Schema(tableName, columnsNameType); 
+//    SparkDDF(DDFManager manager, RDD<?> rdd, Class<T> unitType, String namespace, String name, Schema schema)
+    DDF ddf =  new SparkDDF(this, result, Object[].class, "", tableName, schema);
+    
+//    ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
+    
+    return ddf;
+  }
+  
+  public RDD<double[]> convertRDD(RDD<Tuple2<ImmutableBytesWritable, Result>> hbaseRDD) {
+    RDD<double[]> result = hbaseRDD.map(new ConvertMapper(), null);
+    return result;
+  }
+  
+  public RDD<Object[]> convertRDD2(RDD<Tuple2<ImmutableBytesWritable, Result>> hbaseRDD) {
+    RDD<Object[]> result = hbaseRDD.map(new ConvertMapper2(), null);
+    return result;
+  }
+  
+//  GetSummaryMapper extends Function<Object[], Summary[]>
+  
+  private static class ConvertMapper extends Function <Tuple2<ImmutableBytesWritable, Result>, double[]> {
+    public ConvertMapper() {
+      System.out.println(">>>>>>>>>>>>>> ConvertMapper");
+    }
+    @Override
+    public double[] call(Tuple2<ImmutableBytesWritable, Result> input) throws Exception {
+      ImmutableBytesWritable key = input._1;
+      Result res = input._2;
+      List<org.apache.hadoop.hbase.KeyValue> keyValues = res.list();
+      int size = keyValues.size();
+      double[] arrResult = new double[size];
+      int i = 0;
+      Iterator<KeyValue> it = keyValues.iterator();
+      while(it.hasNext()) {
+        KeyValue kv = it.next();
+        System.out.println(">>> family=" + Bytes.toString(kv.getFamily()));
+        System.out.println(">>> qualifier=" + Bytes.toString(kv.getQualifier()));
+        double a = Double.parseDouble(Bytes.toString(kv.getValue()));
+        arrResult[i] = a;
+        System.out.println(">>>>>>a=" + a);
+        i++;
+      }
+      return arrResult;
+    }
+  }
+  
+  private static class ConvertMapper2 extends Function <Tuple2<ImmutableBytesWritable, Result>, Object[]> {
+    public ConvertMapper2() {
+      System.out.println(">>>>>>>>>>>>>> ConvertMapper");
+    }
+    @Override
+    public Object[] call(Tuple2<ImmutableBytesWritable, Result> input) throws Exception {
+      ImmutableBytesWritable key = input._1;
+      Result res = input._2;
+      List<org.apache.hadoop.hbase.KeyValue> keyValues = res.list();
+      int size = keyValues.size();
+      Object[] arrResult = new Object[size];
+      int i = 0;
+      Iterator<KeyValue> it = keyValues.iterator();
+      while(it.hasNext()) {
+        KeyValue kv = it.next();
+        System.out.println(">>> family=" + Bytes.toString(kv.getFamily()));
+        System.out.println(">>> qualifier=" + Bytes.toString(kv.getQualifier()));
+        String a = Bytes.toString(kv.getValue());
+        arrResult[i] = a;
+        System.out.println(">>>>>>a=" + a);
+        i++;
+      }
+      return arrResult;
+    }
+  }
+
+
+  static String convertScanToString(Scan scan) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    DataOutputStream dos = new DataOutputStream(out);
+    scan.write(dos);
+    return Base64.encodeBytes(out.toByteArray());
+  }
+  
 }

@@ -93,6 +93,7 @@ public class Schema implements Serializable {
 					|| Strings.isNullOrEmpty(parts[1]))
 				continue;
 
+			System.out.println(">>>>>>>>>>>>> schema parsing columns = " + parts[0] + "\t" + parts[1]);
 			mColumns.add(new Column(parts[0], parts[1]));
 		}
 
