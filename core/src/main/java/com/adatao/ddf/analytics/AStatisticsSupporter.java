@@ -59,6 +59,7 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
     String command = String.format("SELECT %s FROM %%s", StringUtils.join(specs.toArray(new String[0]), ','));
 
+    System.out.println(">>>> fivenum: command = " + command);
     if (!Strings.isNullOrEmpty(command)) {
       // a fivenumsummary of an Int/Long column is in the format "[min, max, 1st_quantile, median, 3rd_quantile]"
       // each value can be a NULL

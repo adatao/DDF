@@ -29,8 +29,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.analytics.Summary;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
+import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.spark.ddf.analytics.NQLinearRegressionModel;
 
 public class HBaseDDFManagerTests {
 
@@ -141,20 +146,21 @@ public class HBaseDDFManagerTests {
       e.printStackTrace();
     }
   }
-  
+
   /*
    * helpfer function to create and import csv file to hbase table
    */
   public static void importHbaseTable(String csvFile) {
-    
+
   }
-  
-  private DDFManager manager;
+
+
+  private SparkDDFManager manager;
 
 
   @Before
   public void setUp() throws Exception {
-    manager = DDFManager.get("spark");
+    manager = (SparkDDFManager) DDFManager.get("spark");
     manager.sql2txt("drop table if exists airline");
 
     manager.sql2txt("create table airline (Year int,Month int,DayofMonth int,"
@@ -168,64 +174,69 @@ public class HBaseDDFManagerTests {
         + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
 
     manager.sql2txt("load data local inpath '../resources/test/airline.csv' into table airline");
-    
+
+    manager.sql2txt("select * from airline");
+
+  }
+
+  // test ML stuffs
+  public void testML() {
+    // List<List<DDF>> lstDDFs = ddf.ML.CVKFold(3, (long) 1);
+    // java.util.Iterator<List<DDF>> it = lstDDFs.iterator();
+    // while (it.hasNext()) {
+    // List<DDF> a = it.next();
+    // System.out.println(">>>>>>>>>>>>> a.size=" + a.size());
+    // }
   }
 
   @Test
-  public void testLongSparkDDFManagerRetrieval() throws DDFException {
+  public void testBasicStat() throws DDFException {
     try {
-      SparkDDFManager manager = (SparkDDFManager) DDFManager.get("spark");
       Assert.assertEquals("spark", manager.getEngine());
-//      HBaseDDFManager hb = (HBaseDDFManager) manager;
-      DDF ddf = manager.loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
 
-//      long nrow = ddf.getNumRows();
-//      System.out.println(">>>>>>>>>>> numrows = " + nrow);
-      List<List<DDF>> lstDDFs = ddf.ML.CVKFold(3, (long) 1);
-      java.util.Iterator<List<DDF>> it = lstDDFs.iterator();
-      while(it.hasNext()) {
-        List<DDF> a = it.next();
-        System.out.println(">>>>>>>>>>>>> a.size=" + a.size());
+      DDF ddf = manager
+          .loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
+      long nrow = ddf.getNumRows();
+      System.out.println(">>>>>>>>>>> numrows = " + nrow);
+      assert (nrow == 2);
+
+      System.out.println(">>>> ddf tableName = " + ddf.getSchema().getTableName() + "\t");
+
+      List<Column> cols = ddf.getSchema().getColumns();
+      java.util.Iterator<Column> it = cols.iterator();
+      while (it.hasNext()) {
+        Column c = it.next();
+        System.out.println(">>>> <Column> = " + c.getName());
       }
-      
-      //load another ddf from Shark
-      DDF sharkDdf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, distance, arrdelay, depdelay from airline");
-//      ddf.getJoinsHandler().
-      
-//      ddf.ML.linearRegressionNQ(1, 0.1);
-      
-//      List<String> b = ddf.getSqlHandler().sql2txt("select * from test2");
-//    System.out.println(">>>>>:b=" + b.get(0));
-    
-//      FiveNumSummary[] fnum = ddf.getFiveNumSummary();
 
-//      String tablename = "scores";
-//      String[] familys = { "grade", "course" };
-//      HBaseDDFManagerTests.creatTable(tablename, familys);
-//
-//      System.out.println(">>>>>>>> after create table");
-//
-//      // add record zkb
-//      HBaseDDFManagerTests.addRecord(tablename, "zkb", "grade", "", "5");
-//      HBaseDDFManagerTests.addRecord(tablename, "zkb", "course", "", "90");
-//      HBaseDDFManagerTests.addRecord(tablename, "zkb", "course", "math", "97");
-//      HBaseDDFManagerTests.addRecord(tablename, "zkb", "course", "art", "87");
-//      // add record baoniu
-//      HBaseDDFManagerTests.addRecord(tablename, "baoniu", "grade", "", "4");
-//      HBaseDDFManagerTests.addRecord(tablename, "baoniu", "course", "math", "89");
-//
-//      System.out.println("===========get one record========");
-//      HBaseDDFManagerTests.getOneRecord(tablename, "zkb");
-//
-//      System.out.println("===========show all record========");
-//      HBaseDDFManagerTests.getAllRecord(tablename);
-//
-//      System.out.println("===========del one record========");
-//      HBaseDDFManagerTests.delRecord(tablename, "baoniu");
-//      HBaseDDFManagerTests.getAllRecord(tablename);
-//
-//      System.out.println("===========show all record========");
-//      HBaseDDFManagerTests.getAllRecord(tablename);
+      // get summary
+      Summary[] a = ddf.getSummary();
+      assert (a != null);
+      System.out.println(">>>>>> summmary =  " + a[0].toString());
+
+      // get fivenum summary, fail
+//      FiveNumSummary[] b = ddf.getFiveNumSummary();
+//      assert (b != null);
+
+      // load another ddf from Shark
+      DDF sharkDdf = manager.sql2ddf("select origin from airline");
+      long nrow1 = sharkDdf.getNumRows();
+      assert (nrow1 == 31);
+
+      // test join
+      DDF resultDDF = ddf.getJoinsHandler().join(sharkDdf, JoinType.INNER, null, Arrays.asList("cf_id"),
+          Arrays.asList("Origin"));
+      long nrow2 = resultDDF.getNumRows();
+      System.out.println(">>>>>>>>>>>>> nrow2=" + nrow2);
+      assert (nrow2 == 14);
+
+
+      // test run ml
+      // IModel model = ddf.ML.linearRegressionNQ(1, 0.1);
+      // NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
+      // assert(rawModel != null);
+      // System.out.println("weights >>>> " + rawModel);
+
     } catch (Exception e) {
       e.printStackTrace();
     }

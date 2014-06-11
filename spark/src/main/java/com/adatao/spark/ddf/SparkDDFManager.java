@@ -395,7 +395,7 @@ public class SparkDDFManager extends DDFManager {
       }
     }
     //remove last comma
-    if(columnsNameType.contains(",")) columnsNameType.substring(0, columnsNameType.length()-1);
+    if(columnsNameType.contains(",")) columnsNameType = columnsNameType.substring(0, columnsNameType.length()-1);
     
     System.out.println(">>>>>>>.columnsNameType=" + columnsNameType);
     // set SCAN in conf
@@ -414,12 +414,11 @@ public class SparkDDFManager extends DDFManager {
     long a = result.count();
     System.out.println(">>>> count table = " + a);
     
-    
+    this.sql2txt("drop table if exists " + tableName);
     Schema schema = new Schema(tableName, columnsNameType); 
 //    SparkDDF(DDFManager manager, RDD<?> rdd, Class<T> unitType, String namespace, String name, Schema schema)
     DDF ddf =  new SparkDDF(this, result, Object[].class, "", tableName, schema);
-    
-//    ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
+    ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
     
     return ddf;
   }
