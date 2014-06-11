@@ -48,6 +48,7 @@ import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
@@ -68,6 +69,7 @@ import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 
 /**
@@ -201,6 +203,9 @@ public abstract class DDF extends ALoggable //
 
   @Expose
   private String mName;
+  
+  @Expose
+  private String mAliasName;
 
 
   /**
@@ -219,6 +224,13 @@ public abstract class DDF extends ALoggable //
     return mNamespace;
   }
 
+  public String getAliasName() {
+    return mAliasName;
+  }
+  
+  public void setAliasName(String aliasName) {
+    this.mAliasName = aliasName;
+  }
   /**
    * @param namespace
    *          the namespace to place this DDF in
@@ -342,6 +354,9 @@ public abstract class DDF extends ALoggable //
 
   public RFacade R;
 
+  public DDF transform(String transformExpression) throws DDFException {
+    return Transform.transformUDF(transformExpression);
+  }
 
   /**
    * 
@@ -371,6 +386,13 @@ public abstract class DDF extends ALoggable //
     return this.getAggregationHandler().xtabs(AggregateField.fromSqlFieldSpecs(fields));
   }
   
+  public DDF join(DDF anotherDDF, JoinType joinType, List<String> byColumns, List<String> byLeftColumns, List<String> byRightColumns) throws DDFException {
+    return this.getJoinsHandler().join(anotherDDF, joinType,byColumns, byLeftColumns, byRightColumns);
+  }
+  
+  public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
+    return this.getAggregationHandler().groupBy(groupedColumns, aggregateFunctions);
+  }
   // ///// binning 
   public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
       boolean right) throws DDFException {
@@ -783,7 +805,8 @@ public abstract class DDF extends ALoggable //
 
   @Override
   public String getUri() {
-    return AGloballyAddressable.getUri(this);
+    String uri = AGloballyAddressable.getUri(this);
+    return  uri.substring(0, uri.lastIndexOf("/")+1) + this.getAliasName();
   }
 
 
@@ -944,7 +967,7 @@ public abstract class DDF extends ALoggable //
    * before persistence, to avoid the situtation of null schemas being persisted.
    */
   @Override
-  public void beforePersisting() {
+  public void beforePersisting() throws DDFException {
     if (this.getSchema() == null) this.getSchemaHandler().setSchema(this.getSchemaHandler().generateSchema());
   }
 
@@ -973,4 +996,5 @@ public abstract class DDF extends ALoggable //
       throws DDFException {
     return deserializedObject;
   }
+  
 }

@@ -17,31 +17,16 @@
 package com.adatao.pa.spark.execution;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.broadcast.Broadcast;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
-import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.DataManager.DataFrame;
 import com.adatao.pa.spark.DataManager.MetaInfo;
+import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.adatao.pa.spark.types.FastArrayIterator;
 import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 

@@ -18,14 +18,15 @@ package com.adatao.pa.spark;
 
 
 import java.util.List;
+import com.adatao.pa.AdataoException;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.content.Schema.ColumnClass;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.MetaInfo;
-import com.adatao.pa.spark.execution.Xtabs.Sql2ListStringResult;
 import com.adatao.pa.spark.types.SuccessResult;
+
 
 
 public class Utils {
@@ -38,6 +39,14 @@ public class Utils {
     System.out.println();
   }
 
+  public static void assertNull(Object o, AdataoException e) throws AdataoException {
+    if (o == null) throw e;
+  }
+
+  public static void assertNullorEmpty(List o, AdataoException e) throws AdataoException {
+    if (o == null || o.size() == 0) throw e;
+  }
+  
   public static MetaInfo[] generateMetaInfo(Schema schema) throws DDFException {
     List<Column> columns = schema.getColumns();
     MetaInfo[] metaInfo = new MetaInfo[columns.size()];
@@ -64,13 +73,53 @@ public class Utils {
     public MetaInfo[] metaInfo;
 
     public DataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = getDataContainerID(ddf);
+      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
     
     public DataFrameResult(String dataContainerID, MetaInfo[] metaInfo) throws DDFException {
       this.dataContainerID = dataContainerID;
       this.metaInfo = metaInfo;
+    }
+    
+    public String getDataContainerID() {
+      return dataContainerID;
+    }
+
+
+    public MetaInfo[] getMetaInfo() {
+      return metaInfo;
+    }
+  }
+  
+  static public class MutableDataFrameResult extends SuccessResult {
+    public String dataContainerID;
+    public MetaInfo[] metaInfo;
+    public boolean isMutable;
+
+    public MutableDataFrameResult(DDF ddf) throws DDFException {
+      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.metaInfo = generateMetaInfo(ddf.getSchema());
+      this.isMutable =  ddf.isMutable();
+    }
+    
+    public MutableDataFrameResult(String dataContainerID, MetaInfo[] metaInfo, boolean isMutable) throws DDFException {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = metaInfo;
+      this.isMutable = isMutable;
+    }
+    
+    public String getDataContainerID() {
+      return dataContainerID;
+    }
+
+
+    public MetaInfo[] getMetaInfo() {
+      return metaInfo;
+    }
+    
+    public boolean isMutable() {
+      return isMutable;
     }
   }
 

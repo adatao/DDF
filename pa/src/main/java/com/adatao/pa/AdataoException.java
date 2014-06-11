@@ -39,10 +39,22 @@ public class AdataoException extends Exception {
         		"Column type is not supported in this operation"),
 		ERR_HDFS("Cannot execute the hdfs command", "This is for failed hdfs command"),
 		ERR_HADOOPHOME_UNDEF("HADOOP_HOME is undefined", "HADOOP_HOME is undefined"),
-		ERR_UNSUPPORTED_CONTAINER_TYPE("Unsupported data container type", "Unsupported data container type");
+		ERR_KRYO_BUFFER_OVFL("Got KryoSerializer buffer overflow. Please increase the buffer using spark.kryoserializer.buffer.mb"),
+		ERR_UNSUPPORTED_CONTAINER_TYPE("Unsupported data container type", "Unsupported data container type"),
+    ERR_UNSUPPORTED_JOIN_SYNTAX("Unsupported join syntax"),
+    ERR_UNSUPPORTED_GROUP_SYNTAX("Unsupported group syntax"),
+    ERR_MISSING_DATAFRAME("Missing dataframe indentification"),
+    ERR_UNAUTHORIZED_ACCESS("Unauthorized access.", 
+        "You don't have access rights to this resource. Please contact system operators for assistant."),
+    ERR_LBFGS("Got error with LBFGS optimizer.");
 		
     	private final String mMessage;
     	private final String mDescription;
+    	
+    	private AdataoExceptionCode(String message) {
+        mMessage = (message != null ? message : "");
+        mDescription = mMessage;
+      }
     	
     	private AdataoExceptionCode(String message, String description) {
     		mMessage = message;

@@ -85,9 +85,12 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 */
 	protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
 	// ephemeral mapping between ddf alias and DDF
-	protected HashMap<String, DDF> meDDFs = new HashMap<String, DDF>();
+	protected HashMap<String, DDF> mDDFsByName = new HashMap<String, DDF>();
 
 	protected Map<String, IModel> mModels = new HashMap<String, IModel>();
+	
+	//lookup name (aliasName, name)
+	protected Map<String, String> mAliasesToNames = new HashMap<String, String>();
 
 	public String addDDF(DDF data) {
 		mDDFs.put(data.getName().replace("-", "_"), data);
@@ -106,7 +109,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 */
 	public DDF getDDFByName(String aliasName) {
 	  String aliasNameSub = aliasName.substring(aliasName.lastIndexOf("/")+1);
-		DDF data = meDDFs.get(aliasNameSub);
+		DDF data = mDDFsByName.get(aliasNameSub);
 		return data;
 	}
 	/*
@@ -114,7 +117,8 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	 * This name is ephemeral in the sense that it existed in cluster memory and will be disappear once we restart cluster
 	 */
 	public DDF setDDFByName(DDF data, String aliasName) {
-		meDDFs.put(aliasName, data);
+	  mDDFsByName.put(aliasName, data);
+		data.setAliasName(aliasName);
 		return data;
 	}
 	
@@ -125,7 +129,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	public void setDDFByName(String dataContainerId, String aliasName) {
 		DDF data = getDDF(dataContainerId);
 		if(data != null)
-			meDDFs.put(aliasName, data);
+		  mDDFsByName.put(aliasName, data);
 		else {
 		    Log.error("Cannot get ddf for dataContainerId = " + dataContainerId);
 		}
@@ -142,7 +146,28 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 	public IModel getModel(String modelName) {
 		return mModels.get(modelName);
 	}
+	
+	public IModel getModelByName(String aliasName) {
+	  String aliasNameSub = aliasName.substring(aliasName.lastIndexOf("/")+1);
+    IModel model = mModels.get(mAliasesToNames.get(aliasNameSub));
+    return model;
+	}
+	
+	public void setModelName(String modelId, String aliasName) {
+	  mAliasesToNames.put(aliasName, modelId);
+	}
 
+	public DDF serialize2DDF(IModel model) throws DDFException {
+	  //TODO
+	  //DDF df = new DDF(this, model.getRawModel(), new Class[] {IModel.class} , null, model.getName(), null);
+	  return null;
+	}
+	
+	public IModel deserialize2Model(DDF ddf) {
+	  //TODO
+	  return null;
+	}
+	
 	public DDFManager() {
 		this.startup();
 	}

@@ -11,12 +11,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import com.adatao.ddf.Factor;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Strings;
-import com.google.gson.annotations.Expose;
 import com.google.common.collect.Lists;
+import com.google.gson.annotations.Expose;
 
 /**
  * Table schema of a DDF including table name and column metadata
