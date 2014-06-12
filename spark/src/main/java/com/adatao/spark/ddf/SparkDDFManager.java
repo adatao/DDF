@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.adatao.spark.ddf.util.SparkUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -59,9 +61,7 @@ public class SparkDDFManager extends DDFManager {
     //TODO remove later
     if (sparkContext instanceof SharkContext) {
     	this.setSharkContext((SharkContext) sparkContext);
-    	sparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
-    	mSharkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
-    	mSparkContext.conf().set("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator");
+
     	
     	mLog.info(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
     }
@@ -191,16 +191,15 @@ public class SparkDDFManager extends DDFManager {
     String ddfSparkJar = params.get("DDFSPARK_JAR");
     String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
-    mJavaSharkContext = new JavaSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+    SparkConf conf = SparkUtils.createSparkConf(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
+       params.get("SPARK_HOME"), jobJars, params);
+    SharkContext context = SparkUtils.createSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
         params.get("SPARK_HOME"), jobJars, params);
+
+    mJavaSharkContext = new JavaSharkContext(context);
     this.setSharkContext(SharkEnv.initWithJavaSharkContext(mJavaSharkContext).sharkCtx());
 
-    //set up serialization from System property
-//	mSharkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
-//	mSparkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
-//  mLog.info(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
-
-  return this.getSparkContext();
+    return this.getSparkContext();
   }
   
   public DDF loadTable(String fileURL, String fieldSeparator) throws DDFException {
