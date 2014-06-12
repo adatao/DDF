@@ -48,6 +48,8 @@ define RSERVE_LIB_DIR "${RLIBS}/Rserve/libs/"
 define RSERVER_JAR "`find ${PA_HOME}/target/scala-*/ddf_pa_*.jar | grep -v tests`"
 define PA_PORT 7911
 SPARK_CLASSPATH=$RSERVER_JAR
+SPARK_CLASSPATH+=:"${PA_HOME}/../core/target/scala-2.10/ddf_core_2.10-0.9.jar"
+SPARK_CLASSPATH+=:"${PA_HOME}/../spark/target/scala-2.10/ddf_spark_2.10-0.9.jar"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/target/scala-2.9.3/lib/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/bundles/*"

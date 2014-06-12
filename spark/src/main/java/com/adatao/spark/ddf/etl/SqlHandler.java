@@ -122,7 +122,7 @@ public class SqlHandler extends ASqlHandler {
       }
     }
 
-    if (dataSource == null) {
+    if (dataSource == null || dataSource.equals("") || dataSource.length() < 1) {
       String sqlCmd;
 
       sqlCmd = String.format("CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"MEMORY_ONLY\") AS %s", tableName,
@@ -139,8 +139,11 @@ public class SqlHandler extends ASqlHandler {
       //TODO create sqlparser layer here
       List<String> columns = parseHbaseQuery(command.trim());
       String hbTableName = parseHbaseTable(command).trim();
-      SparkDDFManager currentManager = (SparkDDFManager)this.getManager();
-      return (currentManager.loadTable(hbTableName, columns));
+      
+//      SparkDDFManager currentManager = (SparkDDFManager)this.getManager();
+      SparkDDFManager currentManager = (SparkDDFManager)this.getDDF().getManager();
+      DDF ddf = currentManager.loadTable(hbTableName, columns);
+      return(ddf);
 //      // set SCAN in conf
 //      try {
 //        config.set(TableInputFormat.SCAN, convertScanToString(scan));

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -32,6 +33,7 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.util.DDFUtils;
 
 /**
  * An Apache-Spark-based implementation of DDFManager
@@ -400,16 +402,19 @@ public class SparkDDFManager extends DDFManager {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
     RDD<Tuple2<ImmutableBytesWritable, Result>> hBaseRDD = getSparkContext().newAPIHadoopRDD(config,
         TableInputFormat.class, ImmutableBytesWritable.class, Result.class);
     //convert to RDD[Row] or RDD[Array[Double]]
 //    RDD<double[]> result = convertRDD(hBaseRDD);
     RDD<Object[]> result = convertRDD2(hBaseRDD);
     
+//    generateObjectName(Object obj, String sourceName, String operation, String desiredName)
+    
     this.sql2txt("drop table if exists " + tableName);
     Schema schema = new Schema(tableName, columnsNameType); 
     DDF ddf =  new SparkDDF(this, result, Object[].class, "", tableName, schema);
+    String newname = "SparkDDF_spark_" + UUID.randomUUID().toString();
+    ddf.setName(newname);
     ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
     return ddf;
   }

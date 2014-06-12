@@ -36,6 +36,7 @@ import com.adatao.pa.spark.types.SuccessResult;
 @SuppressWarnings("serial")
 public class Sql2DataFrame extends CExecutor {
   String sqlCmd;
+  String dataSource = null;
   Boolean cache = true;
 
   public static Logger LOG = LoggerFactory.getLogger(Sql2DataFrame.class);
@@ -59,7 +60,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
     public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = (ddf.getName().length() > 15) ? ddf.getName().substring(15).replace("_", "-") : ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 
@@ -89,7 +90,7 @@ public class Sql2DataFrame extends CExecutor {
       // DataManager dm = sparkThread.getDataManager();
       // String dataContainerID = dm.add(df);
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.sql2ddf(sqlCmd);
+      DDF ddf = (dataSource == null) ? ddfManager.sql2ddf(sqlCmd) : ddfManager.sql2ddf(sqlCmd, null, dataSource); 
       String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
 
