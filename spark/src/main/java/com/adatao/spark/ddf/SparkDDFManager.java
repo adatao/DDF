@@ -199,8 +199,9 @@ public class SparkDDFManager extends DDFManager {
     //set up serialization from System property
 	mSharkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
 	mSparkContext.conf().set("spark.kryo.registrator", System.getProperty("spark.kryo.registrator", "com.adatao.spark.content.KryoRegistrator"));
-    
-	return this.getSparkContext();
+  mLog.info(">>>>>>>>>>>>> setting Kryo for mSharkContext: " + mSharkContext.conf().get("spark.kryo.registrator"));
+
+  return this.getSparkContext();
   }
   
   public DDF loadTable(String fileURL, String fieldSeparator) throws DDFException {
