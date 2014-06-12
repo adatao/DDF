@@ -357,7 +357,7 @@ public class SparkDDFManager extends DDFManager {
   }
   
   
-  // experiemntal stuffs
+  // Experimental stuffs
   public DDF loadTable(String tableName, List<String> columns) throws DDFException {
     // JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
     Configuration config = HBaseConfiguration.create();
@@ -367,12 +367,8 @@ public class SparkDDFManager extends DDFManager {
     config.set("hbase.master", "localhost:");
     // config.set("fs.defaultFS","hdfs://hostname1/");
     // config.set("dfs.namenode.rpc-address","localhost:8020");
-
     config.set(TableInputFormat.INPUT_TABLE, tableName);
-
-    
     String columnsNameType = "";
-    
     // init scan object
     Scan scan = new Scan();
     Iterator it = columns.iterator();
@@ -385,7 +381,6 @@ public class SparkDDFManager extends DDFManager {
         cf = c.split(":")[0];
         cq = c.split(":")[1];
         scan.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cq));
-        
         //convert to Shark table
         columnsNameType += cf + "_" + cq + " string" + ",";
       } else {
@@ -411,15 +406,11 @@ public class SparkDDFManager extends DDFManager {
     //convert to RDD[Row] or RDD[Array[Double]]
 //    RDD<double[]> result = convertRDD(hBaseRDD);
     RDD<Object[]> result = convertRDD2(hBaseRDD);
-    long a = result.count();
-    System.out.println(">>>> count table = " + a);
     
     this.sql2txt("drop table if exists " + tableName);
     Schema schema = new Schema(tableName, columnsNameType); 
-//    SparkDDF(DDFManager manager, RDD<?> rdd, Class<T> unitType, String namespace, String name, Schema schema)
     DDF ddf =  new SparkDDF(this, result, Object[].class, "", tableName, schema);
     ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
-    
     return ddf;
   }
   

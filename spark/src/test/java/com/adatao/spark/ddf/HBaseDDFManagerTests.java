@@ -23,10 +23,12 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.spark.rdd.RDD;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import shark.memstore2.TablePartition;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.Summary;
@@ -193,32 +195,30 @@ public class HBaseDDFManagerTests {
   public void testBasicStat() throws DDFException {
     try {
       Assert.assertEquals("spark", manager.getEngine());
-
-      DDF ddf = manager
-          .loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
+//      DDF ddf = manager.loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
+      DDF ddf = manager.sql2ddf("select cf:ap, cf:city, cf:id, cf:lat, cf:lon, cf:state from airport", null, "hbase");
       long nrow = ddf.getNumRows();
       System.out.println(">>>>>>>>>>> numrows = " + nrow);
       assert (nrow == 2);
+      
+//      System.out.println(">>>> ddf tableName = " + ddf.getSchema().getTableName() + "\t");
+//      List<Column> cols = ddf.getSchema().getColumns();
+//      java.util.Iterator<Column> it = cols.iterator();
+//      while (it.hasNext()) {
+//        Column c = it.next();
+//        System.out.println(">>>> <Column> = " + c.getName());
+//      }
 
-      System.out.println(">>>> ddf tableName = " + ddf.getSchema().getTableName() + "\t");
-
-      List<Column> cols = ddf.getSchema().getColumns();
-      java.util.Iterator<Column> it = cols.iterator();
-      while (it.hasNext()) {
-        Column c = it.next();
-        System.out.println(">>>> <Column> = " + c.getName());
-      }
-
-      // get summary
+//      // get summary
       Summary[] a = ddf.getSummary();
       assert (a != null);
       System.out.println(">>>>>> summmary =  " + a[0].toString());
-
-      // get fivenum summary, fail
-//      FiveNumSummary[] b = ddf.getFiveNumSummary();
-//      assert (b != null);
-
-      // load another ddf from Shark
+//
+//      // get fivenum summary, fail
+////      FiveNumSummary[] b = ddf.getFiveNumSummary();
+////      assert (b != null);
+//
+//      // load another ddf from Shark
       DDF sharkDdf = manager.sql2ddf("select origin from airline");
       long nrow1 = sharkDdf.getNumRows();
       assert (nrow1 == 31);

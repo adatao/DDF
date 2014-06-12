@@ -39,7 +39,7 @@ object CanConvertToTablePartition {
       try {
         rddTableFunction.saveAsTable(tableName, fields)
       } catch{
-        case e: Throwable => throw new DDFException("Error getting RDD[TablePartition]", e)
+        case e: Throwable => throw new DDFException("Error getting RDD[TablePartition] while saveAsTable :" + e.getMessage(),e )
       }
 
       val databaseName = Hive.get(SharkContext.hiveconf).getCurrentDatabase
@@ -51,7 +51,8 @@ object CanConvertToTablePartition {
         } catch {
           case e: Throwable => throw new DDFException("Error getting RDD[TablePartition]", e)
         }
-      } else {
+      } 
+      else {
         throw new DDFException("Error getting RDD[TablePartition]")
       }
     }
