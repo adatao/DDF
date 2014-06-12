@@ -32,26 +32,10 @@ public class BasicDDF extends DDF {
 
   protected static final BasicDDFManager sDummyBasicDDFManager = new BasicDDFManager();
 
-  // temporary solution for R user meetup
-  private IModel mInternalObject;
+
   private Class<?> mUnitType;
   @Expose private List<?> mData; // only needed during serialization
   @Expose private String mUnitTypeName; // only needed during serialization
-
-  //temporary solution for R user meetup
-  public BasicDDF(IModel model) throws DDFException{
-    mInternalObject = model;
-
-    Schema schema = new Schema(null, "model int");
-//    this.getSchemaHandler().setSchema(schema);
-//    this.setName(mInternalObject.getName());
-    Class<?>[] typeSpecs = {IModel.class};
-    this.initialize(this.getManager(), model, typeSpecs, this.getManager().getNamespace(), null, schema);
-    //hacking for R user meetup
-    //for consistency in pa ddf's name and datacontainerID
-    String name = this.getName().replace("BasicDDF_basic", "SparkDDF_spark");
-    this.setName(name);
-  }
 
   public BasicDDF(List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
     this((DDFManager) null, (List<?>) rows, unitType, namespace, name, schema);
@@ -115,48 +99,6 @@ public class BasicDDF extends DDF {
 
   public void setList(List<?> data, Class<?> rowType) {
     this.getRepresentationHandler().set(data, List.class, rowType);
-  }
-
-//  @Override
-//  public void setName(String name) {
-//    super.setName(name);
-//    this.mInternalObject.setName(name);
-//  }
-  // //// ISerializable //////
-  // hacking for R user meetup
-  public IModel deserialize() throws DDFException {
-    return this.mInternalObject;
-  }
-
-  @Override
-  public PersistenceUri persist(boolean doOverwrite) throws DDFException {
-    PersistenceUri uri = new PersistenceUri(this.getUri());
-
-    mLog.info(">>>>>> namespace = " + this.getNamespace());
-    mLog.info(">>>>>> uri = " + this.getUri());
-    String path =  System.getProperty("user.home") + "/" + uri.getPath();
-    try {
-      FileOutputStream fos = new FileOutputStream(path);
-      ObjectOutputStream oos = new ObjectOutputStream(fos);
-      mLog.info(">>>>> this.mInternal.getRawModel  = " + this.mInternalObject.getRawModel().getClass().toString());
-      oos.writeObject(this.mInternalObject);
-      oos.close();
-    } catch (Exception e) {
-      throw new DDFException("Error persisting object to disk, path = " + path, e);
-    }
-    return uri;
-//    if(this.mInternalObject == null) throw new DDFException("DDF cannot be null");
-//    PersistenceUri uri = new PersistenceUri(this.getUri());
-//    String path = System.getProperty("user.home") + "/" + uri.getPath();
-//    try{
-//      this.beforePersisting();
-//      Model model = (Model) this.mInternalObject;
-//      Utils.writeToFile(path, model.toJson());
-//      this.afterPersisting();
-//    } catch (Exception e) {
-//      throw new DDFException("Error persisting object to disk ", e);
-//    }
-//    return uri;
   }
 
   /**

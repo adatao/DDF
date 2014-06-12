@@ -103,33 +103,6 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 		return data;
 	}
 
-  // hacking for R user meetup
-  public DDF loadDDF(String uri) throws DDFException {
-    PersistenceUri persistenceUri = new PersistenceUri(uri);
-    String path = System.getProperty("user.home") + "/" + persistenceUri.getPath();
-    mLog.info(">>>>>>>>> path = " + path);
-    try{
-      FileInputStream fis = new FileInputStream(path);
-      ObjectInputStream ois = new ObjectInputStream(fis);
-      Object obj = ois.readObject();
-      mLog.info(">>>>>> obj.getClass = " + obj.getClass());
-      if(obj instanceof IModel) {
-        DDF newDDF = new BasicDDF((IModel) obj);
-        String name = persistenceUri.getPath().split("/")[1];
-        newDDF.setName(name);
-        return newDDF;
-      } else {
-        throw new DDFException("Error loading DDF from disk");
-      }
-    } catch (Exception e) {
-      throw new DDFException("Error loading DDF from disk",e);
-    }
-  }
-
-  // hacking for R user meetup
-  public DDF loadDDF(PersistenceUri persistenceUri) throws DDFException {
-      return this.loadDDF(persistenceUri.toString());
-  }
 
 	/*
 	 * aliasName is user-specified name
