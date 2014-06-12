@@ -18,11 +18,11 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  lazy val MAIN_SHARK_VERSION = "0.9.1"
+  lazy val MAIN_SHARK_VERSION = "0.9.2"
   lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
   else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
 
-  lazy val MAIN_SPARK_VERSION = "0.9.1"
+  lazy val MAIN_SPARK_VERSION = "0.9.2"
   lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
   else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
 
@@ -132,7 +132,7 @@ object RootBuild extends Build {
 //    "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
     //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
     //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "com.novocode" % "junit-interface" % "0.9" % "test",
+    "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
@@ -204,14 +204,14 @@ object RootBuild extends Build {
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
       //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
-      "com.novocode" % "junit-interface" % "0.9" % "test",
+      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
+      "com.novocode" % "junit-interface" % "0.10" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
       "org.easymock" % "easymock" % "3.1" % "test",
-      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+      //"edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
       "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
@@ -263,8 +263,12 @@ object RootBuild extends Build {
     dependencyOverrides += "org.scala-lang" % "scala-compiler" % "2.10.3",
     dependencyOverrides += "io.netty" % "netty" % "3.6.6.Final",
     dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
-
-    
+    dependencyOverrides += "commons-codec" % "commons-codec" % "1.4",
+    dependencyOverrides += "org.scala-lang" % "scala-actors" % "2.10.1",
+    dependencyOverrides += "org.scala-lang" % "scala-library" %"2.10.3",
+    dependencyOverrides += "org.scala-lang" % "scala-reflect" %"2.10.3",
+    dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
+    dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     pomExtra := (
       <!--
       **************************************************************************************************
