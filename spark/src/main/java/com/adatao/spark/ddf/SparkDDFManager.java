@@ -191,8 +191,6 @@ public class SparkDDFManager extends DDFManager {
     String ddfSparkJar = params.get("DDFSPARK_JAR");
     String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
-    SparkConf conf = SparkUtils.createSparkConf(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
-       params.get("SPARK_HOME"), jobJars, params);
     SharkContext context = SparkUtils.createSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
         params.get("SPARK_HOME"), jobJars, params);
 
