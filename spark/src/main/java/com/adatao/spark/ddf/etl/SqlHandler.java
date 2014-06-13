@@ -137,12 +137,14 @@ public class SqlHandler extends ASqlHandler {
       isHBase = true;
       //parse sql to List<String> columns
       //TODO create sqlparser layer here
-      List<String> columns = parseHbaseQuery(command.trim());
-      String hbTableName = parseHbaseTable(command).trim();
+      command = command.trim();
+      List<String> columns = parseHbaseQuery(command);
+      String hbTableName = parseHbaseTable(command);
+      String filter = parseFilter(command);
       
 //      SparkDDFManager currentManager = (SparkDDFManager)this.getManager();
       SparkDDFManager currentManager = (SparkDDFManager)this.getDDF().getManager();
-      DDF ddf = currentManager.loadTable(hbTableName, columns);
+      DDF ddf = currentManager.loadTable(hbTableName, columns, filter);
       return(ddf);
 //      // set SCAN in conf
 //      try {
@@ -203,9 +205,21 @@ public class SqlHandler extends ASqlHandler {
   }
   
   private String parseHbaseTable(String command) {
-    command = command.toLowerCase();
-    String tableName = command.substring(command.indexOf("from") + 4, command.length());
+    command = command.toLowerCase().trim();
+    String filter = "";
+    if(command.contains("where")) {
+      command = command.substring(0, command.indexOf("where")-1);
+    }
+    String tableName = command.substring(command.indexOf("from") + 4, command.length()).trim();
     return tableName;
+  }
+  private String parseFilter(String command) {
+    command = command.toLowerCase();
+    String filter = "";
+    if(command.contains("where")) {
+      filter = command.substring(command.indexOf("where")+4, command.length());
+    }
+    return filter;
   }
   
 

@@ -16,6 +16,9 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
 import org.apache.hadoop.hbase.util.Base64;
@@ -360,7 +363,7 @@ public class SparkDDFManager extends DDFManager {
   
   
   // Experimental stuffs
-  public DDF loadTable(String tableName, List<String> columns) throws DDFException {
+  public DDF loadTable(String tableName, List<String> columns, String filter) throws DDFException {
     // JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
     Configuration config = HBaseConfiguration.create();
     // config.set("hbase.zookeeper.znode.parent", "hostname1");
@@ -391,9 +394,34 @@ public class SparkDDFManager extends DDFManager {
         columnsNameType += " " + cf + " string" + ",";
       }
     }
+    if(!filter.equals("")) {
+      String whereColumn = getProjectionColumn(filter, columns);
+      if(!whereColumn.equals("")) {
+        String wherecf = whereColumn.split(":")[0];
+        String wherecq = whereColumn.split(":")[1];
+        CompareOp op = getOperator(filter);
+        String wherevalue = getValue(filter, whereColumn, op);
+        
+        System.out.println(">>>>>>>>> wherecf =" + wherecf);
+        System.out.println(">>>>>>>>> wherecq =" + wherecq);
+        System.out.println(">>>>>>>>> wherevalue =" + wherevalue);
+        System.out.println(">>>>>>>>> op =" + op);
+        
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+        SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
+          Bytes.toBytes(wherecf),
+          Bytes.toBytes(wherecq),
+          op,
+          Bytes.toBytes(wherevalue)
+          );
+        list.addFilter(filter1);
+        scan.setFilter(list);
+      }
+
+    }
+    
     //remove last comma
     if(columnsNameType.contains(",")) columnsNameType = columnsNameType.substring(0, columnsNameType.length()-1);
-    
     System.out.println(">>>>>>>.columnsNameType=" + columnsNameType);
     // set SCAN in conf
     try {
@@ -419,6 +447,35 @@ public class SparkDDFManager extends DDFManager {
     return ddf;
   }
   
+  private String getValue(String filter, String whereColumn, CompareOp op) {
+    String value = "";
+    if(op == CompareOp.EQUAL) value = filter.substring(filter.indexOf("=")+1, filter.length());
+    if(op == CompareOp.GREATER) value = filter.substring(filter.indexOf(">")+1, filter.length());
+    if(op == CompareOp.LESS) value = filter.substring(filter.indexOf("<")+1, filter.length());
+    return value;
+  }
+
+  private CompareOp getOperator(String filter) {
+    if(filter.contains("=")) return CompareOp.EQUAL;
+    if(filter.contains(">")) return CompareOp.GREATER;
+    if(filter.contains("<")) return CompareOp.LESS;
+    return null;
+  }
+
+  private String getProjectionColumn(String filter, List<String> columns) {
+    Iterator it = columns.iterator();
+    String c = "";
+    String cf = "";
+    String cq = "";
+    while (it.hasNext()) {
+      c = (String) it.next();
+      if(filter.contains(c)) {
+        return c;
+      }
+    }
+    return "";
+  }
+
   public RDD<double[]> convertRDD(RDD<Tuple2<ImmutableBytesWritable, Result>> hbaseRDD) {
     RDD<double[]> result = hbaseRDD.map(new ConvertMapper(), null);
     return result;
