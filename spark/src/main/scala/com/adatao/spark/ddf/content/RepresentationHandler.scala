@@ -20,12 +20,15 @@ import org.apache.hadoop.io.{ Text, IntWritable }
 import org.apache.hadoop.hive.serde2.io.DoubleWritable
 import com.adatao.ddf._
 import com.adatao.ddf.types.{ TupleMatrixVector, Vector, Matrix }
-
 import java.util.ArrayList
 import com.adatao.spark.ddf.ml.TransformRow
-
 import com.adatao.ddf.content.Schema._
 import com.adatao.ddf.content.Schema.DummyCoding
+import shark.api.Row
+import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector
+import org.apache.hadoop.hive.serde2.`lazy`.objectinspector.LazySimpleStructObjectInspector
+import shark.execution.serialization.KryoSerializer
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector
 
 /**
  * RDD-based SparkRepresentationHandler
@@ -118,6 +121,22 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
     val arraysObject = this.get(classOf[RDD[_]], classOf[Array[Object]]).asInstanceOf[RDD[Array[Object]]]
     if (arraysObject != null) {
+      arraysObject.map {
+        arrayObject => {
+//          var colname2indexMap = new scala.util.MMap[String, Int]();
+          var oi = initObjectInspector()//new LazySimpleStructObjectInspector (null,null,null,null.asInstanceOf[byte],false,false, false, null)
+          var lst = mDDF.getSchema().getColumns()
+          var it = lst.iterator();
+          var i = 0;
+          while(it.hasNext()) {
+            val col = it.next
+            colname2indexMap.put(col.getName(), i);
+            i += 1
+          }
+//          (val rawdata: Any, val colname2indexMap: Map[String, Int], val oi: StructObjectInspector)
+          var row = new shark.api.Row(arrayObject, colname2indexMap, oi)
+        }
+      }
       return null // TODO
     }
 
@@ -132,6 +151,25 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     }
 
     null.asInstanceOf[RDD[Row]]
+  }
+  
+  /**
+   * Maps the column name to column index.
+   */
+  private val colname2indexMap: Map[String, Int] =
+    collection.immutable.Map() ++ mDDF.getSchema().getColumns().zipWithIndex.map { case(column, index) =>
+      (column.getName(), index)
+    }
+  
+  private def initObjectInspector(): StructObjectInspector = {
+    val serializedObjectInspector: Array[Byte] = null//KryoSerializer.serialize(oi)
+    val oi = KryoSerializer.deserialize[ObjectInspector](serializedObjectInspector)
+    val classTags = columns.map{col =>  getClassTagFromColumnType(col.getType)}
+    val ois = classTags.map(HiveUtils.getJavaPrimitiveObjectInspector)
+    oi match {
+      case soi: StructObjectInspector => soi
+      case _ => throw new Exception("Only basic StructObjectInspector is supposed.")
+    }
   }
 
   /**
