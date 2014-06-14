@@ -57,20 +57,19 @@ class LogisticRegression(
     // this is costly
     val schema = ddf.getSchema()
 
+    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
+    columnList.add(schema.getColumn(yCol).getName)
+    val projectDDF = ddf.Views.project(columnList)
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    ddf.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectDDF.getSchema().generateDummyCoding()
 
-    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    val numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-    //
-    //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    //    columnList.add(schema.getColumn(yCol).getName)
-    //    val projectDDF = ddf.Views.project(columnList)
 
-    val logisticModel = ddf.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
