@@ -15,5 +15,4 @@ public interface IModel {
   public String getName();
 
   public void setName(String name);
-
 }

@@ -16,11 +16,15 @@
  */
 package com.adatao.ddf;
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.adatao.basic.ddf.BasicDDF;
 import scala.tools.jline.internal.Log;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -101,6 +105,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager,
 		DDF data = mDDFs.get(ddfName);
 		return data;
 	}
+
 
 	/*
 	 * aliasName is user-specified name
