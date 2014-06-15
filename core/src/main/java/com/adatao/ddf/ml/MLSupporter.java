@@ -109,7 +109,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     Object rawModel = trainMethod.classInvoke(allArgs);
     IModel model = new  Model(rawModel);
     this.getManager().addModel(model);
-    return new Model(rawModel);
+    return model;
   }
 
 

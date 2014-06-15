@@ -2,8 +2,13 @@ package com.adatao.ddf.ml;
 
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
+import com.adatao.ddf.types.TJsonSerializable;
+import com.adatao.ddf.types.TJsonSerializable$class;
+import com.google.gson.Gson;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.ml.MLClassMethods.PredictMethod;
 
@@ -17,6 +22,8 @@ public class Model implements IModel, Serializable {
   private Object mRawModel;
 
   private String mName;
+
+//  private String mclazz;
 
   public Model(Object rawModel) {
     mRawModel = rawModel;
@@ -62,5 +69,12 @@ public class Model implements IModel, Serializable {
           .getName()));
     }
 
+  }
+
+  @Override
+  public String toString() {
+
+    Gson gson = new Gson();
+    return gson.toJson(this.mRawModel);
   }
 }
