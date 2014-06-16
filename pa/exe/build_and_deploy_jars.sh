@@ -8,6 +8,8 @@
 export PA_HOME="$(cd `dirname ${BASH_SOURCE[0]}`/../ >/dev/null 2>&1; echo $PWD)"
 export DDF_HOME=${PA_HOME}/../
 
+echo PA_HOME=$PA_HOME
+echo DDF_HOME=$DDF_HOME
 echo "# running bin/sbt clean compile package #"
 cd $DDF_HOME
 bin/sbt clean compile package
