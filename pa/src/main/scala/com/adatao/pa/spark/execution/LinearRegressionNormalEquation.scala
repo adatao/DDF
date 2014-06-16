@@ -70,14 +70,12 @@ class LinearRegressionNormalEquation(
     val schema = projectDDF.getSchema()
     
     projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    println(">>>>>>>>> projectDDF dummy coding")
     projectDDF.getSchemaHandler().generateDummyCoding()
 
     //plus bias term
     var numFeatures = xCols.length + 1
     if (projectDDF.getSchema().getDummyCoding() != null) {
       numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
-      println(">>>>>> train numFeatures = " + numFeatures)
       projectDDF.getSchema().getDummyCoding().toPrint()
     }
       
