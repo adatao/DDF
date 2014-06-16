@@ -68,11 +68,12 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RDD_MATRIX_VECTOR ⇒ {
 
         //must invoke generate dummy coding explicitly, AGAIN
-        //         mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-        //        mDDF.getSchemaHandler().generateDummyCoding() //generateDummyCoding(schema)
-        //        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-        //        mDDF.getSchema().generateDummyCoding
+        println(">>>>RH mDDF schema number of columns " + mDDF.getSchema().getNumColumns()) 
+        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+        mDDF.getSchemaHandler().generateDummyCoding() //generateDummyCoding(schema)
+//        mDDF.getSchema().generateDummyCoding
         val dummyCoding = mDDF.getSchema().getDummyCoding()
+        require(dummyCoding != null)
         rowsToMatrixVectorRDD(srcRdd, schemaHandler.getNumColumns, dummyCoding)
       }
       case _ ⇒ throw new DDFException(String.format("TypeSpecs %s not supported. It must be one of:\n - %s\n - %s\n - %s\n - %s\n -%s\n - %s\n - %s",
@@ -345,8 +346,7 @@ object RepresentationHandler {
           X.put(row, columnIndex + paddingBiasIndex, newValue) // x-feature #i
           columnIndex += 1
           newValue = -1.0 // TODO: dirty and quick fix, need proper review
-        }
-        //TODO handle it more gracefully
+        } //TODO handle it more gracefully
         else {
           X.put(row, columnIndex + paddingBiasIndex, 0) // x-feature #i
         }
@@ -360,7 +360,7 @@ object RepresentationHandler {
       }
 
       //TODO need to handle this as in na.action
-      if (skipRowBecauseNullCell) 
+      if (skipRowBecauseNullCell)
         Y.put(row, 0) // y-value
       else Y.put(row, inputRow(numCols - 1).toString().toDouble) // y-value
 

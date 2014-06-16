@@ -54,20 +54,17 @@ class LinearRegression(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
 
-    //get projection
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col ← xCols) columnList.add(ddf.getSchema().getColumn(col).getName)
-    val projectedDDF = ddf.Views.project(columnList)
-    
+    //project first
+    val projectedDDF = project(ddf)
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     projectedDDF.getSchema().generateDummyCoding()
-    //invoke generate dummy coding explicitly
-    projectedDDF.getSchema().generateDummyCoding()
-    
 
-    val numFeatures = projectedDDF.getSchema().getDummyCoding().getNumberFeatures
+    //plus bias term
+    var numFeatures: Integer= xCols.length + 1
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      numFeatures = projectedDDF.getSchema().getDummyCoding().getNumberFeatures
 
     // project the xCols, and yCol as a new DDF
     // this is costly
@@ -75,7 +72,13 @@ class LinearRegression(
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
-    val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, ddf.getNumRows())
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      rawModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
+
+    val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, projectedDDF.getNumRows())
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      paModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
+
     ddfManager.addModel(model)
     paModel.ddfModel = model
     return paModel

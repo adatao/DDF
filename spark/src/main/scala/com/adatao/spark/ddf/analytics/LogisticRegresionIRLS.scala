@@ -7,6 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
 import org.jblas.Solve
+import java.util.HashMap
 
 class LogisticRegresionIRLS {
 
@@ -228,6 +229,11 @@ class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDevianc
 
   def getStdErrs(): Vector = {
     return stderrs;
+  }
+  
+  var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
+  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+    dummyColumnMapping = _mapping
   }
 
 }
