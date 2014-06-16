@@ -35,7 +35,6 @@ import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
-import com.adatao.ddf.content.IHandleMissingData;
 import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -45,6 +44,7 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleMissingData;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
@@ -921,11 +921,17 @@ public abstract class DDF extends ALoggable //
   
   // IHandleTransformations
 
-
   // Transformations
 
   public TransformFacade Transform;
   
+  public DDF dropNA() throws DDFException {
+    return this.getMissingDataHandler().dropNA(0, "any", 0, null, false);
+  }
+  
+  public DDF updateInplace(DDF result) throws DDFException {
+    return this.getMutabilityHandler().updateInplace(result);
+  }
 
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {
