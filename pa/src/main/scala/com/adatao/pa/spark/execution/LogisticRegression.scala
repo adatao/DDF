@@ -53,27 +53,28 @@ class LogisticRegression(
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
+
+    val projectDDF = project(ddf)
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val schema = ddf.getSchema()
-
+    val schema = projectDDF.getSchema()
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    ddf.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectDDF.getSchema().generateDummyCoding()
 
-    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    var numFeatures: Integer = xCols.length + 1
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-    //
-    //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    //    columnList.add(schema.getColumn(yCol).getName)
-    //    val projectDDF = ddf.Views.project(columnList)
 
-    val logisticModel = ddf.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
-
+    val logisticModel = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
     // converts DDF model to old PA model
     val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+
     val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
     ddfManager.addModel(logisticModel)
     paModel.ddfModel = logisticModel

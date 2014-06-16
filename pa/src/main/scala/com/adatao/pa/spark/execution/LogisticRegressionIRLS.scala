@@ -74,27 +74,39 @@ class LogisticRegressionIRLS(
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
 
+    val projectDDF = project(ddf)
+    // project the xCols, and yCol as a new DDF
+    // this is costly
+    val schema = projectDDF.getSchema()
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    ddf.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectDDF.getSchema().generateDummyCoding()
 
     //including bias term or intercept
-    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
-    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
+    var numFeatures: Integer = xCols.length + 1
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
     try {
 
-      val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+      val regressionModel = projectDDF.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
 
       //      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
       //    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
 
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        model.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+
       //excluding intercept, bias term
-      val modelFeatures = numFeatures.longValue() - 1 
-      return new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
+      val modelFeatures = numFeatures.longValue() - 1
+      val pamodel = new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        pamodel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+
+      pamodel
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
@@ -113,4 +125,7 @@ class LogisticRegressionIRLS(
 
 class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long, val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
   override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
+  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+    dummyColumnMapping = _mapping
+  }
 }

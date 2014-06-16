@@ -17,11 +17,14 @@
 package com.adatao.ddf;
 
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.adatao.basic.ddf.BasicDDF;
 import scala.tools.jline.internal.Log;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -98,6 +101,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     DDF data = mDDFs.get(ddfName);
     return data;
   }
+
 
   /*
    * aliasName is user-specified name This name is ephemeral in the sense that it existed in cluster memory and will be

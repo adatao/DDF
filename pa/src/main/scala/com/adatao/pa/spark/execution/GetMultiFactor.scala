@@ -18,8 +18,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.ML.Utils
 
 /**
- * Created with IntelliJ IDEA.
- * User: daoduchuan
+
  *
  */
 class GetMultiFactor(dataContainerID: String,

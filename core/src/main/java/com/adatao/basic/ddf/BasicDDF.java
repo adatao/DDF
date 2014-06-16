@@ -4,17 +4,23 @@
 package com.adatao.basic.ddf;
 
 
+import java.io.*;
 import java.util.List;
 import com.adatao.basic.ddf.content.PersistenceHandler.BasicPersistible;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.content.APersistenceHandler;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.ml.IModel;
+import com.adatao.ddf.ml.Model;
+import com.adatao.ddf.util.Utils;
 import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 
 /**
  * An implementation of DDF with local memory and local storage
@@ -30,7 +36,6 @@ public class BasicDDF extends DDF {
   private Class<?> mUnitType;
   @Expose private List<?> mData; // only needed during serialization
   @Expose private String mUnitTypeName; // only needed during serialization
-
 
   public BasicDDF(List<?> rows, Class<?> unitType, String namespace, String name, Schema schema) throws DDFException {
     this((DDFManager) null, (List<?>) rows, unitType, namespace, name, schema);
@@ -95,11 +100,6 @@ public class BasicDDF extends DDF {
   public void setList(List<?> data, Class<?> rowType) {
     this.getRepresentationHandler().set(data, List.class, rowType);
   }
-
-
-
-  // //// ISerializable //////
-
 
   /**
    * Override to snapshot our List<?> into a local variable for serialization

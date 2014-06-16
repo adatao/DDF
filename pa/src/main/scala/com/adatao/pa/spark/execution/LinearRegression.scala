@@ -54,23 +54,31 @@ class LinearRegression(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
 
+    //project first
+    val projectedDDF = project(ddf)
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    ddf.getSchema().generateDummyCoding()
+    projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectedDDF.getSchema().generateDummyCoding()
 
-    //invoke generate dummy coding explicitly
-    ddf.getSchema().generateDummyCoding()
-
-    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    //plus bias term
+    var numFeatures: Integer= xCols.length + 1
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      numFeatures = projectedDDF.getSchema().getDummyCoding().getNumberFeatures
 
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val model = ddf.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights, numFeatures)
+    val model = projectedDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights, numFeatures)
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
-    val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, ddf.getNumRows())
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      rawModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
+
+    val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, projectedDDF.getNumRows())
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      paModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
+
     ddfManager.addModel(model)
     paModel.ddfModel = model
     return paModel
