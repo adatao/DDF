@@ -30,10 +30,7 @@ public class Model implements IModel, Serializable {
 
   private String mName;
 
-//  private String mclazz;
-  public Model() {
-
-  }
+  private String mClass = this.getClass().getName(); //for serialization
 
   public Model(Object rawModel) {
     mRawModel = rawModel;
@@ -160,10 +157,9 @@ public class Model implements IModel, Serializable {
       throw new DDFException("");
     }
 
-    //JsonObject jsonObject = new JsonObject();
     List<String> listJson = new ArrayList<String>();
-    for(int i = 0; i < metaData.size(); i++) {
 
+    for(int i = 0; i < metaData.size(); i++) {
       String key = metaData.get(i);
       String value = data.get(i);
       listJson.add(String.format("\"%s\":%s",key, value));
@@ -182,6 +178,12 @@ public class Model implements IModel, Serializable {
       if (jElement instanceof JsonObject)  {
         JsonObject jsonObj = (JsonObject) jElement;
         try {
+          String clazz = jsonObj.get("mClass").getAsString();
+
+          if(!clazz.equals(Model.class.getName())) {
+            return null;
+          }
+
           Class<?> rawModelClass = Class.forName(jsonObj.get("mRawModelClass").getAsString());
           Object rawModel = _gson.fromJson(jsonObj.get("mRawModel"), rawModelClass);
           jsonObj.remove("mRawModel");
