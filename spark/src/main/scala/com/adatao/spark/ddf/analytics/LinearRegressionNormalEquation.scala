@@ -27,6 +27,7 @@ import org.jblas.exceptions.LapackSingularityException
 import org.jblas.exceptions.LapackException
 import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
+import com.adatao.ddf.content.Schema.DummyCoding
 
 /**
  * Author: NhanVLC
@@ -212,6 +213,14 @@ class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss:
   val sst: Double, val stdErrs: Vector,
   numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) {
   def predict(features: Vector): Double = 0
+  
+  var dc: DummyCoding = null
+  def setDummy(_dc: DummyCoding) {
+    dc = _dc
+  }
+  def getDummy(): DummyCoding = {
+    return dc;
+  }
 }
 
 class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: Long, var x4: Double, var x5: Double, var x6: DoubleMatrix, var x7: Long) extends Serializable {

@@ -41,7 +41,6 @@ import org.apache.spark.api.java.JavaRDD
 import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 import java.util.ArrayList
-
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.ML.LinearRegressionModel
@@ -66,30 +65,27 @@ class LinearRegressionNormalEquation(
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    // project the xCols, and yCol as a new DDF
-    // this is costly
-    val schema = ddf.getSchema()
-
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    columnList.add(schema.getColumn(yCol).getName)
-    val projectDDF = ddf.Views.project(columnList)
+    //project first
+    val projectDDF = project(ddf)
+    val schema = projectDDF.getSchema()
     
-    //call dummy coding explicitly
-    //make sure all input ddf to algorithm MUST have schema
     projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().generateDummyCoding()
 
-    val numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+    //plus bias term
+    var numFeatures = xCols.length + 1
+    if (projectDDF.getSchema().getDummyCoding() != null) {
+      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+      projectDDF.getSchema().getDummyCoding().toPrint()
+    }
+      
     val numRows = projectDDF.getNumRows()
-//    println(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-//    println(">>>>>>>>>>>>>> LogisticRegressionIRLS ddf.getSchema().getDummyCoding() = " + ddf.getSchema().getDummyCoding().toPrint())
-
-    // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
-    // new LinearRegressionModel(weights, trainingLosses, numSamples)
     val model = projectDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      rawModel.setDummy(projectDDF.getSchema().getDummyCoding())
+
     val itr = rawModel.weights.iterator
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
@@ -99,7 +95,11 @@ class LinearRegressionNormalEquation(
     LOG.info(paModel.weights.toJson)
     LOG.info(paModel.toString)
     LOG.info(rawModel.toString)
+
     val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      myModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+
     LOG.info(myModel.toString)
     ddfManager.addModel(model)
     // paModel.ddfModel = model

@@ -195,6 +195,8 @@ public class Schema implements Serializable {
 			int currentColumnIndex = this.getColumnIndex(currentColumn.getName());
 			HashMap<String, java.lang.Double> temp = new HashMap<String, java.lang.Double>();
 			// loop
+			System.out.println(">>>>>>>>> looping inside generate dc: " + currentColumn.getName() + "\t" + currentColumn.getColumnClass() );
+			
 			if (currentColumn.getColumnClass() == ColumnClass.FACTOR) {
 			  
 			  System.out.println(">>>>>>>>>>>> generateDummyCoding currentColumn\t" + currentColumn.getName() + "\t" + currentColumn.getColumnClass());
@@ -547,7 +549,7 @@ public class Schema implements Serializable {
 	}
 
 	public static class DummyCoding implements Serializable {
-		private HashMap<Integer, HashMap<String, Double>> mapping = new HashMap<Integer, HashMap<String, Double>>();
+		private HashMap<Integer, HashMap<String, java.lang.Double>> mapping = new HashMap<Integer, HashMap<String, java.lang.Double>>();
 		private Integer numDummyCoding;
 		public int[] xCols;
 		private Integer numberFeatures = 0;
@@ -567,11 +569,11 @@ public class Schema implements Serializable {
 		  }
 		}
 
-		public HashMap<Integer, HashMap<String, Double>> getMapping() {
+		public HashMap<Integer, HashMap<String, java.lang.Double>> getMapping() {
 			return mapping;
 		}
 
-		public void setMapping(HashMap<Integer, HashMap<String, Double>> mapping) {
+		public void setMapping(HashMap<Integer, HashMap<String, java.lang.Double>> mapping) {
 			this.mapping = mapping;
 		}
 

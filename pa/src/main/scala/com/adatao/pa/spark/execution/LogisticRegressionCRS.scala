@@ -72,25 +72,32 @@ class LogisticRegressionCRS(
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
 
-      val schema = ddf.getSchema()
-
-      var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-      for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-      columnList.add(schema.getColumn(yCol).getName)
-      val projectDDF = ddf.Views.project(columnList)
+      val projectDDF = project(ddf)
+      // project the xCols, and yCol as a new DDF
+      // this is costly
+      val schema = projectDDF.getSchema()
       //call dummy coding explicitly
       //make sure all input ddf to algorithm MUST have schema
       projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
       projectDDF.getSchema().generateDummyCoding()
 
-      val numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
-      println(">>>>>>>>>>>>>> LogisticRegressionCRS numFeatures = " + numFeatures)
+      var numFeatures: Integer = xCols.length + 1
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
       val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
       val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
+      //TODO need to move this to spark layer
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        model.setDummy(projectDDF.getSchema().getDummyCoding())
+
+      //set dummyCoding for PA model
       val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        glm.setMapping(model.getDummy().getMapping())
+
       return (glm)
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
