@@ -1,17 +1,12 @@
 package com.adatao.spark.ddf.etl;
 
-import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.Summary;
-import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
-import com.google.common.collect.Lists;
 
 public class MissingDataHandlerTest {
   private DDFManager manager;
@@ -34,7 +29,7 @@ public class MissingDataHandlerTest {
         + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','");
 
     manager.sql2txt("load data local inpath '../resources/test/airlineWithNA.csv' into table airline");
-    ddf = manager.sql2ddf("select year, month, dayofweek, deptime, arrtime, distance, arrdelay, depdelay from airline");
+    ddf = manager.sql2ddf("select * from airline");
   }
 
   @Test
