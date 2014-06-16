@@ -195,7 +195,7 @@ public class Schema implements Serializable {
 			int currentColumnIndex = this.getColumnIndex(currentColumn.getName());
 			HashMap<String, java.lang.Double> temp = new HashMap<String, java.lang.Double>();
 			// loop
-			System.out.println(">>>>>>>>> looping inside generate dc");
+			System.out.println(">>>>>>>>> looping inside generate dc: " + currentColumn.getName() + "\t" + currentColumn.getColumnClass() );
 			
 			if (currentColumn.getColumnClass() == ColumnClass.FACTOR) {
 			  

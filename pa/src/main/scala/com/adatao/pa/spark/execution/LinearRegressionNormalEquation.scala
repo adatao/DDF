@@ -41,7 +41,6 @@ import org.apache.spark.api.java.JavaRDD
 import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 import java.util.ArrayList
-
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.ML.LinearRegressionModel
@@ -69,9 +68,10 @@ class LinearRegressionNormalEquation(
     //project first
     val projectDDF = project(ddf)
     val schema = projectDDF.getSchema()
-    projectDDF.getSchemaHandler().computeFactorLevelsAndLevelCounts()
+    
+    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     println(">>>>>>>>> projectDDF dummy coding")
-    projectDDF.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().generateDummyCoding()
 
     //plus bias term
     var numFeatures = xCols.length + 1
@@ -80,8 +80,6 @@ class LinearRegressionNormalEquation(
       println(">>>>>> train numFeatures = " + numFeatures)
       projectDDF.getSchema().getDummyCoding().toPrint()
     }
-      
-    
       
     val numRows = projectDDF.getNumRows()
     val model = projectDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)

@@ -67,11 +67,6 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
       case RH.NATIVE_TABLE ⇒ rowsToNativeTable(mDDF, srcRdd, numCols)
       case RDD_MATRIX_VECTOR ⇒ {
 
-        //must invoke generate dummy coding explicitly, AGAIN
-        println(">>>>RH mDDF schema number of columns " + mDDF.getSchema().getNumColumns()) 
-        mDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-        mDDF.getSchemaHandler().generateDummyCoding() //generateDummyCoding(schema)
-//        mDDF.getSchema().generateDummyCoding
         val dummyCoding = mDDF.getSchema().getDummyCoding()
         require(dummyCoding != null)
         rowsToMatrixVectorRDD(srcRdd, schemaHandler.getNumColumns, dummyCoding)
