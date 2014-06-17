@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import com.adatao.ddf.exception.DDFException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -152,7 +154,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    *           , {@link IOException}
    */
   @Override
-  public Configuration loadConfig() throws ConfigurationException, IOException {
+  public Configuration loadConfig() throws ConfigurationException, IOException, DDFException {
 
     Configuration resultConfig = new Configuration();
 
@@ -201,7 +203,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    * @return
    * @throws IOException
    */
-  private String locateConfigFileName(String configDir, String configFileName) throws IOException {
+  private String locateConfigFileName(String configDir, String configFileName) throws IOException, DDFException {
     String curDir = new File(".").getCanonicalPath();
 
     String path = null;
