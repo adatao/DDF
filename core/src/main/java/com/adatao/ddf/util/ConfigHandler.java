@@ -154,7 +154,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    *           , {@link IOException}
    */
   @Override
-  public Configuration loadConfig() throws ConfigurationException, IOException, DDFException {
+  public Configuration loadConfig() throws ConfigurationException, IOException {
 
     Configuration resultConfig = new Configuration();
 
@@ -203,7 +203,7 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
    * @return
    * @throws IOException
    */
-  private String locateConfigFileName(String configDir, String configFileName) throws IOException, DDFException {
+  private String locateConfigFileName(String configDir, String configFileName) throws IOException {
     String curDir = new File(".").getCanonicalPath();
 
     String path = null;

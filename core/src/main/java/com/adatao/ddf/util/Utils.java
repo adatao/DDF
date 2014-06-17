@@ -135,15 +135,11 @@ public class Utils {
    * @param path
    * @return true if "path" exists and is a file (and not a directory)
    */
-  public static boolean fileExists(String path) throws DDFException {
+  public static boolean fileExists(String path) throws IOException {
     Configuration configuration = new Configuration();
-    try {
-      FileSystem fileSystem = FileSystem.get(configuration);
-      Path filePath = new Path(path);
-      return (fileSystem.exists(filePath));
-    } catch(Exception e) {
-      throw new DDFException(e);
-    }
+    FileSystem fileSystem = FileSystem.get(configuration);
+    Path filePath = new Path(path);
+    return (fileSystem.exists(filePath));
   }
 
   /**
