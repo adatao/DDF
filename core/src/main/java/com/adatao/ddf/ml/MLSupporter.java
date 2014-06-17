@@ -109,12 +109,13 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     
     // Invoke the training method
     Object rawModel = trainMethod.classInvoke(allArgs);
-    List<String> trainedColumns = new ArrayList<String>();
+
 
     List<Schema.Column> columns = this.getDDF().getSchemaHandler().getColumns();
+    String[] trainedColumns = new String[10];
 
-    for(Schema.Column col: columns) {
-      trainedColumns.add(col.getName());
+    for(int i = 0; i < columns.size();  i++) {
+      trainedColumns[i] = columns.get(i).getName();
     }
 
     for(String col: trainedColumns) {
@@ -122,7 +123,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     }
 
     IModel model = new  Model(rawModel);
-    model.setTrainedColumns(trainedColumns.toArray(new String[trainedColumns.size()]));
+    model.setTrainedColumns(trainedColumns);
     this.getManager().addModel(model);
     return model;
   }
