@@ -117,6 +117,10 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
       trainedColumns.add(col.getName());
     }
 
+    for(String col: trainedColumns) {
+      mLog.info(">>>>>> trainedCol = " + col);
+    }
+
     IModel model = new  Model(rawModel);
     model.setTrainedColumns(trainedColumns.toArray(new String[trainedColumns.size()]));
     this.getManager().addModel(model);
