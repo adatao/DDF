@@ -22,7 +22,7 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
     rawModel match {
       case kmeansModel if kmeansModel.isInstanceOf[KmeansModel] => {
         //LOG.info(">>>>>> model.getTrainedColumns = " + model.getTrainedColumns.mkString(", "))
-        new LoadModelResult(kmeansModel.asInstanceOf[KmeansModel].trainedColumns, rawModel, rawModel.getClass.toString)
+        new LoadModelResult(model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
       case nqModel if nqModel.isInstanceOf[NQLinearRegressionModel] => {
         new LoadModelResult(model.getTrainedColumns, rawModel, "NQLinearRegression")
