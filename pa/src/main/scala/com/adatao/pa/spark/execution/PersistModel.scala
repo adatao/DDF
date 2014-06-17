@@ -9,7 +9,7 @@ class PersistModel(modelID: String) extends AExecutor[String] {
     val manager = ctx.sparkThread.getDDFManager;
     val model = manager.getModel(modelID)
     val trainedCols = model.getTrainedColumns
-    LOG.info(">>>>>> trainedCols = " + trainedCols.mkString(", "))
+//    LOG.info(">>>>>> trainedCols = " + trainedCols.mkString(", "))
     val ddf = model.serialize2DDF(manager)
     val uri = ddf.persist()
     uri.toString

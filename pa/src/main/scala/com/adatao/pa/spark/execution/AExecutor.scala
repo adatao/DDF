@@ -86,6 +86,7 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 			//add model
 			if (doPersistResult) {
 				val mymodel: Model = new Model(result.result)
+
 				context.sparkThread.getDDFManager().addModel(mymodel)
 				result.persistenceID = mymodel.getName()
 			}

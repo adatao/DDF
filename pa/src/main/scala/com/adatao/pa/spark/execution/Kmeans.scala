@@ -48,7 +48,9 @@ object Kmeans {
   val K_MEANS_PARALLEL = "k-means||"
 }
 
-class KmeansModel(val trainedColumns: Array[String], val model: KMeansModel)
+class KmeansModel(val trainedColumns: Array[String], val model: KMeansModel) {
+  def predict(point: Array[Double]): Int = model.predict(point)
+}
 
 
 
