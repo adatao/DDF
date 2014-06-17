@@ -241,7 +241,19 @@ abstract class AModelTrainer[T <: TModel](
 //			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
 //				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
 //		}
-		
+	}
+	/*
+	 * project data before modelling
+	 */
+	def project(ddf: DDF): DDF = {
+	  //get projection
+    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    //project on xCols
+    for (col ← xCols) columnList.add(ddf.getSchema().getColumn(col).getName)
+    //project on yCol
+    columnList.add(ddf.getSchema().getColumn(yCol).getName)
+    val projectedDDF = ddf.Views.project(columnList)
+    projectedDDF
 	}
 	
 

@@ -1,4 +1,4 @@
-package com.adatao.spark.ddf;
+package com.adatao.spark.ddf.analytics;
 
 
 import java.util.Map;
@@ -12,6 +12,8 @@ import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.spark.ddf.SparkDDF;
+import com.adatao.spark.ddf.SparkDDFManager;
 
 
 
@@ -47,23 +49,6 @@ public class StatisticsSupporterTest {
     ddf1 = manager.sql2ddf("select year, month, dayofweek, deptime from airline");
   }
 
-
-  @Test
-  @Ignore
-  public void testSimpleAggregate() throws DDFException {
-
-    // aggregation: select year, month, min(depdelay), max(arrdelay) from airline group by year, month;
-    Assert.assertEquals(13, ddf.aggregate("year, month, mean(depdelay), median(arrdelay)").size());
-    Assert.assertEquals(2, ddf.aggregate("year, month, min(depdelay), max(arrdelay)").get("2010,3").length);
-
-    Assert.assertEquals(0.87, ddf.correlation("arrdelay", "depdelay"), 0.0);
-    // project subset
-    Assert.assertEquals(3, ddf.Views.project(new String[] { "year", "month", "deptime" }).getNumColumns());
-    Assert.assertEquals(5, ddf.Views.firstNRows(5).size());
-    // manager.shutdown();
-
-  }
-
   @Test
   @Ignore
   public void testSummary() throws DDFException {
@@ -81,6 +66,30 @@ public class StatisticsSupporterTest {
     Assert.assertEquals(25, ddf2.Views.getRandomSample(25).size());
     SparkDDF sampleDDF = (SparkDDF) ddf2.Views.getRandomSample(0.5, false, 1);
     Assert.assertTrue(sampleDDF.getRDD(Object[].class).count() > 10);
+  }
+  
+  @Test
+  public void testVectorVariance() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double[] a = ddf2.getVectorVariance("year");
+    assert(a != null);
+    assert(a.length == 2);
+  }
+  
+  @Test
+  public void testVectorMean() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double a = ddf2.getVectorMean("year");
+    assert(a != null);
+    System.out.println(">>>>> testVectorMean = " + a);
+  }
+  
+  @Test
+  public void testVectorCor() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double a = ddf2.getVectorCor("year", "month");
+    assert(a != null);
+    System.out.println(">>>>> testVectorCor = " + a);
   }
 
   @Test

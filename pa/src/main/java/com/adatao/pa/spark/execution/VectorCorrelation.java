@@ -20,11 +20,15 @@ package com.adatao.pa.spark.execution;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shark.api.JavaSharkContext;
+import com.adatao.ML.Utils;
+import com.adatao.ddf.DDF;
+import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.DataContainer;
 import com.adatao.pa.spark.DataManager.SharkColumnVector;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.VectorCorrelation.VectorCorrelationResult;
+import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -33,61 +37,52 @@ import com.adatao.pa.spark.types.SuccessResult;
 public class VectorCorrelation extends CExecutor {
   private String xDataContainerID;
   private String yDataContainerID;
-
-
-  public VectorCorrelation setxDataContainerID(String xDataContainerID) {
-    this.xDataContainerID = xDataContainerID;
+  
+  public VectorCorrelation setXDataContainerID(String dataContainerID) {
+    this.xDataContainerID = dataContainerID;
     return this;
   }
-
-  public VectorCorrelation setyDataContainerID(String yDataContainerID) {
-    this.yDataContainerID = yDataContainerID;
+  
+  public VectorCorrelation setYDataContainerID(String dataContainerID) {
+    this.yDataContainerID = dataContainerID;
     return this;
   }
-
 
   public static Logger LOG = LoggerFactory.getLogger(VectorCorrelation.class);
-
-
   static public class VectorCorrelationResult extends SuccessResult {
     Double correlation;
-
-
     public VectorCorrelationResult(double correlation) {
       this.correlation = correlation;
     }
-
     public Double getCorrelation() {
       return correlation;
     }
-
   }
 
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
-    LOG.info("cor({}, {})", xDataContainerID, yDataContainerID);
-    DataContainer dcX = sparkThread.getDataManager().get(xDataContainerID);
-    DataContainer dcY = sparkThread.getDataManager().get(yDataContainerID);
-    if (dcX.getType() != dcY.getType()) {
-      return new FailResult().setMessage("data container type mismatch");
-    }
-    if (dcX.getType().equals(DataContainer.ContainerType.DataFrame)) {
-      return new FailResult().setMessage("not implemented for this data container type:" + dcX.getType());
-    } else if (dcX.getType().equals(DataContainer.ContainerType.SharkColumnVector)) {
-      SharkColumnVector vx, vy;
-      vx = (SharkColumnVector) dcX;
-      vy = (SharkColumnVector) dcY;
-      if (!vx.getTableName().equals(vy.getTableName())) {
-        return new FailResult().setMessage("can only calculate covariance between columns vector from the same table");
-      }
-      JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
-      List<String> res = sc.sql(String.format("select corr(%s, %s) from %s", vx.getColumn(), vy.getColumn(),
-          vx.tableName));
-      Double corr = Double.parseDouble(res.get(0));
-      return new VectorCorrelationResult(corr);
-    } else {
-      return new FailResult().setMessage("invalid data container type for operation: " + dcX.getType());
+    
+    DDFManager ddfManager = sparkThread.getDDFManager();
+    String ddfId = Utils.dcID2DDFID(xDataContainerID);
+    String otherddfId = Utils.dcID2DDFID(yDataContainerID);
+    
+    DDF ddf = ddfManager.getDDF(ddfId);
+    DDF otherddf = ddfManager.getDDF(otherddfId);
+    
+    String xColumn = ddf.getSchema().getColumn(0).getName();
+    String yColumn = otherddf.getSchema().getColumn(0).getName();
+    
+    Double result;
+    try {
+      result = ddf.getVectorCor(xColumn, yColumn);
+      return new VectorCorrelationResult(result);
+    } catch (DDFException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
     }
   }
 }
+
+

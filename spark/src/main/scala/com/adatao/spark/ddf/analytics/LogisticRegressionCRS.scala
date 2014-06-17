@@ -1,18 +1,16 @@
 package com.adatao.spark.ddf.analytics
 
 import java.util.HashMap
-
 import scala.Array.canBuildFrom
 import scala.util.Random
-
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
-
 import com.adatao.ddf.types.Matrix
 import com.adatao.ddf.types.MatrixSparse
 import com.adatao.ddf.types.TupleMatrixVector
 import com.adatao.ddf.types.Vector
+import com.adatao.ddf.content.Schema.DummyCoding
 
 class LogisticRegressionCRS {
 
@@ -116,6 +114,7 @@ object LogisticRegressionCRS {
 }
 
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends Serializable {
+  
   override def toString(): String = {
     weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
   }
@@ -134,6 +133,14 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
   }
   def getNumSamples(): Long = {
     this.numSamples
+  }
+  
+  var dc: DummyCoding = null
+  def setDummy(_dc: DummyCoding) {
+    dc = _dc
+  }
+  def getDummy(): DummyCoding = {
+    return dc;
   }
 
 }

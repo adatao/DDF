@@ -35,13 +35,17 @@ public class TestGroupBy extends BaseTest {
 
     createTableMtcars(sid);
 
-    LoadHiveTable loadTbl = (LoadHiveTable) new LoadHiveTable().setTableName("mtcars");
+    Sql2DataFrame.Sql2DataFrameResult ddf = this.runSQL2RDDCmd(sid, "SELECT * FROM mtcars", true);
+    mtcarsID = ddf.dataContainerID;
+    
+/*    LoadHiveTable loadTbl = (LoadHiveTable) new LoadHiveTable().setTableName("mtcars");
     LOG.info(gson.toJson(loadTbl));
     cmd.setSid(sid).setCmdName("LoadHiveTable").setParams(gson.toJson(loadTbl));
     res = client.execJsonCommand(cmd);
     LoadHiveTableResult result = ExecutionResult.fromJson(res.getResult(), LoadHiveTableResult.class).result();
     LOG.info("LoadHiveTable result: " + Arrays.toString(result.getMetaInfo()));
-    mtcarsID = result.getDataContainerID();
+    mtcarsID = result.getDataContainerID();*/
+    
   }
 
   @Test

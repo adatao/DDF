@@ -14,6 +14,7 @@ import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import java.lang.Integer
 import com.adatao.pa.spark.execution.FiveNumSummary._
 
+
 class GetDDFSuite extends ABigRClientTest {
   test("Categorical variables linear regression normal equation on Shark") {
     createTableAirline
@@ -29,14 +30,15 @@ class GetDDFSuite extends ABigRClientTest {
     //first set name
     var ddfName = "my_awsome_ddf"
     val setddf = new SetDDFName(dataContainerId, ddfName)
-    val r1 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](setddf).result
+    val r1 = bigRClient.execute[com.adatao.pa.spark.Utils.DataFrameResult](setddf).result
     println(">>>>>>>>>>> after setting get r1.dataContainerID= " + r1.dataContainerID)
 
     ddfName= "ddf://adatao.com/my_awsome_ddf"
     val getddf = new GetDDF(ddfName)
-    val r2 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](getddf).result
+    val r2 = bigRClient.execute[com.adatao.pa.spark.Utils.MutableDataFrameResult](getddf).result
     assert(r2.isSuccess)
     println(">>>>>>>>>>> after getting get r2.dataContainerID= " + r2.dataContainerID)
+    assertEquals(r2.isMutable, false)
 
     assertEquals(r1.dataContainerID, r2.dataContainerID)
 
