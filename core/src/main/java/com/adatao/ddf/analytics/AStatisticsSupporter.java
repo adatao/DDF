@@ -9,9 +9,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
-
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
@@ -85,7 +83,24 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
 
     return null;
   }
+  
+  @Override
+  public Double[] getVectorVariance(String columnName) throws DDFException {
+    Double[] sd = new Double[2];
 
+    String command = String.format("select var_samp(%s) from %s", columnName, this.getDDF().getTableName());
+    if (!Strings.isNullOrEmpty(command)) {
+      List<String> result = this.getDDF().sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s"));
+      if(result != null  && result.size() > 0 && result.get(0) != null) {
+        Double a = Double.parseDouble(result.get(0));
+        sd[0] = a;
+        sd[1] = Math.sqrt(a);
+        return sd;
+      }
+    }
+    return null;
+  }
+  
   private double parseDouble(String s) {
     return ("NULL".equalsIgnoreCase(s.trim())) ? Double.NaN : Double.parseDouble(s);
   }

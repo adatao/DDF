@@ -943,6 +943,12 @@ public abstract class DDF extends ALoggable //
     }
     return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), percentiles);
   }
+  
+  public Double[] getVectorVariance(String columnName) 
+      throws DDFException {
+    //TODO need to check columnName
+    return this.getStatisticsSupporter().getVectorVariance(columnName);
+  }
 
   // //// ISupportML //////
   public MLFacade ML;
