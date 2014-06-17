@@ -118,6 +118,23 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     return null;
   }
   
+  @Override
+  public Double getVectorCor(String xcolumnName, String ycolumnName) throws DDFException {
+    Double corr = 0.0;
+    String command = String.format("select corr(%s, %s) from %s", xcolumnName, ycolumnName, this.getDDF().getTableName());
+    System.out.println(">>>>>>>> vector getVectorCor command =" + command);
+    if (!Strings.isNullOrEmpty(command)) {
+      List<String> result = this.getDDF().sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s"));
+      if(result != null  && result.size() > 0 && result.get(0) != null) {
+        corr = Double.parseDouble(result.get(0));
+        return corr;
+      }
+    }
+    return null;
+  }
+  
+  
+  
   private double parseDouble(String s) {
     return ("NULL".equalsIgnoreCase(s.trim())) ? Double.NaN : Double.parseDouble(s);
   }
