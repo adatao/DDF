@@ -91,10 +91,10 @@ class LinearRegressionNormalEquation(
     while (itr.hasNext) paWeights += itr.next
     val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
     LOG.info("Json model")
-    LOG.info(rawModel.weights.toJson)
-    LOG.info(paModel.weights.toJson)
-    LOG.info(paModel.toString)
-    LOG.info(rawModel.toString)
+//    LOG.info(rawModel.weights.toJson)
+//    LOG.info(paModel.weights.toJson)
+//    LOG.info(paModel.toString)
+//    LOG.info(rawModel.toString)
 
 
     val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
