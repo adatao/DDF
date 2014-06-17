@@ -90,6 +90,7 @@ public class VectorMean  extends CExecutor { // implements IExecutor, Serializab
       DDF ddf = ddfManager.getDDF(ddfId);
       Double mean;
       try {
+        if(this.getColumnName() == null) this.setColumnName(ddf.getSchema().getColumn(0).getName());
         mean = ddf.getVectorMean(this.getColumnName());
         return new VectorMeanResult().setDataContainerID(dataContainerID).setMean(mean);
       } catch (DDFException e) {

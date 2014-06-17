@@ -33,6 +33,12 @@ import com.adatao.pa.spark.types.SuccessResult;
 public class VectorVariance extends CExecutor { // implements IExecutor, Serializable {
   private String dataContainerID;
   private String columnName;
+  
+  
+  public String getColumnName() {
+    return columnName;
+  }
+
   static public class VectorVarianceResult extends SuccessResult {
     String dataContainerID;
     double variance, stddev;
@@ -93,6 +99,7 @@ public class VectorVariance extends CExecutor { // implements IExecutor, Seriali
     DDF ddf = ddfManager.getDDF(ddfId);
     Double[] result;
     try {
+      if(this.getColumnName() == null) this.setColumnName(ddf.getSchema().getColumn(0).getName());
       result = ddf.getVectorVariance(columnName);
       return new VectorVarianceResult().setDataContainerID(dataContainerID).setVariance(result[0]).setStddev(result[1]);
     } catch (DDFException e) {

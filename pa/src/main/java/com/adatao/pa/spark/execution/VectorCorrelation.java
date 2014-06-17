@@ -35,26 +35,17 @@ import com.adatao.pa.spark.types.SuccessResult;
 
 @SuppressWarnings("serial")
 public class VectorCorrelation extends CExecutor {
-  private String dataContainerID;
-  private String xColumn;
-  private String yColumn;
+  private String xDataContainerID;
+  private String yDataContainerID;
   
-  public VectorCorrelation setDataContainerID(String dataContainerID) {
-    this.dataContainerID = dataContainerID;
+  public VectorCorrelation setXDataContainerID(String dataContainerID) {
+    this.xDataContainerID = dataContainerID;
     return this;
   }
   
-  public String getxColumn() {
-    return xColumn;
-  }
-  public void setxColumn(String xColumn) {
-    this.xColumn = xColumn;
-  }
-  public String getyColumn() {
-    return yColumn;
-  }
-  public void setyColumn(String yColumn) {
-    this.yColumn = yColumn;
+  public VectorCorrelation setYDataContainerID(String dataContainerID) {
+    this.yDataContainerID = dataContainerID;
+    return this;
   }
 
   public static Logger LOG = LoggerFactory.getLogger(VectorCorrelation.class);
@@ -73,8 +64,15 @@ public class VectorCorrelation extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) {
     
     DDFManager ddfManager = sparkThread.getDDFManager();
-    String ddfId = Utils.dcID2DDFID(dataContainerID);
+    String ddfId = Utils.dcID2DDFID(xDataContainerID);
+    String otherddfId = Utils.dcID2DDFID(yDataContainerID);
+    
     DDF ddf = ddfManager.getDDF(ddfId);
+    DDF otherddf = ddfManager.getDDF(otherddfId);
+    
+    String xColumn = ddf.getSchema().getColumn(0).getName();
+    String yColumn = otherddf.getSchema().getColumn(0).getName();
+    
     Double result;
     try {
       result = ddf.getVectorCor(xColumn, yColumn);
@@ -84,12 +82,6 @@ public class VectorCorrelation extends CExecutor {
       e.printStackTrace();
       return null;
     }
-    
-//      JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
-//      List<String> res = sc.sql(String.format("select corr(%s, %s) from %s", vx.getColumn(), vy.getColumn(),
-//          vx.tableName));
-//      Double corr = Double.parseDouble(res.get(0));
-//      return new VectorCorrelationResult(corr);
   }
 }
 
