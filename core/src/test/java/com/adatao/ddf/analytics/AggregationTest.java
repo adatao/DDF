@@ -4,7 +4,7 @@ package com.adatao.ddf.analytics;
 import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
-import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
+import com.adatao.ddf.types.AggregateTypes.AggregateField;
 import com.adatao.ddf.facades.RFacade;
 public class AggregationTest {
 
