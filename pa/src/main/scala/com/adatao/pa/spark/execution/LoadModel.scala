@@ -20,7 +20,7 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
     val rawModel = model.getRawModel
     val trainedCols = model.getTrainedColumns;
     rawModel match {
-      case kmeansModel if kmeansModel.isInstanceOf[KmeansModel] => {
+      case kmeansModel if kmeansModel.isInstanceOf[KMeansModel] => {
         //LOG.info(">>>>>> model.getTrainedColumns = " + model.getTrainedColumns.mkString(", "))
         new LoadModelResult(model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
