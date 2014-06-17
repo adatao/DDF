@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
  * author: daoduchuan
  */
 class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
-  override def runImpl(ctx: ExecutionContext): Object = {
+  override def runImpl(ctx: ExecutionContext): LoadModelResult = {
     val manager = ctx.sparkThread.getDDFManager
     val persistenceHandler = new PersistenceHandler(null);
     val modelDDF = persistenceHandler.load(uri).asInstanceOf[BasicDDF]
