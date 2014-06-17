@@ -30,6 +30,8 @@ public class Model implements IModel, Serializable {
 
   private String mName;
 
+  private String[] mTrainedColumns;
+
   private String mClass = this.getClass().getName(); //for serialization
 
   public Model(Object rawModel) {
@@ -55,6 +57,7 @@ public class Model implements IModel, Serializable {
     this.mRawModelClass = rawModel.getClass().getName();
   }
 
+
   @Override
   public String getName() {
     return mName;
@@ -63,6 +66,16 @@ public class Model implements IModel, Serializable {
   @Override
   public void setName(String name) {
     mName = name;
+  }
+
+  @Override
+  public void setTrainedColumns(String[] columns) {
+    this.mTrainedColumns = columns;
+  }
+
+  @Override
+  public String[] getTrainedColumns() {
+    return this.mTrainedColumns;
   }
 
   @Override

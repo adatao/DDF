@@ -88,6 +88,8 @@ class LinearRegressionNormalEquation(
     // val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
     // new LinearRegressionModel(weights, trainingLosses, numSamples)
     val model = ddf.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+    ddfManager.addModel(model)
+
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
     val itr = rawModel.weights.iterator
@@ -99,10 +101,10 @@ class LinearRegressionNormalEquation(
     LOG.info(paModel.weights.toJson)
     LOG.info(paModel.toString)
     LOG.info(rawModel.toString)
-    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
-    LOG.info(myModel.toString)
-    ddfManager.addModel(model)
-    // paModel.ddfModel = model
+//    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
+//    LOG.info(myModel.toString)
+
+     //paModel.ddfModel = model
     return paModel
   }
 
