@@ -67,6 +67,30 @@ public class StatisticsSupporterTest {
     SparkDDF sampleDDF = (SparkDDF) ddf2.Views.getRandomSample(0.5, false, 1);
     Assert.assertTrue(sampleDDF.getRDD(Object[].class).count() > 10);
   }
+  
+  @Test
+  public void testVectorVariance() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double[] a = ddf2.getVectorVariance("year");
+    assert(a != null);
+    assert(a.length == 2);
+  }
+  
+  @Test
+  public void testVectorMean() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double a = ddf2.getVectorMean("year");
+    assert(a != null);
+    System.out.println(">>>>> testVectorMean = " + a);
+  }
+  
+  @Test
+  public void testVectorCor() throws DDFException {
+    DDF ddf2 = manager.sql2ddf("select * from airline");
+    Double a = ddf2.getVectorCor("year", "month");
+    assert(a != null);
+    System.out.println(">>>>> testVectorCor = " + a);
+  }
 
   @Test
   @Ignore
