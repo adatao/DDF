@@ -8,6 +8,7 @@ import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.content.RepresentationHandler
 import com.adatao.ddf.ml.IModel
 import org.apache.spark.mllib.clustering.KMeansModel
+import com.adatao.pa.spark.types.{SuccessfulResult, FailedResult, ExecutionResult}
 
 class Kmeans(
   dataContainerID: String,
@@ -39,7 +40,17 @@ class Kmeans(
     // converts DDF model to old PA model
 //    val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
 //    rawModel
-    return new KmeansModel(kmeansModel.getTrainedColumns, kmeansModel.getRawModel.asInstanceOf[KMeansModel])
+    return new KmeansModel(kmeansModel.getName, kmeansModel.getRawModel.asInstanceOf[KMeansModel])
+  }
+
+  override def run(context: ExecutionContext): ExecutionResult[KmeansModel] = {
+    try {
+      val result = new SuccessfulResult(this.runImpl(context))
+      result.persistenceID = "asdasdas"
+      result
+    } catch {
+      case  e: Throwable => new FailedResult[KmeansModel](e.getMessage)
+    }
   }
 }
 
@@ -48,9 +59,7 @@ object Kmeans {
   val K_MEANS_PARALLEL = "k-means||"
 }
 
-class KmeansModel(val trainedColumns: Array[String], val model: KMeansModel) {
-  def predict(point: Array[Double]): Int = model.predict(point)
-}
+class KmeansModel(val modelName: String, val model: KMeansModel)
 
 
 
