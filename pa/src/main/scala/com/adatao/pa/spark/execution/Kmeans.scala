@@ -8,7 +8,7 @@ import com.adatao.ddf.DDF
 import com.adatao.spark.ddf.content.RepresentationHandler
 import com.adatao.ddf.ml.IModel
 import org.apache.spark.mllib.clustering.KMeansModel
-import com.adatao.pa.spark.types.{SuccessfulResult, FailedResult, ExecutionResult}
+import com.adatao.pa.spark.types.{ExecutionException, SuccessfulResult, FailedResult, ExecutionResult}
 
 class Kmeans(
   dataContainerID: String,
@@ -49,7 +49,7 @@ class Kmeans(
       result.persistenceID = result.result.modelName
       result
     } catch {
-      case  e: Throwable => new FailedResult[KmeansModel](e.getMessage)
+      case  e: ExecutionException => new FailedResult[KmeansModel](e.message)
     }
   }
 }
