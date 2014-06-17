@@ -101,6 +101,23 @@ public abstract class AStatisticsSupporter extends ADDFFunctionalGroupHandler im
     return null;
   }
   
+  @Override
+  public Double getVectorMean(String columnName) throws DDFException {
+    Double mean = 0.0;
+    String command = String.format("select avg(%s) from %s", columnName, this.getDDF().getTableName());
+    
+    System.out.println(">>>>>>>> vector mean command =" + command);
+    
+    if (!Strings.isNullOrEmpty(command)) {
+      List<String> result = this.getDDF().sql2txt(command, String.format("Unable to get fivenum summary of the given columns from table %%s"));
+      if(result != null  && result.size() > 0 && result.get(0) != null) {
+        mean = Double.parseDouble(result.get(0));
+        return mean;
+      }
+    }
+    return null;
+  }
+  
   private double parseDouble(String s) {
     return ("NULL".equalsIgnoreCase(s.trim())) ? Double.NaN : Double.parseDouble(s);
   }

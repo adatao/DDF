@@ -17,4 +17,6 @@ public interface ISupportStatistics extends IHandleDDFFunctionalGroup {
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) throws DDFException;
   
   public Double[] getVectorVariance(String columnName) throws DDFException;
+  
+  public Double getVectorMean(String columnName) throws DDFException;
 }

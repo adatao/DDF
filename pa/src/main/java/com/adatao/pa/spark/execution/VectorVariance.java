@@ -33,8 +33,6 @@ import com.adatao.pa.spark.types.SuccessResult;
 public class VectorVariance extends CExecutor { // implements IExecutor, Serializable {
   private String dataContainerID;
   private String columnName;
-
-
   static public class VectorVarianceResult extends SuccessResult {
     String dataContainerID;
     double variance, stddev;
@@ -90,11 +88,9 @@ public class VectorVariance extends CExecutor { // implements IExecutor, Seriali
   }
 
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-
     DDFManager ddfManager = sparkThread.getDDFManager();
     String ddfId = Utils.dcID2DDFID(dataContainerID);
     DDF ddf = ddfManager.getDDF(ddfId);
-
     Double[] result;
     try {
       result = ddf.getVectorVariance(columnName);
@@ -104,6 +100,5 @@ public class VectorVariance extends CExecutor { // implements IExecutor, Seriali
       e.printStackTrace();
       return null;
     }
-
   }
 }

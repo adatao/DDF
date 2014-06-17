@@ -949,6 +949,12 @@ public abstract class DDF extends ALoggable //
     //TODO need to check columnName
     return this.getStatisticsSupporter().getVectorVariance(columnName);
   }
+  
+  public Double getVectorMean(String columnName) 
+      throws DDFException {
+    //TODO need to check columnName
+    return this.getStatisticsSupporter().getVectorMean(columnName);
+  }
 
   // //// ISupportML //////
   public MLFacade ML;
