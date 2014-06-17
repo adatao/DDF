@@ -209,6 +209,7 @@ public class Utils {
 
       writer = new BufferedWriter(new OutputStreamWriter(outputStream, "utf-8"));
       writer.write(contents);
+      writer.close();
       hdfs.close();
     } catch (IOException ex) {
       throw new IOException(String.format("Cannot write to file %s", fileName, ex));
