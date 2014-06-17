@@ -124,6 +124,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
     IModel model = new  Model(rawModel);
     model.setTrainedColumns(trainedColumns);
+    mLog.info(">>>> modelID = " + model.getName());
     this.getManager().addModel(model);
     return model;
   }
