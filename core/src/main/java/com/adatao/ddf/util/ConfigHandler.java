@@ -158,14 +158,14 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
 
     Configuration resultConfig = new Configuration();
 
-    if (!Utils.fileExists(this.getConfigFileName())) {
+    if (!Utils.localFileExists(this.getConfigFileName())) {
       // String configFileName = System.getenv(ConfigConstant.DDF_INI_ENV_VAR.getValue());
       File file = new File(this.locateConfigFileName(this.getConfigDir(), this.getConfigFileName()));
       mConfigDir = file.getParentFile().getName();
       mConfigFileName = file.getCanonicalPath();
     }
 
-    if (!Utils.fileExists(this.getConfigFileName())) return null;
+    if (!Utils.localFileExists(this.getConfigFileName())) return null;
 
     HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(this.getConfigFileName());
 
@@ -211,12 +211,12 @@ public class ConfigHandler extends ALoggable implements IHandleConfig {
     // Go for at most 10 levels up
     for (int i = 0; i < 10; i++) {
       path = String.format("%s/%s", curDir, configFileName);
-      if (Utils.fileExists(path)) break;
+      if (Utils.localFileExists(path)) break;
 
       String dir = String.format("%s/%s", curDir, configDir);
       if (Utils.dirExists(dir)) {
         path = String.format("%s/%s", dir, configFileName);
-        if (Utils.fileExists(path)) break;
+        if (Utils.localFileExists(path)) break;
       }
 
       curDir = String.format("%s/..", curDir);

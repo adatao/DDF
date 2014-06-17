@@ -142,6 +142,11 @@ public class Utils {
     return (fileSystem.exists(filePath));
   }
 
+  public static boolean localFileExists(String path) {
+    File f = new File(path);
+    return (f.exists() && !f.isDirectory());
+  }
+
   /**
    * 
    * @param path
