@@ -112,7 +112,7 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
 
 
     List<Schema.Column> columns = this.getDDF().getSchemaHandler().getColumns();
-    String[] trainedColumns = new String[10];
+    String[] trainedColumns = new String[columns.size()];
 
     for(int i = 0; i < columns.size();  i++) {
       trainedColumns[i] = columns.get(i).getName();
