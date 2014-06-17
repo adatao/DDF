@@ -46,7 +46,7 @@ class Kmeans(
   override def run(context: ExecutionContext): ExecutionResult[KmeansModel] = {
     try {
       val result = new SuccessfulResult(this.runImpl(context))
-      result.persistenceID = "asdasdas"
+      result.persistenceID = result.result.modelName
       result
     } catch {
       case  e: Throwable => new FailedResult[KmeansModel](e.getMessage)
