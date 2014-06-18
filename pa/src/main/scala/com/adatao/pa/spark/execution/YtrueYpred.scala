@@ -52,11 +52,14 @@ class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[
 
     //apply model on dataContainerID
     val mymodel: IModel = ddfManager.getModel(modelID)
-    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, false)
+
+    val projectedDDF = ddf.Views.project(mymodel.getTrainedColumns: _*)
+
+    val predictionDDF = projectedDDF.getMLSupporter().applyModel(mymodel, true, false)
 
     var addId: String = ""
     if (predictionDDF != null) {
-      addId = ddf.getManager().addDDF(predictionDDF);
+      addId = projectedDDF.getManager().addDDF(predictionDDF);
     }
 
     //return DDF
