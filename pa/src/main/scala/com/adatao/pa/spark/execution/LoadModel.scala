@@ -8,7 +8,7 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
+import com.adatao.spark.ddf.analytics.{NQLinearRegressionModel => NQLinearModel}
 import com.adatao.pa.spark.types.{SuccessfulResult, FailedResult, ExecutionException, ExecutionResult}
 
 /**
@@ -27,7 +27,7 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
         //LOG.info(">>>>>> model.getTrainedColumns = " + model.getTrainedColumns.mkString(", "))
         new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
-      case nqModel if nqModel.isInstanceOf[NQLinearRegressionModel] => {
+      case nqModel if nqModel.isInstanceOf[NQLinearModel] => {
         new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
       case something => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error recognizing model: " +
