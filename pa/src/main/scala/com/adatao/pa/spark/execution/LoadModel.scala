@@ -25,13 +25,13 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
     rawModel match {
       case kmeansModel if kmeansModel.isInstanceOf[KMeansModel] => {
         //LOG.info(">>>>>> model.getTrainedColumns = " + model.getTrainedColumns.mkString(", "))
-        new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
+        new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.getName)
       }
       case nqModel if nqModel.isInstanceOf[NQLinearModel] => {
         val ddfLMModel = rawModel.asInstanceOf[NQLinearModel]
         val nqlmModel = new NQLinearRegressionModel(model.getName, model.getTrainedColumns, ddfLMModel.weights, ddfLMModel.rss,
           ddfLMModel.sst, ddfLMModel.stdErrs, ddfLMModel.numSamples, ddfLMModel.numFeatures, ddfLMModel.vif, ddfLMModel.messages)
-        new LoadModelResult(nqlmModel.modelID, nqlmModel.trainedColumns, nqlmModel, nqlmModel.getClass.toString)
+        new LoadModelResult(nqlmModel.modelID, nqlmModel.trainedColumns, nqlmModel, nqlmModel.getClass.getName)
       }
       case something => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error recognizing model: " +
         something.getClass.getName, null)
