@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.types.AggregateTypes.AggregationResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
