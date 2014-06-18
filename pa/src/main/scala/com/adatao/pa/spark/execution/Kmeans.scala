@@ -40,14 +40,15 @@ class Kmeans(
     // converts DDF model to old PA model
 //    val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
 //    rawModel
-    return new KmeansModel(kmeansModel.getName, kmeansModel.getRawModel.asInstanceOf[KMeansModel])
+    return new KmeansModel(kmeansModel.getName, kmeansModel.getTrainedColumns, kmeansModel.getRawModel.asInstanceOf[KMeansModel])
   }
 
   override def run(context: ExecutionContext): ExecutionResult[KmeansModel] = {
     try {
-      val result = new SuccessfulResult(this.runImpl(context))
-      result.persistenceID = result.result.modelID
-      result
+//      val result = new SuccessfulResult(this.runImpl(context))
+//      result.persistenceID = result.result.modelID
+//      result
+      new SuccessfulResult[KmeansModel](this.runImpl(context))
     } catch {
       case  e: ExecutionException => new FailedResult[KmeansModel](e.message)
     }
@@ -59,7 +60,7 @@ object Kmeans {
   val K_MEANS_PARALLEL = "k-means||"
 }
 
-class KmeansModel(val modelID: String, val model: KMeansModel)
+class KmeansModel(val modelID: String, val trainedColumns: Array[String], val model: KMeansModel)
 
 
 

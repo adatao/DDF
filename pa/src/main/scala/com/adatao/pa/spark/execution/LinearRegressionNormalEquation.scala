@@ -90,7 +90,7 @@ class LinearRegressionNormalEquation(
     val itr = rawModel.weights.iterator
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
-    val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
+    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns,rawModel.weights, rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
     LOG.info("Json model")
 //    LOG.info(rawModel.weights.toJson)
 //    LOG.info(paModel.weights.toJson)
@@ -110,9 +110,10 @@ class LinearRegressionNormalEquation(
 
   override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
     try {
-      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
-      result.persistenceID = result.result.modelID
-      result
+//      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
+//      result.persistenceID = result.result.modelID
+//      result
+      new SuccessfulResult(this.train(dataContainerID, ctx))
     } catch {
       case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
     }
@@ -127,7 +128,7 @@ class LinearRegressionNormalEquation(
   }
 }
 
-class NQLinearRegressionModel(weights: Vector, val modelID: String, val rss: Double,
+class NQLinearRegressionModel(val modelID: String, val trainedColumns: Array[String], weights: Vector, val rss: Double,
   val sst: Double, val stdErrs: Vector,
   numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
   extends ALinearModel[Double](weights, numSamples) {

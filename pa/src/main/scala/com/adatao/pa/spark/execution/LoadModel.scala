@@ -8,6 +8,7 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
 import com.adatao.pa.spark.types.{SuccessfulResult, FailedResult, ExecutionException, ExecutionResult}
 
 /**
