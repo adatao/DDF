@@ -44,7 +44,7 @@ import java.util.ArrayList
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.ML.LinearRegressionModel
-import com.adatao.pa.spark.types.{SuccessfulResult, ExecutionResult}
+import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
 
 /**
  * Author: NhanVLC
@@ -108,10 +108,15 @@ class LinearRegressionNormalEquation(
     return paModel
   }
 
-  override def runImpl(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
-    val result = new SuccessfulResult(this.train(dataContainerID, ctx))
-    result.persistenceID = result.result.modelID
-    return result
+  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
+    try {
+      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
+      result.persistenceID = result.result.modelID
+      result
+    } catch {
+      case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
+    }
+
   }
   // Purpose of this function is to handle empty partitions using mapPartitions, :((((((
   //post process, set column mapping to model
