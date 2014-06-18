@@ -43,7 +43,7 @@ import shark.api.JavaSharkContext
 import java.util.ArrayList
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.{NQLinearRegressionModel => NQLinearModel}
 import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
 
 /**
@@ -56,9 +56,9 @@ class LinearRegressionNormalEquation(
   yCol: Int,
   var ridgeLambda: Double,
   mapReferenceLevel: HashMap[String, String] = null)
-  extends AModelTrainer[NQLinearRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
+  extends AModelTrainer[NQLinearModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
 
-  override def train(dataContainerID: String, context: ExecutionContext): NQLinearRegressionModel = {
+  override def train(dataContainerID: String, context: ExecutionContext): NQLinearModel = {
     val ddfManager = context.sparkThread.getDDFManager();
 
     val ddfId = Utils.dcID2DDFID(dataContainerID)
@@ -90,32 +90,34 @@ class LinearRegressionNormalEquation(
     val itr = rawModel.weights.iterator
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
-    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns,rawModel.weights, rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
+    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns,rawModel.weights, rawModel.rss,
+      rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
     LOG.info("Json model")
 //    LOG.info(rawModel.weights.toJson)
 //    LOG.info(paModel.weights.toJson)
 //    LOG.info(paModel.toString)
 //    LOG.info(rawModel.toString)
+//
+//
+//    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
+//    if (projectDDF.getSchema().getDummyCoding() != null)
+//      myModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+//
+//    LOG.info(myModel.toString)
 
-
-    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      myModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-
-    LOG.info(myModel.toString)
     ddfManager.addModel(model)
 
-    return paModel
+    return rawModel
   }
 
-  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
+  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearModel] = {
     try {
 //      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
 //      result.persistenceID = result.result.modelID
 //      result
       new SuccessfulResult(this.train(dataContainerID, ctx))
     } catch {
-      case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
+      case e: ExecutionException => new FailedResult[NQLinearModel](e.message)
     }
 
   }
