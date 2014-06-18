@@ -43,8 +43,8 @@ import shark.api.JavaSharkContext
 import java.util.ArrayList
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import com.adatao.spark.ddf.analytics.{NQLinearRegressionModel => NQLinearModel}
 import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
+import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
 
 /**
  * Author: NhanVLC
@@ -56,9 +56,9 @@ class LinearRegressionNormalEquation(
   yCol: Int,
   var ridgeLambda: Double,
   mapReferenceLevel: HashMap[String, String] = null)
-  extends AModelTrainer[NQLinearModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
+  extends AModelTrainer[NQLinearRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
 
-  override def train(dataContainerID: String, context: ExecutionContext): NQLinearModel = {
+  override def train(dataContainerID: String, context: ExecutionContext): NQLinearRegressionModel = {
     val ddfManager = context.sparkThread.getDDFManager();
 
     val ddfId = Utils.dcID2DDFID(dataContainerID)
@@ -107,17 +107,17 @@ class LinearRegressionNormalEquation(
 
     ddfManager.addModel(model)
 
-    return rawModel
+    return paModel
   }
 
-  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearModel] = {
+  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
     try {
 //      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
 //      result.persistenceID = result.result.modelID
 //      result
       new SuccessfulResult(this.train(dataContainerID, ctx))
     } catch {
-      case e: ExecutionException => new FailedResult[NQLinearModel](e.message)
+      case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
     }
 
   }
