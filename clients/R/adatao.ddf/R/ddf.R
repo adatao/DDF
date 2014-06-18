@@ -264,6 +264,7 @@ setMethod("adatao.fivenum",
           signature("DDF"),
           function(ddf) {
             # only numeric columns have those fivenum numbers
+            col.names <- colnames(ddf)
             numeric.col.indices <- which(sapply(col.names, function(cn) {ddf@jddf$getColumn(cn)$isNumeric()})==TRUE)
             
             # call java API
