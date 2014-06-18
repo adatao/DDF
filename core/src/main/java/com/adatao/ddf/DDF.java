@@ -932,6 +932,10 @@ public abstract class DDF extends ALoggable //
     return this.getMissingDataHandler().dropNA(0, "any", 0, null, false);
   }
   
+  public DDF fillNA(String value) throws DDFException {
+    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null, false);
+  }
+  
   public DDF updateInplace(DDF result) throws DDFException {
     return this.getMutabilityHandler().updateInplace(result);
   }

@@ -1,12 +1,15 @@
 package com.adatao.spark.ddf.etl;
 
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
+import com.google.common.collect.Lists;
 
 public class MissingDataHandlerTest {
   private DDFManager manager;
@@ -33,12 +36,20 @@ public class MissingDataHandlerTest {
   }
 
   @Test
+  @Ignore
   public void testDropNA() throws DDFException {
     DDF newddf = ddf.dropNA();
     Assert.assertEquals(9, newddf.getNumRows());
     Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(1, "any", 0, null, false).getNumColumns());
   }
   
+  @Test
+  public void testFillNA() throws DDFException {
+    DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay","lateaircraftdelay"));
+    DDF newddf = ddf1.fillNA("0");
+    //Assert.assertEquals(0, ddf.fillNA("0").aggregate("year, sum(LateAircraftDelay)").get("2008"));
+    System.out.println(newddf.Views.firstNRows(2));
+  }
   @After
   public void closeTest() {
     manager.shutdown();

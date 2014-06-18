@@ -1,6 +1,5 @@
 package com.adatao.ddf.etl;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,6 +140,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
 
     if (Strings.isNullOrEmpty(method)) {
       String sqlCmd = fillNAWithValueSQL(value, function, columnsToValues, columns);
+      System.out.println(">>>>>>>>>>>>>>>FILLNA: " + sqlCmd);
       newddf = this.getManager().sql2ddf(String.format(sqlCmd, this.getDDF().getTableName()));
 
     } else { // interpolation methods 'ffill' or 'bfill'
@@ -207,7 +207,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
       }
     }
     caseCmd.setLength(caseCmd.length() - 1); // remove the last "+"
-    String sqlCmd = String.format("SELECT * FROM %%s WHERE %s", caseCmd.toString());
+    String sqlCmd = String.format("SELECT %s FROM %%s", caseCmd.toString());
     return sqlCmd;
   }
 
