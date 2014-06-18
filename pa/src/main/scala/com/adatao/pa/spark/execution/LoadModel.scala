@@ -27,7 +27,7 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
         new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
       case nqModel if nqModel.isInstanceOf[NQLinearRegressionModel] => {
-        new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, "NQLinearRegression")
+        new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
       case something => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error recognizing model: " +
         something.getClass.getName, null)

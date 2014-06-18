@@ -46,7 +46,7 @@ class Kmeans(
   override def run(context: ExecutionContext): ExecutionResult[KmeansModel] = {
     try {
       val result = new SuccessfulResult(this.runImpl(context))
-      result.persistenceID = result.result.modelName
+      result.persistenceID = result.result.modelID
       result
     } catch {
       case  e: ExecutionException => new FailedResult[KmeansModel](e.message)
@@ -59,7 +59,7 @@ object Kmeans {
   val K_MEANS_PARALLEL = "k-means||"
 }
 
-class KmeansModel(val modelName: String, val model: KMeansModel)
+class KmeansModel(val modelID: String, val model: KMeansModel)
 
 
 
