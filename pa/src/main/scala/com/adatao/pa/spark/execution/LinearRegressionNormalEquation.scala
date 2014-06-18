@@ -91,19 +91,8 @@ class LinearRegressionNormalEquation(
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
     val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns,rawModel.weights, rawModel.rss,
-      rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
-    LOG.info("Json model")
-//    LOG.info(rawModel.weights.toJson)
-//    LOG.info(paModel.weights.toJson)
-//    LOG.info(paModel.toString)
-//    LOG.info(rawModel.toString)
-//
-//
-//    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
-//    if (projectDDF.getSchema().getDummyCoding() != null)
-//      myModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-//
-//    LOG.info(myModel.toString)
+      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
+
 
     ddfManager.addModel(model)
 

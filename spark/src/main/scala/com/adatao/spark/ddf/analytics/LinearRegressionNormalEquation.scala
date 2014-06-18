@@ -211,7 +211,7 @@ object LinearRegressionNormalEquation {
 
 class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss: Double,
   val sst: Double, val stdErrs: Vector,
-  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) {
+  val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) {
   def predict(features: Vector): Double = 0
   
   var dc: DummyCoding = null

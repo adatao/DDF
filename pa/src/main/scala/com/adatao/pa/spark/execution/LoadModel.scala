@@ -28,10 +28,10 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
         new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
       }
       case nqModel if nqModel.isInstanceOf[NQLinearModel] => {
-//        val rawmodel2 = rawModel.asInstanceOf[NQLinearModel]
-//        val nqlmModel = new NQLinearRegressionModel(model.getName, model.getTrainedColumns, rawmodel2.weights, rawmodel2.rss,
-//        rawmodel2.sst, rawmodel2.stdErrs,)
-        new LoadModelResult(model.getName, model.getTrainedColumns, rawModel, rawModel.getClass.toString)
+        val ddfLMModel = rawModel.asInstanceOf[NQLinearModel]
+        val nqlmModel = new NQLinearRegressionModel(model.getName, model.getTrainedColumns, ddfLMModel.weights, ddfLMModel.rss,
+          ddfLMModel.sst, ddfLMModel.stdErrs, ddfLMModel.numSamples, ddfLMModel.numFeatures, ddfLMModel.vif, ddfLMModel.messages)
+        new LoadModelResult(nqlmModel.modelID, nqlmModel.trainedColumns, nqlmModel, nqlmModel.getClass.toString)
       }
       case something => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error recognizing model: " +
         something.getClass.getName, null)
