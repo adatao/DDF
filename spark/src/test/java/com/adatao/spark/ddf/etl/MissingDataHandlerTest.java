@@ -36,6 +36,7 @@ public class MissingDataHandlerTest {
   public void testDropNA() throws DDFException {
     DDF newddf = ddf.dropNA();
     Assert.assertEquals(9, newddf.getNumRows());
+    Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(1, "any", 0, null, false).getNumColumns());
   }
   
   @After
