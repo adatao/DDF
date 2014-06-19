@@ -58,6 +58,8 @@ test_that("fillNA works", {
   ddf_filled_na_3<- adatao.fillNA(ddf1, columnsToValues=cols2Vals)
   fetched_df <- adatao.head(ddf_filled_na_3, 2)
   expect_equal(fetched_df[2,1], 2000)
+  expect_equal(fetched_df[2,3], 0)
+  expect_equal(fetched_df[2,4], 1)
   
   
   shutdown(dm)
