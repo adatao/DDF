@@ -28,6 +28,7 @@ import org.jblas.exceptions.LapackException
 import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
 import com.adatao.ddf.content.Schema.DummyCoding
+import com.adatao.ddf.exception.DDFException
 
 /**
  * Author: NhanVLC
@@ -213,10 +214,15 @@ class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss:
   val sst: Double, val stdErrs: Vector,
   val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends Serializable {
 
-  def predictVector(features: Vector): Double = weights.dot(features)
+  def predictVector(features: Vector): Double = {
+    if(features.size != weights.size) {
+      throw new DDFException(s"Error predicting, feature.size= ${features.size}, weight.size= ${weights.size}", null)
+    }
+    weights.dot(features)
+  }
 
   def predict(features: Array[Double]): Double = {
-    this.predictVector(Vector(features))
+    this.predictVector(Vector(Array[Double](1) ++ features))
   }
 
   var dc: DummyCoding = null
