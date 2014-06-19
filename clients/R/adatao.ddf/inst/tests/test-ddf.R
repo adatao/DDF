@@ -26,10 +26,10 @@ test_that("basic statistics works", {
   expect_true(abs(s[1,1]-20.091) < 0.001)
   
   ddf2 <- adatao.head(ddf)
-  expect_is(ddf2, "DDF")
+  expect_is(ddf2, "data.frame")
   
   agg.res <- adatao.aggregate(mpg ~ vs + carb, ddf, FUN=sum)
-  expect_identical(agg.res$`sum(mpg)`, c(198.6,145.2,118.5,180.6))
+  expect_identical(agg.res$`sum(mpg)`, c(177.4, 129.4, 48.9, 94.6, 19.7, 120.9, 15.0, 37.0))
   
   agg.res <- adatao.aggregate(mpg ~ vs + carb, ddf, FUN=mean)
   expect_identical(agg.res$`mean(mpg)`, c(25.34, 25.88, 16.30, 18.92, 19.70, 15.11, 15.00, 18.50))
@@ -37,7 +37,14 @@ test_that("basic statistics works", {
   agg.res <- adatao.aggregate(mpg ~ vs + carb, ddf, FUN=median)
   expect_identical(agg.res$`median(mpg)`, c(22.15, 23.60, 15.80, 17.10, 19.70, 14.30, 15.00, 17.80))
   
-  adatao.aggregate(ddf, agg.cols=list(sum(mpg), min(hp)), by=list(vs, am))
+  agg.res <- adatao.aggregate(cbind(mpg,hp) ~ vs + am, ddf, FUN=median)
+  expect_identical(agg.res$`median(mpg)`, c(28.07, 20.30, 19.70, 15.20))
+  
+  agg.res <- adatao.aggregate(ddf, agg.cols="sum(mpg), min(hp)", by="vs, am")
+  expect_identical(agg.res$`sum(mpg)`, c(198.6, 145.2, 118.5, 180.6))
+  
+  agg.res <- adatao.aggregate(ddf, agg.cols="sum(mpg), mean(carb))", by="vs, am")
+  expect_identical(agg.res$`sum(mpg)`, c(198.6, 145.2, 118.5, 180.6))
   
   
   fn <- adatao.fivenum(ddf)

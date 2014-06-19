@@ -24,11 +24,33 @@ load.airlineWithNA <- function(dm) {
   ddf
 }
 
-test_that("basic statistics works", {
+test_that("dropNA works", {
   dm <- DDFManager()
   
   ddf <- load.airlineWithNA(dm)
-  ddf_no_na <- adatao.dropNA(ddf)
-  expect_equal(nrow(ddf_no_na), 9)
+  ddf_no_na_1 <- adatao.dropNA(ddf)
+  expect_equal(nrow(ddf_no_na_1), 9)
+  
+  ddf_no_na_2 <- adatao.dropNA(ddf, 1, "any", 0, NULL)
+  expect_equal(nrow(ddf_no_na_2), 22)
+  
   shutdown(dm)
-})  
+})
+
+test_that("fillNA works", {
+  dm <- DDFManager()
+  
+  ddf <- load.airlineWithNA(dm)
+  
+  ddf1 <- ddf[,c("year", "origin", "securitydelay","lateaircraftdelay")]
+  
+  ddf_filled_na_1 <- adatao.fillNA(ddf1, "0")
+  
+  fetched_df <- adatao.head(ddf_filled_na_1, 2)
+  expect_equal(fetched_df[2,3], 0)
+  expect_equal(fetched_df[2,4], 0)
+  
+  
+  
+  shutdown(dm)
+})

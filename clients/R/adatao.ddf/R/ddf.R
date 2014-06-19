@@ -114,7 +114,7 @@ setGeneric("adatao.head",
 setMethod("adatao.head",
           signature("DDF"),
           function(x, n=6L) {
-            res <- x@jddf$Views$firstNRows(n)
+            res <- x@jddf$Views$firstNRows(as.integer(n))
             # extract values
             df <- as.data.frame(t(sapply(res, function(x){x$split("\t")})), stringsAsFactors=F)
             
