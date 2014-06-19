@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.MapUtils;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema.Column;
+import com.adatao.ddf.content.Schema.ColumnType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.types.AggregateTypes.AggregateFunction;
@@ -171,7 +173,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
 
     if (Strings.isNullOrEmpty(method)) {
       String sqlCmd = fillNAWithValueSQL(value, function, columnsToValues, columns);
-      System.out.println(">>>>>>>>>>>>>>>FILLNA: " + sqlCmd);
+      mLog.info("FillNA sql command: " + sqlCmd);
       newddf = this.getManager().sql2ddf(String.format(sqlCmd, this.getDDF().getTableName()));
 
     } else { // interpolation methods 'ffill' or 'bfill'
@@ -217,9 +219,15 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         }
       } else {// fill by function
         if (AggregateFunction.fromString(function) != null) {// fill by function
+          Column curColumn = this.getDDF().getColumn(col);
           if (this.getDDF().getColumn(col).isNumeric()) {
             double filledValue = this.getDDF().getAggregationHandler().aggregateOnColumn(function, col);
-            caseCmd.append(fillNACaseSql(col, filledValue));
+            if (curColumn.getType() == ColumnType.DOUBLE) {
+              caseCmd.append(fillNACaseSql(col, filledValue));
+            } else {
+              caseCmd.append(fillNACaseSql(col, Math.round(filledValue)));
+            }
+            
           } else {
             caseCmd.append(String.format("%s,", col));
           }
@@ -237,6 +245,10 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
   }
 
+  private String fillNACaseSql(String column, long filledValue) {
+    return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
+  }
+  
   private String fillNACaseSql(String column, double filledValue) {
     return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
   }

@@ -1,6 +1,9 @@
 package com.adatao.spark.ddf.etl;
 
+
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,7 +12,6 @@ import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.exception.DDFException;
-import com.google.common.collect.Lists;
 
 public class MissingDataHandlerTest {
   private DDFManager manager;
@@ -42,14 +44,31 @@ public class MissingDataHandlerTest {
     Assert.assertEquals(9, newddf.getNumRows());
     Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(1, "any", 0, null, false).getNumColumns());
   }
-  
+
   @Test
   public void testFillNA() throws DDFException {
-    DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay","lateaircraftdelay"));
+    DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay", "lateaircraftdelay"));
+
+    // test fill by scalar value
     DDF newddf = ddf1.fillNA("0");
     Assert.assertEquals(282, newddf.aggregate("year, sum(LateAircraftDelay)").get("2008")[0], 0.1);
     Assert.assertEquals(301, ddf1.fillNA("1").aggregate("year, sum(LateAircraftDelay)").get("2008")[0], 0.1);
+
+    // test fill by aggregate function
+    ddf1.getMissingDataHandler().fillNA(null, null, 0, "mean", null, null, false);
+
+    // test fill by dictionary, with mutable DDF
+    Map<String, String> dict = new HashMap<String, String>() {
+      {
+        put("year", "2000");
+        put("securitydelay", "0");
+        put("lateaircraftdelay", "1");
+      }
+    };
+
+    ddf1.getMissingDataHandler().fillNA(null, null, 0, null, dict, null, false);
   }
+
   @After
   public void closeTest() {
     manager.shutdown();
