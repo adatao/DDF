@@ -182,7 +182,7 @@ class CrossValidationSuite extends ABigRClientTest {
 
         val persistenceID = r.persistenceID
 
-        val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(2, 3), 0)
+        val predictor = new YtrueYpred(dataContainerId, persistenceID)
         val r2 = bigRClient.execute[YtrueYpredResult](predictor)
         assert(r2.isSuccess)
         val predictionId = r2.result.dataContainerID
@@ -218,8 +218,8 @@ class CrossValidationSuite extends ABigRClientTest {
         assert(r.isSuccess)
         val persistenceID = r.persistenceID
 
-        val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0, 1), 2)
-        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+        val predictor = new YtrueYpred(dataContainerId, persistenceID)
+        val r2 = bigRClient.execute[  YtrueYpredResult](predictor)
         assert(r2.isSuccess)
         val predictionId = r2.result.dataContainerID
 
