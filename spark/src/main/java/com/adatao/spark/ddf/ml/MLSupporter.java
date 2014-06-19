@@ -126,14 +126,15 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
 //    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
 //        "YTrueYPredict"), outputColumns);
 //=======
-    Schema schema = new Schema(outputColumns);
+    Schema schema = new Schema(null, outputColumns);
 
 
     if (double[].class.equals(resultUnitType)) {
       return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);
 
     } else if (Object[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class,null, null, schema);
+      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class, this.getManager().getNamespace(),
+          null, schema);
 
     } else return null;
   }
