@@ -54,5 +54,11 @@ test_that("fillNA works", {
   fetched_df <- adatao.head(ddf_filled_na_2, 2)
   expect_equal(fetched_df[2,4], 31)
   
+  cols2Vals <- list(year="2000", securitydelay = "0", lateaircraftdelay = "1")
+  ddf_filled_na_3<- adatao.fillNA(ddf1, columnsToValues=cols2Vals)
+  fetched_df <- adatao.head(ddf_filled_na_3, 2)
+  expect_equal(fetched_df[2,1], 2000)
+  
+  
   shutdown(dm)
 })
