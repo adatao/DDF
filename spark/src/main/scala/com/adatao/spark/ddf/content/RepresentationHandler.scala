@@ -97,9 +97,17 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
 
   protected def fromRDDArrayDouble(typeSpecs: String): Object = {
     val rddArrDouble = this.get(RDD_ARRAY_DOUBLE).asInstanceOf[RDD[Array[Double]]]
+    val mappers: Array[Double ⇒ Object] = (this.getDDF.getSchemaHandler.getColumns.map(column ⇒ getDouble2ObjectMapper(column.getType))).toArray
+
     typeSpecs match {
       case RDD_ARRAY_OBJECT => {
-        rddArrDouble.map{row => row.map(elem => elem.asInstanceOf[Object])}
+        rddArrDouble.map{row => {
+          var i = 0
+          val arrObj = new Array[Object](row.size)
+          while(i < row.size) {
+            arrObj(i) = mappers(i)(row(i))
+          }
+        }}
       }
     }
   }
@@ -408,6 +416,17 @@ object RepresentationHandler {
       }
 
       case e ⇒ throw new DDFException("Cannot convert to double")
+    }
+  }
+
+  private def getDouble2ObjectMapper(colType: ColumnType): Double => Object = {
+    colType match {
+      case ColumnType.DOUBLE => {
+        case double => double.asInstanceOf[Object]
+      }
+      case ColumnType.INT => {
+        case double => double.toInt.asInstanceOf[Object]
+      }
     }
   }
 
