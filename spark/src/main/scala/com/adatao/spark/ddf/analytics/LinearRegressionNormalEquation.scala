@@ -211,9 +211,14 @@ object LinearRegressionNormalEquation {
 
 class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss: Double,
   val sst: Double, val stdErrs: Vector,
-  val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) {
-  def predict(features: Vector): Double = 0
-  
+  val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends Serializable {
+
+  def predictVector(features: Vector): Double = weights.dot(features)
+
+  def predict(features: Array[Double]): Double = {
+    this.predictVector(Vector(features))
+  }
+
   var dc: DummyCoding = null
   def setDummy(_dc: DummyCoding) {
     dc = _dc

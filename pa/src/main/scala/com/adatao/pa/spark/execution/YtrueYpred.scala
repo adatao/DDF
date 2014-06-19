@@ -13,6 +13,7 @@ import com.adatao.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.ML.Utils
+import com.adatao.ddf.exception.DDFException
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -22,7 +23,7 @@ import com.adatao.ML.Utils
  *
  * @author aht
  */
-class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int) extends AExecutor[YtrueYpredResult] {
+class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor[YtrueYpredResult] {
   override def runImpl(ctx: ExecutionContext): YtrueYpredResult = {
 
     // first, compute RDD[(ytrue, ypred)]
@@ -57,16 +58,18 @@ class YtrueYpred(dataContainerID: String, val modelID: String, val xCols: Array[
 
     val predictionDDF = projectedDDF.getMLSupporter().applyModel(mymodel, true, false)
 
-    var addId: String = ""
-    if (predictionDDF != null) {
-      addId = projectedDDF.getManager().addDDF(predictionDDF);
+    val predDDFID = if(predictionDDF == null) {
+        throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error predicting, prediction DDF is null.", null)
+    } else {
+        projectedDDF.getManager().addDDF(predictionDDF)
     }
+
 
     //return DDF
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
     val uid = predictionDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
 
-    LOG.info(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + addId)
+    LOG.info(">>>>>>dataContainerID = " + dataContainerID + "\t predictionDDF id =" + uid + "\taddId=" + predDDFID)
 
     new YtrueYpredResult(uid, metaInfo)
   }
