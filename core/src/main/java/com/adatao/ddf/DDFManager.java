@@ -20,8 +20,10 @@ package com.adatao.ddf;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import com.adatao.basic.ddf.BasicDDF;
@@ -122,6 +124,20 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
     mDDFsByName.put(aliasName, data);
     data.setAliasName(aliasName);
     return data;
+  }
+
+  /*
+   * return list of DDFs by name
+   */
+  public ArrayList<String> listDDFs() {
+    ArrayList<String> lstDDFs = new ArrayList<String>();
+    if (mDDFsByName.size() > 0) {
+      Iterator<String> it = mDDFsByName.keySet().iterator();
+      while (it.hasNext()) {
+        lstDDFs.add(it.next());
+      }
+    }
+    return lstDDFs;
   }
 
   /*
