@@ -125,6 +125,7 @@ object RootBuild extends Build {
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
     "org.apache.hbase" % "hbase" % "0.94.20" excludeAll(excludeNetty, excludeAsm),
+    "org.apache.phoenix" % "phoenix-core" % "3.0.0-incubating",
     "com.google.protobuf" % "protobuf-java" % "2.4.1",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
@@ -175,6 +176,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
          // "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+      "Maven repo" at "http://repo.maven.apache.org/maven2/",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
       "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
       "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"

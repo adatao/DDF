@@ -363,66 +363,16 @@ public class SparkDDFManager extends DDFManager {
   
   
   // Experimental stuffs
-  public DDF loadTable(String tableName, List<String> columns, String filter) throws DDFException {
+  public DDF loadTable(String tableName, String columnsNameType, Scan scan) throws DDFException {
     // JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
     Configuration config = HBaseConfiguration.create();
     // config.set("hbase.zookeeper.znode.parent", "hostname1");
     // config.set("hbase.zookeeper.quorum","hostname1");
-    // config.set("hbase.zookeeper.property.clientPort","2181");
+    config.set("hbase.zookeeper.property.clientPort","2222");
     config.set("hbase.master", "localhost:");
     // config.set("fs.defaultFS","hdfs://hostname1/");
     // config.set("dfs.namenode.rpc-address","localhost:8020");
     config.set(TableInputFormat.INPUT_TABLE, tableName);
-    String columnsNameType = "";
-    // init scan object
-    Scan scan = new Scan();
-    Iterator it = columns.iterator();
-    String c = "";
-    String cf = "";
-    String cq = "";
-    while (it.hasNext()) {
-      c = (String) it.next();
-      if (c.contains(":")) {
-        cf = c.split(":")[0];
-        cq = c.split(":")[1];
-        scan.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cq));
-        //convert to Shark table
-        columnsNameType += cf + "_" + cq + " string" + ",";
-      } else {
-        cf = c;
-        scan.addFamily(Bytes.toBytes(cf));
-        columnsNameType += " " + cf + " string" + ",";
-      }
-    }
-    if(!filter.equals("")) {
-      String whereColumn = getProjectionColumn(filter, columns);
-      if(!whereColumn.equals("")) {
-        String wherecf = whereColumn.split(":")[0];
-        String wherecq = whereColumn.split(":")[1];
-        CompareOp op = getOperator(filter);
-        String wherevalue = getValue(filter, whereColumn, op);
-        
-        System.out.println(">>>>>>>>> wherecf =" + wherecf);
-        System.out.println(">>>>>>>>> wherecq =" + wherecq);
-        System.out.println(">>>>>>>>> wherevalue =" + wherevalue);
-        System.out.println(">>>>>>>>> op =" + op);
-        
-        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);
-        SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
-          Bytes.toBytes(wherecf),
-          Bytes.toBytes(wherecq),
-          op,
-          Bytes.toBytes(wherevalue)
-          );
-        list.addFilter(filter1);
-        scan.setFilter(list);
-      }
-
-    }
-    
-    //remove last comma
-    if(columnsNameType.contains(",")) columnsNameType = columnsNameType.substring(0, columnsNameType.length()-1);
-    System.out.println(">>>>>>>.columnsNameType=" + columnsNameType);
     // set SCAN in conf
     try {
       config.set(TableInputFormat.SCAN, convertScanToString(scan));
@@ -437,13 +387,14 @@ public class SparkDDFManager extends DDFManager {
     RDD<Object[]> result = convertRDD2(hBaseRDD);
     
 //    generateObjectName(Object obj, String sourceName, String operation, String desiredName)
-    
+    System.out.println(">>>>>>>>>>>> tableName =  " + tableName);
     this.sql2txt("drop table if exists " + tableName);
     Schema schema = new Schema(tableName, columnsNameType); 
     DDF ddf =  new SparkDDF(this, result, Object[].class, "", tableName, schema);
     String newname = "SparkDDF_spark_" + UUID.randomUUID().toString();
     ddf.setName(newname);
     ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
+    
     return ddf;
   }
   
