@@ -47,13 +47,12 @@ public class MissingDataHandlerTest {
   public void testFillNA() throws DDFException {
     DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay","lateaircraftdelay"));
     DDF newddf = ddf1.fillNA("0");
-    //Assert.assertEquals(0, ddf.fillNA("0").aggregate("year, sum(LateAircraftDelay)").get("2008"));
-    System.out.println(newddf.Views.firstNRows(2));
+    Assert.assertEquals(282, newddf.aggregate("year, sum(LateAircraftDelay)").get("2008")[0], 0.1);
+    Assert.assertEquals(301, ddf1.fillNA("1").aggregate("year, sum(LateAircraftDelay)").get("2008")[0], 0.1);
   }
   @After
   public void closeTest() {
     manager.shutdown();
   }
-
 
 }

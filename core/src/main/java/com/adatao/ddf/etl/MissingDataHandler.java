@@ -173,10 +173,12 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
       if (!Strings.isNullOrEmpty(value)) { // fill by value
 
         if (this.getDDF().getColumn(col).isNumeric()) {
-          caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END),", col, value, col));
+          //caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, value, col, col));
+          caseCmd.append(fillNACaseSql(col, value));
         } else {
-          caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END),", col,
-              String.format("'%s'", value), col));
+//          caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col,
+//              String.format("'%s'", value), col, col));
+          caseCmd.append(fillNACaseSql(col, String.format("'%s'", value)));
         }
 
       } else if (MapUtils.isNotEmpty(columnsToValues)) { // fill different values for different columns
@@ -185,10 +187,12 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         if (keys.contains(col)) {
           String filledValue = columnsToValues.get(col);
           if (this.getDDF().getColumn(col).isNumeric()) {
-            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END),", col, filledValue, col));
+            //caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, filledValue, col, col));
+            caseCmd.append(fillNACaseSql(col, filledValue));
           } else {
-            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END),", col,
-                String.format("'%s'", filledValue), col));
+//            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col,
+//                String.format("'%s'", filledValue), col, col));
+            caseCmd.append(fillNACaseSql(col, String.format("'%s'", filledValue)));
           }
         } else {
           caseCmd.append(String.format("%s,", col));
@@ -197,7 +201,8 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         if (AggregateFunction.fromString(function) != null) {// fill by function
           if (this.getDDF().getColumn(col).isNumeric()) {
             double filledValue = this.getDDF().getAggregationHandler().aggregateOnColumn(function, col);
-            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END),", col, filledValue, col));
+//            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, filledValue, col, col));
+            caseCmd.append(fillNACaseSql(col, filledValue));
           } else {
             caseCmd.append(String.format("%s,", col));
           }
@@ -211,6 +216,13 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     return sqlCmd;
   }
 
+  private String fillNACaseSql(String column, String filledValue) {
+    return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
+  }
+  
+  private String fillNACaseSql(String column, double filledValue) {
+    return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
+  }
   @Override
   public DDF replaceNA() {
     // TODO Auto-generated method stub
