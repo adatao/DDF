@@ -45,6 +45,8 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     typeSpecs match {
       case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(typeSpecs)
       case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
+      case rddArrObj if (rddArrObj == RDD_ARRAY_OBJECT && !this.has(classOf[RDD[_]], classOf[Row]) &&
+        this.has(classOf[RDD[_]], classOf[Array[Double]]))=> this.fromRDDArrayDouble(rddArrObj)
       case _ => this.fromRDDRow(typeSpecs)
     }
   }
@@ -89,6 +91,15 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         val schemaHandler = mDDF.getSchemaHandler
         val mappers = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
         arrObjectToArrDouble(rddArrObj, mappers)
+      }
+    }
+  }
+
+  protected def fromRDDArrayDouble(typeSpecs: String): Object = {
+    val rddArrDouble = this.get(RDD_ARRAY_DOUBLE).asInstanceOf[RDD[Array[Double]]]
+    typeSpecs match {
+      case RDD_ARRAY_OBJECT => {
+        rddArrDouble.map{row => row.map(elem => elem.asInstanceOf[Object])}
       }
     }
   }
