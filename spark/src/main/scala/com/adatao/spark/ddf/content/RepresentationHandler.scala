@@ -43,8 +43,9 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
 
     typeSpecs match {
-      case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(typeSpecs)
-      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
+      case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(rddArrDouble)
+      //case rddTP if (rddTP == RDD_TABLE_PARTITION && this.has(classOf[RDD[_]], classOf[Array[Double]]))=> this.fromRDDArrayDouble(rddTP)
+      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(rddTP)
       case rddArrObj if (rddArrObj == RDD_ARRAY_OBJECT && !this.has(classOf[RDD[_]], classOf[Row]) &&
         this.has(classOf[RDD[_]], classOf[Array[Double]]))=> this.fromRDDArrayDouble(rddArrObj)
       case _ => this.fromRDDRow(typeSpecs)
@@ -106,8 +107,11 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
           val arrObj = new Array[Object](row.size)
           while(i < row.size) {
             arrObj(i) = mappers(i)(row(i))
+            i += 1
           }
-        }}
+          arrObj
+          }
+        }
       }
     }
   }

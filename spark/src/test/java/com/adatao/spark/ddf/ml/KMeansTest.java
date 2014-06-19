@@ -1,6 +1,8 @@
 package com.adatao.spark.ddf.ml;
 
 import static com.adatao.spark.ddf.content.RepresentationHandler.RDD_ARRAY_DOUBLE;
+
+import com.adatao.ddf.ml.IModel;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.rdd.RDD;
 import org.junit.Assert;
@@ -39,5 +41,6 @@ public class KMeansTest {
 
     manager.shutdown();
   }
+
 
 }

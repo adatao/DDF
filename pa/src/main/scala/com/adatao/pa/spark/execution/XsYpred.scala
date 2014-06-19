@@ -2,6 +2,8 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.ML.Utils
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * author: daoduchuan
@@ -14,6 +16,9 @@ class XsYpred(dataContainerID: String, val modelID: String) extends AExecutor[Da
     val ddf = ddfManager.getDDF(ddfID)
 
     val model = ddfManager.getModel(modelID)
+    if(model == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "null model", null)
+    }
     val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter.applyModel(model, false, true)
