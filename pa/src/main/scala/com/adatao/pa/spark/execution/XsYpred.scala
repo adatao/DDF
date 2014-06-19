@@ -6,7 +6,7 @@ import com.adatao.ML.Utils
 /**
  * author: daoduchuan
  */
-class XsYpred(dataContainerID: String, val modelID: String, val xCols: Array[Int]) extends AExecutor[DataFrameResult]{
+class XsYpred(dataContainerID: String, val modelID: String) extends AExecutor[DataFrameResult]{
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val ddfManager = ctx.sparkThread.getDDFManager
@@ -17,6 +17,8 @@ class XsYpred(dataContainerID: String, val modelID: String, val xCols: Array[Int
     val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter.applyModel(model, false, true)
+    ddfManager.addDDF(predictionDDF)
+
     new DataFrameResult(predictionDDF)
   }
 }
