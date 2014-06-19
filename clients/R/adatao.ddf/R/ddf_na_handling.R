@@ -35,9 +35,13 @@ setGeneric("adatao.fillNA",
 # @param method c('backfill', 'bfill', 'pad', 'ffill')
 setMethod("adatao.fillNA",
           signature("DDF"),
-          function(x, value, method=NULL, limit=0L, func=NULL, columnsToValues=NULL, columns=NULL, inplace=FALSE) {
+          function(x, value=NULL, method=NULL, limit=0L, func=NULL, columnsToValues=NULL, columns=NULL, inplace=FALSE) {
             
             method <- match.arg(method)
+            
+            if (is.null(value)) {
+              value <- .jnull('java/lang/String')
+            }
             
             if (is.null(method)) {
               method <- .jnull('java/lang/String')

@@ -18,7 +18,7 @@ load.airlineWithNA <- function(dm) {
              , "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) "
              , "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"))
   
-  adatao.sql(dm, "load data local inpath '/home/nhanitvn/adatao/ddf/resources/test/airlineWithNA.csv' into table airline_na")
+  adatao.sql(dm, "load data local inpath '../../../resources/test//airline.csv' into table airline_na")
   
   ddf <- adatao.sql2ddf(dm, "select * from airline_na")
   ddf
@@ -32,7 +32,7 @@ test_that("dropNA works", {
   expect_equal(nrow(ddf_no_na_1), 9)
   
   ddf_no_na_2 <- adatao.dropNA(ddf, 1, "any", 0, NULL)
-  expect_equal(nrow(ddf_no_na_2), 22)
+  expect_equal(ncol(ddf_no_na_2), 22)
   
   shutdown(dm)
 })
@@ -50,7 +50,9 @@ test_that("fillNA works", {
   expect_equal(fetched_df[2,3], 0)
   expect_equal(fetched_df[2,4], 0)
   
-  
+  ddf_filled_na_2<- adatao.fillNA(ddf1, func="mean")
+  fetched_df <- adatao.head(ddf_filled_na_2, 2)
+  expect_equal(fetched_df[2,4], 31)
   
   shutdown(dm)
 })
