@@ -41,7 +41,7 @@ public class AggregateTypes {
 //////// Inner classes/enums ////////
 
 
- public static class AggregationResult extends HashMap<String, Double[]> {
+ public static class AggregationResult extends HashMap<String, double[]> {
 
    private static final long serialVersionUID = -7809562958792876728L;
 
@@ -56,7 +56,7 @@ public class AggregateTypes {
        String groupByColNames = res.substring(0, pos).replaceAll("\t", ",");
        String[] stats = res.substring(pos + 1).split("\t");
 
-       Double[] statsDouble = new Double[stats.length];
+       double[] statsDouble = new double[stats.length];
 
        for (int i = 0; i < stats.length; i++) {
          statsDouble[i] = "null".equalsIgnoreCase(stats[i]) ? Double.NaN : Utils.roundUp(Double.parseDouble(stats[i]));
