@@ -1,5 +1,6 @@
 package com.adatao.ddf.etl;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,10 +25,21 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     // TODO Auto-generated constructor stub
   }
 
-  // axis=0, how='any', thresh=None, subset=None, inplace=False
-  // dropNA(0, "any", 0, null, false)
   /**
-   * how: 'any' or 'all'
+   * This function drop rows or columns that contain NA values, Default: axis=0, how='any', thresh=0, columns=null,
+   * inplace=false
+   * 
+   * @param axis
+   *          = 0: drop by row, 1: drop by column, default 0
+   * @param how
+   *          = 'any' or 'all', default 'any'
+   * @param thresh
+   *          = required number of non-NA values to skip, default 0
+   * @param columns
+   *          = only consider NA dropping on the given columns, set to null for all columns of the DDF, default null
+   * @param inplace
+   *          = false: result in new DDF, true: update on the same DDF, default false
+   * @return a DDF with dropNA handled
    */
   @Override
   public DDF dropNA(int axis, String how, long thresh, List<String> columns, boolean inplace) throws DDFException {
@@ -127,8 +139,27 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
             .get(0));
   }
 
-  // value=None, method=None, inplace=False, limit=None, downcast=None
-  // fill column-by-column
+
+  /**
+   * This function fills NA with given values. Default using a scalar value fillNA(value,null, 0, null, null, null,
+   * false)
+   * 
+   * @param value
+   *          a scalar value to fill all NAs
+   * @param method
+   *          = 'ffill' for forward fill or 'bfill' for backward fill
+   * @param limit
+   *          = maximum size gap for forward or backward fill
+   * @param function
+   *          aggregate function to generate the filled value for a column
+   * @param columnsToValues
+   *          = a map to provide different values to fill for different columns
+   * @param columns
+   *          = only consider NA filling on the given columns, set to null for all columns of the DDF
+   * @param inplace
+   *          = false: result in new DDF, true: update on the same DDF
+   * @return a DDF with fillNA handled
+   */
   @Override
   public DDF fillNA(String value, String method, long limit, String function, Map<String, String> columnsToValues,
       List<String> columns, boolean inplace) throws DDFException {
@@ -147,14 +178,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
       // TODO:
     }
 
-    // if (axis == 0) { // fill column-by-column
-    //
-    // } else if (axis == 1) { // fill row-by-row
-    //
-    // } else {
-    // throw new DDFException(
-    // "Either choose axis = 0 for row-based NA filtering or axis = 1 for column-based NA filtering");
-    // }
+
     if (inplace) {
       return this.getDDF().updateInplace(newddf);
 
@@ -173,11 +197,8 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
       if (!Strings.isNullOrEmpty(value)) { // fill by value
 
         if (this.getDDF().getColumn(col).isNumeric()) {
-          //caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, value, col, col));
           caseCmd.append(fillNACaseSql(col, value));
         } else {
-//          caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col,
-//              String.format("'%s'", value), col, col));
           caseCmd.append(fillNACaseSql(col, String.format("'%s'", value)));
         }
 
@@ -187,11 +208,8 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         if (keys.contains(col)) {
           String filledValue = columnsToValues.get(col);
           if (this.getDDF().getColumn(col).isNumeric()) {
-            //caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, filledValue, col, col));
             caseCmd.append(fillNACaseSql(col, filledValue));
           } else {
-//            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col,
-//                String.format("'%s'", filledValue), col, col));
             caseCmd.append(fillNACaseSql(col, String.format("'%s'", filledValue)));
           }
         } else {
@@ -201,7 +219,6 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         if (AggregateFunction.fromString(function) != null) {// fill by function
           if (this.getDDF().getColumn(col).isNumeric()) {
             double filledValue = this.getDDF().getAggregationHandler().aggregateOnColumn(function, col);
-//            caseCmd.append(String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", col, filledValue, col, col));
             caseCmd.append(fillNACaseSql(col, filledValue));
           } else {
             caseCmd.append(String.format("%s,", col));
@@ -219,19 +236,15 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
   private String fillNACaseSql(String column, String filledValue) {
     return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
   }
-  
+
   private String fillNACaseSql(String column, double filledValue) {
     return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
   }
+
   @Override
   public DDF replaceNA() {
     // TODO Auto-generated method stub
     return null;
   }
-
-
-  // to_replace=None, value=None, inplace=False, limit=None, regex=False, method='pad', axis=None
-
-
 
 }
