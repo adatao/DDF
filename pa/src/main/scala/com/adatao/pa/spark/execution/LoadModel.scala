@@ -20,6 +20,8 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
     val persistenceHandler = new PersistenceHandler(null);
     val modelDDF = persistenceHandler.load(uri).asInstanceOf[BasicDDF]
     val model = Model.deserializeFromDDF(modelDDF);
+    manager.addModel(model)
+
     val rawModel = model.getRawModel
     val trainedCols = model.getTrainedColumns;
     rawModel match {

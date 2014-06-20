@@ -179,7 +179,11 @@ public class Model implements IModel, Serializable {
     }
 
     String json = StringUtils.join(listJson, ",");
-    return Model.fromJson(String.format("{%s}", json));
+    Model model =  Model.fromJson(String.format("{%s}", json));
+
+    ddf.getManager().addModel(model);
+    System.out.println(">>>>> model id = " + model.getName());
+    return model;
   }
 
   static class ModelDeserializer implements JsonDeserializer<Model> {
