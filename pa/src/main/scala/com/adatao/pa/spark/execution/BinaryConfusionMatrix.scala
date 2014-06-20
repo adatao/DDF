@@ -27,8 +27,10 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val xC
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     // val ddfModelID = context.sparkThread.getDataManager.getObject(modelID).asInstanceOf[TModel].ddfModelID
-    val ddfModel = ddfManager.getModel(modelID)
-    val cm = ddf.ML.getConfusionMatrix(ddfModel, threshold)
+
+    val model = ddfManager.getModel(modelID)
+    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val cm = projectedDDF.ML.getConfusionMatrix(model, threshold)
     new BinaryConfusionMatrixResult(cm(0)(0), cm(1)(0), cm(0)(1), cm(1)(1))
   }
 }
