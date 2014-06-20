@@ -28,7 +28,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
   }
 
   /**
-   * This function drop rows or columns that contain NA values, Default: axis=0, how='any', thresh=0, columns=null,
+   * This function filters out rows or columns that contain NA values, Default: axis=0, how='any', thresh=0, columns=null,
    * inplace=false
    * 
    * @param axis
@@ -41,7 +41,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
    *          = only consider NA dropping on the given columns, set to null for all columns of the DDF, default null
    * @param inplace
    *          = false: result in new DDF, true: update on the same DDF, default false
-   * @return a DDF with dropNA handled
+   * @return a DDF with NAs filtered
    */
   @Override
   public DDF dropNA(int axis, String how, long thresh, List<String> columns, boolean inplace) throws DDFException {
@@ -84,7 +84,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
 
         cols = selectedColumns(1, columns);
       } else if ("all".equalsIgnoreCase(how)) {
-        cols = selectedColumns(1, columns);
+        cols = selectedColumns(numrows, columns);
       }
 
       newddf = this.getDDF().Views.project(cols);
@@ -160,7 +160,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
    *          = only consider NA filling on the given columns, set to null for all columns of the DDF
    * @param inplace
    *          = false: result in new DDF, true: update on the same DDF
-   * @return a DDF with fillNA handled
+   * @return a DDF with NAs filled
    */
   @Override
   public DDF fillNA(String value, String method, long limit, String function, Map<String, String> columnsToValues,

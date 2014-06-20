@@ -38,14 +38,16 @@ public class MissingDataHandlerTest {
   }
 
   @Test
-  @Ignore
   public void testDropNA() throws DDFException {
     DDF newddf = ddf.dropNA();
     Assert.assertEquals(9, newddf.getNumRows());
     Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(1, "any", 0, null, false).getNumColumns());
+    
+    Assert.assertEquals(29, ddf.getMissingDataHandler().dropNA(1, "all", 0, null, false).getNumColumns());
   }
 
   @Test
+  @Ignore
   public void testFillNA() throws DDFException {
     DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay", "lateaircraftdelay"));
 
