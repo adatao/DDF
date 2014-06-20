@@ -42,13 +42,13 @@ public class MissingDataTypes {
 
   public class DoubleOrNA extends AMissingValue<Double> {}
 
-  public class IntegerOrNA extends AMissingValue<Double> {}
+  public class IntegerOrNA extends AMissingValue<Integer> {}
 
-  public class LongOrNA extends AMissingValue<Double> {}
+  public class LongOrNA extends AMissingValue<Long> {}
 
-  public class FloatOrNA extends AMissingValue<Double> {}
+  public class FloatOrNA extends AMissingValue<Float> {}
 
-  public class ObjectOrNA extends AMissingValue<Double> {}
+  public class ObjectOrNA extends AMissingValue<Object> {}
 
   public class NA extends AMissingValue<Byte> {
 
