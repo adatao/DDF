@@ -8,6 +8,7 @@ import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
 import org.jblas.Solve
 import java.util.HashMap
+import com.adatao.ddf.exception.DDFException
 
 class LogisticRegresionIRLS {
 
@@ -204,6 +205,10 @@ class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDevianc
 
   def predict(point: Array[Double]): java.lang.Double = {
     val features = Vector(point)
+    if(features.size != weights.size) {
+      throw new DDFException(s"error predicting, features.size = ${features.size}, weights.size = ${weights.size}")
+    }
+
     val linearPredictor = weights.dot(features)
     ALossFunction.sigmoid(linearPredictor)
   }
