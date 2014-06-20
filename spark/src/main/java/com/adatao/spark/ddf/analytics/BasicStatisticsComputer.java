@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
-
+import org.apache.commons.lang.math.NumberUtils;
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
@@ -62,13 +62,12 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
                 result[i].setNACount(1);
               } else {
                 double number = 0.0;
-                try {
+
+                if(NumberUtils.isNumber(str)) {
                   number = Double.parseDouble(str);
                   s.merge(number);
-                  result[i] = s;
-                } catch (Exception ex) {
+                } else {
                   result[i] = null;
-                  mLog.info("GetSummaryMapper: catch " + p[i] + " is not number");
                 }
               }
             }
