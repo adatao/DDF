@@ -196,7 +196,8 @@ object LogisticRegressionIRLS {
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDeviance: Double, numSamples: Long, numFeatures: Long, numIters: Int, stderrs: Vector) {
+class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDeviance: Double, numSamples: Long,
+                                  numFeatures: Long, numIters: Int, stderrs: Vector) extends Serializable {
   override def toString(): String = {
     weights.toString
   }
