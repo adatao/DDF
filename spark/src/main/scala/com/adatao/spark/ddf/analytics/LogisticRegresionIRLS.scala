@@ -204,7 +204,7 @@ class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDevianc
   }
 
   def predict(point: Array[Double]): java.lang.Double = {
-    val features = Vector(point)
+    val features = Vector(Array[Double](1.0) ++ point)
     if(features.size != weights.size) {
       throw new DDFException(s"error predicting, features.size = ${features.size}, weights.size = ${weights.size}")
     }
