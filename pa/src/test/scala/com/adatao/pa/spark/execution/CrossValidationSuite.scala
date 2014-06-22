@@ -88,7 +88,7 @@ class CrossValidationSuite extends ABigRClientTest {
 
         val persistenceID = r.persistenceID
 
-        val scorer = new R2Score(test, Array(0), 1, persistenceID)
+        val scorer = new R2Score(test, persistenceID)
         val r2 = bigRClient.execute[Double](scorer)
         assert(r2.isSuccess)
 

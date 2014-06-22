@@ -17,7 +17,7 @@ import com.adatao.ddf.DDF
  * The given model should be able to predict y such that 0 <= y <= 1.
  * @author aht
  */
-class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int, val threshold: Double) extends AExecutor[BinaryConfusionMatrixResult] {
+class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val threshold: Double) extends AExecutor[BinaryConfusionMatrixResult] {
 
   override def runImpl(context: ExecutionContext): BinaryConfusionMatrixResult = {
     val ddfManager = context.sparkThread.getDDFManager()

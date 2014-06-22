@@ -157,7 +157,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 		
 
-		val scorer = new R2Score(dataContainerId, Array(0), 1, modelID)
+		val scorer = new R2Score(dataContainerId, modelID)
 		val r2 = bigRClient.execute[Double](scorer)
 		assert(r2.isSuccess)
 
@@ -320,7 +320,7 @@ class MetricsSuite extends ABigRClientTest {
 		println(">>>>model r.result = " + r.result)
 
 		val threshold = 0.5
-		val executor = new BinaryConfusionMatrix(dataContainerId, persistenceID, Array(0, 1), 2, threshold)
+		val executor = new BinaryConfusionMatrix(dataContainerId, persistenceID, threshold)
 		val ret = bigRClient.execute[BinaryConfusionMatrixResult](executor)
 		assert(ret.isSuccess)
 
@@ -372,7 +372,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 		assertTrue(modelID != null)
 
-		val scorer = new R2Score(dataContainerId, Array(0), 1, modelID)
+		val scorer = new R2Score(dataContainerId, modelID)
 		val r2 = bigRClient.execute[Double](scorer)
 		assert(r2.isSuccess)
 		println(">>>>>result =" + r2.result)

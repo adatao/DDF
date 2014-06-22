@@ -19,11 +19,10 @@ class LoadModel(uri: String) extends AExecutor[LoadModelResult] {
     val manager = ctx.sparkThread.getDDFManager
     val persistenceHandler = new PersistenceHandler(null);
     val modelDDF = persistenceHandler.load(uri).asInstanceOf[BasicDDF]
-    val model = Model.deserializeFromDDF(modelDDF);
+    val model = Model.deserializeFromDDF(modelDDF)
     manager.addModel(model)
 
     val rawModel = model.getRawModel
-    val trainedCols = model.getTrainedColumns;
     rawModel match {
       case kmeansModel if kmeansModel.isInstanceOf[KMeansModel] => {
         //LOG.info(">>>>>> model.getTrainedColumns = " + model.getTrainedColumns.mkString(", "))

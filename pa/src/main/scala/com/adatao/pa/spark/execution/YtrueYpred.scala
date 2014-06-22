@@ -21,13 +21,12 @@ import com.adatao.ddf.exception.DDFException
  *
  * Works with LinearRegressionModel and LogisticRegressionModel.
  *
- * @author aht
  */
 class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor[YtrueYpredResult] {
   override def runImpl(ctx: ExecutionContext): YtrueYpredResult = {
-    val ddfManager = ctx.sparkThread.getDDFManager();
+    val ddfManager = ctx.sparkThread.getDDFManager()
     val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf: DDF = ddfManager.getDDF(ddfId);
+    val ddf: DDF = ddfManager.getDDF(ddfId)
 
     //apply model on dataContainerID
     val model: IModel = ddfManager.getModel(modelID)
@@ -41,7 +40,6 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         ddfManager.addDDF(predictionDDF)
     }
 
-    //return DDF
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
     val uid = predictionDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
 
