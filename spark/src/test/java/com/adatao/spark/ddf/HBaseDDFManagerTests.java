@@ -210,14 +210,14 @@ public class HBaseDDFManagerTests {
         System.out.println(">>>> <Column> = " + c.getName());
       }
 
-//      // get summary
-//      Summary[] a = ddf.getSummary();
-//      assert (a != null);
-//      System.out.println(">>>>>> summmary =  " + a[0].toString());
-////
-////      // get fivenum summary, fail
-//////      FiveNumSummary[] b = ddf.getFiveNumSummary();
-//////      assert (b != null);
+      // get summary
+      Summary[] a = ddf.getSummary();
+      assert (a != null);
+      System.out.println(">>>>>> summmary =  " + a[0].toString());
+//
+      // get fivenum summary, fail
+      FiveNumSummary[] b = ddf.getFiveNumSummary();
+      assert (b != null);
 ////
 ////      // load another ddf from Shark
 //      DDF sharkDdf = manager.sql2ddf("select origin from airline");
