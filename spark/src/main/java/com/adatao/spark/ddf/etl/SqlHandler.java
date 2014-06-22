@@ -279,7 +279,7 @@ public class SqlHandler extends ASqlHandler {
       Iterator<AliasedNode> it = nodes.iterator();
       while (it.hasNext()) {
         AliasedNode node = it.next();
-        String column = node.getNode().getAlias();
+        String column = node.getNode().getAlias().toLowerCase();
         System.out.println(">>>>>>>>>>>>>>> column  = " + column);
         if (column.contains("_")) {
           colTypes.put(column, "string");
@@ -290,11 +290,13 @@ public class SqlHandler extends ASqlHandler {
 
       // put column type from where condition, this will override pre-set selected column's types
       ParseNode where = stm.getWhere();
-      List<ParseNode> children = where.getChildren();
-      Iterator<ParseNode> it2 = children.iterator();
-      while (it2.hasNext()) {
-        ParseNode child = it2.next();
-        colTypes = parseFilterForColumnType(child, colTypes);
+      if (where != null && where.getChildren() != null && where.getChildren().size() > 0) {
+        List<ParseNode> children = where.getChildren();
+        Iterator<ParseNode> it2 = children.iterator();
+        while (it2.hasNext()) {
+          ParseNode child = it2.next();
+          colTypes = parseFilterForColumnType(child, colTypes);
+        }
       }
 
       // from colTypes, generate columnsNameType
@@ -404,7 +406,8 @@ public class SqlHandler extends ASqlHandler {
       String wherecq = whereColumnName.split("_")[1];
       System.out.println(">>>>>>>>>> column family : " + wherecf + "\t column qualifier:" + wherecq
           + "\t whereColumnType: " + whereColumnType);
-      colTypes.put(whereColumnName, whereColumnType);
+      if (colTypes.containsKey(whereColumnName.toLowerCase())) colTypes.remove(whereColumnName.toLowerCase());
+      colTypes.put(whereColumnName.toLowerCase(), whereColumnType);
 
     }
     return colTypes;

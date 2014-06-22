@@ -34,6 +34,7 @@ object CanConvertToTablePartition {
       classTags.foreach{
         ct => println(">>>>> classTags = " + ct.toString())
       }
+      println(">>>>>>>>>> tableName="+tableName)
       val rddTableFunction = new RDDTableFunctions(rdd, classTags)
 
       try {

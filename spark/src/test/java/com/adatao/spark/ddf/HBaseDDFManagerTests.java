@@ -196,18 +196,19 @@ public class HBaseDDFManagerTests {
     try {
       Assert.assertEquals("spark", manager.getEngine());
 //      DDF ddf = manager.loadTable("airport", Arrays.asList("cf:ap", "cf:city", "cf:id", "cf:lat", "cf:lon", "cf:state"));
-      DDF ddf = manager.sql2ddf("select cf:ap, cf:city, cf:id, cf:lat, cf:lon, cf:state from airport where cf:lon > 100 and cf:lat != 40 and cf:id != 'abcdef'", null, "hbase");
-//      long nrow = ddf.getNumRows();
-//      System.out.println(">>>>>>>>>>> numrows = " + nrow);
-//      assert (nrow == 2);
+//      DDF ddf = manager.sql2ddf("select cf:ap, cf:city, cf:id, cf:lat, cf:lon, cf:state from airport where cf:lon > 100 and cf:lat != 40 and cf:id != 'abcdef'", null, "hbase");
+      DDF ddf = manager.sql2ddf("select cf:ap, cf:city, cf:id, cf:lat, cf:lon, cf:state from airport", null, "hbase");
+      long nrow = ddf.getNumRows();
+      System.out.println(">>>>>>>>>>> numrows = " + nrow);
+      assert (nrow == 2);
       
-//      System.out.println(">>>> ddf tableName = " + ddf.getSchema().getTableName() + "\t");
-//      List<Column> cols = ddf.getSchema().getColumns();
-//      java.util.Iterator<Column> it = cols.iterator();
-//      while (it.hasNext()) {
-//        Column c = it.next();
-//        System.out.println(">>>> <Column> = " + c.getName());
-//      }
+      System.out.println(">>>> ddf tableName = " + ddf.getSchema().getTableName() + "\t");
+      List<Column> cols = ddf.getSchema().getColumns();
+      java.util.Iterator<Column> it = cols.iterator();
+      while (it.hasNext()) {
+        Column c = it.next();
+        System.out.println(">>>> <Column> = " + c.getName());
+      }
 
 //      // get summary
 //      Summary[] a = ddf.getSummary();

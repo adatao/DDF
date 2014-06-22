@@ -89,6 +89,8 @@ object RootBuild extends Build {
   val excludeJacksonCore = ExclusionRule(organization = "org.codehaus.jackson", name = "jackson-core-asl")
   val excludeJacksonMapper = ExclusionRule(organization = "org.codehaus.jackson", name = "jackson-mapper-asl")
   val excludeNetty = ExclusionRule(organization = "org.jboss.netty", name = "netty")
+  val excludeHbase =  ExclusionRule(organization = "org.apache.hbase", name = "hbase")
+  val excludeZooKeeper =  ExclusionRule(organization = "org.apache.zookeeper", name = "zookeeper")
   val excludeScala = ExclusionRule(organization = "org.scala-lang", name = "scala-library")
   val excludeGuava = ExclusionRule(organization = "com.google.guava", name = "guava-parent")
   val excludeJets3t = ExclusionRule(organization = "net.java.dev.jets3t", name = "jets3t")
@@ -124,8 +126,8 @@ object RootBuild extends Build {
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
-    "org.apache.hbase" % "hbase" % "0.94.20" excludeAll(excludeNetty, excludeAsm),
-    "org.apache.phoenix" % "phoenix-core" % "3.0.0-incubating",
+    "org.apache.hbase" % "hbase" % "0.94.2" excludeAll(excludeNetty, excludeAsm, excludeZooKeeper),
+    "org.apache.phoenix" % "phoenix-core" % "3.0.0-incubating" excludeAll(excludeNetty, excludeAsm, excludeHbase),
     "com.google.protobuf" % "protobuf-java" % "2.4.1",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
     // needed by Hive
@@ -202,7 +204,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
       "org.easymock" % "easymock" % "3.1" % "test",
-      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty") exclude("org.apache.zookeeper", "zookeeper"),
       "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
