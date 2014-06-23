@@ -4,7 +4,9 @@ package com.adatao.spark.ddf;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.security.SecureRandom;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +25,19 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
 import org.apache.hadoop.hbase.util.Base64;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.phoenix.parse.AliasedNode;
+import org.apache.phoenix.parse.ColumnParseNode;
+import org.apache.phoenix.parse.EqualParseNode;
+import org.apache.phoenix.parse.GreaterThanOrEqualParseNode;
+import org.apache.phoenix.parse.GreaterThanParseNode;
+import org.apache.phoenix.parse.LiteralParseNode;
+import org.apache.phoenix.parse.NamedTableNode;
+import org.apache.phoenix.parse.NotEqualParseNode;
+import org.apache.phoenix.parse.ParseNode;
+import org.apache.phoenix.parse.SQLParser;
+import org.apache.phoenix.parse.SelectStatement;
+import org.apache.phoenix.parse.TableNode;
+import org.apache.phoenix.schema.PDataType;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -361,9 +376,251 @@ public class SparkDDFManager extends DDFManager {
     return metaInfoArray;
   }
   
+  /*
+   * return Scan object
+   */
+  public Scan parseQuery(String command) {
+    SQLParser parser;
+    command = command.replace(":", "_");
+    try {
+      // make sure input query for SQLParser doesn't contain semi colon
+      parser = new SQLParser(new StringReader(command));
+      SelectStatement stm = parser.parseQuery();
+      Scan scan = new Scan();
+
+      // get table name, assumption select from one table
+      // TODO assumption one table
+      List<TableNode> lst = stm.getFrom();
+      NamedTableNode temp = (NamedTableNode) lst.get(0);
+      // tableName = temp.getName().getTableName();
+
+      // get selected columns, just simply list all columns here and add to scan object
+      String cf = "";
+      String cq = "";
+      List<AliasedNode> nodes = stm.getSelect();
+      Iterator<AliasedNode> it = nodes.iterator();
+      while (it.hasNext()) {
+        AliasedNode node = it.next();
+        String column = node.getNode().getAlias();
+        System.out.println(">>>>>>>>>>>>>>> column  = " + column);
+        if (column.contains("_")) {
+          cf = column.split("_")[0];
+          cq = column.split("_")[1];
+          scan.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cq));
+        } else {
+          cf = column;
+          scan.addFamily(Bytes.toBytes(cf));
+        }
+      }
+
+      // get where conditions here
+      ParseNode where = stm.getWhere();
+      if (where != null && where.getChildren() != null && where.getChildren().size() > 0) {
+        List<ParseNode> children = where.getChildren();
+        Iterator<ParseNode> it2 = children.iterator();
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+        // check what type of where condition
+        while (it2.hasNext()) {
+          ParseNode child = it2.next();
+          list = parseFilter(child, list);
+        }
+        // set filter
+        if (list != null && list.getFilters() != null && list.getFilters().size() > 0) {
+          scan.setFilter(list);
+        }
+      }
+      System.out.println(">>>> scan = " + scan.toString());
+      return scan;
+      // get table
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    // parser.parseStatement();
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return null;
+  }
+  
+//TODO use must pass one first, if we dont' have OR then change to must pass all
+ public FilterList parseFilter(ParseNode filterNode, FilterList list) {
+   CompareOp op = null;// getOperator(filter);
+
+   if (filterNode instanceof GreaterThanParseNode) {
+     op = CompareOp.GREATER;
+   } else if (filterNode instanceof GreaterThanOrEqualParseNode) {
+     op = CompareOp.GREATER_OR_EQUAL;
+   } else if (filterNode instanceof NotEqualParseNode) {
+     op = CompareOp.NOT_EQUAL;
+   } else if (filterNode instanceof EqualParseNode) {
+     op = CompareOp.EQUAL;
+   }
+
+   String whereColumnName = "";
+   String wherevalue = "";
+   List<ParseNode> children = filterNode.getChildren();
+   Iterator<ParseNode> it = children.iterator();
+   while (it.hasNext()) {
+     ParseNode node = it.next();
+     if (node instanceof ColumnParseNode) {
+       whereColumnName = ((ColumnParseNode) node).getName();
+       System.out.println("where column name = " + whereColumnName);
+     } else if (node instanceof LiteralParseNode) {
+       String atype = ((LiteralParseNode) node).getType().name();
+       System.out.println("atype = " + atype);
+       wherevalue = ((LiteralParseNode) node).getValue().toString();
+     }
+     // current node is still compound node
+     else {
+       list = parseFilter(node, list);
+     }
+   }
+
+   // parse
+   if (whereColumnName != null && !whereColumnName.equals("") && wherevalue != null && !wherevalue.equals("")) {
+     String wherecf = whereColumnName.split("_")[0];
+     String wherecq = whereColumnName.split("_")[1];
+
+     System.out.println(">>>>>>>>>> column family : " + wherecf + "\t column qualifier:" + wherecq + "\t wherevalue: "
+         + wherevalue + "\t operator = " + op.toString());
+
+     SingleColumnValueFilter filter1 = new SingleColumnValueFilter(Bytes.toBytes(wherecf), Bytes.toBytes(wherecq), op,
+         Bytes.toBytes(wherevalue));
+     list.addFilter(filter1);
+   }
+   return list;
+ }
+  
+  public String parseColumnTypes(String command) {
+    SQLParser parser;
+    String columnsNameType = "";
+    // get selected columns, just simply list all columns here and add to scan object
+    HashMap<String, String> colTypes = new HashMap<String, String>();
+    // replace : to _
+    command = command.replace(":", "_");
+
+    try {
+      // make sure input query for SQLParser doesn't contain semi colon
+      parser = new SQLParser(new StringReader(command));
+      SelectStatement stm = parser.parseQuery();
+      List<AliasedNode> nodes = stm.getSelect();
+      Iterator<AliasedNode> it = nodes.iterator();
+      while (it.hasNext()) {
+        AliasedNode node = it.next();
+        String column = node.getNode().getAlias().toLowerCase();
+        System.out.println(">>>>>>>>>>>>>>> column  = " + column);
+        if (column.contains("_")) {
+          colTypes.put(column, "string");
+        } else {
+          colTypes.put(column, "string");
+        }
+      }
+
+      // put column type from where condition, this will override pre-set selected column's types
+      ParseNode where = stm.getWhere();
+      if (where != null && where.getChildren() != null && where.getChildren().size() > 0) {
+        List<ParseNode> children = where.getChildren();
+        Iterator<ParseNode> it2 = children.iterator();
+        while (it2.hasNext()) {
+          ParseNode child = it2.next();
+          colTypes = parseFilterForColumnType(child, colTypes);
+        }
+      }
+
+      // from colTypes, generate columnsNameType
+      // TODO
+      Iterator<String> cit = colTypes.keySet().iterator();
+      while (cit.hasNext()) {
+        String ctemp = cit.next();
+        String ctype = colTypes.get(ctemp);
+        columnsNameType += ctemp + " " + ctype + ",";
+      }
+      // remove last comma
+      if (!columnsNameType.equals("") && columnsNameType.contains(",")) {
+        columnsNameType = columnsNameType.substring(0, columnsNameType.length() - 1);
+      }
+      System.out.println(">>>>>>>>>>>>>. columnsNameType=" + columnsNameType);
+      return columnsNameType;
+      // get table
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    // parser.parseStatement();
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return null;
+  }
+  
+  // TODO use must pass one first, if we dont' have OR then change to must pass all
+  public HashMap<String, String> parseFilterForColumnType(ParseNode filterNode, HashMap<String, String> colTypes) {
+    String whereColumnName = "";
+    String whereColumnType = "";
+    List<ParseNode> children = filterNode.getChildren();
+    Iterator<ParseNode> it = children.iterator();
+    while (it.hasNext()) {
+      ParseNode node = it.next();
+      if (node instanceof ColumnParseNode) {
+        whereColumnName = ((ColumnParseNode) node).getName();
+        System.out.println("where column name = " + whereColumnName);
+      } else if (node instanceof LiteralParseNode) {
+        // TODO support other column type
+        PDataType type = ((LiteralParseNode) node).getType();
+        if (type == PDataType.INTEGER || type == PDataType.DOUBLE || type == PDataType.FLOAT || type == PDataType.LONG
+            || type == PDataType.DECIMAL || type == PDataType.SMALLINT || type == PDataType.TINYINT) {
+          whereColumnType = "double";
+        }
+      }
+      // current node is still compound node
+      else {
+        colTypes = parseFilterForColumnType(filterNode, colTypes);
+      }
+    }
+    // parse
+    if (whereColumnName != null && !whereColumnName.equals("") && whereColumnType != null
+        && !whereColumnType.equals("")) {
+      String wherecf = whereColumnName.split("_")[0];
+      String wherecq = whereColumnName.split("_")[1];
+      System.out.println(">>>>>>>>>> column family : " + wherecf + "\t column qualifier:" + wherecq
+          + "\t whereColumnType: " + whereColumnType);
+      if (colTypes.containsKey(whereColumnName.toLowerCase())) colTypes.remove(whereColumnName.toLowerCase());
+      colTypes.put(whereColumnName.toLowerCase(), whereColumnType);
+
+    }
+    return colTypes;
+  }
+  
+  private String parseHbaseTable(String command) {
+    String tableName = "";
+    SQLParser parser;
+    command = command.replace(":", "_");
+    try {
+      parser = new SQLParser(new StringReader(command));
+      SelectStatement stm = parser.parseQuery();
+      Scan scan = new Scan();
+      // get table name, assumption select from one table
+      // TODO assumption one table
+      List<TableNode> lst = stm.getFrom();
+      NamedTableNode temp = (NamedTableNode) lst.get(0);
+      tableName = temp.getName().getTableName().trim();
+
+    } catch (Exception ex) {
+
+    }
+    return tableName;
+  }
   
   // Experimental stuffs
-  public DDF loadTable(String tableName, String columnsNameType, Scan scan) throws DDFException {
+  public DDF loadTable(String tableName, String columnsNameType2, String command) throws DDFException {
+    
+    Scan scan = parseQuery(command);
+    String columnsNameType = parseColumnTypes(command);
+    String hbTableName = parseHbaseTable(command);
+    
     // JavaRDD<String> fileRDD = mJavaSharkContext.textFile(fileURL);
     Configuration config = HBaseConfiguration.create();
     // config.set("hbase.zookeeper.znode.parent", "hostname1");

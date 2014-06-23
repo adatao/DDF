@@ -153,15 +153,13 @@ public class SqlHandler extends ASqlHandler {
       // parse sql to List<String> columns
       // TODO create sqlparser layer here
       command = command.trim();
-      Scan scan = parseQuery(command);
-      String columnTypes = parseColumnTypes(command);
+//      String columnTypes = parseColumnTypes(command);
       String hbTableName = parseHbaseTable(command);
-
-      System.out.println(">>>> khang: " + columnTypes);
+//      System.out.println(">>>> khang: " + columnTypes);
 
       // SparkDDFManager currentManager = (SparkDDFManager)this.getManager();
       SparkDDFManager currentManager = (SparkDDFManager) this.getDDF().getManager();
-      DDF ddf = currentManager.loadTable(hbTableName, columnTypes, scan);
+      DDF ddf = currentManager.loadTable(hbTableName, "", command);
       return (ddf);
     }
     // TODO
