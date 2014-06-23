@@ -93,9 +93,6 @@ class LinearRegressionNormalEquation(
     val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
       rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
 
-
-    ddfManager.addModel(model)
-
     return paModel
   }
 

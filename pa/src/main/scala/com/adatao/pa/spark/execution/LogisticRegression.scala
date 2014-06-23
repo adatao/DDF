@@ -75,7 +75,7 @@ class LogisticRegression(
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
-    val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
+    val paModel = new LogisticRegressionModel(logisticModel.getName, rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
     ddfManager.addModel(logisticModel)
     paModel.ddfModel = logisticModel
     return paModel

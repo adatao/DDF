@@ -83,7 +83,7 @@ object LogisticRegression {
 }
 
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
+class LogisticRegressionModel(modelID: String, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
   @transient var ddfModel: IModel = null
   override def ddfModelID: String = {
