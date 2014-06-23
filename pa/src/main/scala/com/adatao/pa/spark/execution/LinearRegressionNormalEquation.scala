@@ -88,7 +88,6 @@ class LinearRegressionNormalEquation(
     if (projectedDDF.getSchema().getDummyCoding() != null)
       rawModel.setDummy(projectedDDF.getSchema().getDummyCoding())
 
-
 //    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
 //      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
 

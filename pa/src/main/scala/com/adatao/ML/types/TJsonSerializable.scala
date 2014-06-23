@@ -299,7 +299,7 @@ private object SpecialSerDes {
     def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): Model = {
       jElem match {
         case jObj: JsonObject => {
-          val clazz = Class.forName(jObj.get("mRawModelClass").getAsString)
+          val clazz = Class.forName(jObj.get("modelType").getAsString)
           val rawModel = standardGson.fromJson(jObj.get("mRawModel"), clazz)
           jObj.remove("mRawModel")
           val deserializedModel: Model = standardGson.fromJson(jObj, classOf[Model])
