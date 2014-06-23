@@ -94,7 +94,7 @@ class LogisticRegressionCRS(
         model.setDummy(projectDDF.getSchema().getDummyCoding())
 
       //set dummyCoding for PA model
-      val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
+      val glm = new LogisticRegressionModel(regressionModel.getName, model.getWeights, model.getTrainingLosses(), model.getNumSamples())
       if (projectDDF.getSchema().getDummyCoding() != null)
         glm.setMapping(model.getDummy().getMapping())
 
