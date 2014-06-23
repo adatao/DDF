@@ -45,6 +45,7 @@ import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
 import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
+import com.adatao.ddf.ml.IModel
 
 /**
  * Author: NhanVLC
@@ -56,9 +57,9 @@ class LinearRegressionNormalEquation(
   yCol: Int,
   var ridgeLambda: Double,
   mapReferenceLevel: HashMap[String, String] = null)
-  extends AModelTrainer[NQLinearRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
+  extends AExecutor[IModel] {
 
-  override def train(dataContainerID: String, context: ExecutionContext): NQLinearRegressionModel = {
+  override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
 
     val ddfId = Utils.dcID2DDFID(dataContainerID)
@@ -67,66 +68,45 @@ class LinearRegressionNormalEquation(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     //project first
-    val projectDDF = project(ddf)
-    val schema = projectDDF.getSchema()
-    
-    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchemaHandler().generateDummyCoding()
+    val trainedColumns = xCols :+ yCol
+    val trainedColumnNames = trainedColumns.map(idx => ddf.getColumnName(idx))
+    val projectedDDF = ddf.Views.project(trainedColumnNames: _*)
+
+    projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectedDDF.getSchemaHandler().generateDummyCoding()
 
     //plus bias term
     var numFeatures = xCols.length + 1
-    if (projectDDF.getSchema().getDummyCoding() != null) {
-      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
-      projectDDF.getSchema().getDummyCoding().toPrint()
+    if (projectedDDF.getSchema().getDummyCoding() != null) {
+      numFeatures = projectedDDF.getSchema().getDummyCoding().getNumberFeatures
+      projectedDDF.getSchema().getDummyCoding().toPrint()
     }
       
-    val numRows = projectDDF.getNumRows()
-    val model = projectDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
-    // converts DDF model to old PA model
+    val model = projectedDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      rawModel.setDummy(projectDDF.getSchema().getDummyCoding())
+    if (projectedDDF.getSchema().getDummyCoding() != null)
+      rawModel.setDummy(projectedDDF.getSchema().getDummyCoding())
 
-    val itr = rawModel.weights.iterator
-    val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
-    while (itr.hasNext) paWeights += itr.next
-    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
-      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
 
-    return paModel
-  }
+//    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
+//      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
 
-  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
-    try {
-//      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
-//      result.persistenceID = result.result.modelID
-//      result
-      new SuccessfulResult(this.train(dataContainerID, ctx))
-    } catch {
-      case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
-    }
-
-  }
-  // Purpose of this function is to handle empty partitions using mapPartitions, :((((((
-  //post process, set column mapping to model
-  def instrumentModel(model: NQLinearRegressionModel,
-    mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): NQLinearRegressionModel = {
-    model.dummyColumnMapping = mapping
-    model
+    return model
   }
 }
 
-class NQLinearRegressionModel(val modelID: String, val trainedColumns: Array[String], weights: Vector, val rss: Double,
-  val sst: Double, val stdErrs: Vector,
-  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
-  extends ALinearModel[Double](weights, numSamples) {
-  override def predict(features: Vector): Double = this.linearPredictor(features)
-}
+//class NQLinearRegressionModel(val modelID: String, val trainedColumns: Array[String], weights: Vector, val rss: Double,
+//  val sst: Double, val stdErrs: Vector,
+//  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
+//  extends ALinearModel[Double](weights, numSamples) {
+//  override def predict(features: Vector): Double = this.linearPredictor(features)
+//}
 
-/**
- * Entry point for SparkThread executor to execute predictions
- */
-class LinearRegressionNormalEquationPredictor(val model: NQLinearRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-
-  def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
-}
+///**
+// * Entry point for SparkThread executor to execute predictions
+// */
+//class LinearRegressionNormalEquationPredictor(val model: NQLinearRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
+//
+//  def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
+//}

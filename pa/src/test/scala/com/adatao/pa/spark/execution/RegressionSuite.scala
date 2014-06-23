@@ -24,6 +24,9 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
+import com.adatao.ddf.ml.IModel
+import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
+
 //import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 
 import com.adatao.pa.spark.types.ABigRClientTest
@@ -53,7 +56,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 1.0
 		//this will cause Infinity, fail
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(5, 10), 0, lambda)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
@@ -72,11 +75,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 5), 0)
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(3, 5), 0, lambda)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[NQLinearRegressionModel]
 		//println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2))
 		//println(model.stdErrs(0) + " " + model.stdErrs(1) + " " + model.stdErrs(2))
 		//println(model.nFeatures + " " + model.nRows)
@@ -152,16 +155,16 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(14), 7, lambda)
 		//		val executor = new LinearRegression(dataContainerId, Array(16, 1), 7, 40, 0.05, lambda, null)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[NQLinearRegressionModel]
 		println(">>>>>>>>>>>>>>>>> final model =" + model.toString)
 
-		if (model.dummyColumnMapping != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.dummyColumnMapping)
+		if (model.getDummy() != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.getDummy())
 		//		assert(model.weights.length === 3)
-		assert(model.dummyColumnMapping != null)
+		assert(model.getDummy() != null)
 	}
 
 	//we don't support dummyCoding for normal dataframe yet
@@ -181,7 +184,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val model = r.result
 
 		assert(model.weights.length === 12)
-		assert(model.dummyColumnMapping != null)
+		assert(model.getDummy() != null)
 	}
 
 	test(" categorical variables linear regression on as.factor(Int column)") {
@@ -196,7 +199,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val cmd = new GetMultiFactor(dataContainerId, Array(0))
 		val result = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd).result
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(0), 15, lambda)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
@@ -246,16 +249,16 @@ class  RegressionSuite  extends ABigRClientTest {
 
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1, 2), 3)
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(0, 1, 2), 3, lambda, mapReferenceLevel)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[NQLinearRegressionModel]
 
-		if (model.dummyColumnMapping != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.dummyColumnMapping)
+		if (model.getDummy() != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.getDummy())
 		assert(model.weights.length === 12)
-		assert(model.dummyColumnMapping != null)
-		println(">>>>.model.dummyColumnMapping = " + model.dummyColumnMapping)
+		assert(model.getDummy() != null)
+		println(">>>>.model.dummyColumnMapping = " + model.getDummy())
 		//		//check reference level if equal 0.0
 
 		//TODO need to support dummy coding reference level 
@@ -599,7 +602,7 @@ class  RegressionSuite  extends ABigRClientTest {
     println(">>>>>>> res3=" + res3.result.data)
 		
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(1, 18), 14, lambda)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 		assert(r.isSuccess)
 		val model = r.result
 
@@ -621,7 +624,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val executor = new LinearRegressionNormalEquation(dcID, Array(6, 7, 8, 9, 10), 0, lambda)
 		System.setProperty("bigr.lm.maxNumFeatures", "10")
 		try {
-			val r = bigRClient.execute[NQLinearRegressionModel](executor)
+			val r = bigRClient.execute[IModel](executor)
 			assert(false)
 			assert(!r.isSuccess)
 		}
@@ -632,7 +635,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		}
 
 		System.setProperty("bigr.lm.maxNumFeatures", "20")
-		val r1 = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r1 = bigRClient.execute[IModel](executor)
 		assert(r1.isSuccess)
 	}
 
