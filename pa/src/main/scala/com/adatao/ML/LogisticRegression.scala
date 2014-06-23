@@ -85,12 +85,6 @@ object LogisticRegression {
 
 class LogisticRegressionModel(modelID: String, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
-  @transient var ddfModel: IModel = null
-  override def ddfModelID: String = {
-    if (ddfModel != null) ddfModel.getName()
-    else null
-  }
-  
   override def predict(features: Vector): Double = {
     LOG.info(">>>>>>>>>>>>>>>. calling predict")
     ALossFunction.sigmoid(this.linearPredictor(features))
