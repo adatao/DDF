@@ -83,7 +83,7 @@ object LogisticRegression {
 }
 
 
-class LogisticRegressionModel(modelID: String = null, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
+class LogisticRegressionModel(val modelID: String = null, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
   override def predict(features: Vector): Double = {
     LOG.info(">>>>>>>>>>>>>>>. calling predict")
