@@ -87,7 +87,8 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
 
   override def predict(features: Vector): Double = {
     LOG.info(">>>>>>>>>>>>>>>. calling predict")
-    ALossFunction.sigmoid(this.linearPredictor(features))
+
+    ALossFunction.sigmoid(this.linearPredictor(Vector(Array[Double](1) ++ features.data)))
   }
 
   override def predict(features: Array[Double]): Double = {
