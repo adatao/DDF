@@ -55,10 +55,11 @@ class LinearRegression(
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
 
     //project first
+    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
     val projectedDDF = ddf.Views.project(trainedColumns: _*)
+
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()

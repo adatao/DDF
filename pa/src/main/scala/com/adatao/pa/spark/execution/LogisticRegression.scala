@@ -75,7 +75,6 @@ class LogisticRegression(
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-
     model
   }
 

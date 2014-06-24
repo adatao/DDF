@@ -31,10 +31,9 @@ class Kmeans(
     }
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val schema = ddf.getSchema()
-    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    for (col ← xCols) columnList.add(schema.getColumn(col).getName)
-    val projectedDDF = ddf.Views.project(columnList)
+
+    val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
+    val projectedDDF = ddf.Views.project(trainedColumns: _*)
 
     projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
   }
