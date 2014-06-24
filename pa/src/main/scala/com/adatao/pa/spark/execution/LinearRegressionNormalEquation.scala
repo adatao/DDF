@@ -68,9 +68,8 @@ class LinearRegressionNormalEquation(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
     //project first
-    val trainedColumns = xCols :+ yCol
-    val trainedColumnNames = trainedColumns.map(idx => ddf.getColumnName(idx))
-    val projectedDDF = ddf.Views.project(trainedColumnNames: _*)
+    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+    val projectedDDF = ddf.Views.project(trainedColumns: _*)
 
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     projectedDDF.getSchemaHandler().generateDummyCoding()

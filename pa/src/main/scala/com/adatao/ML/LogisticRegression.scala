@@ -83,13 +83,17 @@ object LogisticRegression {
 }
 
 
-class LogisticRegressionModel(val modelID: String = null, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
+class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
   override def predict(features: Vector): Double = {
     LOG.info(">>>>>>>>>>>>>>>. calling predict")
     ALossFunction.sigmoid(this.linearPredictor(features))
   }
-  
+
+  override def predict(features: Array[Double]): Double = {
+    this.predict(Vector(features))
+  }
+
   def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
     dummyColumnMapping = _mapping
   }
