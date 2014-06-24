@@ -32,6 +32,7 @@ import java.util.ArrayList
 import com.adatao.ML.Utils
 
 import com.adatao.ddf.DDF
+import com.adatao.ddf.ml.IModel
 
 /**
  * Entry point for SparkThread executor
@@ -44,18 +45,20 @@ class LinearRegression(
   var learningRate: Double,
   var ridgeLambda: Double,
   var initialWeights: Array[Double])
-  extends AModelTrainer[LinearRegressionModel](dataContainerID, xCols, yCol) {
+  extends AExecutor[IModel] {
 
-  override def train(dataContainerID: String, context: ExecutionContext): LinearRegressionModel = {
+  override def runImpl(context: ExecutionContext): IModel = {
+
     val ddfManager = context.sparkThread.getDDFManager();
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
+    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
 
     //project first
-    val projectedDDF = project(ddf)
+    val projectedDDF = ddf.Views.project(trainedColumns: _*)
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
@@ -68,28 +71,15 @@ class LinearRegression(
 
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val model = projectedDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights, numFeatures)
+    val model = projectedDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer,
+      numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
+      initialWeights, numFeatures)
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
     if (projectedDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
 
-    val paModel = new LinearRegressionModel(rawModel.weights, rawModel.trainingLosses, projectedDDF.getNumRows())
-    if (projectedDDF.getSchema().getDummyCoding() != null)
-      paModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
-
-    ddfManager.addModel(model)
-    paModel.ddfModel = model
-    return paModel
-  }
-
-  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LinearRegressionModel = {
-    null
-  }
-  //post process, set column mapping to model
-  def instrumentModel(model: LinearRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LinearRegressionModel = {
-    model.dummyColumnMapping = mapping
     model
   }
 }

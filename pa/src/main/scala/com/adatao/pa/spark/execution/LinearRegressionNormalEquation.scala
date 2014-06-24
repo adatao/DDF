@@ -87,24 +87,7 @@ class LinearRegressionNormalEquation(
     if (projectedDDF.getSchema().getDummyCoding() != null)
       rawModel.setDummy(projectedDDF.getSchema().getDummyCoding())
 
-//    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
-//      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
-
     return model
   }
 }
 
-//class NQLinearRegressionModel(val modelID: String, val trainedColumns: Array[String], weights: Vector, val rss: Double,
-//  val sst: Double, val stdErrs: Vector,
-//  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
-//  extends ALinearModel[Double](weights, numSamples) {
-//  override def predict(features: Vector): Double = this.linearPredictor(features)
-//}
-
-///**
-// * Entry point for SparkThread executor to execute predictions
-// */
-//class LinearRegressionNormalEquationPredictor(val model: NQLinearRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-//
-//  def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
-//}
