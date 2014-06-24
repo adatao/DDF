@@ -7,10 +7,23 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+//import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.io.Writer;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.FilenameFilter;
 import java.util.Arrays;
-import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -21,6 +34,10 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import java.net.URI;
 
 /**
  * 
@@ -29,7 +46,6 @@ import java.util.List;
 public class Utils {
 
   public static Logger sLog = LoggerFactory.getLogger(Utils.class);
-
 
   public static List<String> listFiles(String directory) {
     return listDirectory(directory, true, false);
@@ -119,7 +135,14 @@ public class Utils {
    * @param path
    * @return true if "path" exists and is a file (and not a directory)
    */
-  public static boolean fileExists(String path) {
+  public static boolean fileExists(String path) throws IOException {
+    Configuration configuration = new Configuration();
+    FileSystem fileSystem = FileSystem.get(configuration);
+    Path filePath = new Path(path);
+    return (fileSystem.exists(filePath));
+  }
+
+  public static boolean localFileExists(String path) {
     File f = new File(path);
     return (f.exists() && !f.isDirectory());
   }
@@ -162,9 +185,11 @@ public class Utils {
 
   public static String readFromFile(String fileName) throws IOException {
     Reader reader = null;
-
+    Configuration configuration = new Configuration();
     try {
-      reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "utf-8"));
+      FileSystem hdfs = FileSystem.get(configuration);
+      FSDataInputStream inputStream = hdfs.open(new Path(fileName));
+      reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
       return IOUtils.toString(reader);
 
     } catch (IOException ex) {
@@ -177,11 +202,15 @@ public class Utils {
 
   public static void writeToFile(String fileName, String contents) throws IOException {
     Writer writer = null;
-
+    Configuration configuration = new Configuration();
     try {
-      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "utf-8"));
-      writer.write(contents);
+      FileSystem  hdfs = FileSystem.get(configuration);
+      FSDataOutputStream outputStream = hdfs.create(new Path(fileName));
 
+      writer = new BufferedWriter(new OutputStreamWriter(outputStream, "utf-8"));
+      writer.write(contents);
+      writer.close();
+      hdfs.close();
     } catch (IOException ex) {
       throw new IOException(String.format("Cannot write to file %s", fileName, ex));
 

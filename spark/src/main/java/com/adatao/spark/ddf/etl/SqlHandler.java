@@ -46,6 +46,7 @@ public class SqlHandler extends ASqlHandler {
   protected void createTableForDDF(String tableName) throws DDFException {
 
     try {
+      mLog.info(">>>>>> get table for ddf");
       DDF ddf = this.getManager().getDDF(tableName);
       ddf.getRepresentationHandler().get(RDD.class, TablePartition.class);
     } catch(Exception e) {

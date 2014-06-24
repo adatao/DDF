@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.adatao.ddf.DDF;
+import com.adatao.ddf.content.Schema;
+import com.adatao.ddf.content.ViewHandler;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.misc.Config;
@@ -107,7 +109,22 @@ public class MLSupporter extends ADDFFunctionalGroupHandler implements ISupportM
     
     // Invoke the training method
     Object rawModel = trainMethod.classInvoke(allArgs);
+
+
+    List<Schema.Column> columns = this.getDDF().getSchemaHandler().getColumns();
+    String[] trainedColumns = new String[columns.size()];
+
+    for(int i = 0; i < columns.size();  i++) {
+      trainedColumns[i] = columns.get(i).getName();
+    }
+
+    for(String col: trainedColumns) {
+      mLog.info(">>>>>> trainedCol = " + col);
+    }
+
     IModel model = new  Model(rawModel);
+    model.setTrainedColumns(trainedColumns);
+    mLog.info(">>>> modelID = " + model.getName());
     this.getManager().addModel(model);
     return model;
   }

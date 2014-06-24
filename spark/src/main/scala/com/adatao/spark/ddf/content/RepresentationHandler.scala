@@ -43,8 +43,11 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
     mLog.info(">>>>>>> CREATING REPRESENTATION = " + typeSpecs)
 
     typeSpecs match {
-      case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(typeSpecs)
-      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(typeSpecs)
+      case rddArrDouble if (rddArrDouble == RDD_ARRAY_DOUBLE && this.has(classOf[RDD[_]], classOf[Array[Object]])) => this.fromRDDArrayObject(rddArrDouble)
+      //case rddTP if (rddTP == RDD_TABLE_PARTITION && this.has(classOf[RDD[_]], classOf[Array[Double]]))=> this.fromRDDArrayDouble(rddTP)
+      case rddTP if rddTP == RDD_TABLE_PARTITION => this.fromRDDArrayObject(rddTP)
+      case rddArrObj if (rddArrObj == RDD_ARRAY_OBJECT && !this.has(classOf[RDD[_]], classOf[Row]) &&
+        this.has(classOf[RDD[_]], classOf[Array[Double]]))=> this.fromRDDArrayDouble(rddArrObj)
       case _ => this.fromRDDRow(typeSpecs)
     }
   }
@@ -89,6 +92,26 @@ class RepresentationHandler(mDDF: DDF) extends RH(mDDF) {
         val schemaHandler = mDDF.getSchemaHandler
         val mappers = (schemaHandler.getColumns.map(column ⇒ getDoubleMapper(column.getType))).toArray
         arrObjectToArrDouble(rddArrObj, mappers)
+      }
+    }
+  }
+
+  protected def fromRDDArrayDouble(typeSpecs: String): Object = {
+    val rddArrDouble = this.get(RDD_ARRAY_DOUBLE).asInstanceOf[RDD[Array[Double]]]
+    val mappers: Array[Double ⇒ Object] = (this.getDDF.getSchemaHandler.getColumns.map(column ⇒ getDouble2ObjectMapper(column.getType))).toArray
+
+    typeSpecs match {
+      case RDD_ARRAY_OBJECT => {
+        rddArrDouble.map{row => {
+          var i = 0
+          val arrObj = new Array[Object](row.size)
+          while(i < row.size) {
+            arrObj(i) = mappers(i)(row(i))
+            i += 1
+          }
+          arrObj
+          }
+        }
       }
     }
   }
@@ -397,6 +420,17 @@ object RepresentationHandler {
       }
 
       case e ⇒ throw new DDFException("Cannot convert to double")
+    }
+  }
+
+  private def getDouble2ObjectMapper(colType: ColumnType): Double => Object = {
+    colType match {
+      case ColumnType.DOUBLE => {
+        case double => double.asInstanceOf[Object]
+      }
+      case ColumnType.INT => {
+        case double => double.toInt.asInstanceOf[Object]
+      }
     }
   }
 

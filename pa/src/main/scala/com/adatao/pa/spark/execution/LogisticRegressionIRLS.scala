@@ -102,7 +102,7 @@ class LogisticRegressionIRLS(
 
       //excluding intercept, bias term
       val modelFeatures = numFeatures.longValue() - 1
-      val pamodel = new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
+      val pamodel = new IRLSLogisticRegressionModel(regressionModel.getName, model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
       if (projectDDF.getSchema().getDummyCoding() != null)
         pamodel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
@@ -123,7 +123,7 @@ class LogisticRegressionIRLS(
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long, val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
+class IRLSLogisticRegressionModel(val modelID: String, weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long, val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
   override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
   def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
     dummyColumnMapping = _mapping

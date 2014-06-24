@@ -75,10 +75,9 @@ class LogisticRegression(
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
-    val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
-    ddfManager.addModel(logisticModel)
-    paModel.ddfModel = logisticModel
-    return paModel
+    val model = new LogisticRegressionModel(logisticModel.getName, rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
+    LOG.info(s">>>> model.modelID = ${model.modelID}")
+    return model
   }
 
   def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {

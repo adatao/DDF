@@ -4,6 +4,7 @@
 package com.adatao.basic.ddf.content;
 
 
+import java.io.IOException;
 import java.util.List;
 import com.adatao.basic.ddf.BasicDDF;
 import com.adatao.ddf.DDF;
@@ -93,8 +94,12 @@ public class PersistenceHandler extends APersistenceHandler {
     String dataFile = this.getDataFileName();
     String schemaFile = this.getSchemaFileName();
 
-    if (!doOverwrite && (Utils.fileExists(dataFile) || Utils.fileExists(schemaFile))) {
-      throw new DDFException("DDF already exists in persistence storage, and overwrite option is false");
+    try {
+      if (!doOverwrite && (Utils.fileExists(dataFile) || Utils.fileExists(schemaFile))) {
+        throw new DDFException("DDF already exists in persistence storage, and overwrite option is false");
+      }
+    } catch (IOException e) {
+      throw new DDFException(e);
     }
 
     try {
