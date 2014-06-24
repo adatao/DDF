@@ -2,7 +2,7 @@ package com.adatao.pa.spark.execution;
 
 
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.types.AggregateTypes.AggregationResult;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;

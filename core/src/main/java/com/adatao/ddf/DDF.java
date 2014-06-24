@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
-import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
-import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.types.AggregateTypes.*;
 import com.adatao.ddf.analytics.IHandleBinning;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
@@ -35,7 +34,6 @@ import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
-import com.adatao.ddf.content.IHandleMissingData;
 import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -45,6 +43,7 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleMissingData;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
@@ -925,11 +924,21 @@ public abstract class DDF extends ALoggable //
   
   // IHandleTransformations
 
-
   // Transformations
 
   public TransformFacade Transform;
   
+  public DDF dropNA() throws DDFException {
+    return this.getMissingDataHandler().dropNA(0, "any", 0, null, false);
+  }
+  
+  public DDF fillNA(String value) throws DDFException {
+    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null, false);
+  }
+  
+  public DDF updateInplace(DDF result) throws DDFException {
+    return this.getMutabilityHandler().updateInplace(result);
+  }
 
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {
