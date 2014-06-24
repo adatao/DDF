@@ -71,26 +71,14 @@ class LogisticRegression(
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
     val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
-    // converts DDF model to old PA model
+
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-//
-//    val model = new LogisticRegressionModel(logisticModel.getName, rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
-//    LOG.info(s">>>> model.modelID = ${model.modelID}")
+
     model
   }
 
-//
-//  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
-//    null
-//  }
-//
-//  //post process, set column mapping to model
-//  def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-//    model.dummyColumnMapping = mapping
-//    model
-//  }
 }
 
 object LogisticRegression {

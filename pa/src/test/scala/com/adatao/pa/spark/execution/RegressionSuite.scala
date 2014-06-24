@@ -25,7 +25,7 @@ import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ddf.ml.IModel
-import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
+import com.adatao.spark.ddf.analytics.{IRLSLogisticRegressionModel, NQLinearRegressionModel}
 
 //import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 
@@ -177,11 +177,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val result = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd).result
 
 		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(3, 16, 17), 0, lambda)
-		val r = bigRClient.execute[NQLinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[NQLinearRegressionModel]
 
 		assert(model.weights.length === 12)
 		assert(model.getDummy() != null)
@@ -204,7 +204,6 @@ class  RegressionSuite  extends ABigRClientTest {
 		assert(r.isSuccess)
 
 		val model = r.result
-
 	}
 
 	//temporarily don't support normal dataframe just yet
@@ -285,7 +284,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		mapReferenceLevel.put("v4", "4")
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(3), 0)
 		val executor = new LogisticRegressionIRLS(dataContainerId, Array(3), 0, 25, 1e-8, lambda, null, mapReferenceLevel, false)
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
@@ -298,7 +297,7 @@ class  RegressionSuite  extends ABigRClientTest {
 	test("Single-variable linear regression with null initialWeights") {
 		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 		val lambda = 0.0
-//		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 0)
+
 		val executor = new LinearRegression(dataContainerId, Array(5), 0, 1, 0.05, lambda, null)
 		val r = bigRClient.execute[LinearRegressionModel](executor)
 
@@ -308,7 +307,6 @@ class  RegressionSuite  extends ABigRClientTest {
 	test("Multiple-variable linear regression") {
 		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 		val lambda = 0.0
-//		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 5), 0)
 		val executor = new LinearRegression(dataContainerId, Array(3, 5), 0, 1, 0.00005, lambda, Array(37.3, -0.04, -3.9))
 		val r = bigRClient.execute[LinearRegressionModel](executor)
 
@@ -316,10 +314,9 @@ class  RegressionSuite  extends ABigRClientTest {
 
 		val model = r.result
 
-		assertEquals(37.227, model.weights(0), 0.1);
-		assertEquals(-0.031, model.weights(1), 0.1);
-		assertEquals(-3.877, model.weights(2), 0.1);
-
+		assertEquals(37.227, model.weights(0), 0.1)
+		assertEquals(-0.031, model.weights(1), 0.1)
+		assertEquals(-3.877, model.weights(2), 0.1)
 	}
 
 	test("Single-variable linear regression with regularization") {
@@ -338,12 +335,6 @@ class  RegressionSuite  extends ABigRClientTest {
 		assertEquals(model.weights(1), -4.2257, 0.1)
 		assertEquals(model.trainingLosses(0), 86.3981, 0.1)
 		assertEquals(model.trainingLosses(1), 54.1295, 0.1)
-
-		//		assert(truncate(model.weights(1), 4) === -4.2257)
-		//		assert(truncate(model.trainingLosses(0), 4) === 86.3981)
-		//		assert(truncate(model.trainingLosses(1), 4) === 54.1295)
-		//		assert(truncate(model.trainingLosses(0), 4) === 63.6950)
-		//		assert(truncate(model.trainingLosses(1), 4) === 32.0936)
 	}
 
 	//TO DO: recheck this: assert(truncate(model.nullDeviance, 6) === 68.0292)
@@ -352,11 +343,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(1, 2), 0)
 		val executor = new LogisticRegressionIRLS(dataContainerId, Array(1, 2), 0, 25, 1e-8, lambda, null, null, false)
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
 		/*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2))
 	    println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2))
 	    println(model.numSamples + " " + model.numFeatures)
@@ -395,11 +386,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(0), 1)
 		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0), 1, 25, 1e-8, lambda, null, null, false)
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
 
 		/*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2) + " " + model.weights(3))
 		println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2) + " " + model.stderrs(3))
@@ -441,11 +432,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 2.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(2, 8, 10), 3)
 		val executor = new LogisticRegressionIRLS(dataContainerId, Array(2, 8, 10), 3, 10, 1e-8, lambda, null, null, false)
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
 
 		assert(model.numFeatures == 29)
 		assert(model.numSamples == 31)
@@ -458,11 +449,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 7)
 		val executor = new LogisticRegression(dataContainerId, Array(5), 7, 40, 0.05, lambda, Array(38, -3))
-		val r = bigRClient.execute[LogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
 		assert(truncate(model.weights(0), 4) === 36.8605)
 		assert(truncate(model.weights(1), 4) === -7.1806)
 		assert(truncate(model.trainingLosses(0), 4) === 15.1505)
@@ -497,7 +488,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 7)
 		val executor = new LogisticRegression(dataContainerId, Array(5), 7, 1, 0.05, lambda, null)
-		val r = bigRClient.execute[LinearRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 	}
@@ -507,11 +498,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 1.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 7)
 		val executor = new LogisticRegression(dataContainerId, Array(5), 7, 40, 0.05, lambda, Array(38, -3))
-		val r = bigRClient.execute[LogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
 		println(">>>model=" + model)
 
 		assertEquals(model.weights(0), 32.3613, 0.1)
@@ -524,11 +515,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(2, 3), 0)
 		val executor = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
-		val r = bigRClient.execute[LogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
 
 		assertEquals(true, r.isSuccess);
 
@@ -542,11 +533,11 @@ class  RegressionSuite  extends ABigRClientTest {
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 6, 7), 12)
 		val executor = new LogisticRegression(dataContainerId, Array(0, 6, 7), 12, 50, 0.1, lambda, Array(0.00000000001, 0.00000000001, 0.00000000001, 0.00000000001))
-		val r = bigRClient.execute[LogisticRegressionModel](executor)
+		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
 
-		val model = r.result
+		val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
 
 		assertEquals(true, r.isSuccess);
 		println(">>>>>>>>> " + model.trainingLosses)
