@@ -60,7 +60,7 @@ object LogisticRegression {
 		numFeatures: Int)(implicit m: Manifest[XYDataType]): LogisticRegressionModel = {
 
 		val (weights, trainingLosses, numSamples) = Regression.train(lossFunction, numIters, learningRate, initialWeights, numFeatures)
-		new LogisticRegressionModel(weights, trainingLosses, numSamples)
+		new LogisticRegressionModel(weights=weights, trainingLosses= trainingLosses, numSamples= numSamples)
 	}
 
 	/**
@@ -83,14 +83,8 @@ object LogisticRegression {
 }
 
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
+class LogisticRegressionModel(val modelID: String = null, weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
-  @transient var ddfModel: IModel = null
-  override def ddfModelID: String = {
-    if (ddfModel != null) ddfModel.getName()
-    else null
-  }
-  
   override def predict(features: Vector): Double = {
     LOG.info(">>>>>>>>>>>>>>>. calling predict")
     ALossFunction.sigmoid(this.linearPredictor(features))

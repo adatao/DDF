@@ -26,24 +26,24 @@ public class MLTests {
     return null;
   }
 
-  //dff is null, no longer valid test
-  public void testTrain() throws DDFException {
-    this.initializeConfiguration();
-
-
-    DDF ddf = DDFManager.get("spark").newDDF();
-    Assert.assertNotNull("DDF cannot be null", ddf);
-
-    // @huan, see {@link MLSupporter#convertDDF}
-
-    // This uses the fully qualified class#method mechanism
-    Object model = ddf.ML.train("com.adatao.spark.ddf.analytics.MLTests#dummyKMeans", 1, 2.2);
-    Assert.assertNotNull("Model cannot be null", model);
-
-    // This uses the mapping config to go from "kmeans" to "com.adatao.spark.ddf.analytics.MLTests#dummyKMeans"
-    model = ddf.ML.train("kmeans", 1, 2.2);
-    Assert.assertNotNull("Model cannot be null", model);
-  }
+//  //dff is null, no longer valid test
+//  public void testTrain() throws DDFException {
+//    this.initializeConfiguration();
+//
+//
+//    DDF ddf = DDFManager.get("spark").newDDF();
+//    Assert.assertNotNull("DDF cannot be null", ddf);
+//
+//    // @huan, see {@link MLSupporter#convertDDF}
+//
+//    // This uses the fully qualified class#method mechanism
+//    Object model = ddf.ML.train("com.adatao.spark.ddf.analytics.MLTests#dummyKMeans", 1, 2.2);
+//    Assert.assertNotNull("Model cannot be null", model);
+//
+//    // This uses the mapping config to go from "kmeans" to "com.adatao.spark.ddf.analytics.MLTests#dummyKMeans"
+//    model = ddf.ML.train("kmeans", 1, 2.2);
+//    Assert.assertNotNull("Model cannot be null", model);
+//  }
 
 
 }

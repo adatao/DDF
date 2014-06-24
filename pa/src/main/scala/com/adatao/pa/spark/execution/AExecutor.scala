@@ -82,14 +82,7 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	def run(context: ExecutionContext): ExecutionResult[ResultType] = {
 		try {
 			val result = new SuccessfulResult(this.runImpl(context))
-			//			if (doPersistResult) result.persistenceID = context.sparkThread.getDataManager.putObject(result.result)
-			//add model
-			if (doPersistResult) {
-				val mymodel: Model = new Model(result.result)
-				context.sparkThread.getDDFManager().addModel(mymodel)
-				result.persistenceID = mymodel.getName()
-			}
-			result
+		  result
 		}
 		catch {
 			case ee: ExecutionException ⇒ new FailedResult[ResultType](ee.message)

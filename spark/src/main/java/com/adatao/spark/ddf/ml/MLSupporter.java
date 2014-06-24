@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import com.adatao.ddf.content.IHandleSchema;
+import com.adatao.ddf.content.SchemaHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
@@ -111,30 +114,34 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
 
     if (includeFeatures) {
       outputColumns = ddf.getSchema().getColumns();
-
+      //set columns features of result ddf to Double type
+      for(Schema.Column col: outputColumns) {
+        col.setType(Schema.ColumnType.DOUBLE);
+      }
     } else if (!includeFeatures && hasLabels) {
       outputColumns.add(ddf.getSchema().getColumns().get(ddf.getNumColumns() - 1));
     }
 
     outputColumns.add(new Schema.Column("prediction", "double"));
-    
 
-//<<<<<<< HEAD
-//    if(model.getRawModel() == null) {
-//      mLog.info(">>>>>>>>>>> rawModel == null");
-//    }
-//    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
-//        "YTrueYPredict"), outputColumns);
-//=======
-    Schema schema = new Schema(outputColumns);
+    Schema schema = new Schema(null, outputColumns);
 
 
     if (double[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);
+      DDF resultDDF = new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);
+      IHandleSchema schemaHandler = resultDDF.getSchemaHandler();
+      resultDDF.getSchema().setTableName(schemaHandler.newTableName());
+      this.getManager().addDDF(resultDDF);
 
+      return resultDDF;
     } else if (Object[].class.equals(resultUnitType)) {
-      return new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class,null, null, schema);
+      DDF resultDDF = new SparkDDF(this.getManager(), (RDD<Object[]>) result.rdd(), Object[].class, this.getManager().getNamespace(),
+          null, schema);
+      IHandleSchema schemaHandler = resultDDF.getSchemaHandler();
+      resultDDF.getSchema().setTableName(schemaHandler.newTableName());
+      this.getManager().addDDF(resultDDF);
 
+      return resultDDF;
     } else return null;
   }
 

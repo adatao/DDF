@@ -36,6 +36,21 @@ class RepresentationHandlerSuite extends ATestSuite {
     assert(rddArrDouble.count() === 295)
     assert(rddArrObj.count() === 301)
   }
+
+  test("Can get RDD[Array[Object]] from RDD[Array[Double]]") {
+    val ddf = manager.sql2ddf("select month, year, dayofmonth from airline").asInstanceOf[SparkDDF]
+    val rddArrDouble = ddf.getRDD(classOf[Array[Double]])
+
+    ddf.getRepresentationHandler.remove(classOf[RDD[_]], classOf[Row])
+    ddf.getRepresentationHandler.remove(classOf[RDD[_]], classOf[TablePartition])
+    val keys = ddf.getRepresentationHandler.getAllRepresentations.keySet()
+    LOG.info(">>>> keys = " + keys.mkString(", "))
+    ddf.Views.firstNRows(10)
+    ddf.getNumRows
+    val arrObj = ddf.getRDD(classOf[Array[Object]])
+    assert(arrObj != null)
+  }
+
   test("Has representation after creating it") {
     val ddf = manager.sql2ddf("select month, year, dayofmonth from airline").asInstanceOf[SparkDDF]
     val repHandler = ddf.getRepresentationHandler

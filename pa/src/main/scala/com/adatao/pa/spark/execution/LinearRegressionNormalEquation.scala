@@ -43,7 +43,8 @@ import shark.api.JavaSharkContext
 import java.util.ArrayList
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
+import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
 
 /**
  * Author: NhanVLC
@@ -89,25 +90,22 @@ class LinearRegressionNormalEquation(
     val itr = rawModel.weights.iterator
     val paWeights: ArrayBuffer[Double] = ArrayBuffer[Double]()
     while (itr.hasNext) paWeights += itr.next
-    val paModel = new NQLinearRegressionModel(rawModel.weights, model.getName(), rawModel.rss, rawModel.sst, rawModel.stdErrs, ddf.getNumRows(), xCols.length, rawModel.vif, rawModel.messages)
-    LOG.info("Json model")
-    LOG.info(rawModel.weights.toJson)
-    LOG.info(paModel.weights.toJson)
-    LOG.info(paModel.toString)
-    LOG.info(rawModel.toString)
+    val paModel = new NQLinearRegressionModel(model.getName(), model.getTrainedColumns, rawModel.weights, rawModel.rss,
+      rawModel.sst, rawModel.stdErrs, rawModel.numSamples, rawModel.numFeatures, rawModel.vif, rawModel.messages)
 
-    val myModel = new LinearRegressionModel(rawModel.weights, rawModel.weights, ddf.getNumRows)
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      myModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-
-    LOG.info(myModel.toString)
-    ddfManager.addModel(model)
-    // paModel.ddfModel = model
     return paModel
   }
 
-  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): NQLinearRegressionModel = {
-    null
+  override def run(ctx: ExecutionContext): ExecutionResult[NQLinearRegressionModel] = {
+    try {
+//      val result = new SuccessfulResult(this.train(dataContainerID, ctx))
+//      result.persistenceID = result.result.modelID
+//      result
+      new SuccessfulResult(this.train(dataContainerID, ctx))
+    } catch {
+      case e: ExecutionException => new FailedResult[NQLinearRegressionModel](e.message)
+    }
+
   }
   // Purpose of this function is to handle empty partitions using mapPartitions, :((((((
   //post process, set column mapping to model
@@ -118,7 +116,7 @@ class LinearRegressionNormalEquation(
   }
 }
 
-class NQLinearRegressionModel(weights: Vector, val resDfId: String, val rss: Double,
+class NQLinearRegressionModel(val modelID: String, val trainedColumns: Array[String], weights: Vector, val rss: Double,
   val sst: Double, val stdErrs: Vector,
   numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String])
   extends ALinearModel[Double](weights, numSamples) {
