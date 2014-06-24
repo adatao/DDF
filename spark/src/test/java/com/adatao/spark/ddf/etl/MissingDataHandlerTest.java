@@ -11,7 +11,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.DDFManager;
+import com.adatao.ddf.etl.IHandleMissingData.Axis;
+import com.adatao.ddf.etl.IHandleMissingData.NAChecking;
 import com.adatao.ddf.exception.DDFException;
+import com.adatao.ddf.types.AggregateTypes.AggregateFunction;
 
 public class MissingDataHandlerTest {
   private DDFManager manager;
@@ -41,9 +44,9 @@ public class MissingDataHandlerTest {
   public void testDropNA() throws DDFException {
     DDF newddf = ddf.dropNA();
     Assert.assertEquals(9, newddf.getNumRows());
-    Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(1, "any", 0, null, false).getNumColumns());
+    Assert.assertEquals(22, ddf.getMissingDataHandler().dropNA(Axis.COLUMN, NAChecking.ANY, 0, null).getNumColumns());
     
-    Assert.assertEquals(29, ddf.getMissingDataHandler().dropNA(1, "all", 0, null, false).getNumColumns());
+    Assert.assertEquals(29, ddf.getMissingDataHandler().dropNA(Axis.COLUMN, NAChecking.ALL, 0, null).getNumColumns());
   }
 
   @Test
@@ -57,7 +60,7 @@ public class MissingDataHandlerTest {
     Assert.assertEquals(301, ddf1.fillNA("1").aggregate("year, sum(LateAircraftDelay)").get("2008")[0], 0.1);
 
     // test fill by aggregate function
-    ddf1.getMissingDataHandler().fillNA(null, null, 0, "mean", null, null, false);
+    ddf1.getMissingDataHandler().fillNA(null, null, 0, AggregateFunction.MEAN, null, null);
 
     // test fill by dictionary, with mutable DDF
     Map<String, String> dict = new HashMap<String, String>() {
@@ -68,7 +71,7 @@ public class MissingDataHandlerTest {
       }
     };
 
-    ddf1.getMissingDataHandler().fillNA(null, null, 0, null, dict, null, false);
+    ddf1.getMissingDataHandler().fillNA(null, null, 0, null, dict, null);
   }
 
   @After

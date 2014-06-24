@@ -39,12 +39,10 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
    *          = required number of non-NA values to skip, default 0
    * @param columns
    *          = only consider NA dropping on the given columns, set to null for all columns of the DDF, default null
-   * @param inplace
-   *          = false: result in new DDF, true: update on the same DDF, default false
    * @return a DDF with NAs filtered
    */
   @Override
-  public DDF dropNA(int axis, String how, long thresh, List<String> columns, boolean inplace) throws DDFException {
+  public DDF dropNA(Axis axis, NAChecking how, long thresh, List<String> columns) throws DDFException {
     DDF newddf = null;
 
     int numcols = this.getDDF().getNumColumns();
@@ -53,7 +51,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     }
     String sqlCmd = "";
 
-    if (axis == 0) { // drop row with NA
+    if (axis == Axis.ROW) { // drop row with NA
       if (thresh > 0) {
         if (thresh > numcols) {
           throw new DDFException(
@@ -61,16 +59,16 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         } else {
           sqlCmd = dropNARowSQL(numcols - thresh + 1, columns);
         }
-      } else if ("any".equalsIgnoreCase(how)) {
+      } else if (how == NAChecking.ANY) {
         sqlCmd = dropNARowSQL(1, columns);
 
-      } else if ("all".equalsIgnoreCase(how)) {
+      } else if (how == NAChecking.ALL) {
         sqlCmd = dropNARowSQL(numcols, columns);
       }
 
       newddf = this.getManager().sql2ddf(String.format(sqlCmd, this.getDDF().getTableName()));
 
-    } else if (axis == 1) { // drop column with NA
+    } else if (axis == Axis.COLUMN) { // drop column with NA
       List<String> cols = Lists.newArrayList();
       long numrows = this.getDDF().getNumRows();
       if (thresh > 0) {
@@ -80,10 +78,10 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         } else {
           cols = selectedColumns(numrows - thresh + 1, columns);
         }
-      } else if ("any".equalsIgnoreCase(how)) {
+      } else if (how == NAChecking.ANY) {
 
         cols = selectedColumns(1, columns);
-      } else if ("all".equalsIgnoreCase(how)) {
+      } else if (how == NAChecking.ALL) {
         cols = selectedColumns(numrows, columns);
       }
 
@@ -91,13 +89,12 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
 
     } else {
       throw new DDFException(
-          "Either choose axis = 0 for row-based NA filtering or axis = 1 for column-based NA filtering");
+          "Either choose Axis.ROW for row-based NA filtering or Axis.COLUMN for column-based NA filtering");
     }
 
 
-    if (inplace) {
+    if (this.getDDF().isMutable()) {
       return this.getDDF().updateInplace(newddf);
-
     } else {
       this.getManager().addDDF(newddf);
       return newddf;
@@ -163,15 +160,15 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
    * @return a DDF with NAs filled
    */
   @Override
-  public DDF fillNA(String value, String method, long limit, String function, Map<String, String> columnsToValues,
-      List<String> columns, boolean inplace) throws DDFException {
+  public DDF fillNA(String value, FillMethod method, long limit, AggregateFunction function, Map<String, String> columnsToValues,
+      List<String> columns) throws DDFException {
 
     DDF newddf = null;
     if (columns == null) {
       columns = this.getDDF().getColumnNames();
     }
 
-    if (Strings.isNullOrEmpty(method)) {
+    if (method == null) {
       String sqlCmd = fillNAWithValueSQL(value, function, columnsToValues, columns);
       mLog.info("FillNA sql command: " + sqlCmd);
       newddf = this.getManager().sql2ddf(String.format(sqlCmd, this.getDDF().getTableName()));
@@ -181,9 +178,8 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     }
 
 
-    if (inplace) {
+    if (this.getDDF().isMutable()) {
       return this.getDDF().updateInplace(newddf);
-
     } else {
       this.getManager().addDDF(newddf);
       return newddf;
@@ -191,9 +187,8 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
 
   }
 
-  private String fillNAWithValueSQL(String value, String function, Map<String, String> columnsToValues,
+  private String fillNAWithValueSQL(String value, AggregateFunction function, Map<String, String> columnsToValues,
       List<String> columns) throws DDFException {
-
     StringBuffer caseCmd = new StringBuffer("");
     for (String col : columns) {
       if (!Strings.isNullOrEmpty(value)) { // fill by value
@@ -218,7 +213,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
           caseCmd.append(String.format("%s,", col));
         }
       } else {// fill by function
-        if (AggregateFunction.fromString(function) != null) {// fill by function
+        if (function != null) {// fill by function
           Column curColumn = this.getDDF().getColumn(col);
           if (this.getDDF().getColumn(col).isNumeric()) {
             double filledValue = this.getDDF().getAggregationHandler().aggregateOnColumn(function, col);
@@ -259,4 +254,5 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     return null;
   }
 
+  
 }

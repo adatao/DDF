@@ -65,7 +65,7 @@ public class MissingDataTypes {
   }
 
   public enum NAString {
-    NAN, NA, NULL;
+    NAN, NA, NONE, NULL;
 
     public static NAString fromString(String s) {
       if (Strings.isNullOrEmpty(s)) return null;

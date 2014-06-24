@@ -44,6 +44,8 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleMissingData;
+import com.adatao.ddf.etl.IHandleMissingData.Axis;
+import com.adatao.ddf.etl.IHandleMissingData.NAChecking;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
@@ -929,11 +931,11 @@ public abstract class DDF extends ALoggable //
   public TransformFacade Transform;
   
   public DDF dropNA() throws DDFException {
-    return this.getMissingDataHandler().dropNA(0, "any", 0, null, false);
+    return this.getMissingDataHandler().dropNA(Axis.ROW, NAChecking.ANY, 0, null);
   }
   
   public DDF fillNA(String value) throws DDFException {
-    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null, false);
+    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null);
   }
   
   public DDF updateInplace(DDF result) throws DDFException {
