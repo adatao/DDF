@@ -118,14 +118,6 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
 
     outputColumns.add(new Schema.Column("prediction", "double"));
     
-
-//<<<<<<< HEAD
-//    if(model.getRawModel() == null) {
-//      mLog.info(">>>>>>>>>>> rawModel == null");
-//    }
-//    Schema schema = new Schema(String.format("%s_%s_%s", "ddf", model.getRawModel().getClass().getName(),
-//        "YTrueYPredict"), outputColumns);
-//=======
     Schema schema = new Schema(outputColumns);
 
 

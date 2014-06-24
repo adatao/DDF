@@ -96,34 +96,35 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     }
     String sqlCmd = String.format("SELECT %s, %s FROM %s", columnList, RToSqlUdf(RExp), this.getDDF().getTableName());
     DDF newddf = this.getManager().sql2ddf(sqlCmd);
-    
+
     if (this.getDDF().isMutable()) { // return same DDF
-      
+
       DDF curDDF = this.getDDF();
-      
+
       curDDF.getRepresentationHandler().reset();
-      //curDDF.getRepresentationHandler().add(newddf.getRepresentationHandler().getDefault());
+
       curDDF.getRepresentationHandler().setRepresentations(newddf.getRepresentationHandler().getAllRepresentations());
-      
+
       String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
-      
+
       this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
-      
-      
-      String sqlCmdNew = String.format(
-          "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS SELECT * FROM %s",
-                                  oldname, newddf.getTableName());
+
+
+      String sqlCmdNew = String
+          .format(
+              "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS SELECT * FROM %s",
+              oldname, newddf.getTableName());
       this.getManager().sql2txt(sqlCmdNew);
-     
+
       curDDF.getSchemaHandler().setSchema(newddf.getSchema());
       curDDF.getSchema().setTableName(oldname);
       return curDDF;
-    } else { //return new DDF
+    } else { // return new DDF
       this.getManager().addDDF(newddf);
       return newddf;
     }
-    
-    
+
+
   }
 
   public DDF transformUDF(String RExp) throws DDFException {
@@ -141,7 +142,7 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
   public static String RToSqlUdf(String RExp) {
     List<String> udfs = Lists.newArrayList();
     for (String str : RExp.split(",(?![^()]*+\\))")) {
-      String[] udf = str.replaceAll("\\s","").split("[=~]");
+      String[] udf = str.replaceAll("\\s", "").split("[=~]");
       if (udf.length == 1) {
         udfs.add(String.format("(%s)", udf[0]));
       } else {

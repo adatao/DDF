@@ -24,7 +24,6 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl()  throws DDFException {
-    System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + this.getDDF().getName());
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
     JavaRDD<Object[]> data = rdd.toJavaRDD();
@@ -101,7 +100,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
             result[i] = b[i];
             result[i].addToNACount(a[i].NACount());
           }
-          // both are NA
+          // both are NAs
           else {
             result[i] = new Summary();
             result[i].setNACount(a[i].NACount() + b[i].NACount());
