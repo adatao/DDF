@@ -625,10 +625,12 @@ public class SparkDDFManager extends DDFManager {
     Configuration config = HBaseConfiguration.create();
     // config.set("hbase.zookeeper.znode.parent", "hostname1");
     // config.set("hbase.zookeeper.quorum","hostname1");
-//    config.set("hbase.zookeeper.property.clientPort","2222");
-    config.set("hbase.master", "localhost:");
-    // config.set("fs.defaultFS","hdfs://hostname1/");
-    // config.set("dfs.namenode.rpc-address","localhost:8020");
+    config.set("hbase.rootdir","hdfs://ec2-54-197-232-5.compute-1.amazonaws.com:9000/hbase");
+    config.set("hbase.cluster.distributed","false");
+    config.set("hbase.zookeeper.property.clientPort","2181");
+    config.set("hbase.master", "ec2-54-197-232-5.compute-1.amazonaws.com:");
+     config.set("fs.defaultFS","hdfs://ec2-54-197-232-5.compute-1.amazonaws.com:9000/");
+//     config.set("dfs.namenode.rpc-address","ec2-54-197-232-5.compute-1.amazonaws.com:8020");
     config.set(TableInputFormat.INPUT_TABLE, tableName);
     // set SCAN in conf
     try {

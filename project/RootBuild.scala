@@ -126,7 +126,7 @@ object RootBuild extends Build {
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
-    "org.apache.hbase" % "hbase" % "0.94.2" excludeAll(excludeNetty, excludeAsm, excludeZooKeeper),
+    "org.apache.hbase" % "hbase-hadoop-compat" % "0.96.2-hadoop2" excludeAll(excludeNetty, excludeAsm, excludeZooKeeper),
     "org.apache.phoenix" % "phoenix-core" % "3.0.0-incubating" excludeAll(excludeNetty, excludeAsm, excludeHbase),
     "com.google.protobuf" % "protobuf-java" % "2.4.1",
     //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
