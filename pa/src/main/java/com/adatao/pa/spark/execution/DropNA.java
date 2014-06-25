@@ -18,14 +18,14 @@ import com.adatao.pa.spark.types.IExecutor;
 
 public class DropNA implements IExecutor {
   public static Logger LOG = LoggerFactory.getLogger(DropNA.class);
-  private Axis axis;
-  private NAChecking how;
+  private String axis;
+  private String how;
   private long thresh;
   private List<String> columns;
   private String dataContainerID;
 
 
-  public DropNA(Axis axis, NAChecking how, long thresh, List<String> columns, String dataContainerID) {
+  public DropNA(String axis, String how, long thresh, List<String> columns, String dataContainerID) {
     this.axis = axis;
     this.how = how;
     this.thresh = thresh;
@@ -39,7 +39,7 @@ public class DropNA implements IExecutor {
     try {
 
       DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
-      DDF newddf = ddf.getMissingDataHandler().dropNA(axis, how, thresh, columns);
+      DDF newddf = ddf.getMissingDataHandler().dropNA(Axis.fromString(axis), NAChecking.fromString(how), thresh, columns);
 
       return new Utils.DataFrameResult(newddf);
 

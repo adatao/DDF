@@ -18,12 +18,29 @@ public interface IHandleMissingData extends IHandleDDFFunctionalGroup {
       Map<String, String> columnsToValues, List<String> columns) throws DDFException;
 
   public enum Axis {
-    @SerializedName("row") ROW, @SerializedName("column") COLUMN;
+    ROW, COLUMN;
+    public static Axis fromString(String s) {
+        if (Strings.isNullOrEmpty(s)) return null;
 
+        for (Axis t : values()) {
+          if (t.name().equalsIgnoreCase(s)) return t;
+        }
+
+        return null;
+      }
   }
 
   public enum NAChecking {
-    @SerializedName("any") ANY, @SerializedName("all") ALL;
+    ANY, ALL;
+    public static NAChecking fromString(String s) {
+        if (Strings.isNullOrEmpty(s)) return null;
+
+        for (NAChecking t : values()) {
+          if (t.name().equalsIgnoreCase(s)) return t;
+        }
+
+        return null;
+      }
   }
 
   public enum FillMethod {
