@@ -51,7 +51,7 @@ public class TestMissingDataHandling extends BaseTest {
         .setCmdName("DropNA")
         .setParams(
             String.format(
-                "{dataContainerID: %s," + "Axis: row," + "NAChecking: any," + "thresh: 0," + "columns: null}",
+                "{dataContainerID: %s," + "axis: row," + "how: any," + "thresh: 0," + "columns: null}",
                 airlineID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 
