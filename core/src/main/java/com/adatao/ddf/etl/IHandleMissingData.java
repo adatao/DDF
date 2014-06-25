@@ -8,6 +8,7 @@ import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.IHandleDDFFunctionalGroup;
 import com.adatao.ddf.types.AggregateTypes.AggregateFunction;
 import com.google.common.base.Strings;
+import com.google.gson.annotations.SerializedName;
 
 public interface IHandleMissingData extends IHandleDDFFunctionalGroup {
 
@@ -16,20 +17,17 @@ public interface IHandleMissingData extends IHandleDDFFunctionalGroup {
   public DDF fillNA(String value, FillMethod method, long limit, AggregateFunction function,
       Map<String, String> columnsToValues, List<String> columns) throws DDFException;
 
-  public DDF replaceNA();
-
-
   public enum Axis {
-    ROW, COLUMN;
+    @SerializedName("row") ROW, @SerializedName("column") COLUMN;
 
   }
 
   public enum NAChecking {
-    ANY, ALL;
+    @SerializedName("any") ANY, @SerializedName("all") ALL;
   }
 
   public enum FillMethod {
-    BFILL, FFILL;
+    @SerializedName("bfill") BFILL, @SerializedName("ffill") FFILL;
 
     public static FillMethod fromString(String s) {
       if (Strings.isNullOrEmpty(s)) return null;

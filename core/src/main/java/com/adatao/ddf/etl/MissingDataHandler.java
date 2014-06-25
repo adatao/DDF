@@ -248,11 +248,5 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
     return String.format(" (CASE WHEN %s IS NULL THEN %s ELSE %s END) AS %s,", column, filledValue, column, column);
   }
 
-  @Override
-  public DDF replaceNA() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   
 }
