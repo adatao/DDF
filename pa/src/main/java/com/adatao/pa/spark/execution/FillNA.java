@@ -22,7 +22,7 @@ public class FillNA implements IExecutor {
   private String value;
   private FillMethod method;
   private long limit;
-  private String func;
+  private String function;
   Map<String, String> columnsToValues;
   private List<String> columns;
   private String dataContainerID;
@@ -33,7 +33,7 @@ public class FillNA implements IExecutor {
     this.value = value;
     this.method = method;
     this.limit = limit;
-    this.func = function;
+    this.function = function;
     this.columnsToValues = columnsToValues;
     this.columns = columns;
     this.dataContainerID = dataContainerID;
