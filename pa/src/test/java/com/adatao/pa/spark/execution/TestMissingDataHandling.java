@@ -1,5 +1,6 @@
 package com.adatao.pa.spark.execution;
 
+
 import java.util.Arrays;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
@@ -19,6 +20,8 @@ public class TestMissingDataHandling extends BaseTest {
 
   String airlineID;
   String sid;
+
+
   @Before
   public void init() throws TException {
     JsonCommand cmd = new JsonCommand().setCmdName("connect");
@@ -31,10 +34,10 @@ public class TestMissingDataHandling extends BaseTest {
 
     createTableAirlineWithNA(sid);
 
-    Sql2DataFrame.Sql2DataFrameResult ddf = this.runSQL2RDDCmd(sid, "SELECT * FROM mtcars", true);
+    Sql2DataFrame.Sql2DataFrameResult ddf = this.runSQL2RDDCmd(sid, "SELECT * FROM airline", true);
     airlineID = ddf.dataContainerID;
   }
-  
+
   @Test
   public void testDropNA() throws TException {
     JsonCommand cmd = new JsonCommand();
@@ -47,7 +50,8 @@ public class TestMissingDataHandling extends BaseTest {
         .setSid(sid)
         .setCmdName("DropNA")
         .setParams(
-            String.format("{dataContainerID: %s," + "Axis: row," + "NAChecking: any," + "thresh: 0," + "columns: null}",
+            String.format(
+                "{dataContainerID: %s," + "Axis: row," + "NAChecking: any," + "thresh: 0," + "columns: null}",
                 airlineID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 

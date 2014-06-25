@@ -17,34 +17,37 @@ public interface IHandleMissingData extends IHandleDDFFunctionalGroup {
   public DDF fillNA(String value, FillMethod method, long limit, AggregateFunction function,
       Map<String, String> columnsToValues, List<String> columns) throws DDFException;
 
+
   public enum Axis {
     ROW, COLUMN;
     public static Axis fromString(String s) {
-        if (Strings.isNullOrEmpty(s)) return null;
+      if (Strings.isNullOrEmpty(s)) return null;
 
-        for (Axis t : values()) {
-          if (t.name().equalsIgnoreCase(s)) return t;
-        }
-
-        return null;
+      for (Axis t : values()) {
+        if (t.name().equalsIgnoreCase(s)) return t;
       }
+
+      return null;
+    }
   }
 
   public enum NAChecking {
     ANY, ALL;
     public static NAChecking fromString(String s) {
-        if (Strings.isNullOrEmpty(s)) return null;
+      if (Strings.isNullOrEmpty(s)) return null;
 
-        for (NAChecking t : values()) {
-          if (t.name().equalsIgnoreCase(s)) return t;
-        }
-
-        return null;
+      for (NAChecking t : values()) {
+        if (t.name().equalsIgnoreCase(s)) return t;
       }
+
+      return null;
+    }
   }
 
   public enum FillMethod {
-    @SerializedName("bfill") BFILL, @SerializedName("ffill") FFILL;
+    @SerializedName("bfill")
+    BFILL, @SerializedName("ffill")
+    FFILL;
 
     public static FillMethod fromString(String s) {
       if (Strings.isNullOrEmpty(s)) return null;
