@@ -81,6 +81,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * List of existing DDFs
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
+
   // ephemeral mapping between ddf alias and DDF
   protected HashMap<String, DDF> mDDFsByName = new HashMap<String, DDF>();
 
@@ -123,14 +124,14 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /*
-   * return list of DDFs by name
+   * return list of DDFs infomation
+   * only return DDF with alias
    */
   public DDF.DDFInformation[] listDDFs() {
-    Collection<DDF> ddfs = this.mDDFs.values();
+    Collection<DDF> ddfs = this.mDDFsByName.values();
     List<DDF.DDFInformation> ddfInformationList = new ArrayList<DDF.DDFInformation>();
     for(DDF ddf: ddfs) {
       SimpleDateFormat dateformat = new SimpleDateFormat("MM.d.yyyy 'at' HH:mm a");
-
       DDF.DDFInformation information = new DDF.DDFInformation(ddf.getNumRows(), ddf.getNumColumns(),
           ddf.getUri(), dateformat.format(ddf.getCreatedTime()));
       ddfInformationList.add(information);
