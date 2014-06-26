@@ -10,7 +10,6 @@ import com.adatao.pa.spark.execution.Kmeans
 import org.apache.spark.mllib.clustering.KMeansModel
 import com.adatao.pa.spark.execution.CVRandomSplit
 import com.adatao.pa.spark.execution.LinearRegressionNormalEquation
-import com.adatao.pa.spark.execution.NQLinearRegressionModel
 import com.adatao.pa.spark.execution.MapReduceNative
 import com.adatao.pa.spark.execution.Sql2DataFrame
 import com.adatao.pa.spark.execution.FiveNumSummary

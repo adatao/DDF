@@ -26,7 +26,7 @@ public class Model implements IModel, Serializable {
 
   private Object mRawModel;
 
-  private String mRawModelClass;
+  private String modelType;
 
   private String mName;
 
@@ -38,9 +38,9 @@ public class Model implements IModel, Serializable {
     mRawModel = rawModel;
 
     if(rawModel != null) {
-      mRawModelClass = mRawModel.getClass().getName();
+      modelType = mRawModel.getClass().getName();
     } else {
-      mRawModelClass = null;
+      modelType = null;
     }
 
     mName = UUID.randomUUID().toString();
@@ -54,7 +54,7 @@ public class Model implements IModel, Serializable {
   @Override
   public void setRawModel(Object rawModel) {
     this.mRawModel = rawModel;
-    this.mRawModelClass = rawModel.getClass().getName();
+    this.modelType = rawModel.getClass().getName();
   }
 
 
@@ -201,7 +201,7 @@ public class Model implements IModel, Serializable {
             return null;
           }
 
-          Class<?> rawModelClass = Class.forName(jsonObj.get("mRawModelClass").getAsString());
+          Class<?> rawModelClass = Class.forName(jsonObj.get("modelType").getAsString());
           Object rawModel = _gson.fromJson(jsonObj.get("mRawModel"), rawModelClass);
           jsonObj.remove("mRawModel");
 

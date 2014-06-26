@@ -205,13 +205,12 @@ object LinearRegressionNormalEquation {
     /*
         new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), "73918a", rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
+    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
   }
 
 }
 
-class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss: Double,
-  val sst: Double, val stdErrs: Vector,
+class NQLinearRegressionModel(val weights: Vector, val rss: Double, val sst: Double, val stdErrs: Vector,
   val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends Serializable {
 
   def predictVector(features: Vector): Double = {

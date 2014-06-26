@@ -197,8 +197,8 @@ object LogisticRegressionIRLS {
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDeviance: Double, numSamples: Long,
-                                  numFeatures: Long, numIters: Int, stderrs: Vector) extends Serializable {
+class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val nullDeviance: Double, val numSamples: Long,
+                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends Serializable {
   override def toString(): String = {
     weights.toString
   }
@@ -213,35 +213,10 @@ class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDevianc
     ALossFunction.sigmoid(linearPredictor)
   }
 
-  def getWeights(): Vector = {
-    return weights;
-  }
-
-  def getDeviance(): Double = {
-    return deviance;
-  }
-
-  def getNullDeviance(): Double = {
-    return nullDeviance;
-  }
-
-  def getNumSamples(): Long = {
-    return numSamples;
-  }
-
-  def getNumIters(): Int = {
-    return numIters;
-  }
-
-  def getStdErrs(): Vector = {
-    return stderrs;
-  }
-  
   var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
   def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
     dummyColumnMapping = _mapping
   }
-
 }
 
 /**
