@@ -97,29 +97,9 @@ public class TransformationHandler extends ADDFFunctionalGroupHandler implements
     String sqlCmd = String.format("SELECT %s, %s FROM %s", columnList, RToSqlUdf(RExp), this.getDDF().getTableName());
     DDF newddf = this.getManager().sql2ddf(sqlCmd);
 
-    if (this.getDDF().isMutable()) { // return same DDF
-
-      DDF curDDF = this.getDDF();
-
-      curDDF.getRepresentationHandler().reset();
-
-      curDDF.getRepresentationHandler().setRepresentations(newddf.getRepresentationHandler().getAllRepresentations());
-
-      String oldname = this.getDDF().getSchemaHandler().getTableName().replace("-", "_");
-
-      this.getManager().sql2txt(String.format("drop table if exists %s", oldname));
-
-
-      String sqlCmdNew = String
-          .format(
-              "CREATE TABLE %s TBLPROPERTIES (\"shark.cache\"=\"true\", \"shark.cache.storageLevel\"=\"MEMORY_AND_DISK\") AS SELECT * FROM %s",
-              oldname, newddf.getTableName());
-      this.getManager().sql2txt(sqlCmdNew);
-
-      curDDF.getSchemaHandler().setSchema(newddf.getSchema());
-      curDDF.getSchema().setTableName(oldname);
-      return curDDF;
-    } else { // return new DDF
+    if (this.getDDF().isMutable()) {
+      return this.getDDF().updateInplace(newddf);
+    } else {
       this.getManager().addDDF(newddf);
       return newddf;
     }
