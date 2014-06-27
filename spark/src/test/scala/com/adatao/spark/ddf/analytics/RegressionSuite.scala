@@ -91,14 +91,13 @@ class RegressionSuite extends ATestSuite {
     
     val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = glmModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
     
-    println(">>>>>>>>>>>>>>>>>>>")
-    println(model.getWeights)
-    assert(truncate(model.getWeights()(0), 2) === -3.45)
-    println(model.getDeviance)
-    assert(truncate(model.getDeviance, 2) === 459.44)
-    println(model.getStdErrs)
-    assert(truncate(model.getStdErrs()(0), 2) === 1.13)
-    assert(model.getNumIters === 4)
+
+    assert(truncate(model.weights(0), 2) === -3.45)
+    println(model.deviance)
+    assert(truncate(model.deviance, 2) === 459.44)
+    println(model.stderrs)
+    assert(truncate(model.stderrs(0), 2) === 1.13)
+    assert(model.numIters === 4)
     
     manager.shutdown()
   }
