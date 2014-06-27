@@ -98,9 +98,9 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
 
 
   @Override
-  public double aggregateOnColumn(String function, String column) throws DDFException {
+  public double aggregateOnColumn(AggregateFunction function, String column) throws DDFException {
     return Double.parseDouble(this.getManager()
-        .sql2txt(String.format("SELECT %s from %s", AggregateFunction.fromString(function).toString(column), this.getDDF().getTableName())).get(0));
+        .sql2txt(String.format("SELECT %s from %s", function.toString(column), this.getDDF().getTableName())).get(0));
   }
 
   @Override

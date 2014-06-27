@@ -99,7 +99,7 @@ public class RFacade implements IHandleAggregation {
   }
 
   @Override
-  public double aggregateOnColumn(String function, String col) throws DDFException {
+  public double aggregateOnColumn(AggregateFunction function, String col) throws DDFException {
     // TODO Auto-generated method stub
     return 0;
   }
