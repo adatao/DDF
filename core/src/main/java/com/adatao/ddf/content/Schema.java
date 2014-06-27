@@ -555,7 +555,7 @@ public class Schema implements Serializable {
 		private Integer numberFeatures = 0;
 		
 		public void toPrint() {
-		  System.out.println(">>>>>>>>>>> print dummy coding");
+
 		  Iterator it = mapping.keySet().iterator();
 		  while(it.hasNext()) {
 		    HashMap<String, Double> a = getMapping().get(it.next());
@@ -563,7 +563,6 @@ public class Schema implements Serializable {
 		    
 		    while(b.hasNext()) {
 		      String c = b.next();
-		      System.out.println(">>>>key: " + c + "\t" + a.get(c));
 		    }
 		    
 		  }
