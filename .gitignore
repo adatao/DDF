@@ -70,3 +70,5 @@ inst/java/
 .Rproj.user
 #Rserve files
 pa/rlibs/Rserve/*
+pa/conf/local/hive-site.xml
+spark/conf/local/hive-site.xml
