@@ -39,7 +39,7 @@ class GenericExecutorSuite extends ABigRClientTest {
     assert(result2.result != null)
     print(s"ddf.Views.getRandomSample = ${result2.result}")
   }
-//
+
 //  test("test generic executor for kmeans") {
 //    createTableAirline
 //    val ddf = this.runSQL2RDDCmd("select v1, v2, v3 from airline", true)

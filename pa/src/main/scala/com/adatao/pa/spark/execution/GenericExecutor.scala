@@ -88,6 +88,8 @@ object GenericExecutor {
       while (iter.hasNext && !found) {
         val method = iter.next()
         val methodArgTypes = method.getParameterTypes
+        println(s">>> params = ${params.mkString(", ")}")
+        println(s">>> methodArgTypes = ${methodArgTypes.mkString(", ")}")
         val args: Array[Object] = (params zip methodArgTypes).map {
           case (p, clss) => gson.fromJson(p, clss).asInstanceOf[java.lang.Object]
         }
