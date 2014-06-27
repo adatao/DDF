@@ -9,6 +9,7 @@ import com.adatao.spark.ddf.content.RepresentationHandler
 import com.adatao.ddf.ml.IModel
 import org.apache.spark.mllib.clustering.KMeansModel
 import com.adatao.pa.spark.types.{ExecutionException, SuccessfulResult, FailedResult, ExecutionResult}
+import com.adatao.spark.ddf.SparkDDF
 
 class Kmeans(
   dataContainerID: String,
@@ -36,8 +37,8 @@ class Kmeans(
     for (col ← xCols) columnList.add(schema.getColumn(col).getName)
     val projectedDDF = ddf.Views.project(columnList)
     val kmeansModel = projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
-
     // converts DDF model to old PA model
+
 //    val rawModel = kmeansModel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
 //    rawModel
     return new KmeansModel(kmeansModel.getName, kmeansModel.getTrainedColumns, kmeansModel.getRawModel.asInstanceOf[KMeansModel])

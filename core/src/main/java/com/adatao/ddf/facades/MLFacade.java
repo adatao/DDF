@@ -68,9 +68,9 @@ public class MLFacade implements ISupportML {
 
   // //// Convenient facade ML algorithm names //////
 
-  public IModel kMeans(int[] featureColumnIndexes, int numCentroids, int maxIters, int runs, String initMode)
+  public IModel kMeans(int numCentroids, int maxIters, int runs, String initMode)
       throws DDFException {
-    return this.train("kmeans", featureColumnIndexes, numCentroids, maxIters, runs, initMode);
+    return this.train("kmeans", numCentroids, maxIters, runs, initMode);
   }
 
   public IModel linearRegressionWithSGD(int[] featureColumnIndexes, int targetColumnIndex, int stepSize,
