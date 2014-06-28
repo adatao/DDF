@@ -6,11 +6,12 @@ import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.NRow.NRowResult
+import com.adatao.pa.spark.scalaClient.Manager.client
 
 /**
  * author: daoduchuan
  */
-class DDF(client: BigRClient2, val dataContainerID: String, val metainfo: Array[MetaInfo]) {
+class DDF(val dataContainerID: String, val metainfo: Array[MetaInfo]) {
 
   def getNumRows(): Long = {
     val cmd = new NRow
@@ -25,10 +26,10 @@ class DDF(client: BigRClient2, val dataContainerID: String, val metainfo: Array[
     client.execute[DataframeStatsResult](cmd).result
   }
 
-  def applyModel(model: IModel) = {
+  def applyModel(model: IModel): DDF = {
     val cmd = new YtrueYpred(this.dataContainerID, model.getName)
     val result = client.execute[YtrueYpredResult](cmd).result
-    new DDF(client, result.dataContainerID, result.metaInfo)
+    new DDF(result.dataContainerID, result.metaInfo)
   }
 
   def roc(alpha_length: Int): RocMetric = {
@@ -39,7 +40,7 @@ class DDF(client: BigRClient2, val dataContainerID: String, val metainfo: Array[
   def transform(transformExp: String): DDF = {
     val cmd = new TransformNativeRserve(this.dataContainerID, transformExp)
     val dataFrameResult = client.execute[DataFrameResult](cmd).result
-    new DDF(client, dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
+    new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
   }
 }
 

@@ -25,7 +25,7 @@ import com.adatao.pa.spark.types.FailResult
  * @author ctn
  *
  */
-class BigRClient2(serverHost: String, serverPort: Int) {
+class ManagerClient(serverHost: String, serverPort: Int) {
   private val LOG: Logger = LoggerFactory.getLogger(this.getClass())
 
   private var sid: String = null
@@ -170,7 +170,7 @@ class BigRClient2(serverHost: String, serverPort: Int) {
 /**
  * Companion object/singleton
  */
-object BigRClient2 {
+object ManagerClient {
 
 }
 
@@ -180,13 +180,13 @@ object BigRThriftServerUtils {
   val HOST = "localhost"
   val PORT = 7912
 
-  def startServer: BigRClient2 = {
+  def startServer: ManagerClient = {
     thriftServer = new Server(PORT);
 
     new Thread(new Runnable() { def run = thriftServer.start }).start;
     Thread.sleep(5000)
     try {
-      new BigRClient2(HOST, PORT)
+      new ManagerClient(HOST, PORT)
     }
     catch {
       case e: TTransportException ⇒ {
@@ -202,18 +202,18 @@ object BigRThriftServerUtils {
     //		thriftTransport.close
   }
 
-  def createClient: BigRClient2 = {
-    new BigRClient2(HOST, PORT)
+  def createClient: ManagerClient = {
+    new ManagerClient(HOST, PORT)
   }
 }
 
-object BigRClient2TestUtils {
+object ManagerClientTestUtils {
   /**
    * Load one of the file paths given and returns the first successful load
    *
    * @param fileUrls list of file URLs to try one after another, until successful
    */
-  def loadFile(bigRClient: BigRClient2, fileUrls: List[String], hasHeader: Boolean, fieldSeparator: String, sampleSize: Int): String = {
+  def loadFile(bigRClient: ManagerClient, fileUrls: List[String], hasHeader: Boolean, fieldSeparator: String, sampleSize: Int): String = {
     fileUrls.foreach {
       fileUrl ⇒
         try {
@@ -233,17 +233,17 @@ object BigRClient2TestUtils {
    * @param fileUrl
    * @return dataContainerId
    */
-  def loadFile(bigRClient: BigRClient2, fileUrl: String, hasHeader: Boolean, fieldSeparator: String, sampleSize: Int): String = {
+  def loadFile(bigRClient: ManagerClient, fileUrl: String, hasHeader: Boolean, fieldSeparator: String, sampleSize: Int): String = {
     bigRClient.execute[LoadTable.LoadTableResult](
       new LoadTable().setFileURL(fileUrl).setHasHeader(hasHeader).setSeparator(fieldSeparator).setSampleSize(sampleSize)).result.getDataContainerID
   }
 
-  def runSQLCmd(bigRClient: BigRClient2, cmdStr: String): Sql2ListStringResult = {
+  def runSQLCmd(bigRClient: ManagerClient, cmdStr: String): Sql2ListStringResult = {
     val sql: Sql2ListString = new Sql2ListString().setSqlCmd(cmdStr)
     bigRClient.execute[Sql2ListStringResult](sql).result
   }
 
-  def runSQL2RDDCmd(bigRClient: BigRClient2, cmdStr: String, cache: Boolean): Sql2DataFrameResult = {
+  def runSQL2RDDCmd(bigRClient: ManagerClient, cmdStr: String, cache: Boolean): Sql2DataFrameResult = {
     val sql: Sql2DataFrame = new Sql2DataFrame(cmdStr, cache)
     bigRClient.execute[Sql2DataFrameResult](sql).result
   }

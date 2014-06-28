@@ -106,9 +106,8 @@ public class Model implements IModel, Serializable {
 
   @Override
   public String toString() {
-
-    Gson gson = new Gson();
-    return gson.toJson(this.mRawModel);
+    String modelString =  this.getRawModel().toString();
+    return modelString;
   }
 
   @Override
