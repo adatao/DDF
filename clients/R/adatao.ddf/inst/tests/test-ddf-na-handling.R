@@ -18,7 +18,7 @@ load.airlineWithNA <- function(dm) {
              , "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) "
              , "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"))
   
-  adatao.sql(dm, "load data local inpath '../../../resources/test//airline.csv' into table airline_na")
+  adatao.sql(dm, "load data local inpath '../../../resources/test//airlineWithNA.csv' into table airline_na")
   
   ddf <- adatao.sql2ddf(dm, "select * from airline_na")
   ddf
