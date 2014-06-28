@@ -1,0 +1,111 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] ddf
+[INFO] ddf_core
+[INFO] ddf_spark
+[INFO] ddf_pa
+[INFO] ddf_enterprise
+[INFO] ddf_contrib
+[INFO] ddf_examples
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ddf 0.9
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:compile (default) @ ddf ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:compile (compile) @ ddf ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:testCompile (test-compile) @ ddf ---
+[INFO] No sources to compile
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ddf_core 0.9
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ ddf_core_2.10 ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /mnt/ddf-0.9.2/core/src/main/resources
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:compile (default) @ ddf_core_2.10 ---
+[WARNING]  Expected all dependencies to require Scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-compiler:2.10.3 requires scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.10:2.2.0-M1 requires scala version: 2.10.3
+[WARNING]  org.scalacheck:scalacheck_2.10:1.11.0 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-reflect:2.10.3 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.9.3:1.9.1 requires scala version: 2.9.3
+[WARNING] Multiple versions of scala libraries detected!
+[INFO] Using incremental compilation
+[INFO] Compiling 1 Java source to /mnt/ddf-0.9.2/core/target/scala-2.10/classes...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ ddf_core_2.10 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:compile (compile) @ ddf_core_2.10 ---
+[WARNING]  Expected all dependencies to require Scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-compiler:2.10.3 requires scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.10:2.2.0-M1 requires scala version: 2.10.3
+[WARNING]  org.scalacheck:scalacheck_2.10:1.11.0 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-reflect:2.10.3 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.9.3:1.9.1 requires scala version: 2.9.3
+[WARNING] Multiple versions of scala libraries detected!
+[INFO] Using incremental compilation
+[INFO] Compiling 1 Java source to /mnt/ddf-0.9.2/core/target/scala-2.10/classes...
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ ddf_core_2.10 ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /mnt/ddf-0.9.2/core/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ ddf_core_2.10 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- scala-maven-plugin:3.1.5:testCompile (test-compile) @ ddf_core_2.10 ---
+[WARNING]  Expected all dependencies to require Scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-compiler:2.10.3 requires scala version: 2.10.3
+[WARNING]  com.adatao.ddf:ddf_core_2.10:0.9 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.10:2.2.0-M1 requires scala version: 2.10.3
+[WARNING]  org.scalacheck:scalacheck_2.10:1.11.0 requires scala version: 2.10.3
+[WARNING]  org.scala-lang:scala-reflect:2.10.3 requires scala version: 2.10.3
+[WARNING]  org.scalatest:scalatest_2.9.3:1.9.1 requires scala version: 2.9.3
+[WARNING] Multiple versions of scala libraries detected!
+[INFO] Using incremental compilation
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.15:test (default-test) @ ddf_core_2.10 ---
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] ddf ............................................... SUCCESS [1.165s]
+[INFO] ddf_core .......................................... FAILURE [5.204s]
+[INFO] ddf_spark ......................................... SKIPPED
+[INFO] ddf_pa ............................................ SKIPPED
+[INFO] ddf_enterprise .................................... SKIPPED
+[INFO] ddf_contrib ....................................... SKIPPED
+[INFO] ddf_examples ...................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 6.735s
+[INFO] Finished at: Fri Jun 27 11:56:25 UTC 2014
+[INFO] Final Memory: 14M/450M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.15:test (default-test) on project ddf_core_2.10: No tests were executed!  (Set -DfailIfNoTests=false to ignore this error.) -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <goals> -rf :ddf_core_2.10

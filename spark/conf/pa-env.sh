@@ -71,7 +71,6 @@ export YARN_CONF_DIR=${HADOOP_CONF_DIR}
 #The order of the following two lines is important please dont change
 SPARK_CLASSPATH+=":${HIVE_CONF_DIR}"
 [ "X$HADOOP_CONF_DIR" != "X" ] && SPARK_CLASSPATH+=":${HADOOP_CONF_DIR}"
-SPARK_CLASSPATH+=":${YARN_CONF_DIR}"
 export SPARK_CLASSPATH
 
 SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
@@ -80,6 +79,7 @@ SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties "
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
+SPARK_JAVA_OPTS+=" -Dspark.driver.port=20001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
@@ -92,9 +92,9 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
-        export SPARK_JAR=`find ${PA_HOME}/ -name bigr-server-assembly-*.jar`
+        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_spark-assembly-0.9.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_pa-assembly-0.9.jar
+        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_spark-assembly-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"

@@ -145,7 +145,9 @@ public class SparkDDFManager extends DDFManager {
     { "SPARK_SERIALIZER", "spark.kryo.registrator" },
     { "HIVE_HOME", "hive.home" },
     { "HADOOP_HOME", "hadoop.home" },
-    { "DDFSPARK_JAR", "ddfspark.jar" } 
+    { "DDF_SPARK_JAR", "ddfspark.jar" },
+    { "HADOOP_CONF_DIR", "hadoop.conf.dir" },
+    { "YARN_CONF_DIR", "yarn.conf.dir" }
     // @formatter:on
   };
 
@@ -175,7 +177,7 @@ public class SparkDDFManager extends DDFManager {
     // Some well-known defaults
     if (!params.containsKey("SPARK_MASTER")) params.put("SPARK_MASTER", DEFAULT_SPARK_MASTER);
     if (!params.containsKey("SPARK_APPNAME")) params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
-
+    
     return params;
   }
 
@@ -188,7 +190,7 @@ public class SparkDDFManager extends DDFManager {
    */
   private SparkContext createSparkContext(Map<String, String> params) throws DDFException {
     this.setSparkContextParams(this.mergeSparkParamsFromSettings(params));
-    String ddfSparkJar = params.get("DDFSPARK_JAR");
+    String ddfSparkJar = params.get("DDF_SPARK_JAR");
     String[] jobJars = ddfSparkJar != null ? ddfSparkJar.split(",") : new String[] {};
 
     SharkContext context = SparkUtils.createSharkContext(params.get("SPARK_MASTER"), params.get("SPARK_APPNAME"),
