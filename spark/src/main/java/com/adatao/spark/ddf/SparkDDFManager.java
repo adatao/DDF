@@ -182,7 +182,7 @@ public class SparkDDFManager extends DDFManager {
     Set<String> keys = params.keySet();
     Gson gson = new Gson();
 
-    mLog.info(">>>>>>> params = gson.toJson(params)");
+    mLog.info(String.format(">>>>>>> params = %s", gson.toJson(params)));
 
     return params;
   }
