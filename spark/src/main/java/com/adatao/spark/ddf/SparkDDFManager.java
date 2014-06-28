@@ -5,8 +5,10 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.adatao.spark.ddf.util.SparkUtils;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -177,7 +179,11 @@ public class SparkDDFManager extends DDFManager {
     // Some well-known defaults
     if (!params.containsKey("SPARK_MASTER")) params.put("SPARK_MASTER", DEFAULT_SPARK_MASTER);
     if (!params.containsKey("SPARK_APPNAME")) params.put("SPARK_APPNAME", DEFAULT_SPARK_APPNAME);
-    
+    Set<String> keys = params.keySet();
+    Gson gson = new Gson();
+
+    mLog.info(">>>>>>> params = gson.toJson(params)");
+
     return params;
   }
 
