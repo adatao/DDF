@@ -18,20 +18,20 @@ class Schema(ddf: DDF) {
   }
 
   def getNumColumns(): Int = {
-    return this.ddf.metainfo.size
+    return this.ddf.columns.size
   }
 
   def getColumnName(idx: Int): String = {
-    this.ddf.metainfo.apply(idx).getHeader
+    this.ddf.columns(idx).getName
   }
 
   def getColumnNames(): Array[String] = {
-    this.ddf.metainfo.map{info => info.getHeader}
+    this.ddf.columns.map{col => col.getName}
   }
 
   def getColumnIndex(colName: String): Int = {
-    val metaInfoWIndex = this.ddf.metainfo.zipWithIndex
-    metaInfoWIndex.find(p => p._1.getHeader == colName) match {
+    val metaInfoWIndex = this.ddf.columns.zipWithIndex
+    metaInfoWIndex.find(p => p._1.getName == colName) match {
       case Some(col) => col._2
       case None      => throw new Exception(s"Cannot find column $colName")
     }

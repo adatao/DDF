@@ -9,11 +9,19 @@ import com.adatao.pa.spark.execution.NRow.NRowResult
 import com.adatao.pa.spark.DDF.DDFManager.client
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.DDF.content.Schema
+import java.util.{List => JList}
+import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
+import com.adatao.pa.spark.DDF.analytics.MLFacade
+import com.adatao.ddf.content.Schema.Column
 
 /**
  * author: daoduchuan
  */
-class DDF(val name: String, val metainfo: Array[MetaInfo]) {
+class DDF(val name: String, val columns: Array[Column]) {
+
+  def this(name: String, metainfo: Array[MetaInfo]) = {
+    this(name, metainfo.map(info => DDF.metaInfoToColumn(info)))
+  }
 
   val ML: MLFacade = new MLFacade(this)
 
@@ -29,6 +37,14 @@ class DDF(val name: String, val metainfo: Array[MetaInfo]) {
 
   def getNumColumns(): Int = {
     Schema.getNumColumns()
+  }
+
+  def fetchRows(numRows: Int): JList[String] = {
+    val cmd = new FetchRows
+    cmd.setDataContainerID(this.name)
+    cmd.setLimit(numRows)
+    val result = client.execute[FetchRowsResult](cmd).result
+    result.getData
   }
 
   def summary(): DataframeStatsResult = {
@@ -69,6 +85,12 @@ class DDF(val name: String, val metainfo: Array[MetaInfo]) {
 }
 
 object DDF {
+  def metaInfoToColumn(metainfo: MetaInfo): Column = {
 
-
+    val col = new Column(metainfo.getHeader, metainfo.getType)
+    if(metainfo.hasFactor) {
+      col.setAsFactor(null)
+    }
+    col
+  }
 }
