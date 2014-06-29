@@ -13,7 +13,8 @@ import java.util.{List => JList}
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import com.adatao.pa.spark.DDF.analytics.MLFacade
 import com.adatao.ddf.content.Schema.Column
-
+import scala.collection.JavaConversions._
+import com.adatao.pa.spark.DDF.content.SchemaHandler
 /**
  * author: daoduchuan
  */
@@ -25,7 +26,9 @@ class DDF(val name: String, val columns: Array[Column]) {
 
   val ML: MLFacade = new MLFacade(this)
 
-  val Schema: Schema = new Schema(this)
+  private val Schema: Schema = new Schema(this, this.columns)
+
+  private val schemaHandler: SchemaHandler = new SchemaHandler(this)
 
   def getColumnNames(): Array[String] = {
     Schema.getColumnNames()
@@ -39,12 +42,21 @@ class DDF(val name: String, val columns: Array[Column]) {
     Schema.getNumColumns()
   }
 
-  def fetchRows(numRows: Int): JList[String] = {
+  def getSchema() = {
+    this.Schema
+  }
+
+  def getSchemaHandler() = {
+    this.schemaHandler
+  }
+
+  def fetchRows(numRows: Int): String = {
     val cmd = new FetchRows
     cmd.setDataContainerID(this.name)
     cmd.setLimit(numRows)
     val result = client.execute[FetchRowsResult](cmd).result
-    result.getData
+    val ls = result.getData
+    ls.mkString("\n")
   }
 
   def summary(): DataframeStatsResult = {

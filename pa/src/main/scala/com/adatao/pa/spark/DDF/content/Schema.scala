@@ -4,11 +4,12 @@ import com.adatao.pa.spark.execution.NRow
 import com.adatao.pa.spark.DDF.DDFManager._
 import com.adatao.pa.spark.execution.NRow.NRowResult
 import com.adatao.pa.spark.DDF.DDF
+import com.adatao.ddf.content.Schema.Column
 
 /**
  * author: daoduchuan
  */
-class Schema(ddf: DDF) {
+class Schema(ddf: DDF, val columns: Array[Column]) {
 
   def getNumRows(): Long = {
     val cmd = new NRow
@@ -35,6 +36,11 @@ class Schema(ddf: DDF) {
       case Some(col) => col._2
       case None      => throw new Exception(s"Cannot find column $colName")
     }
+  }
+
+  def getColumn(colName: String): Column = {
+    val colIdx = this.getColumnIndex(colName)
+    columns(colIdx)
   }
 
   def getDDFName(): String = {

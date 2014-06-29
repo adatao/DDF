@@ -18,7 +18,7 @@ class MLFacade(val ddf: DDF) {
   }
 
   def Kmeans(xCols: Array[String], numIterations: Int, K: Int): IModel = {
-    val xColsId = xCols.map{idx => this.ddf.Schema.getColumnIndex(idx)}
+    val xColsId = xCols.map{idx => this.ddf.getSchema.getColumnIndex(idx)}
     Kmeans(xColsId, numIterations, K)
   }
 
@@ -30,8 +30,8 @@ class MLFacade(val ddf: DDF) {
 
   def LinearRegressionNormalEquation(xCols: Array[String], yCol: String): IModel = {
 
-    val xColsId= xCols.map{idx => this.ddf.Schema.getColumnIndex(idx)}
-    val yColID = this.ddf.Schema.getColumnIndex(yCol)
+    val xColsId= xCols.map{idx => this.ddf.getSchema.getColumnIndex(idx)}
+    val yColID = this.ddf.getSchema.getColumnIndex(yCol)
 
     LinearRegressionNormalEquation(xColsId, yColID)
   }
@@ -48,8 +48,8 @@ class MLFacade(val ddf: DDF) {
   }
 
   def LogisticRegression(xCols: Array[String], yCol: String, numIters: Int, eps: Double): IModel = {
-    val xColsId= xCols.map{idx => this.ddf.Schema.getColumnIndex(idx)}
-    val yColID = this.ddf.Schema.getColumnIndex(yCol)
+    val xColsId= xCols.map{idx => this.ddf.getSchema.getColumnIndex(idx)}
+    val yColID = this.ddf.getSchema.getColumnIndex(yCol)
     LogisticRegression(xColsId, yColID, numIters, eps)
   }
 }

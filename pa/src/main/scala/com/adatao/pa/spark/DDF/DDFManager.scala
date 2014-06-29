@@ -31,8 +31,8 @@ class DDFManager(serverHost: String, serverPort: Int = 7911) {
     result.map(ddfInfo => ddfInfo.getUri).mkString("\n")
   }
 
-  def loadModel(modelName: String): IModel = {
-    val cmd = new LoadModel(modelName)
+  def loadModel(uri: String): IModel = {
+    val cmd = new LoadModel(uri)
     client.execute[IModel](cmd).result
   }
 }
