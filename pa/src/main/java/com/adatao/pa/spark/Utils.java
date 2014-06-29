@@ -98,7 +98,7 @@ public class Utils {
     public boolean isMutable;
 
     public MutableDataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = ddf.getName().replace("_", "-");
       this.metaInfo = generateMetaInfo(ddf.getSchema());
       this.isMutable =  ddf.isMutable();
     }
