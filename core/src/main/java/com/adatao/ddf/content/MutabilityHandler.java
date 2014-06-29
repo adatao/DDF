@@ -11,18 +11,6 @@ public class MutabilityHandler extends ADDFFunctionalGroupHandler implements IHa
     // TODO Auto-generated constructor stub
   }
 
-  @Override
-  public DDF getDDF() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public void setDDF(DDF theDDF) {
-    // TODO Auto-generated method stub
-    
-  }
-
   private boolean isMutable = false;
 
   @Override
