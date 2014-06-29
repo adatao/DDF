@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution;
 
 
+import com.adatao.ML.Utils;
 import com.adatao.pa.spark.types.SuccessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,9 @@ public class SetDDFName extends CExecutor {
       return new FailResult().setMessage("ddfName string is empty");
     }
     try {
+      String ddfId = Utils.dcID2DDFID(dataContainerId);
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDF(dataContainerId);
-
+      DDF ddf = ddfManager.getDDF(ddfId);
 
       if (ddf != null) {
         LOG.info(" succesful setting ddf to alias name = " + ddfName);
