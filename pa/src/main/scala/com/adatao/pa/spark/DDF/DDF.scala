@@ -18,7 +18,9 @@ import com.adatao.pa.spark.DDF.content.SchemaHandler
 /**
  * author: daoduchuan
  */
-class DDF(val name: String, val columns: Array[Column]) {
+class DDF(var name: String, var columns: Array[Column]) {
+
+  private var isMutable: Boolean = false
 
   def this(name: String, metainfo: Array[MetaInfo]) = {
     this(name, metainfo.map(info => DDF.metaInfoToColumn(info)))
@@ -77,9 +79,10 @@ class DDF(val name: String, val columns: Array[Column]) {
   }
 
   def setMutable(isMutable: Boolean): DDF = {
+    this.isMutable = isMutable
     val cmd = new MutableDDF(this.name, isMutable)
-    val result = client.execute[Sql2DataFrameResult](cmd).result
-    new DDF(result.dataContainerID, result.metaInfo)
+    client.execute[Sql2DataFrameResult](cmd).result
+    this
   }
 
   def transform(transformExp: String): DDF = {
@@ -88,17 +91,34 @@ class DDF(val name: String, val columns: Array[Column]) {
     new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
   }
 
+  def groupBy(groupedColumns: List[String], selectedFucntion: List[String]): DDF = {
+    val cmd = new GroupBy(this.name, groupedColumns, selectedFucntion)
+    val result = client.execute[com.adatao.pa.spark.Utils.DataFrameResult](cmd).result
+    new DDF(result.getDataContainerID, result.getMetaInfo)
+  }
+
   def binning(column: String, binningType: String, numBins: Int = 0, breaks: Array[Double] = null,
                includeLowest: Boolean = false, right: Boolean= true, decimalPlaces: Int = 2): DDF = {
     val cmd = new Binning(this.name, column, binningType, numBins, breaks, includeLowest, right, decimalPlaces)
     val result = client.execute[BinningResult](cmd).result
     new DDF(result.dataContainerID, result.metaInfo)
   }
+
+  def dropNA(axis: String = "row", how: String = "any", threshold: Long = 0L, columns: JList[String]= null): DDF = {
+    val cmd = new DropNA(axis, how, threshold, columns, this.name)
+    val result = client.execute[DataFrameResult](cmd).result
+    if(isMutable) {
+      this.name = result.getDataContainerID
+      this.columns = result.getMetaInfo.map(info => DDF.metaInfoToColumn(info))
+      this
+    } else {
+      new DDF(result.dataContainerID, result.getMetaInfo)
+    }
+  }
 }
 
 object DDF {
   def metaInfoToColumn(metainfo: MetaInfo): Column = {
-
     val col = new Column(metainfo.getHeader, metainfo.getType)
     if(metainfo.hasFactor) {
       col.setAsFactor(null)
