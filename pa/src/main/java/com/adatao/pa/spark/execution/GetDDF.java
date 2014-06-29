@@ -47,7 +47,7 @@ public class GetDDF extends CExecutor {
     }
     try {
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDFByName(ddfName);
+      DDF ddf = ddfManager.getDDF(ddfName);
       if (ddf != null) {
         LOG.info("succesful getting ddf from name = " + ddfName);
       } else {

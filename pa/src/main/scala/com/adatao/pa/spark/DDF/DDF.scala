@@ -15,6 +15,8 @@ import com.adatao.pa.spark.DDF.analytics.MLFacade
 import com.adatao.ddf.content.Schema.Column
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.DDF.content.SchemaHandler
+import com.adatao.pa.spark.execution.SetDDFName.SetDDFNameResult
+
 /**
  * author: daoduchuan
  */
@@ -50,6 +52,11 @@ class DDF(var name: String, var columns: Array[Column]) {
 
   def getSchemaHandler() = {
     this.schemaHandler
+  }
+
+  def setName(ddfName: String): String = {
+    val cmd = new SetDDFName(this.name, ddfName)
+    client.execute[SetDDFNameResult](cmd).result.uri
   }
 
   def fetchRows(numRows: Int): String = {
