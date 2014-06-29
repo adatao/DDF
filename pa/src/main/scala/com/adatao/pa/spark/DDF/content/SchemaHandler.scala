@@ -8,11 +8,11 @@ import scala.collection.mutable.ListBuffer
 class SchemaHandler(val ddf: DDF) {
 
   var factorColumns: Array[Int] =  Array[Int]()
-
-  def setAsFactor(colName: String) = {
-    val colIdx = this.ddf.getColumnIndex(colName)
-    this.setAsFactor(colIdx)
-  }
+//
+//  def setAsFactor(colName: String) = {
+//    val colIdx = this.ddf.getColumnIndex(colName)
+//    this.setAsFactor(colIdx)
+//  }
 
   def setAsFactor(colIdx: Int) = {
     this.factorColumns = this.factorColumns :+ colIdx
