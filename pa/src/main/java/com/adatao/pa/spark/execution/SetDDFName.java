@@ -56,6 +56,7 @@ public class SetDDFName extends CExecutor {
       if (ddf != null) {
         LOG.info(" succesful setting ddf to alias name = " + ddfName);
         ddf.setName(ddfName);
+        ddfManager.addDDF(ddf);
       } else LOG.error("Can not set ddf to alias name = " + ddfName);
 
       return new SetDDFNameResult(ddf.getUri());
