@@ -129,7 +129,7 @@ class MetricsSuite extends ABigRClientTest {
 
 		//		//run ROC
 		val alpha_length: Int = 10
-		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
+		val executor = new ROC(predictionResultId, alpha_length)
 		val ret = bigRClient.execute[RocMetric](executor)
 
 		val metric = ret.result

@@ -106,8 +106,13 @@ public class Model implements IModel, Serializable {
 
   @Override
   public String toString() {
-    String modelString =  this.getRawModel().toString();
-    return modelString;
+    if(modelType == "org.apache.spark.mllib.clustering.KMeansModel") {
+      Gson gson = new Gson();
+      return String.format("%s \n %s", this.getRawModel().getClass().getName(), gson.toJson(this.getRawModel()));
+    } else {
+      String modelString = this.getRawModel().toString();
+      return modelString;
+    }
   }
 
   @Override

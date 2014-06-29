@@ -231,6 +231,15 @@ class NQLinearRegressionModel(val weights: Vector, val rss: Double, val sst: Dou
   def getDummy(): DummyCoding = {
     return dc;
   }
+
+  override def toString(): String = {
+    val weightString = s"weights: [${weights.data.mkString(", ")}}]"
+    val rssString = s"rss: ${rss}"
+    val sstString = s"sst: $sst"
+    val stdErrorsString = s"Standard errors: [${stdErrs.data.mkString(", ")}}]"
+    val vifString = s"vif: [${vif.mkString(", ")}}]"
+    this.getClass.getName + "\n" + weightString + "\n" + rssString + "\n" + stdErrorsString + "\n" + vifString
+  }
 }
 
 class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: Long, var x4: Double, var x5: Double, var x6: DoubleMatrix, var x7: Long) extends Serializable {

@@ -1,17 +1,17 @@
-package com.adatao.pa.spark.scalaClient
+package com.adatao.pa.spark.DDF
 
 import com.adatao.pa.spark.execution.{ListDDF, GetDDF, LoadModel, Sql2DataFrame}
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.ddf.ml.IModel
 import com.adatao.pa.spark.Utils.MutableDataFrameResult
 import com.adatao.ddf.DDF.DDFInformation
-import com.adatao.pa.spark.scalaClient.Manager.client
+import com.adatao.pa.spark.DDF.DDFManager.client
 
 
-class Manager(serverHost: String, serverPort: Int = 7911) {
+class DDFManager(serverHost: String, serverPort: Int = 7911) {
 
 
-  Manager.createClient(serverHost, serverPort)
+  DDFManager.createClient(serverHost, serverPort)
 
   def sql2ddf(command: String): DDF = {
     val cmd = new Sql2DataFrame(command, true)
@@ -37,7 +37,7 @@ class Manager(serverHost: String, serverPort: Int = 7911) {
   }
 }
 
-object Manager {
+object DDFManager {
 
   var client: ManagerClient = null
 
@@ -46,11 +46,11 @@ object Manager {
     client.connect()
   }
 
-  def apply(serverHost: String, serverPort: Int = 7911): Manager = {
-    new Manager(serverHost, serverPort)
+  def apply(serverHost: String, serverPort: Int = 7911): DDFManager = {
+    new DDFManager(serverHost, serverPort)
   }
 
-  def get(section: String): Manager = {
-    new Manager("pa4.adatao.com", 7911)
+  def get(section: String): DDFManager = {
+    new DDFManager("pa4.adatao.com", 7911)
   }
 }

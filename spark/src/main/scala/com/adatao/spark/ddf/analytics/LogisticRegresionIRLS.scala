@@ -200,10 +200,10 @@ object LogisticRegressionIRLS {
 class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val nullDeviance: Double, val numSamples: Long,
                                   val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends Serializable {
   override def toString(): String = {
-    val weightString = s"weights = [${weights.data.mkString(", ")}]"
-    val devianceString = s"deviance = ${deviance}"
-    val nullDevString = s"null deviance = ${nullDeviance}"
-    val stdErrsString = s"Standard Errors = [${stderrs.data.mkString(",")}]"
+    val weightString = s"weights: [${weights.data.mkString(", ")}]"
+    val devianceString = s"deviance: ${deviance}"
+    val nullDevString = s"null deviance: ${nullDeviance}"
+    val stdErrsString = s"Standard Errors: [${stderrs.data.mkString(",")}]"
     this.getClass.getName + "\n" + weightString + "\n" + devianceString + "\n" + nullDevString + "\n" + stdErrsString
   }
 

@@ -1,4 +1,4 @@
-package com.adatao.pa.spark.scalaClient
+package com.adatao.pa.spark.DDF
 
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TSocket
@@ -72,14 +72,14 @@ class ManagerClient(serverHost: String, serverPort: Int) {
       sid = res.result.sessionID
       workerPort = res.result.thriftPort
       workerHost = res.result.host
-      LOG.info("connect: SID=%s host=%s thriftPort=%d".format(sid, workerHost, workerPort))
+      //LOG.info("connect: SID=%s host=%s thriftPort=%d".format(sid, workerHost, workerPort))
       // connect to worker now
       //			Thread.sleep(5000)
       updateThriftClientWorker()
     }
     else {
       sid = this.executeImpl(thriftClienttoServer, "connect", params).sid
-      LOG.info("connect: SID=%s".format(sid))
+      //LOG.info("connect: SID=%s".format(sid))
     }
   }
 
