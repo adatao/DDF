@@ -8,10 +8,11 @@ import com.adatao.pa.spark.DDF.DDFManager.client
 /**
  * author: daoduchuan
  */
-class ObjectDDF(var name: String= null, model: IModel) {
-  this.name = model.getName
-  def persist(alias: String = null): String = {
-    val cmd = new PersistModel(model.getName, alias)
+class ObjectDDF(model: IModel) {
+
+  val name = model.getName
+  def persist(): String = {
+    val cmd = new PersistModel(model.getName)
     client.execute[String](cmd).result
   }
 }
