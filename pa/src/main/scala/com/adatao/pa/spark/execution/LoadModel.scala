@@ -14,12 +14,10 @@ import com.adatao.pa.spark.types.{SuccessfulResult, FailedResult, ExecutionExcep
 /**
  * author: daoduchuan
  */
-class LoadModel(modelName: String) extends AExecutor[IModel] {
+class LoadModel(uri: String) extends AExecutor[IModel] {
   override def runImpl(ctx: ExecutionContext): IModel = {
     val manager = ctx.sparkThread.getDDFManager
     val persistenceHandler = new PersistenceHandler(null)
-    val dataFileName = s"${manager.getNamespace}/${modelName}.dat"
-    val uri = s"${manager.getEngine}://$dataFileName"
 
     val modelDDF = persistenceHandler.load(uri).asInstanceOf[BasicDDF]
     val model = Model.deserializeFromDDF(modelDDF)
