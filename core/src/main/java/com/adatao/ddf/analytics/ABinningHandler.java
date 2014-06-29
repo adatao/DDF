@@ -20,9 +20,13 @@ public abstract class ABinningHandler extends ADDFFunctionalGroupHandler impleme
       boolean right) throws DDFException {
 
     DDF newddf = binningImpl(column, binningType, numBins, breaks, includeLowest, right);
-    //Factor<String> factor = (Factor<String>) newddf.setAsFactor(column);
-    
-    return newddf;
+
+    if (this.getDDF().isMutable()) {
+      return this.getDDF().updateInplace(newddf);
+    } else {
+      this.getManager().addDDF(newddf);
+      return newddf;
+    }
   }
 
   public abstract DDF binningImpl(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,
