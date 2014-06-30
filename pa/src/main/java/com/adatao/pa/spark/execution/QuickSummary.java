@@ -65,7 +65,8 @@ public class QuickSummary extends CExecutor {
     String clazz;
     List<String> colNames;
     
-    public String delimiter = "\t";
+    public String delimiter = " ";
+    public int totalIndent = 10;
 
 
     public void setColnames(java.util.List<String> colnames) {
@@ -119,46 +120,80 @@ public class QuickSummary extends CExecutor {
       this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
+    
+    public String reindent(String value) {
+      int left = totalIndent - value.length();
+      StringBuilder sb = new StringBuilder();
+      sb.append(value);
+      if(left > 0) {
+        for(int i=0; i< left; i++) {
+          sb.append(delimiter);
+        }
+      }
+      return sb.toString();
+    }
+    
+    public String reindent(Double v) {
+      String value = String.valueOf(v);
+      
+      int left = totalIndent - value.length();
+      StringBuilder sb = new StringBuilder();
+      sb.append(value);
+      if(left > 0) {
+        for(int i=0; i< left; i++) {
+          sb.append(delimiter);
+        }
+      }
+      return sb.toString();
+    }
+    
+    public String reindent(long v) {
+      String value = String.valueOf(v);
+      
+      int left = totalIndent - value.length();
+      StringBuilder sb = new StringBuilder();
+      sb.append(value);
+      if(left > 0) {
+        for(int i=0; i< left; i++) {
+          sb.append(delimiter);
+        }
+      }
+      return sb.toString();
+    }
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append("\t");
-      sb.append(delimiter);
-      sb.append("mean");
-      sb.append(delimiter);
-      sb.append("sum");
-      sb.append(delimiter);
-      sb.append("stdev");
-      sb.append(delimiter);
-      sb.append("var");
-      sb.append(delimiter);
-      sb.append("cNA");
-      sb.append(delimiter);
-      sb.append("count");
-      sb.append(delimiter);
-      sb.append("min");
-      sb.append(delimiter);
-      sb.append("max\n");
+//      sb.append(reindent("colname"));
+//      sb.append(reindent("mean"));
+//      sb.append(reindent("sum"));
+//      sb.append(reindent("stdev"));
+//      sb.append(reindent("var"));
+//      sb.append(reindent("mean"));
+//      sb.append(reindent("cNA"));
+//      sb.append(reindent("count"));
+//      sb.append(reindent("min"));
+//      sb.append(reindent("max"));
+//      sb.append("\n");
 
       for (int i = 0; i < mean.length; i++) {
-        sb.append(colNames.get(i));
-        sb.append(delimiter);
-        sb.append(delimiter);
-        sb.append(mean[i]);
-        sb.append(delimiter);
-        sb.append(sum[i]);
-        sb.append(delimiter);
-        sb.append(stdev[i]);
-        sb.append(delimiter);
-        sb.append(var[i]);
-        sb.append(delimiter);
-        sb.append(cNA[i]);
-        sb.append(delimiter);
-        sb.append(count[i]);
-        sb.append(delimiter);
-        sb.append(min[i]);
-        sb.append(delimiter);
-        sb.append(max[i]);
+        sb.append(reindent(colNames.get(i).trim()));
+        sb.append(reindent(mean[i]));
+        sb.append(reindent(sum[i]));
+        sb.append(reindent(stdev[i]));
+        sb.append(reindent(var[i]));
+        sb.append(reindent(cNA[i]));
+        sb.append(reindent(count[i]));
+        sb.append(reindent(min[i]));
+        sb.append(reindent(max[i]));
+        
+//        sb.append(mean[i]);
+//        sb.append(sum[i]);
+//        sb.append(stdev[i]);
+//        sb.append(var[i]);
+//        sb.append(cNA[i]);
+//        sb.append(count[i]);
+//        sb.append(min[i]);
+//        sb.append(max[i]);
         sb.append("\n");
       }
       return sb.toString();
