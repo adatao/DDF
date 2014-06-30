@@ -145,7 +145,13 @@ class DDF(var name: String, var columns: Array[Column]) {
 //    val cmd = new TransformNativeRserve(this.name, transformExp)
     val cmd = new TransformHive(this.name, transformExp)
     val dataFrameResult = client.execute[DataFrameResult](cmd).result
-    new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
+    if(this.isMutable()) {
+      this.name = dataFrameResult.dataContainerID
+      this.columns = dataFrameResult.getMetaInfo.map{info => DDF.metaInfoToColumn(info)}
+      this
+    } else {
+      new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
+    }
   }
 
   def groupBy(groupedColumns: List[String], selectedFucntion: List[String]): DDF = {

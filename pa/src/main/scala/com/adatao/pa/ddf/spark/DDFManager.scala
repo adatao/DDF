@@ -69,7 +69,7 @@ object DDFManager {
     val m = try {
       new DDFManager(cluster, 7911)
     } catch {
-      case e: Throwable => new DDFManager("pa4.adatao.com", 7911)
+      case e: Throwable => new DDFManager("pa2.adatao.com", 7911)
     }
     System.out.println("[NameSpace]: " + m.getNameSpace);
     m
