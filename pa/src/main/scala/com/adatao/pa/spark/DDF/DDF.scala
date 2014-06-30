@@ -150,7 +150,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     val result= client.execute[SubsetResult]("Subset", jsCreateVectors)
     
     
-     new DDF(result.result.getDataContainerID, this.columns) 
+     new DDF(result.result.getDataContainerID, result.result.getMetaInfo) 
   }
 }
 

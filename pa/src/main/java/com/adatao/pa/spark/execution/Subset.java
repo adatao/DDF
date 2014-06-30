@@ -114,7 +114,7 @@ public class Subset extends CExecutor {
       return this;
     }
 
-    public MetaInfo[] getMetaInfo(MetaInfo[] metaInfo) {
+    public MetaInfo[] getMetaInfo() {
       return this.metaInfo;
     }
     
