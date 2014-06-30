@@ -127,7 +127,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     }
   }
   
-  def projectDDF(projectColumns: Array[String]): DDF = {
+  def project(projectColumns: Array[String]): DDF = {
     val dcID: String = this.name
     var i =0
     var xCols: Array[Int] = new Array[Int] (projectColumns.length)
