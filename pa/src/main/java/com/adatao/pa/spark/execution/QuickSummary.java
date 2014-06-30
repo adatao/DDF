@@ -65,8 +65,8 @@ public class QuickSummary extends CExecutor {
     String clazz;
     List<String> colNames;
     
-    public String delimiter = " ";
-    public int totalIndent = 14;
+    public transient String delimiter = " ";
+    public transient int totalIndent = 14;
 
 
     public void setColnames(java.util.List<String> colnames) {
