@@ -73,7 +73,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     ls.mkString("\n")
   }
   
-  def top(numRows: Int, oColumns: List[String], mode: String = "asc"): String = {
+  def top(oColumns: List[String], numRows: Int =10, mode: String = "asc"): String = {
     val cmd = new TopN
     cmd.setDataContainerID(this.name)
     cmd.setLimit(numRows)
