@@ -36,7 +36,7 @@ class MLFacade(val ddf: DDF) {
     LinearRegressionNormalEquation(xColsId, yColID)
   }
 
-  def LogisticRegression(xCols: Array[Int], yCol: Int, numIters: Int = 10, eps: Double = math.pow(10, -1), ridgeLambda: Double = 0,
+  def LogisticRegression(xCols: Array[Int], yCol: Int, numIters: Int = 1, eps: Double = math.pow(10, -1), ridgeLambda: Double = 0,
                          initialWeights: Array[Double] = null, mapReference: HashMap[String, String] = null,
                          nullModel: Boolean = false)  = {
     val weights =  if(initialWeights == null) {
