@@ -811,12 +811,7 @@ public abstract class DDF extends ALoggable //
 
   @Override
   public String getUri() {
-    String uri = AGloballyAddressable.getUri(this);
-    if(this.getAliasName() != null) {
-      return uri.substring(0, uri.lastIndexOf("/") + 1) + this.getAliasName();
-    } else {
-      return uri;
-    }
+    return AGloballyAddressable.getUri(this);
   }
 
 
