@@ -132,6 +132,12 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d row(s) from table %%s", numRows));
   }
+  
+  public List<String> top(int numRows, String orderColumns, String mode) throws DDFException {
+    
+    return this.getDDF().sql2txt(String.format("SELECT * FROM %%s order by %s %s LIMIT %d", orderColumns, mode, numRows),
+        String.format("Unable to fetch %d row(s) from table %%s", numRows));
+  }
 
   @Override
   public DDF project(String... columnNames) throws DDFException {

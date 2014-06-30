@@ -73,6 +73,28 @@ class DDF(var name: String, var columns: Array[Column]) {
     ls.mkString("\n")
   }
   
+  def top(numRows: Int, oColumns: List[String], mode: String = "asc"): String = {
+    val cmd = new TopN
+    cmd.setDataContainerID(this.name)
+    cmd.setLimit(numRows)
+    cmd.setMode(mode)
+    
+    var orderColumns: String ="";
+    orderColumns = oColumns(0);
+    var i :Int = 1
+    while( i< oColumns.size) {
+      orderColumns += "," + oColumns(i)
+      i += 1
+    }
+    
+    cmd.setOrderedCols(orderColumns)
+    
+    
+    val result = client.execute[FetchRowsResult](cmd).result
+    val ls = result.getData
+    ls.mkString("\n")
+  }
+  
   def summary(): DataframeStatsResult = {
     val cmd = new QuickSummary
     cmd.setDataContainerID(this.name)
