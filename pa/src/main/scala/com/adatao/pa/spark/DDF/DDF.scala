@@ -19,6 +19,7 @@ import com.adatao.pa.spark.execution.SetDDFName.SetDDFNameResult
 import java.util.ArrayList
 import org.apache.commons.lang.StringUtils
 import com.adatao.pa.spark.execution.Subset.SubsetResult
+import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 
 /**
  * author: daoduchuan
@@ -76,6 +77,23 @@ class DDF(var name: String, var columns: Array[Column]) {
     val cmd = new QuickSummary
     cmd.setDataContainerID(this.name)
     client.execute[DataframeStatsResult](cmd).result
+  }
+
+  def fivenum(): Unit = {
+    val cmd = new FiveNumSummary(this.name)
+    val result= client.execute[Array[ASummary]](cmd).result
+    val indent = "\t"
+    var str = s"column${indent + indent}min${indent}max${indent}first_quartile${indent}median${indent}third_quartile\n"
+    val resultZipColumns = result zip this.getColumnNames()
+    resultZipColumns.foreach {
+      case (fivenum, col) => {
+        val row = s"$col${indent}${fivenum.min}${indent}${fivenum.max}${indent}${fivenum.first_quartile}${indent + indent}${fivenum.median}" +
+          s"${indent}${fivenum.third_quartile}\n"
+        str = str ++ row
+      }
+    }
+    print(str)
+    result
   }
 
   def applyModel(model: IModel): DDF = {
