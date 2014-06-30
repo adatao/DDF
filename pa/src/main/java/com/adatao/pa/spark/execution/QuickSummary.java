@@ -65,7 +65,7 @@ public class QuickSummary extends CExecutor {
     String clazz;
     List<String> colNames;
     
-    public String delimiter = "\t\t";
+    public String delimiter = "\t";
 
 
     public void setColnames(java.util.List<String> colnames) {
