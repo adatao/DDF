@@ -37,7 +37,7 @@ public class MapReduceNative extends CExecutor {
     try {
 
       DDFManager manager = sparkThread.getDDFManager();
-      DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = manager.getDDF(dataContainerID);
       DDF newddf = ddf.Transform.transformMapReduceNative(mapFuncDef, reduceFuncDef, mapsideCombine);
       LOG.info("Transformed DDF name " + newddf.getName());
 

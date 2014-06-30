@@ -244,15 +244,7 @@ class MetricsSuite extends ABigRClientTest {
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		assert(r2.isSuccess)
-		
-//		val newid = r2.result.dataContainerID.replaceAll("SparkDDF-spark-","")
-//		println(">>>>>>>> newid = " + newid + "\tr2.result.dataContainerID=" + r2.result.dataContainerID)
-//
-//		val fetcher = new FetchRows().setDataContainerID(newid).setLimit(32)
-//		val r3 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r3.isSuccess)
-//
-//		println(r3.result.data)
+
 	}
 
 	ignore("can get linear predictions categorical columns") {
