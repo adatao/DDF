@@ -41,7 +41,7 @@ class DDF(var name: String, var columns: Array[Column]) {
   private val schemaHandler: SchemaHandler = new SchemaHandler(this)
 
   def isMutable(): Boolean = {
-    return this.isMutable;
+    return this._isMutable;
   }
 
   def getColumnNames(): Array[String] = {
@@ -173,8 +173,9 @@ class DDF(var name: String, var columns: Array[Column]) {
     }
   }
   
-  def project(projectColumns: Array[String]): DDF = {
+  def project(columns: String): DDF = {
     val dcID: String = this.name
+    val projectColumns = columns.split(",").map(col => col.trim)
     var i =0
     var xCols: Array[Int] = new Array[Int] (projectColumns.length)
     
