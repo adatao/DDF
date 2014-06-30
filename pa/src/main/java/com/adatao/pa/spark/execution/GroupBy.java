@@ -51,7 +51,7 @@ public class GroupBy implements IExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(Utils.getDDFNameFromDataContainerID(dataContainerID));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
 
     checkParameters();
     if (ddf == null) {

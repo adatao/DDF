@@ -56,7 +56,7 @@ public class FetchRows extends CExecutor {
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
 
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     List<String> data;
     try {
       data = ddf.Views.firstNRows(limit);

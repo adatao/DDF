@@ -25,7 +25,7 @@ class Kmeans(
   
   def train(dataContainerID: String, context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
-    val ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_")) match {
+    val ddf = ddfManager.getDDF(dataContainerID) match {
       case x: DDF ⇒ x
       case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
     }

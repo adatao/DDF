@@ -61,11 +61,11 @@ public class Utils {
   }
 
   public static String getDataContainerID(DDF ddf) {
-    return ddf.getName().substring(15).replace("_", "-");
+    return ddf.getName();
   }
 
   public static String getDDFNameFromDataContainerID(String dataContainerID) {
-    return ("SparkDDF-spark-" + dataContainerID).replace("-", "_");
+    return dataContainerID;
   }
 
   static public class DataFrameResult extends SuccessResult {
@@ -73,7 +73,7 @@ public class Utils {
     public MetaInfo[] metaInfo;
 
     public DataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
     
@@ -98,7 +98,7 @@ public class Utils {
     public boolean isMutable;
 
     public MutableDataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = ddf.getName().replace("_", "-");
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
       this.isMutable =  ddf.isMutable();
     }

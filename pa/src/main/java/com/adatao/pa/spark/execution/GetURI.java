@@ -27,7 +27,7 @@ public class GetURI extends CExecutor {
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
 
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     if (ddf == null) {
       LOG.error("Cannot find the DDF " + dataContainerID);
     } else {

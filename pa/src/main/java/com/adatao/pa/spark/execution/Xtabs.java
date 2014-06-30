@@ -64,7 +64,7 @@ public class Xtabs extends CExecutor {
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     DDFManager dm = sparkThread.getDDFManager();
-    DDF ddf = (DDF) dm.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf =  dm.getDDF(dataContainerID);
     if (ddf == null) {
       LOG.info("Cannot find the DDF " + dataContainerID);
     } else {
