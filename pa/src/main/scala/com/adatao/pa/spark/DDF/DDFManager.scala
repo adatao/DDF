@@ -12,6 +12,15 @@ class DDFManager(serverHost: String, serverPort: Int = 7911) {
 
 
   DDFManager.createClient(serverHost, serverPort)
+  var nameSpace: String = "com.adatao"
+  
+  def setNameSpace(ns: String) {
+    nameSpace = ns
+  }
+  
+  def getNameSpace(): String= {
+    nameSpace 
+  }
 
   def sql2ddf(command: String): DDF = {
     val cmd = new Sql2DataFrame(command, true)
@@ -40,7 +49,6 @@ class DDFManager(serverHost: String, serverPort: Int = 7911) {
 object DDFManager {
 
   var client: ManagerClient = null
-  var nameSpace: String = "com.adatao"
 
   private def createClient(serverHost: String, serverPort: Int = 7911) = {
     client = new ManagerClient(serverHost, serverPort)
@@ -52,7 +60,8 @@ object DDFManager {
   }
 
   def get(section: String): DDFManager = {
-    System.out.println("[NameSpace]: " + nameSpace);
-    new DDFManager("pa4.adatao.com", 7911)
+    val m = new DDFManager("pa4.adatao.com", 7911)
+    System.out.println("[NameSpace]: " + m.getNameSpace);
+    m
   }
 }
