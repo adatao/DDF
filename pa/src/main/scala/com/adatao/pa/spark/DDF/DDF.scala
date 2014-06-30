@@ -20,13 +20,15 @@ import java.util.ArrayList
 import org.apache.commons.lang.StringUtils
 import com.adatao.pa.spark.execution.Subset.SubsetResult
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
+import com.adatao.ddf.content.ViewHandler._
+import com.adatao.ddf.content.ViewHandler
 
 /**
  * author: daoduchuan
  */
 class DDF(var name: String, var columns: Array[Column]) {
 
-  private var isMutable: Boolean = false
+  private var _isMutable: Boolean = false
 
   def this(name: String, metainfo: Array[MetaInfo]) = {
     this(name, metainfo.map(info => DDF.metaInfoToColumn(info)))
@@ -37,6 +39,10 @@ class DDF(var name: String, var columns: Array[Column]) {
   private val Schema: Schema = new Schema(this, this.columns)
 
   private val schemaHandler: SchemaHandler = new SchemaHandler(this)
+
+  def isMutable(): Boolean = {
+    return this.isMutable;
+  }
 
   def getColumnNames(): Array[String] = {
     Schema.getColumnNames()
@@ -130,7 +136,7 @@ class DDF(var name: String, var columns: Array[Column]) {
   }
 
   def setMutable(isMutable: Boolean): DDF = {
-    this.isMutable = isMutable
+    this._isMutable = isMutable
     val cmd = new MutableDDF(this.name, isMutable)
     client.execute[Sql2DataFrameResult](cmd).result
     this
@@ -158,7 +164,7 @@ class DDF(var name: String, var columns: Array[Column]) {
   def dropNA(axis: String = "row", how: String = "any", threshold: Long = 0L, columns: JList[String]= null): DDF = {
     val cmd = new DropNA(axis, how, threshold, columns, this.name)
     val result = client.execute[DataFrameResult](cmd).result
-    if(isMutable) {
+    if(this.isMutable) {
       this.name = result.getDataContainerID
       this.columns = result.getMetaInfo.map(info => DDF.metaInfoToColumn(info))
       this
@@ -191,6 +197,67 @@ class DDF(var name: String, var columns: Array[Column]) {
     
     
      new DDF(result.result.getDataContainerID, result.result.getMetaInfo) 
+  }
+
+  def filter(exp: String): DDF = {
+    val operatorRegex = "(>|<|>=|<|<=|<>|==|!=)".r
+    val operants = operatorRegex.split(exp).map(c => c.trim).filter(c => c != "")
+    val op1 = operants(0)
+    val op2 = operants(1)
+    val columns: List[ViewHandler.Column] = this.columns.map{col => {
+        val column = new ViewHandler.Column
+        column.setType("Column")
+        column.setID(col.getName)
+        column.setName(col.getName)
+        column.setIndex(this.getSchema().getColumnIndex(col.getName))
+        column
+      }
+    }.toList
+    println(s">>>>> op1 = $op1")
+    println(s">>>>> op2 = $op2")
+    val column = new ViewHandler.Column
+    column.setType("Column")
+    column.setID(op1)
+    column.setName(op1)
+    column.setIndex(this.Schema.getColumnIndex(op1))
+
+    val value = new StringVal
+    value.setType("StringVal")
+    value.setValue(op2)
+    val operator = new Operator
+    val name = operatorRegex.findFirstIn(exp) match {
+      case Some(">") => {
+        OperationName.gt
+      }
+      case Some("<") => {
+        OperationName.lt
+      }
+      case Some(">=") => {
+        OperationName.le
+      }
+      case Some("==") => {
+        OperationName.eq
+      }
+      case Some("!=") => {
+        OperationName.ne
+      }
+    }
+    operator.setType("Operator")
+    operator.setName(name)
+    operator.setOperarands(Array(column, value))
+    val cmd = new Subset
+    cmd.setDataContainerID(this.name)
+    cmd.setColumns(columns)
+    cmd.setFilter(operator)
+
+    val result = client.execute[SubsetResult](cmd).result
+    if(this.isMutable) {
+      this.name = result.getDataContainerID
+      this.columns = result.getMetaInfo.map(info => DDF.metaInfoToColumn(info))
+      this
+    } else {
+      new DDF(result.getDataContainerID, result.getMetaInfo)
+    }
   }
 }
 

@@ -239,6 +239,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       return operands;
     }
 
+    public void setOperarands(Expression[] ops) {
+      this.operands = ops;
+    }
+
+    public void setName(OperationName name) {
+      this.name = name;
+    }
+
     @Override
     public String toString() {
       return "Operator [name=" + name + ", operands=" + Arrays.toString(operands) + "]";
@@ -326,6 +334,9 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   static public class StringVal extends Value {
     String value;
 
+    public void setValue(String val) {
+      this.value = val;
+    }
 
     @Override
     public String toString() {
