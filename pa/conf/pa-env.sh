@@ -88,7 +88,7 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=8
+        export SPARK_WORKER_INSTANCES=20
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name bigr-server-assembly-*.jar`
