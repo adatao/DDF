@@ -82,13 +82,15 @@ public class BinningHandlerTest {
 
 		//test mutable binning
 		ddf.setMutable(true);
-		ddf.binning("dayofweek", "EQUALINTERVAL", 2, null, true,true);
+		ddf.binning("distance", "EQUALINTERVAL", 3, null, true,true);
 		Assert.assertEquals(ColumnClass.FACTOR, ddf.getSchemaHandler()
-				.getColumn("dayofweek").getColumnClass());
+				.getColumn("distance").getColumnClass());
 
-		Assert.assertEquals(2, ddf.getSchemaHandler().getColumn("dayofweek")
+		Assert.assertEquals(3, ddf.getSchemaHandler().getColumn("distance")
 				.getOptionalFactor().getLevelMap().size());
-
+		Assert.assertEquals("[162,869]",ddf.Views.firstNRows(3).get(0).split("\t")[6]);
+		System.out.println(">>>>>NEW 1st ROW" +ddf.getSchemaHandler().getColumn("distance")
+        .getOptionalFactor().getLevelMap().keySet().toString());//[162,869], (869,1576], (1576,2283]
 		
 		manager.shutdown();
 	}
