@@ -21,6 +21,12 @@ public class GroupBy implements IExecutor {
   private List<String> groupedColumns;
   private List<String> selectFunctions;
 
+  public GroupBy(String dataContainerID, List<String> groupedColumns, List<String> selectFunctions) {
+    this.dataContainerID = dataContainerID;
+    this.groupedColumns = groupedColumns;
+    this.selectFunctions = selectFunctions;
+  }
+
   private void checkParameters() throws AdataoException {
     Utils.assertNull(dataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     Utils.assertNullorEmpty(groupedColumns, new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_GROUP_SYNTAX,
