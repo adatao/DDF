@@ -262,7 +262,8 @@ object RootBuild extends Build {
 //     dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
     dependencyOverrides += "org.scala-lang" % "scala-compiler" % "2.10.3",
     dependencyOverrides += "io.netty" % "netty" % "3.6.6.Final",
-    dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
+    dependencyOverrides += "org.ow2.asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
+    dependencyOverrides += "asm" % "asm" % "3.2",
     dependencyOverrides += "commons-codec" % "commons-codec" % "1.4",
     dependencyOverrides += "org.scala-lang" % "scala-actors" % "2.10.1",
     dependencyOverrides += "org.scala-lang" % "scala-library" %"2.10.3",
