@@ -143,6 +143,7 @@ public class QuickSummary extends CExecutor {
       for (int i = 0; i < mean.length; i++) {
         sb.append(colNames.get(i));
         sb.append(delimiter);
+        sb.append(delimiter);
         sb.append(mean[i]);
         sb.append(delimiter);
         sb.append(sum[i]);
