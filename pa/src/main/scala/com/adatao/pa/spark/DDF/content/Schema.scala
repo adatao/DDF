@@ -1,10 +1,9 @@
 package com.adatao.pa.spark.DDF.content
 
 import com.adatao.pa.spark.execution.NRow
-import com.adatao.pa.ddf.spark.DDFManager
+import com.adatao.pa.ddf.spark.{DDF, DDFManager}
 import com.adatao.pa.ddf.spark.DDFManager.client
 import com.adatao.pa.spark.execution.NRow.NRowResult
-import com.adatao.pa.spark.DDF.DDF
 import com.adatao.ddf.content.Schema.Column
 
 /**

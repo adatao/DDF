@@ -1,8 +1,7 @@
 package com.adatao.pa.spark.DDF.content
-import com.adatao.pa.spark.DDF.DDF
 
 import com.adatao.pa.spark.execution.GetMultiFactor
-import com.adatao.pa.ddf.spark.DDFManager
+import com.adatao.pa.ddf.spark.{DDF, DDFManager}
 import com.adatao.pa.ddf.spark.DDFManager.client
 import java.util.{ Map => JMap}
 import java.util

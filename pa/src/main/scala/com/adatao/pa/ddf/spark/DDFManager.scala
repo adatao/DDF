@@ -5,7 +5,7 @@ import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.ddf.ml.IModel
 import com.adatao.pa.spark.Utils.MutableDataFrameResult
 import com.adatao.ddf.DDF.DDFInformation
-import com.adatao.pa.spark.DDF.{ManagerClient, DDF}
+import com.adatao.pa.spark.DDF.ManagerClient
 import com.adatao.pa.ddf.spark.DDFManager.client
 
 

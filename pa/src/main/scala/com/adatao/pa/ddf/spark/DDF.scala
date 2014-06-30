@@ -1,12 +1,10 @@
-package com.adatao.pa.spark.DDF
+package com.adatao.pa.ddf.spark
 
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.ddf.ml.{RocMetric, IModel}
 import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
-import com.adatao.pa.spark.execution.NRow.NRowResult
-import com.adatao.pa.ddf.spark.DDFManager
 import com.adatao.pa.ddf.spark.DDFManager.client
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.DDF.content.Schema
