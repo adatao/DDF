@@ -13,7 +13,7 @@ class DDFManager(serverHost: String, serverPort: Int = 7911) {
 
 
   DDFManager.createClient(serverHost, serverPort)
-  var nameSpace: String = "com.adatao"
+  var nameSpace: String = "adatao"
   
   def setNameSpace(ns: String) {
     nameSpace = ns
