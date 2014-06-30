@@ -42,11 +42,11 @@ class DDF(var name: String, var columns: Array[Column]) {
     Schema.getColumnNames()
   }
 
-  def getNumRows(): Long = {
+  def nrow(): Long = {
     Schema.getNumRows()
   }
 
-  def getNumColumns(): Int = {
+  def ncol(): Int = {
     Schema.getNumColumns()
   }
 
@@ -72,7 +72,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     val ls = result.getData
     ls.mkString("\n")
   }
-
+  
   def summary(): DataframeStatsResult = {
     val cmd = new QuickSummary
     cmd.setDataContainerID(this.name)
