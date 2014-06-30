@@ -34,5 +34,14 @@ object paTest {
 
     ddf3.binning("distance", "equalInterval", 3)
     ddf.fetchRows(10)
+    val kmeans = ddf2.ML.Kmeans(Array("arrdelay", "depdelay"), 3, 10)
+    kmeans.predict(Array(24, 22))
+
+    ddf2.transform("delayed=if(arrdelay>10.89, 1, 0)")
+    val ddf5 = ddf2.project("depdelay", "distance", "delayed")
+    val model = ddf5.ML.LogisticRegression(Array("depdelay","distance"), "delayed")
+    model.predict(Array(0.1, 0.5))
+
+    ddf.setName("flightInfo")
   }
 }
