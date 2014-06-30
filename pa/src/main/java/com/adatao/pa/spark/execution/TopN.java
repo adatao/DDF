@@ -53,27 +53,6 @@ public class TopN extends CExecutor {
   public static Logger LOG = LoggerFactory.getLogger(TopN.class);
 
 
-  static public class FetchRowsResult extends SuccessResult {
-    String dataContainerID;
-    List<String> data;
-
-
-    public FetchRowsResult setDataContainerID(String dataContainerID) {
-      this.dataContainerID = dataContainerID;
-      return this;
-    }
-
-    public FetchRowsResult setData(List<String> data) {
-      this.data = data;
-      return this;
-    }
-
-    public List<String> getData() {
-      return data;
-    }
-  }
-
-
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
 
@@ -81,7 +60,7 @@ public class TopN extends CExecutor {
     List<String> data;
     try {
       data = ddf.Views.top(limit, orderedCols, mode);
-      return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
+      return new FetchRows.FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
     } catch (Exception e) {
       LOG.error(String.format("Cannot fetch %s rows", limit), e);
     }
