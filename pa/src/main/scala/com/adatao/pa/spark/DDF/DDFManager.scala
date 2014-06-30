@@ -55,12 +55,21 @@ object DDFManager {
     client.connect()
   }
 
-  def apply(serverHost: String, serverPort: Int = 7911): DDFManager = {
+  def apply(serverHost: String = "pa2.adatao.com", serverPort: Int = 7911): DDFManager = {
     new DDFManager(serverHost, serverPort)
   }
 
   def get(section: String): DDFManager = {
-    val m = new DDFManager("pa4.adatao.com", 7911)
+    if(section != "spark") {
+      throw new Exception("Sorry only \"spark\" section is available now")
+    }
+
+    val cluster = System.getProperty("DDF_CLUSTER", "pa2.adatao.com")
+    val m = try {
+      new DDFManager(cluster, 7911)
+    } catch {
+      case e: Throwable => new DDFManager("pa4.adatao.com", 7911)
+    }
     System.out.println("[NameSpace]: " + m.getNameSpace);
     m
   }
