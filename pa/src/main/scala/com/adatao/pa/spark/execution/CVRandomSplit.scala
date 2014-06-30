@@ -32,8 +32,8 @@ class CVRandomSplit(dataContainerID: String, numSplits: Int, trainingSize: Doubl
     val result = cvSets.map {
       set =>
         {
-          val train = set(0).getName.substring(15).replace("_", "-")
-          val test = set(1).getName.substring(15).replace("_", "-")
+          val train = set(0).getName
+          val test = set(1).getName
           Array(train, test)
         }
     }
