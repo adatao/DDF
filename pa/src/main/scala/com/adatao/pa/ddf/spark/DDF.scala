@@ -106,7 +106,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     client.execute[DataframeStatsResult](cmd).result
   }
 
-  def fivenum(): Unit = {
+  def fivenum(): Array[ASummary] = {
     val cmd = new FiveNumSummary(this.name)
     val result= client.execute[Array[ASummary]](cmd).result
     val indent = "\t"
