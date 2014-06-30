@@ -36,20 +36,20 @@ class MLFacade(val ddf: DDF) {
     LinearRegressionNormalEquation(xColsId, yColID)
   }
 
-  def LogisticRegression(xCols: Array[Int], yCol: Int, numIters: Int = 10, eps: Double = math.pow(10, -8), ridgeLambda: Double = 0,
+  def LogisticRegression(xCols: Array[Int], yCol: Int, numIters: Int = 10, eps: Double = math.pow(10, -1), ridgeLambda: Double = 0,
                          initialWeights: Array[Double] = null, mapReference: HashMap[String, String] = null,
                          nullModel: Boolean = false)  = {
     val weights =  if(initialWeights == null) {
       Array.fill[Double](xCols.size + 1)(0)
     } else initialWeights
 
-    val cmd  =new LogisticRegressionIRLS(this.ddf.name, xCols, yCol , numIters, eps, ridgeLambda, weights, mapReference, nullModel)
+    val cmd = new LogisticRegressionIRLS(this.ddf.name, xCols, yCol , numIters, eps, ridgeLambda, weights, mapReference, nullModel)
     client.execute[IModel](cmd).result
   }
 
-  def LogisticRegression(xCols: Array[String], yCol: String, numIters: Int, eps: Double): IModel = {
+  def LogisticRegression(xCols: Array[String], yCol: String): IModel = {
     val xColsId= xCols.map{idx => this.ddf.getSchema.getColumnIndex(idx)}
     val yColID = this.ddf.getSchema.getColumnIndex(yCol)
-    LogisticRegression(xColsId, yColID, numIters, eps)
+    LogisticRegression(xColsId, yColID)
   }
 }
