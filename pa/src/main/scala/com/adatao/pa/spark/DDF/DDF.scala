@@ -16,6 +16,9 @@ import com.adatao.ddf.content.Schema.Column
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.DDF.content.SchemaHandler
 import com.adatao.pa.spark.execution.SetDDFName.SetDDFNameResult
+import java.util.ArrayList
+import org.apache.commons.lang.StringUtils
+import com.adatao.pa.spark.execution.Subset.SubsetResult
 
 /**
  * author: daoduchuan
@@ -121,6 +124,32 @@ class DDF(var name: String, var columns: Array[Column]) {
     } else {
       new DDF(result.dataContainerID, result.getMetaInfo)
     }
+  }
+  
+  def projectDDF(projectColumns: Array[String]): DDF = {
+    val dcID: String = this.name
+    var i =0
+    var xCols: Array[Int] = new Array[Int] (projectColumns.length)
+    
+    while(i < projectColumns.length) {
+      var j:Int =0 
+      while(j < this.getColumnNames.length) {
+        if(this.getColumnNames.apply(j).equals(projectColumns(i)))
+          xCols(i) = j
+        j += 1
+      }
+      i += 1
+    }
+    
+    val columnList = new ArrayList[String]
+    for (xCol <- xCols) {
+      columnList.add("{type: Column, index: " + xCol + "}")
+    }
+    val jsCreateVectors = String.format("{columns: [%s], dataContainerID: %s}", StringUtils.join(columnList, ", "), dcID);
+    val result= client.execute[SubsetResult]("Subset", jsCreateVectors)
+    
+    
+     new DDF(result.result.getDataContainerID, this.columns) 
   }
 }
 
