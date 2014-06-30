@@ -142,7 +142,8 @@ class DDF(var name: String, var columns: Array[Column]) {
   }
 
   def transform(transformExp: String): DDF = {
-    val cmd = new TransformNativeRserve(this.name, transformExp)
+//    val cmd = new TransformNativeRserve(this.name, transformExp)
+    val cmd = new TransformHive(this.name, transformExp)
     val dataFrameResult = client.execute[DataFrameResult](cmd).result
     new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
   }
