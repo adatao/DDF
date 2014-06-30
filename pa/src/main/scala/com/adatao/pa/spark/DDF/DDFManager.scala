@@ -40,6 +40,7 @@ class DDFManager(serverHost: String, serverPort: Int = 7911) {
 object DDFManager {
 
   var client: ManagerClient = null
+  var nameSpace: String = "com.adatao"
 
   private def createClient(serverHost: String, serverPort: Int = 7911) = {
     client = new ManagerClient(serverHost, serverPort)
@@ -51,6 +52,7 @@ object DDFManager {
   }
 
   def get(section: String): DDFManager = {
+    System.out.println("[NameSpace]: " + nameSpace);
     new DDFManager("pa4.adatao.com", 7911)
   }
 }
