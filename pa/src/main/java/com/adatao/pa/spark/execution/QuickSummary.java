@@ -168,7 +168,6 @@ public class QuickSummary extends CExecutor {
       sb.append(reindent("sum"));
       sb.append(reindent("stdev"));
       sb.append(reindent("var"));
-      sb.append(reindent("mean"));
       sb.append(reindent("cNA"));
       sb.append(reindent("count"));
       sb.append(reindent("min"));
