@@ -184,7 +184,7 @@ object Utils {
    * output: DDF id
    */
   def dcID2DDFID(dataContainerID: String): String = {
-    return ("SparkDDF-spark-" + dataContainerID).replace("-", "_");
+    return dataContainerID;
   }
 }
 
