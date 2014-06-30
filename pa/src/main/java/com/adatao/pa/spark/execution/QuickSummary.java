@@ -161,7 +161,7 @@ public class QuickSummary extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     // first get the ddf
     ddfManager = sparkThread.getDDFManager();
-    DDF ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = ddfManager.getDDF(dataContainerID);
     try {
       Summary[] ddfSummary = ddf.getSummary();
 

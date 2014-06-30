@@ -59,6 +59,7 @@ class DDF(var name: String, var columns: Array[Column]) {
 
   def setName(ddfName: String): String = {
     val cmd = new SetDDFName(this.name, ddfName)
+    this.name = ddfName
     client.execute[SetDDFNameResult](cmd).result.uri
   }
 
