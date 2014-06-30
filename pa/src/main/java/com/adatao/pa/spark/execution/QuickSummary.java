@@ -66,7 +66,7 @@ public class QuickSummary extends CExecutor {
     List<String> colNames;
 
 
-    DataframeStatsResult(java.util.List<String> colnames) {
+    public void setColnames(java.util.List<String> colnames) {
       colNames = colnames;
     }
 
@@ -165,8 +165,9 @@ public class QuickSummary extends CExecutor {
     try {
       Summary[] ddfSummary = ddf.getSummary();
 
-      DataframeStatsResult dfs = new DataframeStatsResult(ddf.getColumnNames());
+      DataframeStatsResult dfs = new DataframeStatsResult();
       // TODO cache summary in ddf's cahcedObjects
+      dfs.setColnames(ddf.getColumnNames());
       dfs.setStats(ddfSummary);
       dfs.setDataContainerID(ddf.getName());
 
