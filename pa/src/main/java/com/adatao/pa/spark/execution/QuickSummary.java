@@ -64,6 +64,8 @@ public class QuickSummary extends CExecutor {
     public double[] max;
     String clazz;
     List<String> colNames;
+    
+    public String delimiter = "\t\t";
 
 
     public void setColnames(java.util.List<String> colnames) {
@@ -121,33 +123,40 @@ public class QuickSummary extends CExecutor {
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("\t");
-      sb.append("\t");
-      sb.append("mean\t");
-      sb.append("sum\t");
-      sb.append("stdev\t");
-      sb.append("var\t");
-      sb.append("cNA\t");
-      sb.append("count\t");
-      sb.append("min\t");
+      sb.append(delimiter);
+      sb.append("mean");
+      sb.append(delimiter);
+      sb.append("sum");
+      sb.append(delimiter);
+      sb.append("stdev");
+      sb.append(delimiter);
+      sb.append("var");
+      sb.append(delimiter);
+      sb.append("cNA");
+      sb.append(delimiter);
+      sb.append("count");
+      sb.append(delimiter);
+      sb.append("min");
+      sb.append(delimiter);
       sb.append("max\n");
 
       for (int i = 0; i < mean.length; i++) {
         sb.append(colNames.get(i));
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(mean[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(sum[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(stdev[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(var[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(cNA[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(count[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(min[i]);
-        sb.append("\t");
+        sb.append(delimiter);
         sb.append(max[i]);
         sb.append("\n");
       }
