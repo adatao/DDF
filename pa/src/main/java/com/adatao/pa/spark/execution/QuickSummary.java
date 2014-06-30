@@ -19,6 +19,7 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.List;
 import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
 import org.slf4j.Logger;
@@ -62,7 +63,12 @@ public class QuickSummary extends CExecutor {
     public double[] min;
     public double[] max;
     String clazz;
+    List<String> colNames;
 
+
+    DataframeStatsResult(java.util.List<String> colnames) {
+      colNames = colnames;
+    }
 
     public String clazz() {
       return clazz;
@@ -111,6 +117,42 @@ public class QuickSummary extends CExecutor {
       this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("\t");
+      sb.append("\t");
+      sb.append("mean\t");
+      sb.append("sum\t");
+      sb.append("stdev\t");
+      sb.append("var\t");
+      sb.append("cNA\t");
+      sb.append("count\t");
+      sb.append("min\t");
+      sb.append("max\n");
+
+      for (int i = 0; i < mean.length; i++) {
+        sb.append(colNames.get(i));
+        sb.append("\t");
+        sb.append(mean[i]);
+        sb.append("\t");
+        sb.append(sum[i]);
+        sb.append("\t");
+        sb.append(stdev[i]);
+        sb.append("\t");
+        sb.append(var[i]);
+        sb.append("\t");
+        sb.append(cNA[i]);
+        sb.append("\t");
+        sb.append(count[i]);
+        sb.append("\t");
+        sb.append(min[i]);
+        sb.append("\t");
+        sb.append(max[i]);
+        sb.append("\n");
+      }
+      return sb.toString();
+    }
   }
 
 
@@ -123,7 +165,7 @@ public class QuickSummary extends CExecutor {
     try {
       Summary[] ddfSummary = ddf.getSummary();
 
-      DataframeStatsResult dfs = new DataframeStatsResult();
+      DataframeStatsResult dfs = new DataframeStatsResult(ddf.getColumnNames());
       // TODO cache summary in ddf's cahcedObjects
       dfs.setStats(ddfSummary);
       dfs.setDataContainerID(ddf.getName());
