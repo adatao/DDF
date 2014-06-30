@@ -66,7 +66,7 @@ public class QuickSummary extends CExecutor {
     List<String> colNames;
     
     public String delimiter = " ";
-    public int totalIndent = 10;
+    public int totalIndent = 14;
 
 
     public void setColnames(java.util.List<String> colnames) {
@@ -163,17 +163,17 @@ public class QuickSummary extends CExecutor {
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
-//      sb.append(reindent("colname"));
-//      sb.append(reindent("mean"));
-//      sb.append(reindent("sum"));
-//      sb.append(reindent("stdev"));
-//      sb.append(reindent("var"));
-//      sb.append(reindent("mean"));
-//      sb.append(reindent("cNA"));
-//      sb.append(reindent("count"));
-//      sb.append(reindent("min"));
-//      sb.append(reindent("max"));
-//      sb.append("\n");
+      sb.append(reindent("column"));
+      sb.append(reindent("mean"));
+      sb.append(reindent("sum"));
+      sb.append(reindent("stdev"));
+      sb.append(reindent("var"));
+      sb.append(reindent("mean"));
+      sb.append(reindent("cNA"));
+      sb.append(reindent("count"));
+      sb.append(reindent("min"));
+      sb.append(reindent("max"));
+      sb.append("\n");
 
       for (int i = 0; i < mean.length; i++) {
         sb.append(reindent(colNames.get(i).trim()));
