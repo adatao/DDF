@@ -2,7 +2,8 @@ package com.adatao.pa.spark.DDF.analytics
 
 import com.adatao.ddf.ml.IModel
 import com.adatao.pa.spark.execution.{LogisticRegressionIRLS, LinearRegressionNormalEquation, Kmeans}
-import com.adatao.pa.spark.DDF.DDFManager._
+import com.adatao.pa.ddf.spark.DDFManager
+import com.adatao.pa.ddf.spark.DDFManager.client
 import java.util.HashMap
 import scala.math
 import com.adatao.pa.spark.DDF.DDF

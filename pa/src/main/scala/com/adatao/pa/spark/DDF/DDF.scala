@@ -6,7 +6,8 @@ import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.NRow.NRowResult
-import com.adatao.pa.spark.DDF.DDFManager.client
+import com.adatao.pa.ddf.spark.DDFManager
+import com.adatao.pa.ddf.spark.DDFManager.client
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.DDF.content.Schema
 import java.util.{List => JList}
@@ -173,9 +174,9 @@ class DDF(var name: String, var columns: Array[Column]) {
     }
   }
   
-  def project(columns: String): DDF = {
+  def project(projectColumns: String*): DDF = {
     val dcID: String = this.name
-    val projectColumns = columns.split(",").map(col => col.trim)
+
     var i =0
     var xCols: Array[Int] = new Array[Int] (projectColumns.length)
     
@@ -214,8 +215,7 @@ class DDF(var name: String, var columns: Array[Column]) {
         column
       }
     }.toList
-    println(s">>>>> op1 = $op1")
-    println(s">>>>> op2 = $op2")
+
     val column = new ViewHandler.Column
     column.setType("Column")
     column.setID(op1)
