@@ -61,16 +61,16 @@ object DDFManager {
   }
 
   def get(section: String): DDFManager = {
-    if(section != "spark") {
+    if(section.toLowerCase != "spark") {
       throw new Exception("Sorry only \"spark\" section is available now")
     }
 
-    val cluster = System.getProperty("DDF_CLUSTER", "pa2.adatao.com")
-    val m = try {
-      new DDFManager(cluster, 7911)
-    } catch {
-      case e: Throwable => new DDFManager("pa2.adatao.com", 7911)
+    val m = if(section == "spark") {
+      new DDFManager("pa2.adatao.com", 7911)
+    } else {
+      new DDFManager("pa3.adatao.com", 7911)
     }
+
     System.out.println("[NameSpace]: " + m.getNameSpace);
     m
   }
