@@ -38,6 +38,7 @@ import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.adatao.ddf.util.Utils;
+import com.adatao.pa.spark.Utils.*;
 
 /**
  * @author bachbui Implement summary function for both vector and dataframe
@@ -121,69 +122,30 @@ public class QuickSummary extends CExecutor {
       return this;
     }
     
-    public String reindent(String value) {
-      int left = totalIndent - value.length();
-      StringBuilder sb = new StringBuilder();
-      sb.append(value);
-      if(left > 0) {
-        for(int i=0; i< left; i++) {
-          sb.append(delimiter);
-        }
-      }
-      return sb.toString();
-    }
-    
-    public String reindent(Double v) {
-      String value = String.valueOf(v);
-      
-      int left = totalIndent - value.length();
-      StringBuilder sb = new StringBuilder();
-      sb.append(value);
-      if(left > 0) {
-        for(int i=0; i< left; i++) {
-          sb.append(delimiter);
-        }
-      }
-      return sb.toString();
-    }
-    
-    public String reindent(long v) {
-      String value = String.valueOf(v);
-      
-      int left = totalIndent - value.length();
-      StringBuilder sb = new StringBuilder();
-      sb.append(value);
-      if(left > 0) {
-        for(int i=0; i< left; i++) {
-          sb.append(delimiter);
-        }
-      }
-      return sb.toString();
-    }
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append(reindent("column"));
-      sb.append(reindent("mean"));
-      sb.append(reindent("sum"));
-      sb.append(reindent("stdev"));
-      sb.append(reindent("var"));
-      sb.append(reindent("cNA"));
-      sb.append(reindent("count"));
-      sb.append(reindent("min"));
-      sb.append(reindent("max"));
+      sb.append(com.adatao.pa.spark.Utils.reindent("column", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("mean", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("sum", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("stdev", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("var", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("cNA", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("count", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("min", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("max", totalIndent));
       sb.append("\n");
 
       for (int i = 0; i < mean.length; i++) {
-        sb.append(reindent(colNames.get(i).trim()));
-        sb.append(reindent(mean[i]));
-        sb.append(reindent(sum[i]));
-        sb.append(reindent(stdev[i]));
-        sb.append(reindent(var[i]));
-        sb.append(reindent(cNA[i]));
-        sb.append(reindent(count[i]));
-        sb.append(reindent(min[i]));
-        sb.append(reindent(max[i]));
+        sb.append(com.adatao.pa.spark.Utils.reindent(colNames.get(i).trim(), totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(mean[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(sum[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(stdev[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(var[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(cNA[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(count[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(min[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(max[i], totalIndent));
         
 //        sb.append(mean[i]);
 //        sb.append(sum[i]);

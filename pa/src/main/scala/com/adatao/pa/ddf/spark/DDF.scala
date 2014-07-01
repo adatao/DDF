@@ -1,14 +1,14 @@
 package com.adatao.pa.ddf.spark
 
 import com.adatao.pa.spark.DataManager.MetaInfo
-import com.adatao.ddf.ml.{RocMetric, IModel}
+import com.adatao.ddf.ml.{ RocMetric, IModel }
 import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.ddf.spark.DDFManager.client
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.DDF.content.Schema
-import java.util.{List => JList}
+import java.util.{ List => JList }
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import com.adatao.pa.spark.DDF.analytics.MLFacade
 import com.adatao.ddf.content.Schema.Column
@@ -21,6 +21,7 @@ import com.adatao.pa.spark.execution.Subset.SubsetResult
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import com.adatao.ddf.content.ViewHandler._
 import com.adatao.ddf.content.ViewHandler
+import com.adatao.pa.spark.Utils._
 
 /**
  * author: daoduchuan
@@ -28,6 +29,7 @@ import com.adatao.ddf.content.ViewHandler
 class DDF(var name: String, var columns: Array[Column]) {
 
   private var _isMutable: Boolean = false
+  val totalIndent: Int = 14
 
   def this(name: String, metainfo: Array[MetaInfo]) = {
     this(name, metainfo.map(info => DDF.metaInfoToColumn(info)))
@@ -77,48 +79,61 @@ class DDF(var name: String, var columns: Array[Column]) {
     val ls = result.getData
     ls.mkString("\n")
   }
-  
-  def top(oColumns: List[String], numRows: Int =10, mode: String = "asc"): String = {
+
+  def top(oColumns: List[String], numRows: Int = 10, mode: String = "asc"): String = {
     val cmd = new TopN
     cmd.setDataContainerID(this.name)
     cmd.setLimit(numRows)
     cmd.setMode(mode)
-    
-    var orderColumns: String ="";
+
+    var orderColumns: String = "";
     orderColumns = oColumns(0);
-    var i :Int = 1
-    while( i< oColumns.size) {
+    var i: Int = 1
+    while (i < oColumns.size) {
       orderColumns += "," + oColumns(i)
       i += 1
     }
-    
+
     cmd.setOrderedCols(orderColumns)
-    
-    
+
     val result = client.execute[FetchRowsResult](cmd).result
     val ls = result.getData
     ls.mkString("\n")
   }
-  
+
   def summary(): DataframeStatsResult = {
     val cmd = new QuickSummary
     cmd.setDataContainerID(this.name)
     client.execute[DataframeStatsResult](cmd).result
   }
 
+
   def fivenum(): Array[ASummary] = {
     val cmd = new FiveNumSummary(this.name)
-    val result= client.execute[Array[ASummary]](cmd).result
-    val indent = "\t"
-    var str = s"column${indent + indent}min${indent}max${indent}first_quartile${indent}median${indent}third_quartile\n"
-    val resultZipColumns = result zip this.getColumnNames()
-    resultZipColumns.foreach {
-      case (fivenum, col) => {
-        val row = s"$col${indent}${fivenum.min}${indent}${fivenum.max}${indent}${fivenum.first_quartile}${indent + indent}${fivenum.median}" +
-          s"${indent}${fivenum.third_quartile}\n"
-        str = str ++ row
-      }
+    val totalIndent = 14
+    val result = client.execute[Array[ASummary]](cmd).result
+    var sb: StringBuilder = new StringBuilder();
+    var str = ""
+    sb.append(com.adatao.pa.spark.Utils.reindent("column",totalIndent));
+    sb.append(com.adatao.pa.spark.Utils.reindent("min",totalIndent));
+    sb.append(com.adatao.pa.spark.Utils.reindent("max",totalIndent));
+    sb.append(com.adatao.pa.spark.Utils.reindent("first_quartile",totalIndent));
+    sb.append(com.adatao.pa.spark.Utils.reindent("median",totalIndent));
+    sb.append(com.adatao.pa.spark.Utils.reindent("third_quartile",totalIndent));
+    sb.append("\n");
+    var i = 0
+    while (i < result.length) {
+      var current = result(i)
+      sb.append(com.adatao.pa.spark.Utils.reindent(this.columns(i).getName(),totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent(current.min,totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent(current.max,totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent(current.first_quartile,totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent(current.median,totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent(current.third_quartile,totalIndent));
+      sb.append("\n");
+      i += 1
     }
+    str = sb.toString
     print(str)
     result
   }
@@ -142,12 +157,12 @@ class DDF(var name: String, var columns: Array[Column]) {
   }
 
   def transform(transformExp: String): DDF = {
-//    val cmd = new TransformNativeRserve(this.name, transformExp)
+    //    val cmd = new TransformNativeRserve(this.name, transformExp)
     val cmd = new TransformHive(this.name, transformExp)
     val dataFrameResult = client.execute[DataFrameResult](cmd).result
-    if(this.isMutable()) {
+    if (this.isMutable()) {
       this.name = dataFrameResult.dataContainerID
-      this.columns = dataFrameResult.getMetaInfo.map{info => DDF.metaInfoToColumn(info)}
+      this.columns = dataFrameResult.getMetaInfo.map { info => DDF.metaInfoToColumn(info) }
       this
     } else {
       new DDF(dataFrameResult.dataContainerID, dataFrameResult.metaInfo)
@@ -161,16 +176,16 @@ class DDF(var name: String, var columns: Array[Column]) {
   }
 
   def binning(column: String, binningType: String, numBins: Int = 0, breaks: Array[Double] = null,
-               includeLowest: Boolean = false, right: Boolean= true, decimalPlaces: Int = 2): DDF = {
+    includeLowest: Boolean = false, right: Boolean = true, decimalPlaces: Int = 2): DDF = {
     val cmd = new Binning(this.name, column, binningType, numBins, breaks, includeLowest, right, decimalPlaces)
     val result = client.execute[BinningResult](cmd).result
     new DDF(result.dataContainerID, result.metaInfo)
   }
 
-  def dropNA(axis: String = "row", how: String = "any", threshold: Long = 0L, columns: JList[String]= null): DDF = {
+  def dropNA(axis: String = "row", how: String = "any", threshold: Long = 0L, columns: JList[String] = null): DDF = {
     val cmd = new DropNA(axis, how, threshold, columns, this.name)
     val result = client.execute[DataFrameResult](cmd).result
-    if(this.isMutable) {
+    if (this.isMutable) {
       this.name = result.getDataContainerID
       this.columns = result.getMetaInfo.map(info => DDF.metaInfoToColumn(info))
       this
@@ -178,32 +193,31 @@ class DDF(var name: String, var columns: Array[Column]) {
       new DDF(result.dataContainerID, result.getMetaInfo)
     }
   }
-  
+
   def project(projectColumns: String*): DDF = {
     val dcID: String = this.name
 
-    var i =0
-    var xCols: Array[Int] = new Array[Int] (projectColumns.length)
-    
-    while(i < projectColumns.length) {
-      var j:Int =0 
-      while(j < this.getColumnNames.length) {
-        if(this.getColumnNames.apply(j).equals(projectColumns(i)))
+    var i = 0
+    var xCols: Array[Int] = new Array[Int](projectColumns.length)
+
+    while (i < projectColumns.length) {
+      var j: Int = 0
+      while (j < this.getColumnNames.length) {
+        if (this.getColumnNames.apply(j).equals(projectColumns(i)))
           xCols(i) = j
         j += 1
       }
       i += 1
     }
-    
+
     val columnList = new ArrayList[String]
     for (xCol <- xCols) {
       columnList.add("{type: Column, index: " + xCol + "}")
     }
     val jsCreateVectors = String.format("{columns: [%s], dataContainerID: %s}", StringUtils.join(columnList, ", "), dcID);
-    val result= client.execute[SubsetResult]("Subset", jsCreateVectors)
-    
-    
-     new DDF(result.result.getDataContainerID, result.result.getMetaInfo) 
+    val result = client.execute[SubsetResult]("Subset", jsCreateVectors)
+
+    new DDF(result.result.getDataContainerID, result.result.getMetaInfo)
   }
 
   def filter(exp: String): DDF = {
@@ -211,7 +225,8 @@ class DDF(var name: String, var columns: Array[Column]) {
     val operants = operatorRegex.split(exp).map(c => c.trim).filter(c => c != "")
     val op1 = operants(0)
     val op2 = operants(1)
-    val columns: List[ViewHandler.Column] = this.columns.map{col => {
+    val columns: List[ViewHandler.Column] = this.columns.map { col =>
+      {
         val column = new ViewHandler.Column
         column.setType("Column")
         column.setID(col.getName)
@@ -260,7 +275,7 @@ class DDF(var name: String, var columns: Array[Column]) {
     cmd.setFilter(operator)
 
     val result = client.execute[SubsetResult](cmd).result
-    if(this.isMutable) {
+    if (this.isMutable) {
       this.name = result.getDataContainerID
       this.columns = result.getMetaInfo.map(info => DDF.metaInfoToColumn(info))
       this
@@ -273,7 +288,7 @@ class DDF(var name: String, var columns: Array[Column]) {
 object DDF {
   def metaInfoToColumn(metainfo: MetaInfo): Column = {
     val col = new Column(metainfo.getHeader, metainfo.getType)
-    if(metainfo.hasFactor) {
+    if (metainfo.hasFactor) {
       col.setAsFactor(null)
     }
     col

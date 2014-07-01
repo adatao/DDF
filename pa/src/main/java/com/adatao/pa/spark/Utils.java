@@ -67,7 +67,47 @@ public class Utils {
   public static String getDDFNameFromDataContainerID(String dataContainerID) {
     return dataContainerID;
   }
-
+  
+  public static String reindent(String value, int totalIndent) {
+    String delimiter = " ";
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
+  
+  public static  String reindent(Double v, int totalIndent) {
+    String delimiter = " ";
+    String value = String.valueOf(v);
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
+  
+  public static  String reindent(long v, int totalIndent) {
+    String delimiter = " ";
+    String value = String.valueOf(v);
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
   static public class DataFrameResult extends SuccessResult {
     public String dataContainerID;
     public MetaInfo[] metaInfo;
