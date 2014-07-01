@@ -208,19 +208,7 @@ class DDF(var name: String, var columns: Array[Column]) {
   def project(projectColumns: String*): DDF = {
     val dcID: String = this.name
 
-    var i = 0
-    var xCols: Array[Int] = new Array[Int](projectColumns.length)
-
-    while (i < projectColumns.length) {
-      var j: Int = 0
-      while (j < this.getColumnNames.length) {
-        if (this.getColumnNames.apply(j).equals(projectColumns(i)))
-          xCols(i) = j
-        j += 1
-      }
-      i += 1
-    }
-
+    val xCols = projectColumns.map{colName => this.getSchema().getColumnIndex(colName)}
     val columnList = new ArrayList[String]
     for (xCol <- xCols) {
       columnList.add("{type: Column, index: " + xCol + "}")
@@ -275,6 +263,9 @@ class DDF(var name: String, var columns: Array[Column]) {
       }
       case Some("!=") => {
         OperationName.ne
+      }
+      case _         => {
+        throw new Exception("Does not support operation")
       }
     }
     operator.setType("Operator")
