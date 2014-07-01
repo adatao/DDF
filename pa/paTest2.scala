@@ -3,7 +3,8 @@ import com.adatao.pa.ddf.spark.DDFManager
 object PAtest2 {
 
 	def test(hostname: String) = {
-		val mgr = DDFManager(hostname)
+		val mgr = DDFManager.get("spark")
+    mgr.connect("pa2.adatao.com")
 		val table = mgr.sql2ddf("select * from airline")
 		println(s"table.nrow = ${table.nrow}") 
 		println(s"table.ncol = ${table.ncol}")

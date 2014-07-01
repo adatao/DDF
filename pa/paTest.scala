@@ -4,8 +4,9 @@ object paTest {
 
   def test() = {
     val mng = DDFManager.get("spark")
+    mng.connect("pa2.adatao.com")
     println(">>>>>> load data")     
-    val ddf = mng.sql2ddf("select * from airline1x")
+    val ddf = mng.sql2ddf("select * from airline1x limit 10000")
     ddf.nrow()
     ddf.ncol()
     ddf.getColumnNames()
@@ -46,8 +47,8 @@ object paTest {
     println(">>>>>>> transform")
     ddf2.transform("delayed=if(arrdelay>10.89, 1, 0)")
     val ddf5 = ddf2.project("depdelay", "carrierdelay", "delayed")
-    val model = ddf5.ML.LogisticRegression(Array("depdelay","carrierdelay"), "delayed")
-    model.predict(Array(0.1, 0.5))
+   // val model = ddf5.ML.LogisticRegression(Array("depdelay","carrierdelay"), "delayed")
+   // model.predict(Array(0.1, 0.5))
 
     ddf.setName("flightInfo")
   }

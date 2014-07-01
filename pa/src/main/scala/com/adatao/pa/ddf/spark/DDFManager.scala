@@ -9,12 +9,14 @@ import com.adatao.pa.spark.DDF.ManagerClient
 import com.adatao.pa.ddf.spark.DDFManager.client
 
 
-class DDFManager(serverHost: String, serverPort: Int = 7911) {
+class DDFManager() {
 
-
-  DDFManager.createClient(serverHost, serverPort)
   var nameSpace: String = "adatao"
-  
+
+  def connect(serverHost: String, serverPort: Int = 7911) = {
+    DDFManager.createClient(serverHost, serverPort)
+  }
+
   def setNameSpace(ns: String) {
     nameSpace = ns
   }
@@ -56,22 +58,16 @@ object DDFManager {
     client.connect()
   }
 
-  def apply(serverHost: String = "pa2.adatao.com", serverPort: Int = 7911): DDFManager = {
-    new DDFManager(serverHost, serverPort)
+  def apply(serverHost: String, serverPort: Int = 7911): DDFManager = {
+    val manager = new DDFManager()
+    manager.connect(serverHost, serverPort)
+    manager
   }
 
   def get(section: String): DDFManager = {
-    if(section.toLowerCase != "spark") {
-      throw new Exception("Sorry only \"spark\" section is available now")
+    if(section.toLowerCase() != "spark") {
+      throw new Exception("Only section \"spark\" is available")
     }
-
-    val m = if(section == "spark") {
-      new DDFManager("pa2.adatao.com", 7911)
-    } else {
-      new DDFManager("pa3.adatao.com", 7911)
-    }
-
-    System.out.println("[NameSpace]: " + m.getNameSpace);
-    m
+    new DDFManager()
   }
 }
