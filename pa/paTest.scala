@@ -6,7 +6,7 @@ object paTest {
     val mng = DDFManager.get("spark")
     mng.connect("pa2.adatao.com")
     println(">>>>>> load data")     
-    val ddf = mng.sql2ddf("select * from airline1x limit 10000")
+    val ddf = mng.sql2ddf("select * from airline1x")
     ddf.nrow()
     ddf.ncol()
     ddf.getColumnNames()
@@ -50,6 +50,5 @@ object paTest {
    // val model = ddf5.ML.LogisticRegression(Array("depdelay","carrierdelay"), "delayed")
    // model.predict(Array(0.1, 0.5))
 
-    ddf.setName("flightInfo")
   }
 }
