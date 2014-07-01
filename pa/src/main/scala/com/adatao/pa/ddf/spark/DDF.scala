@@ -29,7 +29,7 @@ import com.adatao.pa.spark.Utils._
 class DDF(var name: String, var columns: Array[Column]) {
 
   private var _isMutable: Boolean = false
-  val totalIndent: Int = 14
+  private val totalIndent: Int = 14
 
   def this(name: String, metainfo: Array[MetaInfo]) = {
     this(name, metainfo.map(info => DDF.metaInfoToColumn(info)))
