@@ -12,7 +12,7 @@ object paTest {
     ddf.summary()
     ddf.fivenum()
 
-    val ddf2 = ddf.project("arrdelay", "depdelay", "arrtime", "origin", "distance")
+    val ddf2 = ddf.project("arrdelay", "depdelay", "carrierdelay", "origin", "cancelled")
     ddf2.nrow()
     ddf2.ncol()
     ddf2.getColumnNames()
