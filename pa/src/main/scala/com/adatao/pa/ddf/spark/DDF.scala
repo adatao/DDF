@@ -207,7 +207,7 @@ class DDF(var name: String, var columns: Array[Column]) {
   }
 
   def filter(exp: String): DDF = {
-    val operatorRegex = "(>|<|>=|<|<=|<>|==|!=)".r
+    val operatorRegex = "(>|<|>=|<|<=|<>|==|!=|=)".r
     val operants = operatorRegex.split(exp).map(c => c.trim).filter(c => c != "")
     val op1 = operants(0)
     val op2 = operants(1)
@@ -234,6 +234,9 @@ class DDF(var name: String, var columns: Array[Column]) {
     val name = operatorRegex.findFirstIn(exp) match {
       case Some(">") => {
         OperationName.gt
+      }
+      case Some("=") => {
+        OperationName.eq
       }
       case Some("<") => {
         OperationName.lt
