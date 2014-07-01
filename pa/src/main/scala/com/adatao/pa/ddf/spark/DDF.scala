@@ -75,9 +75,20 @@ class DDF(var name: String, var columns: Array[Column]) {
     val cmd = new FetchRows
     cmd.setDataContainerID(this.name)
     cmd.setLimit(numRows)
+    
+    //print out column name
+    var cols = getColumnNames
+    var i = 1
+    var h = cols(0)
+    while(i < cols.size) {
+      h += "\t" + cols(i)
+      i += 1
+    }
     val result = client.execute[FetchRowsResult](cmd).result
     val ls = result.getData
-    ls.mkString("\n")
+    var s = ls.mkString("\n")
+    s = h.concat(s)
+    s
   }
 
   def top(oColumns: List[String], numRows: Int = 10, mode: String = "asc"): String = {

@@ -50,6 +50,16 @@ public class FetchRows extends CExecutor {
     public List<String> getData() {
       return data;
     }
+
+//    public String toString() {
+//      int totalIndent = 14;
+//      StringBuilder sb = new StringBuilder();
+//      List<String> data = this.getData();
+//      for (int i = 0; i < data.size(); i++) {
+//        sb.append(com.adatao.pa.spark.Utils.reindent("column", totalIndent));
+//      }
+//      return(sb.toString());
+//    }
   }
 
 

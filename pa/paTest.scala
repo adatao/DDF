@@ -17,7 +17,7 @@ object paTest {
     ddf2.ncol()
     ddf2.getColumnNames()
 
-    val ddf3 = ddf2.filter("origin == SFO")
+    val ddf3 = ddf2.filter("origin = SFO")
     ddf3.nrow()
     ddf3.ncol()
     ddf3.fetchRows(10)
