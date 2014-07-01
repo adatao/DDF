@@ -6,7 +6,7 @@ object paTest {
     val mng = DDFManager.get("spark")
     mng.connect("pa2.adatao.com")
     println(">>>>>> load data")     
-    val ddf = mng.sql2ddf("select * from airline1x")
+    val ddf = mng.sql2ddf("select * from airline1x limit 10000")
     ddf.nrow()
     ddf.ncol()
     ddf.getColumnNames()
