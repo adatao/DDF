@@ -84,6 +84,7 @@ class DDF(var name: String, var columns: Array[Column]) {
       h += "\t" + cols(i)
       i += 1
     }
+    h = h + "\n"
     val result = client.execute[FetchRowsResult](cmd).result
     val ls = result.getData
     var s = ls.mkString("\n")
