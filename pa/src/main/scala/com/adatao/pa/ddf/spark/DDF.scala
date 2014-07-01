@@ -77,19 +77,31 @@ class DDF(var name: String, var columns: Array[Column]) {
     cmd.setLimit(numRows)
     
     //print out column name
+    var sb = new StringBuilder();
     var cols = getColumnNames
     var i = 1
-    var h = cols(0)
+    sb.append(com.adatao.pa.spark.Utils.reindent(cols(0), totalIndent));
     while(i < cols.size) {
-      h += "\t" + cols(i)
+      sb.append(com.adatao.pa.spark.Utils.reindent(cols(i), totalIndent));
       i += 1
     }
-    h = h + "\n"
+    sb.append("\n");
+    
     val result = client.execute[FetchRowsResult](cmd).result
     val ls = result.getData
-    var s = ls.mkString("\n")
-    s = h.concat(s)
-    s
+    
+    var j = 0
+    while(j < ls.length) {
+      var temp = ls(j).split("\t")
+      var c = 0
+      while(c < temp.length) {
+        sb.append(com.adatao.pa.spark.Utils.reindent(temp(c), totalIndent));
+        c += 1
+      }
+      sb.append("\n");
+      j += 1
+    }
+    sb.toString()
   }
 
   def top(oColumns: List[String], numRows: Int = 10, mode: String = "asc"): String = {
