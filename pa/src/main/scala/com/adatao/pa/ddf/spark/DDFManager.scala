@@ -11,9 +11,11 @@ import com.adatao.pa.ddf.spark.DDFManager.client
 
 class DDFManager(serverHost: String, serverPort: Int = 7911) {
 
-
-  DDFManager.createClient(serverHost, serverPort)
   var nameSpace: String = "adatao"
+    
+  def connect(serverHost: String, serverPort: Int = 7911) {
+    DDFManager.createClient(serverHost, serverPort)
+  }
   
   def setNameSpace(ns: String) {
     nameSpace = ns
