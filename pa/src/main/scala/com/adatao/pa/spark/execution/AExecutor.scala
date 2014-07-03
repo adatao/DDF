@@ -81,8 +81,7 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	 */
 	def run(context: ExecutionContext): ExecutionResult[ResultType] = {
 		try {
-			val result = new SuccessfulResult(this.runImpl(context))
-		  result
+			new SuccessfulResult(this.runImpl(context))
 		}
 		catch {
 			case ee: ExecutionException ⇒ new FailedResult[ResultType](ee.message)

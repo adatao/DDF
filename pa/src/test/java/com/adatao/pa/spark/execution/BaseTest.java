@@ -111,4 +111,18 @@ public class BaseTest {
 			+") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '").isSuccess();
 		assert runSQLCmd(sid, "LOAD DATA LOCAL INPATH 'resources/mtcars' INTO TABLE mtcars").isSuccess();
 	}
+	
+	 void createTableAirlineWithNA(String sid) throws TException {
+	    assert runSQLCmd(sid, "drop table if exists airline").isSuccess();
+	    assert runSQLCmd(sid, "create table airline (Year int,Month int,DayofMonth int,"
+        + "DayOfWeek int,DepTime int,CRSDepTime int,ArrTime int,"
+        + "CRSArrTime int,UniqueCarrier string, FlightNum int, "
+        + "TailNum string, ActualElapsedTime int, CRSElapsedTime int, "
+        + "AirTime int, ArrDelay int, DepDelay int, Origin string, "
+        + "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, "
+        + "CancellationCode string, Diverted string, CarrierDelay int, "
+        + "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) "
+        + "ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess();
+	    assert runSQLCmd(sid, "LOAD DATA LOCAL INPATH 'resources/airlineWithNa.csv' INTO TABLE airline").isSuccess();
+	  }
 }

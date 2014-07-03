@@ -20,6 +20,7 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,8 @@ import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.etl.IHandleMissingData;
+import com.adatao.ddf.etl.IHandleMissingData.Axis;
+import com.adatao.ddf.etl.IHandleMissingData.NAChecking;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
@@ -69,7 +72,7 @@ import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
+import java.util.Calendar;
 
 /**
  * <p>
@@ -87,7 +90,7 @@ public abstract class DDF extends ALoggable //
 
   private static final long serialVersionUID = -2198317495102277825L;
 
-
+  private Date mCreatedTime;
   /**
    * 
    * @param data
@@ -188,6 +191,7 @@ public abstract class DDF extends ALoggable //
     this.Transform = new TransformFacade(this, this.getTransformationHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
     this.PA = new PAFacade(this);
+    this.mCreatedTime = new Date();
   }
 
 
@@ -338,6 +342,9 @@ public abstract class DDF extends ALoggable //
     return this.getSchemaHandler().getNumColumns();
   }
 
+  public Date getCreatedTime() {
+    return this.mCreatedTime;
+  }
 
   // ///// Execute a sqlcmd
   public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
@@ -929,11 +936,11 @@ public abstract class DDF extends ALoggable //
   public TransformFacade Transform;
   
   public DDF dropNA() throws DDFException {
-    return this.getMissingDataHandler().dropNA(0, "any", 0, null, false);
+    return this.getMissingDataHandler().dropNA(Axis.ROW, NAChecking.ANY, 0, null);
   }
   
   public DDF fillNA(String value) throws DDFException {
-    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null, false);
+    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null);
   }
   
   public DDF updateInplace(DDF result) throws DDFException {
@@ -1014,6 +1021,38 @@ public abstract class DDF extends ALoggable //
   //PA Facace
   public PAFacade PA;
 
+  public static class DDFInformation {
+    private Long numRows;
+
+    private Integer numColumns;
+
+    private String uri;
+
+    private String createdTime;
+
+    public Long getNumRows() {
+      return this.numRows;
+    }
+
+    public Integer getNumColumns() {
+      return this.numColumns;
+    }
+
+    public String getUri() {
+      return this.uri;
+    }
+
+    public String getCreatedTime() {
+      return this.createdTime;
+    }
+    public DDFInformation(Long numRows, Integer numColumns, String uri, String createdTime) {
+      this.numRows = numRows;
+      this.numColumns = numColumns;
+      this.uri = uri;
+      this.createdTime = createdTime;
+    }
+  }
+//
   // //// ISerializable //////
 
   @Override

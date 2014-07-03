@@ -123,9 +123,8 @@ public class MLSupporter extends com.adatao.ddf.ml.MLSupporter implements Serial
     }
 
     outputColumns.add(new Schema.Column("prediction", "double"));
-
+   
     Schema schema = new Schema(null, outputColumns);
-
 
     if (double[].class.equals(resultUnitType)) {
       DDF resultDDF = new SparkDDF(this.getManager(), (RDD<double[]>) result.rdd(), double[].class, null, null, schema);

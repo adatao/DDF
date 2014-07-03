@@ -20,12 +20,8 @@ package com.adatao.ddf;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import com.adatao.basic.ddf.BasicDDF;
 import scala.tools.jline.internal.Log;
 import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
@@ -44,7 +40,7 @@ import com.adatao.ddf.ml.ISupportML;
 import com.adatao.ddf.util.ISupportPhantomReference;
 import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
-
+import java.text.SimpleDateFormat;
 /**
  * <p>
  * Abstract base class for a {@link DDF} implementor, which provides the support methods necessary to implement various
@@ -85,6 +81,7 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
    * List of existing DDFs
    */
   protected HashMap<String, DDF> mDDFs = new HashMap<String, DDF>();
+
   // ephemeral mapping between ddf alias and DDF
   protected HashMap<String, DDF> mDDFsByName = new HashMap<String, DDF>();
 
@@ -127,18 +124,21 @@ public abstract class DDFManager extends ALoggable implements IDDFManager, IHand
   }
 
   /*
-   * return list of DDFs by name
+   * return list of DDFs infomation
+   * only return DDF with alias
    */
-  public ArrayList<String> listDDFs() {
-    ArrayList<String> lstDDFs = new ArrayList<String>();
-    if (mDDFsByName.size() > 0) {
-      Iterator<String> it = mDDFsByName.keySet().iterator();
-      while (it.hasNext()) {
-        lstDDFs.add(it.next());
-      }
+  public DDF.DDFInformation[] listDDFs() {
+    Collection<DDF> ddfs = this.mDDFsByName.values();
+    List<DDF.DDFInformation> ddfInformationList = new ArrayList<DDF.DDFInformation>();
+    for(DDF ddf: ddfs) {
+      SimpleDateFormat dateformat = new SimpleDateFormat("MM.d.yyyy 'at' HH:mm a");
+      DDF.DDFInformation information = new DDF.DDFInformation(ddf.getNumRows(), ddf.getNumColumns(),
+          ddf.getUri(), dateformat.format(ddf.getCreatedTime()));
+      ddfInformationList.add(information);
     }
-    return lstDDFs;
+    return ddfInformationList.toArray(new DDF.DDFInformation[ddfInformationList.size()]);
   }
+
 
   /*
    * aliasName is user-specified name This name is ephemeral in the sense that it existed in cluster memory and will be

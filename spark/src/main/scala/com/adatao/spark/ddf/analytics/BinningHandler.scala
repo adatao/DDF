@@ -43,12 +43,11 @@ class BinningHandler(mDDF: DDF) extends ABinningHandler(mDDF) with IHandleBinnin
 
     var newddf = mDDF.getManager().sql2ddf(createTransformSqlCmd(column, intervals, includeLowest, right))
 
-    mDDF.getManager().addDDF(newddf)
+//    mDDF.getManager().addDDF(newddf)
 
     //remove single quote in intervals
     intervals = intervals.map(x ⇒ x.replace("'", ""))
     newddf.getSchemaHandler().setAsFactor(column).setLevels(intervals.toList.asJava);
-//    newddf.getSchemaHandler().computeFactorLevelsAndLevelCounts()
     
     newddf
   }

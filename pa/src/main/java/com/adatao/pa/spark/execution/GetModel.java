@@ -74,7 +74,7 @@ public class GetModel extends CExecutor {
     public ModelResult(IModel model) {
       this.id = model.getName();// .substring(15).replace("_", "-");
       //TODO change NQLinearRegressionModel to be generic
-      NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
+      //NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
     }
   }
 

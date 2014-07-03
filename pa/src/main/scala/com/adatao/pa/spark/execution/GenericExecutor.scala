@@ -17,16 +17,6 @@ class GenericExecutor(dcID: String, command: String, params: Array[String] = Arr
     val commandsChain = command.toLowerCase().split('.')
     val gson = new Gson()
 
-    //    val resultObj = if(commandsChain(0) ==) {
-    //      val ddf = manager.getDDF(ddfName)
-    //
-    //      GenericExecutor.parseCommand(ddf, commandsChain, params)
-    //    }  else {
-    //      GenericExecutor.parseCommand(manager, commandsChain, params)
-    //    }
-    //    val gson = new Gson()
-    //
-    //    gson.toJson(resultObj)
     val resultObj = commandsChain(0) match {
       case "ddf" => {
         val ddfName = Utils.dcID2DDFID(dcID)

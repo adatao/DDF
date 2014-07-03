@@ -59,20 +59,21 @@ class LogisticRegressionCRS(
   var numIters: Int,
   var learningRate: Double,
   var ridgeLambda: Double,
-  var initialWeights: Array[Double]) extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
+  var initialWeights: Array[Double]) extends AExecutor[IModel] {
 
   var ddfManager: DDFManager = null
 
   //  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
   //	override def run(sparkThread: SparkThread): ExecutorResult = {
-  override def runImpl(ctx: ExecutionContext): LogisticRegressionModel = {
+  override def runImpl(ctx: ExecutionContext): IModel = {
 
     ddfManager = ctx.sparkThread.getDDFManager();
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
+      val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+      val projectDDF = ddf.Views.project(trainedColumns: _*)
 
-      val projectDDF = project(ddf)
       // project the xCols, and yCol as a new DDF
       // this is costly
       val schema = projectDDF.getSchema()
@@ -93,24 +94,10 @@ class LogisticRegressionCRS(
       if (projectDDF.getSchema().getDummyCoding() != null)
         model.setDummy(projectDDF.getSchema().getDummyCoding())
 
-      //set dummyCoding for PA model
-      val glm = new LogisticRegressionModel(regressionModel.getName, model.getWeights, model.getTrainingLosses(), model.getNumSamples())
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        glm.setMapping(model.getDummy().getMapping())
-
-      return (glm)
+      regressionModel
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
   }
-
-  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
-    null.asInstanceOf[LogisticRegressionModel]
-  }
-
-  override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-    null.asInstanceOf[LogisticRegressionModel]
-  }
-
 }
 
