@@ -110,7 +110,7 @@ public class Config {
         Configuration config = new Configuration();
 
         config.getSection(ConfigConstant.SECTION_GLOBAL.toString()) //
-            .set("Namespace", "com.example") //
+            .set("Namespace", "adatao") //
             .set("RuntimeDir", "ddf-runtime") //
             .set("BasicPersistenceDir", "basic-ddf-db") //
             .set("DDF", "com.adatao.ddf.DDF") //

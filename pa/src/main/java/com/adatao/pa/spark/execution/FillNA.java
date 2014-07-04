@@ -45,7 +45,7 @@ public class FillNA implements IExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
 
-      DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = sparkThread.getDDFManager().getDDF(dataContainerID);
       DDF newddf = ddf.getMissingDataHandler().fillNA(value, method, limit, AggregateFunction.fromString(function),
           columnsToValues, columns);
 

@@ -26,7 +26,7 @@ public class TransformScaleStandard extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
 
-      DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = sparkThread.getDDFManager().getDDF(dataContainerID);
       DDF newddf = ddf.Transform.transformScaleStandard();
 
       return new Utils.DataFrameResult(newddf);

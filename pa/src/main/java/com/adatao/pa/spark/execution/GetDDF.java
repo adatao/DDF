@@ -46,8 +46,13 @@ public class GetDDF extends CExecutor {
       return new FailResult().setMessage("ddfName string is empty");
     }
     try {
+      if(ddfName.startsWith("ddf://")) {
+        int lastIdx = ddfName.lastIndexOf("/");
+        ddfName = ddfName.substring(lastIdx + 1);
+      }
+
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDFByName(ddfName);
+      DDF ddf = ddfManager.getDDF(ddfName);
       if (ddf != null) {
         LOG.info("succesful getting ddf from name = " + ddfName);
       } else {

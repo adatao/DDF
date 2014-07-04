@@ -187,7 +187,7 @@ class CrossValidationSuite extends ABigRClientTest {
         assert(r2.isSuccess)
         val predictionId = r2.result.dataContainerID
 
-        val executor = new ROC(predictionId, Array(0, 1), alpha_length)
+        val executor = new ROC(predictionId, alpha_length)
         val ret = bigRClient.execute[RocObject](executor)
         println(ret.toJson)
         assert(ret.isSuccess)
@@ -223,7 +223,7 @@ class CrossValidationSuite extends ABigRClientTest {
         assert(r2.isSuccess)
         val predictionId = r2.result.dataContainerID
 
-        val executor = new ROC(predictionId, Array(0, 1), alpha_length)
+        val executor = new ROC(predictionId, alpha_length)
         val ret = bigRClient.execute[RocObject](executor)
         assert(ret.isSuccess)
 

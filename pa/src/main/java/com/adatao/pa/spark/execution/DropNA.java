@@ -38,7 +38,7 @@ public class DropNA implements IExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
 
-      DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = sparkThread.getDDFManager().getDDF(dataContainerID);
       DDF newddf = ddf.getMissingDataHandler().dropNA(Axis.fromString(axis), NAChecking.fromString(how), thresh, columns);
 
       return new Utils.DataFrameResult(newddf);

@@ -59,7 +59,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
     public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 

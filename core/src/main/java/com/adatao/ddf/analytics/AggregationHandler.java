@@ -118,7 +118,9 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       selectFuncSql += "," + convertFunc2Sql(aggregateFunctions.get(i));
     }
 
-    String sqlCmd = String.format("SELECT %s FROM %s GROUP BY %s", selectFuncSql, tableName, groupedColSql);
+//    if(aggregateFunctions.size() > 0 && groupedColumns.size() > 0) groupedColSql = "," + groupedColSql;
+    
+    String sqlCmd = String.format("SELECT %s , %s FROM %s GROUP BY %s", selectFuncSql, groupedColSql, tableName, groupedColSql);
     mLog.info("SQL Command: " + sqlCmd);
 
     try {

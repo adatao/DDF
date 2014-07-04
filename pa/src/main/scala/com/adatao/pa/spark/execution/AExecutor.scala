@@ -199,40 +199,10 @@ abstract class AModelTrainer[T <: TModel](
 	override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
 
 	//TODO remove change in this class
-	/**
-	 * Gets an Option(RDD[[(Matrix, Vector)]]) from dataContainerID in context
-	 */
-//	def getDataPartition(dataContainerID: String, xCols: Array[Int], yCol: Int, context: ExecutionContext): Option[RDD[(Matrix, Vector)]] = {
-//
-//		//update numFeatures
-//		numFeatures = xCols.length + 1
-//		//handle both shark dataframe and normal dataframe
-//
-//		val ddfManager: DDFManager = context.sparkThread.getDDFManager()
-//		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
-//
-//		val dataPartition: RDD[(Matrix, Vector)] = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).asInstanceOf[RDD[(Matrix, Vector)]]
-//		Option(dataPartition)
-//
-//	}
-//
-//	/*
-//	 * 
-//	 */
+
 	def train(dataContainerID: String, context: ExecutionContext): T = {
 	  null.asInstanceOf[T]
-//		this.getDataPartition(dataContainerID, xCols, yCol, context) match {
-//			case Some(dataPartition) ⇒ {
-//				dataPartition.cache()
-//				var model = this.train(dataPartition, context)
-//				// dataPartition.unpersist()
-//				//instrument model with dummy column mapping
-//				model = this.instrumentModel(model, dummyColumnMapping)
-//				model
-//			}
-//			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-//				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
-//		}
+
 	}
 	/*
 	 * project data before modelling

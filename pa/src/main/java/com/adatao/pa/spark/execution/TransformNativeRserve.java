@@ -29,7 +29,7 @@ public class TransformNativeRserve extends CExecutor {
     try {
 
       DDFManager manager = sparkThread.getDDFManager();
-      DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = manager.getDDF(dataContainerID);
       DDF newddf = ddf.Transform.transformNativeRserve(transformExpression);
       LOG.info("Transformed DDF name " + newddf.getName());
       manager.addDDF(newddf);

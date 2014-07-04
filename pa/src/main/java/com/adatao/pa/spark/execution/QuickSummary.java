@@ -19,6 +19,7 @@ package com.adatao.pa.spark.execution;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.List;
 import com.adatao.ML.types.TJsonSerializable;
 import com.adatao.ML.types.TJsonSerializable$class;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
 import com.adatao.ddf.util.Utils;
+import com.adatao.pa.spark.Utils.*;
 
 /**
  * @author bachbui Implement summary function for both vector and dataframe
@@ -62,7 +64,15 @@ public class QuickSummary extends CExecutor {
     public double[] min;
     public double[] max;
     String clazz;
+    List<String> colNames;
+    
+    public transient String delimiter = " ";
+    public transient int totalIndent = 14;
 
+
+    public void setColnames(java.util.List<String> colnames) {
+      colNames = colnames;
+    }
 
     public String clazz() {
       return clazz;
@@ -111,6 +121,44 @@ public class QuickSummary extends CExecutor {
       this.com$adatao$ML$types$TJsonSerializable$_setter_$clazz_$eq(this.getClass().getName());
       return this;
     }
+    
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(com.adatao.pa.spark.Utils.reindent("column", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("mean", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("sum", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("stdev", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("var", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("cNA", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("count", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("min", totalIndent));
+      sb.append(com.adatao.pa.spark.Utils.reindent("max", totalIndent));
+      sb.append("\n");
+
+      for (int i = 0; i < mean.length; i++) {
+        sb.append(com.adatao.pa.spark.Utils.reindent(colNames.get(i).trim(), totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(mean[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(sum[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(stdev[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(var[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(cNA[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(count[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(min[i], totalIndent));
+        sb.append(com.adatao.pa.spark.Utils.reindent(max[i], totalIndent));
+        
+//        sb.append(mean[i]);
+//        sb.append(sum[i]);
+//        sb.append(stdev[i]);
+//        sb.append(var[i]);
+//        sb.append(cNA[i]);
+//        sb.append(count[i]);
+//        sb.append(min[i]);
+//        sb.append(max[i]);
+        sb.append("\n");
+      }
+      return sb.toString();
+    }
   }
 
 
@@ -119,12 +167,13 @@ public class QuickSummary extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     // first get the ddf
     ddfManager = sparkThread.getDDFManager();
-    DDF ddf = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = ddfManager.getDDF(dataContainerID);
     try {
       Summary[] ddfSummary = ddf.getSummary();
 
       DataframeStatsResult dfs = new DataframeStatsResult();
       // TODO cache summary in ddf's cahcedObjects
+      dfs.setColnames(ddf.getColumnNames());
       dfs.setStats(ddfSummary);
       dfs.setDataContainerID(ddf.getName());
 

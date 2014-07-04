@@ -132,6 +132,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d row(s) from table %%s", numRows));
   }
+  
+  public List<String> top(int numRows, String orderColumns, String mode) throws DDFException {
+    
+    DDF temp = sql2ddf(String.format("SELECT * FROM %%s order by %s %s", orderColumns, mode),
+        String.format("Unable to fetch %d row(s) from table %%s", numRows));
+    
+    return(temp.Views.firstNRows(numRows));
+  }
 
   @Override
   public DDF project(String... columnNames) throws DDFException {
@@ -231,6 +239,14 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
       return operands;
     }
 
+    public void setOperarands(Expression[] ops) {
+      this.operands = ops;
+    }
+
+    public void setName(OperationName name) {
+      this.name = name;
+    }
+
     @Override
     public String toString() {
       return "Operator [name=" + name + ", operands=" + Arrays.toString(operands) + "]";
@@ -318,6 +334,9 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   static public class StringVal extends Value {
     String value;
 
+    public void setValue(String val) {
+      this.value = val;
+    }
 
     @Override
     public String toString() {

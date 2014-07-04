@@ -142,7 +142,7 @@ public class SampleDataFrame implements IExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(Utils.getDDFNameFromDataContainerID(dataContainerID));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
 
     if (ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID,
