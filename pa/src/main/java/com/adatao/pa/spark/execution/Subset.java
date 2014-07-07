@@ -78,10 +78,10 @@ public class Subset extends CExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    DDF ddf = sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + this.dataContainerID).replace("-", "_"));
+    DDF ddf = sparkThread.getDDFManager().getDDF(dataContainerID);
     try {
       DDF subset = ddf.Views.subset(columns, filter);
-      return new SubsetResult().setDataContainerID(Utils.getDataContainerID(subset)).setMetaInfo(
+      return new SubsetResult().setDataContainerID(subset.getName()).setMetaInfo(
           Utils.generateMetaInfo(subset.getSchema()));
 
     } catch (DDFException e) {
@@ -114,6 +114,10 @@ public class Subset extends CExecutor {
       return this;
     }
 
+    public MetaInfo[] getMetaInfo() {
+      return this.metaInfo;
+    }
+    
   }
 
 

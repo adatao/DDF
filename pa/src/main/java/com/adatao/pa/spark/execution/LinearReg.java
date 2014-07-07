@@ -50,7 +50,7 @@ public class LinearReg extends CExecutor {
     LOG.info(">>>> mminiBatchFraction = " + mminiBatchFraction);
 
     DDFManager ddfManager = sparkThread.getDDFManager();
-    DDF ddf = ddfManager.getDDF(("SparkDDF-spark-" + mdataContainerID).replace("-", "_"));
+    DDF ddf = ddfManager.getDDF(mdataContainerID);
     IModel model;
 
     try{

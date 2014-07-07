@@ -20,13 +20,13 @@ package com.adatao.ddf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import com.adatao.basic.ddf.BasicDDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
-import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
-import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.types.AggregateTypes.*;
 import com.adatao.ddf.analytics.IHandleBinning;
 import com.adatao.ddf.analytics.ISupportStatistics;
 import com.adatao.ddf.analytics.IHandleAggregation;
@@ -35,7 +35,6 @@ import com.adatao.ddf.content.APersistenceHandler.PersistenceUri;
 import com.adatao.ddf.content.ISerializable;
 import com.adatao.ddf.content.IHandleIndexing;
 import com.adatao.ddf.content.IHandleMetaData;
-import com.adatao.ddf.content.IHandleMissingData;
 import com.adatao.ddf.content.IHandleMutability;
 import com.adatao.ddf.content.IHandlePersistence;
 import com.adatao.ddf.content.IHandlePersistence.IPersistible;
@@ -45,9 +44,13 @@ import com.adatao.ddf.content.IHandleViews;
 import com.adatao.ddf.content.Schema;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
+import com.adatao.ddf.etl.IHandleMissingData;
+import com.adatao.ddf.etl.IHandleMissingData.Axis;
+import com.adatao.ddf.etl.IHandleMissingData.NAChecking;
 import com.adatao.ddf.etl.IHandleReshaping;
 import com.adatao.ddf.etl.IHandleSql;
 import com.adatao.ddf.etl.IHandleTransformations;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.facades.MLFacade;
 import com.adatao.ddf.facades.PAFacade;
@@ -69,7 +72,7 @@ import com.adatao.ddf.util.PhantomReference;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
+import java.util.Calendar;
 
 /**
  * <p>
@@ -87,7 +90,7 @@ public abstract class DDF extends ALoggable //
 
   private static final long serialVersionUID = -2198317495102277825L;
 
-
+  private Date mCreatedTime;
   /**
    * 
    * @param data
@@ -188,6 +191,7 @@ public abstract class DDF extends ALoggable //
     this.Transform = new TransformFacade(this, this.getTransformationHandler());
     this.R = new RFacade(this, this.getAggregationHandler());
     this.PA = new PAFacade(this);
+    this.mCreatedTime = new Date();
   }
 
 
@@ -338,6 +342,9 @@ public abstract class DDF extends ALoggable //
     return this.getSchemaHandler().getNumColumns();
   }
 
+  public Date getCreatedTime() {
+    return this.mCreatedTime;
+  }
 
   // ///// Execute a sqlcmd
   public List<String> sql2txt(String sqlCommand, String errorMessage) throws DDFException {
@@ -353,6 +360,9 @@ public abstract class DDF extends ALoggable //
 
   public RFacade R;
 
+  public DDF transform(String transformExpression) throws DDFException {
+    return Transform.transformUDF(transformExpression);
+  }
 
   /**
    * 
@@ -801,8 +811,7 @@ public abstract class DDF extends ALoggable //
 
   @Override
   public String getUri() {
-    String uri = AGloballyAddressable.getUri(this);
-    return  uri.substring(0, uri.lastIndexOf("/")+1) + this.getAliasName();
+    return AGloballyAddressable.getUri(this);
   }
 
 
@@ -917,11 +926,21 @@ public abstract class DDF extends ALoggable //
   
   // IHandleTransformations
 
-
   // Transformations
 
   public TransformFacade Transform;
   
+  public DDF dropNA() throws DDFException {
+    return this.getMissingDataHandler().dropNA(Axis.ROW, NAChecking.ANY, 0, null);
+  }
+  
+  public DDF fillNA(String value) throws DDFException {
+    return this.getMissingDataHandler().fillNA(value, null, 0, null, null, null);
+  }
+  
+  public DDF updateInplace(DDF result) throws DDFException {
+    return this.getMutabilityHandler().updateInplace(result);
+  }
 
   public Double[] getVectorQuantiles(String columnName, Double[] percentiles) 
       throws DDFException {
@@ -934,6 +953,24 @@ public abstract class DDF extends ALoggable //
       throw new DDFException("This method only applies to one columned DDF.");
     }
     return this.getStatisticsSupporter().getVectorQuantiles(getSchema().getColumn(0).getName(), percentiles);
+  }
+  
+  public Double[] getVectorVariance(String columnName) 
+      throws DDFException {
+    //TODO need to check columnName
+    return this.getStatisticsSupporter().getVectorVariance(columnName);
+  }
+  
+  public Double getVectorMean(String columnName) 
+      throws DDFException {
+    //TODO need to check columnName
+    return this.getStatisticsSupporter().getVectorMean(columnName);
+  }
+  
+  public Double getVectorCor(String xColumnName, String yColumnName) 
+      throws DDFException {
+    //TODO need to check columnName
+    return this.getStatisticsSupporter().getVectorCor(xColumnName, yColumnName);
   }
 
   // //// ISupportML //////
@@ -979,6 +1016,38 @@ public abstract class DDF extends ALoggable //
   //PA Facace
   public PAFacade PA;
 
+  public static class DDFInformation {
+    private Long numRows;
+
+    private Integer numColumns;
+
+    private String uri;
+
+    private String createdTime;
+
+    public Long getNumRows() {
+      return this.numRows;
+    }
+
+    public Integer getNumColumns() {
+      return this.numColumns;
+    }
+
+    public String getUri() {
+      return this.uri;
+    }
+
+    public String getCreatedTime() {
+      return this.createdTime;
+    }
+    public DDFInformation(Long numRows, Integer numColumns, String uri, String createdTime) {
+      this.numRows = numRows;
+      this.numColumns = numColumns;
+      this.uri = uri;
+      this.createdTime = createdTime;
+    }
+  }
+//
   // //// ISerializable //////
 
   @Override
@@ -993,16 +1062,4 @@ public abstract class DDF extends ALoggable //
     return deserializedObject;
   }
   
-  static public enum JoinType {
-    @SerializedName("inner") INNER, @SerializedName("left") LEFT, @SerializedName("right") RIGHT, @SerializedName("full") FULL, @SerializedName("leftsemi") LEFTSEMI;
-
-    public String getStringRepr() throws Exception {
-      if (this == LEFTSEMI) return "LEFT SEMI";
-      else if (this == INNER) return "";
-      else if (this == LEFT) return "LEFT OUTER";
-      else if (this == RIGHT) return "RIGHT OUTER";
-      else if (this == FULL) return "FULL OUTER";
-      return null;
-    }
-  };
 }

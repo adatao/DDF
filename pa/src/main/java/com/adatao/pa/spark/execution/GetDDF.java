@@ -24,7 +24,7 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
+import com.adatao.pa.spark.Utils.MutableDataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 
@@ -32,14 +32,13 @@ import com.adatao.pa.spark.types.FailResult;
 @SuppressWarnings("serial")
 public class GetDDF extends CExecutor {
   String ddfName;
-  Boolean cache = true;
 
   public static Logger LOG = LoggerFactory.getLogger(GetDDF.class);
 
 
   public GetDDF(String ddfName) {
     this.ddfName = ddfName;
-  }
+  }  
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
@@ -47,14 +46,19 @@ public class GetDDF extends CExecutor {
       return new FailResult().setMessage("ddfName string is empty");
     }
     try {
+      if(ddfName.startsWith("ddf://")) {
+        int lastIdx = ddfName.lastIndexOf("/");
+        ddfName = ddfName.substring(lastIdx + 1);
+      }
+
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDFByName(ddfName);
+      DDF ddf = ddfManager.getDDF(ddfName);
       if (ddf != null) {
         LOG.info("succesful getting ddf from name = " + ddfName);
       } else {
         LOG.info("Can not get ddf from name = " + ddfName);
       }
-      return new Sql2DataFrameResult(ddf);
+      return new MutableDataFrameResult(ddf);
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly

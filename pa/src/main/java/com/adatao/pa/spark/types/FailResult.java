@@ -17,7 +17,7 @@
 package com.adatao.pa.spark.types;
 
 public class FailResult extends ExecutorResult {
-	String message;
+	public String message;
 	
 	public FailResult() {
 		success = false;

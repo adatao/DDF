@@ -81,15 +81,7 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	 */
 	def run(context: ExecutionContext): ExecutionResult[ResultType] = {
 		try {
-			val result = new SuccessfulResult(this.runImpl(context))
-			//			if (doPersistResult) result.persistenceID = context.sparkThread.getDataManager.putObject(result.result)
-			//add model
-			if (doPersistResult) {
-				val mymodel: Model = new Model(result.result)
-				context.sparkThread.getDDFManager().addModel(mymodel)
-				result.persistenceID = mymodel.getName()
-			}
-			result
+			new SuccessfulResult(this.runImpl(context))
 		}
 		catch {
 			case ee: ExecutionException ⇒ new FailedResult[ResultType](ee.message)
@@ -207,41 +199,23 @@ abstract class AModelTrainer[T <: TModel](
 	override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
 
 	//TODO remove change in this class
-	/**
-	 * Gets an Option(RDD[[(Matrix, Vector)]]) from dataContainerID in context
-	 */
-//	def getDataPartition(dataContainerID: String, xCols: Array[Int], yCol: Int, context: ExecutionContext): Option[RDD[(Matrix, Vector)]] = {
-//
-//		//update numFeatures
-//		numFeatures = xCols.length + 1
-//		//handle both shark dataframe and normal dataframe
-//
-//		val ddfManager: DDFManager = context.sparkThread.getDDFManager()
-//		val ddf: DDF = ddfManager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"))
-//
-//		val dataPartition: RDD[(Matrix, Vector)] = ddf.getRepresentationHandler().get(classOf[RDD[_]], classOf[(Matrix, Vector)]).asInstanceOf[RDD[(Matrix, Vector)]]
-//		Option(dataPartition)
-//
-//	}
-//
-//	/*
-//	 * 
-//	 */
+
 	def train(dataContainerID: String, context: ExecutionContext): T = {
 	  null.asInstanceOf[T]
-//		this.getDataPartition(dataContainerID, xCols, yCol, context) match {
-//			case Some(dataPartition) ⇒ {
-//				dataPartition.cache()
-//				var model = this.train(dataPartition, context)
-//				// dataPartition.unpersist()
-//				//instrument model with dummy column mapping
-//				model = this.instrumentModel(model, dummyColumnMapping)
-//				model
-//			}
-//			case None ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-//				"Cannot get data partition for given dataContainerID: %s".format(dataContainerID), null)
-//		}
-		
+
+	}
+	/*
+	 * project data before modelling
+	 */
+	def project(ddf: DDF): DDF = {
+	  //get projection
+    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
+    //project on xCols
+    for (col ← xCols) columnList.add(ddf.getSchema().getColumn(col).getName)
+    //project on yCol
+    columnList.add(ddf.getSchema().getColumn(yCol).getName)
+    val projectedDDF = ddf.Views.project(columnList)
+    projectedDDF
 	}
 	
 

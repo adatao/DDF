@@ -218,7 +218,7 @@ public class RepresentationHandler extends ADDFFunctionalGroupHandler implements
   @Override
   public void remove(Class<?>... typeSpecs) {
     mReps.remove(this.getSpecsAsString(typeSpecs));
-    if (this.equalsDefaultDataType(typeSpecs)) this.reset();
+    //if (this.equalsDefaultDataType(typeSpecs)) this.reset();
   }
 
   /**

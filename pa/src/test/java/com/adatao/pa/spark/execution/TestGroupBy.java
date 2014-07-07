@@ -1,5 +1,7 @@
 package com.adatao.pa.spark.execution;
 
+
+import java.util.Arrays;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -7,13 +9,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.pa.spark.DataManager.MetaInfo;
-import com.adatao.pa.spark.execution.LoadHiveTable.LoadHiveTableResult;
 import com.adatao.pa.spark.execution.NRow.NRowResult;
 import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.Gson;
-import java.util.Arrays;
 
 public class TestGroupBy extends BaseTest {
 
@@ -35,13 +35,9 @@ public class TestGroupBy extends BaseTest {
 
     createTableMtcars(sid);
 
-    LoadHiveTable loadTbl = (LoadHiveTable) new LoadHiveTable().setTableName("mtcars");
-    LOG.info(gson.toJson(loadTbl));
-    cmd.setSid(sid).setCmdName("LoadHiveTable").setParams(gson.toJson(loadTbl));
-    res = client.execJsonCommand(cmd);
-    LoadHiveTableResult result = ExecutionResult.fromJson(res.getResult(), LoadHiveTableResult.class).result();
-    LOG.info("LoadHiveTable result: " + Arrays.toString(result.getMetaInfo()));
-    mtcarsID = result.getDataContainerID();
+    Sql2DataFrame.Sql2DataFrameResult ddf = this.runSQL2RDDCmd(sid, "SELECT * FROM mtcars", true);
+    mtcarsID = ddf.dataContainerID;
+
   }
 
   @Test

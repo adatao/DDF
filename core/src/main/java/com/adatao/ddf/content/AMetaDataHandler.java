@@ -47,6 +47,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
   /**
    * Called to assert that the row count needs to be recomputed at next access
    */
+
   protected void invalidateNumRows() {
     bNumRowsIsValid = false;
   }
@@ -55,7 +56,7 @@ public abstract class AMetaDataHandler extends ADDFFunctionalGroupHandler
   public long getNumRows() {
     if (!bNumRowsIsValid) {
       mNumRows = this.getNumRowsImpl();
-      bNumRowsIsValid = true;
+//      bNumRowsIsValid = true;
     }
     return mNumRows;
   }

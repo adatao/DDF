@@ -70,7 +70,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 
 		//run prediction
-		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+		val predictor = new YtrueYpred(dataContainerId, modelID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
@@ -120,7 +120,7 @@ class MetricsSuite extends ABigRClientTest {
 		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
 
 		//run prediction
-		val predictor = new YtrueYpred(dataContainerId, modelID, Array(0, 1), 2)
+		val predictor = new YtrueYpred(dataContainerId, modelID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
@@ -129,7 +129,7 @@ class MetricsSuite extends ABigRClientTest {
 
 		//		//run ROC
 		val alpha_length: Int = 10
-		val executor = new ROC(predictionResultId, Array(0, 1), alpha_length)
+		val executor = new ROC(predictionResultId, alpha_length)
 		val ret = bigRClient.execute[RocMetric](executor)
 
 		val metric = ret.result
@@ -157,7 +157,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 		
 
-		val scorer = new R2Score(dataContainerId, Array(0), 1, modelID)
+		val scorer = new R2Score(dataContainerId, modelID)
 		val r2 = bigRClient.execute[Double](scorer)
 		assert(r2.isSuccess)
 
@@ -241,18 +241,10 @@ class MetricsSuite extends ABigRClientTest {
 
 		val persistenceID = r.persistenceID
 
-		val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0), 1)
+		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		assert(r2.isSuccess)
-		
-//		val newid = r2.result.dataContainerID.replaceAll("SparkDDF-spark-","")
-//		println(">>>>>>>> newid = " + newid + "\tr2.result.dataContainerID=" + r2.result.dataContainerID)
-//
-//		val fetcher = new FetchRows().setDataContainerID(newid).setLimit(32)
-//		val r3 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r3.isSuccess)
-//
-//		println(r3.result.data)
+
 	}
 
 	ignore("can get linear predictions categorical columns") {
@@ -270,7 +262,7 @@ class MetricsSuite extends ABigRClientTest {
 
 		val persistenceID = r.persistenceID
 
-		val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(0, 1, 2), 3)
+		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		assert(r2.isSuccess)
 
@@ -295,7 +287,7 @@ class MetricsSuite extends ABigRClientTest {
 		assert(r.isSuccess)
 		val persistenceID = r.persistenceID
 
-		val predictor = new YtrueYpred(dataContainerId, persistenceID, Array(2, 3), 0)
+		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
 		assert(r2.isSuccess)
 
@@ -320,7 +312,7 @@ class MetricsSuite extends ABigRClientTest {
 		println(">>>>model r.result = " + r.result)
 
 		val threshold = 0.5
-		val executor = new BinaryConfusionMatrix(dataContainerId, persistenceID, Array(0, 1), 2, threshold)
+		val executor = new BinaryConfusionMatrix(dataContainerId, persistenceID, threshold)
 		val ret = bigRClient.execute[BinaryConfusionMatrixResult](executor)
 		assert(ret.isSuccess)
 
@@ -372,7 +364,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 		assertTrue(modelID != null)
 
-		val scorer = new R2Score(dataContainerId, Array(0), 1, modelID)
+		val scorer = new R2Score(dataContainerId, modelID)
 		val r2 = bigRClient.execute[Double](scorer)
 		assert(r2.isSuccess)
 		println(">>>>>result =" + r2.result)

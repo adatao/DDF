@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.analytics.AggregationHandler.AggregateField;
-import com.adatao.ddf.analytics.AggregationHandler.AggregationResult;
+import com.adatao.ddf.types.AggregateTypes.*;
 import com.adatao.ddf.analytics.IHandleAggregation;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Joiner;
@@ -97,6 +96,12 @@ public class RFacade implements IHandleAggregation {
   public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public double aggregateOnColumn(AggregateFunction function, String col) throws DDFException {
+    // TODO Auto-generated method stub
+    return 0;
   }
 
 }

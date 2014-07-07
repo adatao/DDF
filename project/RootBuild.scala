@@ -11,9 +11,21 @@ import scala.collection.JavaConversions._
 object RootBuild extends Build {
 
   //////// Project definitions/configs ///////
-  val SPARK_VERSION = "0.9.1"
-  val SHARK_VERSION = "0.9.1"
-        val HIVE_VERSION = "0.11.0-shark-0.9.1"
+  //////// Project definitions/configs ///////
+  val OBSELETE_HADOOP_VERSION = "1.0.4"
+  val DEFAULT_HADOOP_VERSION = "2.2.0"
+
+  lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
+    DEFAULT_HADOOP_VERSION
+
+  lazy val MAIN_SHARK_VERSION = "0.9.2"
+  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
+  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
+
+  lazy val MAIN_SPARK_VERSION = "0.9.2"
+  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
+  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
+
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
@@ -111,16 +123,16 @@ object RootBuild extends Build {
     "commons-configuration" % "commons-configuration" % "1.6",
     "com.google.code.gson"% "gson" % "2.2.2",
     //"javax.jdo" % "jdo2-api" % "2.3-ec",
-    "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
-    "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
+//    "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
     //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
     //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "com.novocode" % "junit-interface" % "0.9" % "test",
+    "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
     "org.apache.thrift" % "libthrift" % "0.9.0",
     "org.apache.thrift" % "libfb303" % "0.9.0",
@@ -130,11 +142,12 @@ object RootBuild extends Build {
     //"org.apache.derby" % "derby" % "10.4.2.0",
    // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
-    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
-//libraryDependencies ++= Seq("edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION)
+    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
+    "com.google.protobuf" % "protobuf-java" % "2.5.0"
   )
 
   val pa_dependencies = Seq(
@@ -167,12 +180,12 @@ object RootBuild extends Build {
     // Now, sometimes missing .jars in ~/.m2 can lead to sbt compile errors.
     // In that case, clean up the ~/.m2 local repository using bin/clean-m2-repository.sh
     // @aht: needs this to get Rserve jars, I don't know how to publish to adatao/mvnrepos
-//resolvers ++= Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
-resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/repository"),   
-//resolvers ++= Seq("Adatao Repo Snapshots"  at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
-         // "Adatao Repo Releases"   at "https://raw.github.com/adatao/mvnrepos/master/releases"),
+    
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+      "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
+      "Adatao Mvnrepos Snapshots" at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
+      "Adatao Mvnrepos Releases" at "https://raw.github.com/adatao/mvnrepos/master/releases",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
       "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
       "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -191,14 +204,14 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
       //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-      "org.scalatest" % "scalatest_2.10" % "2.2.0-M1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.11.0" % "test",
-      "com.novocode" % "junit-interface" % "0.9" % "test",
+      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
+      "com.novocode" % "junit-interface" % "0.10" % "test",
       "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
       "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
       "commons-io" % "commons-io" % "1.3.2",
       "org.easymock" % "easymock" % "3.1" % "test",
-      "edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark-0.9.1" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+      //"edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
       "mysql" % "mysql-connector-java" % "5.1.25"
     ),
 
@@ -228,10 +241,10 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
-    // dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
-    // dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
-    // dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8"
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8",
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
     dependencyOverrides += "org.xerial.snappy" % "snappy-java" % "1.0.5", //spark-core conflicts with avro
     dependencyOverrides += "org.apache.httpcomponents" % "httpcore" % "4.1.4",
@@ -239,19 +252,26 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     dependencyOverrides += "org.apache.avro" % "avro" % "1.7.4",
     dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.5",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
-    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
-    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
-     dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
-
+//    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
+//    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
+//     dependencyOverrides += "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
+    dependencyOverrides += "org.scala-lang" % "scala-compiler" % "2.10.3",
     dependencyOverrides += "io.netty" % "netty" % "3.6.6.Final",
-    dependencyOverrides += "asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
-
-    
+    dependencyOverrides += "org.ow2.asm" % "asm" % "4.0", //org.datanucleus#datanucleus-enhancer's
+    dependencyOverrides += "asm" % "asm" % "3.2",
+    dependencyOverrides += "commons-codec" % "commons-codec" % "1.4",
+    dependencyOverrides += "org.scala-lang" % "scala-actors" % "2.10.1",
+    dependencyOverrides += "org.scala-lang" % "scala-library" %"2.10.3",
+    dependencyOverrides += "org.scala-lang" % "scala-reflect" %"2.10.3",
+    dependencyOverrides += "com.sun.jersey" % "jersey-core" % "1.9",
+    dependencyOverrides += "javax.xml.bind" % "jaxb-api" % "2.2.2",
+    dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
+    dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     pomExtra := (
       <!--
       **************************************************************************************************
@@ -467,6 +487,7 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
     libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2",
+    libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.2.0",
     libraryDependencies ++= scalaDependencies
   ) ++ assemblySettings ++ extraAssemblySettings
 
@@ -494,7 +515,9 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
-    libraryDependencies ++= pa_dependencies
+    libraryDependencies ++= pa_dependencies,
+    initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
+
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
@@ -527,6 +550,8 @@ resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL+".m2/reposit
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
     mergeStrategy in assembly := {
       case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+      case m if m.toLowerCase.endsWith("eclipsef.sf") => MergeStrategy.discard
+      case m if m.toLowerCase.endsWith("eclipsef.rsa") => MergeStrategy.discard
       case "reference.conf" => MergeStrategy.concat
       case _ => MergeStrategy.first
     }

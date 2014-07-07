@@ -33,6 +33,8 @@ import java.util.ArrayList
 
 import com.adatao.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
+import com.adatao.ddf.ml.IModel
+
 /**
  * Entry point for SparkThread executor
  */
@@ -44,51 +46,38 @@ class LogisticRegression(
   var learningRate: Double,
   var ridgeLambda: Double,
   var initialWeights: Array[Double])
-  extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
+  extends AExecutor[IModel]{
 
-  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
+  override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf = ddfManager.getDDF(ddfId) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    // project the xCols, and yCol as a new DDF
-    // this is costly
-    val schema = ddf.getSchema()
+
+    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+    val projectDDF = ddf.Views.project(trainedColumns: _*)
 
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    ddf.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    ddf.getSchema().generateDummyCoding()
+    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+    projectDDF.getSchema().generateDummyCoding()
 
-    val numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
+    var numFeatures: Integer = xCols.length + 1
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-    //
-    //    var columnList: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]
-    //    for (col <- xCols) columnList.add(schema.getColumn(col).getName)
-    //    columnList.add(schema.getColumn(yCol).getName)
-    //    val projectDDF = ddf.Views.project(columnList)
 
-    val logisticModel = ddf.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
-    // converts DDF model to old PA model
-    val rawModel = logisticModel.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
-    val paModel = new LogisticRegressionModel(rawModel.weights, rawModel.trainingLosses, rawModel.numSamples)
-    ddfManager.addModel(logisticModel)
-    paModel.ddfModel = logisticModel
-    return paModel
-  }
-
-  def train(dataPartition: RDD[(Matrix, Vector)], ctx: ExecutionContext): LogisticRegressionModel = {
-    null
-  }
-
-  //post process, set column mapping to model
-  def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-    model.dummyColumnMapping = mapping
+    val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
+    if (projectDDF.getSchema().getDummyCoding() != null)
+      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
     model
   }
+
 }
 
 object LogisticRegression {
@@ -107,8 +96,8 @@ object LogisticRegression {
 }
 
 /**
- * Entry point for SparkThread executor to execute predictions
- */
+* Entry point for SparkThread executor to execute predictions
+*/
 class LogisticRegressionPredictor(val model: LogisticRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
   def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
 }

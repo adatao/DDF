@@ -27,6 +27,8 @@ import org.jblas.exceptions.LapackSingularityException
 import org.jblas.exceptions.LapackException
 import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
+import com.adatao.ddf.content.Schema.DummyCoding
+import com.adatao.ddf.exception.DDFException
 
 /**
  * Author: NhanVLC
@@ -203,15 +205,41 @@ object LinearRegressionNormalEquation {
     /*
         new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), "73918a", rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
+    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
   }
 
 }
 
-class NQLinearRegressionModel(val weights: Vector, val resDfId: String, val rss: Double,
-  val sst: Double, val stdErrs: Vector,
-  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) {
-  def predict(features: Vector): Double = 0
+class NQLinearRegressionModel(val weights: Vector, val rss: Double, val sst: Double, val stdErrs: Vector,
+  val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends Serializable {
+
+  def predictVector(features: Vector): Double = {
+    if(features.size != weights.size) {
+      throw new DDFException(s"Error predicting, feature.size= ${features.size}, weight.size= ${weights.size}", null)
+    }
+    weights.dot(features)
+  }
+
+  def predict(features: Array[Double]): Double = {
+    this.predictVector(Vector(Array[Double](1) ++ features))
+  }
+
+  var dc: DummyCoding = null
+  def setDummy(_dc: DummyCoding) {
+    dc = _dc
+  }
+  def getDummy(): DummyCoding = {
+    return dc;
+  }
+
+  override def toString(): String = {
+    val weightString = s"weights: [${weights.data.mkString(", ")}}]"
+    val rssString = s"rss: ${rss}"
+    val sstString = s"sst: $sst"
+    val stdErrorsString = s"Standard errors: [${stdErrs.data.mkString(", ")}}]"
+    val vifString = s"vif: [${vif.mkString(", ")}}]"
+    this.getClass.getName + "\n" + weightString + "\n" + rssString + "\n" + stdErrorsString + "\n" + vifString
+  }
 }
 
 class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: Long, var x4: Double, var x5: Double, var x6: DoubleMatrix, var x7: Long) extends Serializable {

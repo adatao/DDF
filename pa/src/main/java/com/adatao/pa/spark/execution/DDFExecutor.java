@@ -26,7 +26,7 @@ public class DDFExecutor {
   }
 
   public ExecutionResult run(ExecutionContext context) {
-    DDF ddf = context.sparkThread().getDDFManager().getDDF(("SparkDDF-spark-" + this.ddfUri).replace("-", "_"));
+    DDF ddf = context.sparkThread().getDDFManager().getDDF(ddfUri);
     try {
       if (ddf == null) {
         throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF "

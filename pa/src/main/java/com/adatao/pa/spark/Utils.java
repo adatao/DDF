@@ -61,19 +61,59 @@ public class Utils {
   }
 
   public static String getDataContainerID(DDF ddf) {
-    return ddf.getName().substring(15).replace("_", "-");
+    return ddf.getName();
   }
 
   public static String getDDFNameFromDataContainerID(String dataContainerID) {
-    return ("SparkDDF-spark-" + dataContainerID).replace("-", "_");
+    return dataContainerID;
   }
-
+  
+  public static String reindent(String value, int totalIndent) {
+    String delimiter = " ";
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
+  
+  public static  String reindent(Double v, int totalIndent) {
+    String delimiter = " ";
+    String value = String.valueOf(v);
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
+  
+  public static  String reindent(long v, int totalIndent) {
+    String delimiter = " ";
+    String value = String.valueOf(v);
+    int left = totalIndent - value.length();
+    StringBuilder sb = new StringBuilder();
+    sb.append(value);
+    if(left > 0) {
+      for(int i=0; i< left; i++) {
+        sb.append(delimiter);
+      }
+    }
+    return sb.toString();
+  }
   static public class DataFrameResult extends SuccessResult {
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 
     public DataFrameResult(DDF ddf) throws DDFException {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
     
@@ -89,6 +129,37 @@ public class Utils {
 
     public MetaInfo[] getMetaInfo() {
       return metaInfo;
+    }
+  }
+  
+  static public class MutableDataFrameResult extends SuccessResult {
+    public String dataContainerID;
+    public MetaInfo[] metaInfo;
+    public boolean isMutable;
+
+    public MutableDataFrameResult(DDF ddf) throws DDFException {
+      this.dataContainerID = ddf.getName();
+      this.metaInfo = generateMetaInfo(ddf.getSchema());
+      this.isMutable =  ddf.isMutable();
+    }
+    
+    public MutableDataFrameResult(String dataContainerID, MetaInfo[] metaInfo, boolean isMutable) throws DDFException {
+      this.dataContainerID = dataContainerID;
+      this.metaInfo = metaInfo;
+      this.isMutable = isMutable;
+    }
+    
+    public String getDataContainerID() {
+      return dataContainerID;
+    }
+
+
+    public MetaInfo[] getMetaInfo() {
+      return metaInfo;
+    }
+    
+    public boolean isMutable() {
+      return isMutable;
     }
   }
 

@@ -13,34 +13,45 @@ import com.adatao.pa.spark.execution.VectorCovariance._
 import com.adatao.pa.spark.execution.VectorCorrelation._
 
 class VectorStatsSuite extends ABigRClientTest {
-//	test("Test CSV") {
+	test("Test CSV") {
+	  createTableAirline
 //		val dfID = this.loadFile("resources/mtcars", false, " ");
-//		var col = new Column()
-//		col.setIndex(2)
-//		col.setType("Column")
-//		var executor = new Subset()
-//		executor.setDataContainerID(dfID)
-//		executor.setColumns(List(col).asJava)
-//
-//		var res: SubsetResult = bigRClient.execute[SubsetResult](executor).result
-//		var dcID = res.getDataContainerID
-//
-//		// Get Mean
-//		val executor2 = new VectorMean()
-//		executor2.setDataContainerID(dcID)
-//		val res2: VectorMeanResult = bigRClient.execute[VectorMeanResult](executor2).result
-//		LOG.info("Mean Result = " + res2.getMean())
-//		assertEquals(res2.getMean(), 230.72, 0.01)
-//
-//		// Get Variance
-//		val executor3 = new VectorVariance()
-//		executor3.setDataContainerID(dcID)
-//		val res3: VectorVarianceResult = bigRClient.execute[VectorVarianceResult](executor3).result
-//		LOG.info("Variance Result = " + res3.getVariance())
-//		assertEquals(res3.getVariance(), 15360.8, 0.01)
-//		assertEquals(res3.getStdDev(), 123.9387, 0.0001)
-//		
-//		// Histogram
+	  val loader = new Sql2DataFrame("select * from airline", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+		val dfID = r0.dataContainerID
+	  
+		// Get Mean
+		val executor2 = new VectorMean()
+		executor2.setDataContainerID(dfID)
+		executor2.setColumnName("v1")
+		val res2: VectorMeanResult = bigRClient.execute[VectorMeanResult](executor2).result
+		assert(res2.isSuccess)
+	  
+	  System.out.println(">>>> Variance Mean = " + res2.getMean())
+		LOG.info("Mean Result = " + res2.getMean())
+		assertEquals(res2.getMean(), 2008.096, 0.01)
+
+		// Get Variance
+		val executor3 = new VectorVariance()
+		executor3.setDataContainerID(dfID)
+		executor3.setColumnName("v1")
+		
+		val res3: VectorVarianceResult = bigRClient.execute[VectorVarianceResult](executor3).result
+		LOG.info("Variance Result = " + res3.getVariance())
+		System.out.println(">>>> Variance Result = " + res3.getVariance())
+		assertEquals(res3.getVariance(), 0.156, 0.01)
+		assertEquals(res3.getStdDev(), 0.394, 0.01)
+		
+		// Get Variance
+//    val executor4 = new VectorCorrelation()
+//    executor4.setXDataContainerID(dfID)
+//    
+//    val res4: VectorCorrelationResult = bigRClient.execute[VectorCorrelationResult](executor4).result
+//    LOG.info("Variance Result = " + res4.getCorrelation())
+//    System.out.println(">>>> VectorCorrelation Result = " + res4.getCorrelation())
+		
+		// Histogram
 //		col = new Column()
 //		col.setIndex(0)
 //		col.setType("Column")
@@ -57,7 +68,7 @@ class VectorStatsSuite extends ABigRClientTest {
 //		val res4: VectorHistogramResult = bigRClient.execute[VectorHistogramResult](executor4).result
 //		assertEquals(true, res4.success)
 //		assertEquals(5, res4.histogramBins.size())
-//	}
+	}
 //	
 //	test("Test filter NAs") {
 //		val dfID = this.loadFile("resources/airline.csv", false, ",");

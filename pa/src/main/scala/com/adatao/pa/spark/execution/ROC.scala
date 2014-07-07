@@ -49,7 +49,7 @@ import com.adatao.pa.spark.types.ExecutionException
  *
  */
 
-class ROC(dataContainerID: String, xCols: Array[Int], var alpha_length: Int) extends AExecutor[RocMetric] {
+class ROC(dataContainerID: String, var alpha_length: Int) extends AExecutor[RocMetric] {
 
 	override def run(ctx: ExecutionContext): ExecutionResult[RocMetric] = {
 		try {

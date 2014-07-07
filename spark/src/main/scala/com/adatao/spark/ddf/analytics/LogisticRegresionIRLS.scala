@@ -7,6 +7,8 @@ import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
 import org.jblas.Solve
+import java.util.HashMap
+import com.adatao.ddf.exception.DDFException
 
 class LogisticRegresionIRLS {
 
@@ -195,41 +197,30 @@ object LogisticRegressionIRLS {
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, deviance: Double, nullDeviance: Double, numSamples: Long, numFeatures: Long, numIters: Int, stderrs: Vector) {
+class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val nullDeviance: Double, val numSamples: Long,
+                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends Serializable {
   override def toString(): String = {
-    weights.toString
+    val weightString = s"weights: [${weights.data.mkString(", ")}]"
+    val devianceString = s"deviance: ${deviance}"
+    val nullDevString = s"null deviance: ${nullDeviance}"
+    val stdErrsString = s"Standard Errors: [${stderrs.data.mkString(",")}]"
+    this.getClass.getName + "\n" + weightString + "\n" + devianceString + "\n" + nullDevString + "\n" + stdErrsString
   }
 
   def predict(point: Array[Double]): java.lang.Double = {
-    val features = Vector(point)
+    val features = Vector(Array[Double](1.0) ++ point)
+    if(features.size != weights.size) {
+      throw new DDFException(s"error predicting, features.size = ${features.size}, weights.size = ${weights.size}")
+    }
+
     val linearPredictor = weights.dot(features)
     ALossFunction.sigmoid(linearPredictor)
   }
 
-  def getWeights(): Vector = {
-    return weights;
+  var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
+  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+    dummyColumnMapping = _mapping
   }
-
-  def getDeviance(): Double = {
-    return deviance;
-  }
-
-  def getNullDeviance(): Double = {
-    return nullDeviance;
-  }
-
-  def getNumSamples(): Long = {
-    return numSamples;
-  }
-
-  def getNumIters(): Int = {
-    return numIters;
-  }
-
-  def getStdErrs(): Vector = {
-    return stderrs;
-  }
-
 }
 
 /**

@@ -4,7 +4,7 @@ package com.adatao.spark.ddf.etl;
 import java.util.HashSet;
 import java.util.List;
 import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDF.JoinType;
+import com.adatao.ddf.etl.Types.JoinType;
 import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.etl.IHandleJoins;
 import com.adatao.ddf.exception.DDFException;
@@ -19,6 +19,7 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
     // TODO Auto-generated constructor stub
   }
 
+  @Override
   public DDF join(DDF anotherDDF, JoinType joinType, List<String> byColumns, List<String> byLeftColumns,
       List<String> byRightColumns)  throws DDFException {
 
@@ -83,4 +84,5 @@ public class JoinHandler extends ADDFFunctionalGroupHandler implements IHandleJo
     }
 
   }
+  
 }

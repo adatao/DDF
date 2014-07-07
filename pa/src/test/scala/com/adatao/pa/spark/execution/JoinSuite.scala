@@ -6,7 +6,7 @@ import java.util.ArrayList
 import java.util.Arrays
 import com.adatao.pa.spark.execution.QuickSummary
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
-import com.adatao.ddf.DDF.JoinType
+import com.adatao.ddf.etl.Types.JoinType
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.execution.NRow.NRowResult
 

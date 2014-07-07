@@ -28,7 +28,7 @@ public class TransformHive extends CExecutor {
     try {
 
       DDFManager manager = sparkThread.getDDFManager();
-      DDF ddf = manager.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+      DDF ddf = manager.getDDF(dataContainerID);
 
       DDF newddf = ddf.Transform.transformUDF(transformExpression);
 

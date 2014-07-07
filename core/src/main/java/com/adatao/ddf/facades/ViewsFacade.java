@@ -50,6 +50,11 @@ public class ViewsFacade implements IHandleViews {
   public List<String> firstNRows(int numRows) throws DDFException {
     return mViewHandler.firstNRows(numRows);
   }
+  
+  @Override
+  public List<String> top(int numRows, String orderedCols, String mode) throws DDFException {
+    return mViewHandler.top(numRows, orderedCols, mode);
+  }
 
   public List<Object[]> getRandomSample(int numSamples) {
     return getRandomSample(numSamples, false, 1);

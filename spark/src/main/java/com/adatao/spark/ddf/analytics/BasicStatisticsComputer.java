@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.adatao.ddf.DDF;
 import com.adatao.ddf.analytics.AStatisticsSupporter;
 import com.adatao.ddf.analytics.Summary;
-
+import org.apache.commons.lang.math.NumberUtils;
 /**
  * Compute the basic statistics for each column in a RDD-based DDF
  * 
@@ -24,7 +24,6 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
   @SuppressWarnings("unchecked")
   @Override
   public Summary[] getSummaryImpl()  throws DDFException {
-    System.out.println(">>>>>>>>>>>>>>>>>>>> TABLENAME" + this.getDDF().getName());
     RDD<Object[]> rdd = (RDD<Object[]>) this.getDDF().getRepresentationHandler().get(RDD.class, Object[].class);
 
     JavaRDD<Object[]> data = rdd.toJavaRDD();
@@ -62,13 +61,12 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
                 result[i].setNACount(1);
               } else {
                 double number = 0.0;
-                try {
+
+                if(NumberUtils.isNumber(str)) {
                   number = Double.parseDouble(str);
                   s.merge(number);
-                  result[i] = s;
-                } catch (Exception ex) {
+                } else {
                   result[i] = null;
-                  mLog.info("GetSummaryMapper: catch " + p[i] + " is not number");
                 }
               }
             }
@@ -101,7 +99,7 @@ public class BasicStatisticsComputer extends AStatisticsSupporter {
             result[i] = b[i];
             result[i].addToNACount(a[i].NACount());
           }
-          // both are NA
+          // both are NAs
           else {
             result[i] = new Summary();
             result[i].setNACount(a[i].NACount() + b[i].NACount());

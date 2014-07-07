@@ -11,4 +11,5 @@ public interface IHandleMetaData extends IHandleDDFFunctionalGroup {
   public void setId(UUID id);
 
   public long getNumRows();
+
 }
