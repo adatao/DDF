@@ -58,8 +58,7 @@
 	</pluginRepositories>
 	
 	<modules>
-	  <module>core</module>
-	  <module>spark</module>
+	  <module>spark_adatao</module>
           <module>pa</module>
           <module>enterprise</module>
 	  <module>contrib</module>

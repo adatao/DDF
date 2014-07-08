@@ -42,12 +42,7 @@ object RootBuild extends Build {
 
   val projectOrganization = rootOrganization + "." + projectName
 
-  val coreProjectName = projectName + "_core"
-  val coreVersion = rootVersion
-  val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
-  val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
-
-  val sparkProjectName = projectName + "_spark"
+  val sparkProjectName = projectName + "_spark_adatao"
   val sparkVersion = rootVersion
   val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
@@ -72,13 +67,12 @@ object RootBuild extends Build {
   val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
   val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
   
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
-  lazy val core = Project("core", file("core"), settings = coreSettings)
-  lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
-  lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
-  lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
-  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
-  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark, examples, contrib,pa,enterprise)
+  lazy val spark = Project("spark", file("spark"), settings = sparkSettings) 
+  lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings)  dependsOn(spark)
+  lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark)
+  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark)
+  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -121,6 +115,7 @@ object RootBuild extends Build {
 
   val spark_dependencies = Seq(
     "commons-configuration" % "commons-configuration" % "1.6",
+    "com.adatao.ddf" % "ddf_spark_2.10" % "0.9",
     "com.google.code.gson"% "gson" % "2.2.2",
     //"javax.jdo" % "jdo2-api" % "2.3-ec",
 //    "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
@@ -200,6 +195,8 @@ object RootBuild extends Build {
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
+      "com.adatao.ddf" % "ddf_core_2.10" %  rootVersion,
+      "com.adatao.ddf" % "ddf_spark_2_10" % rootVersion,
       "commons-configuration" % "commons-configuration" % "1.6",
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
@@ -480,16 +477,6 @@ object RootBuild extends Build {
   /////// Individual project settings //////
   def rootSettings = commonSettings ++ Seq(publish := {})
 
-
-  def coreSettings = commonSettings ++ Seq(
-    name := coreProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
-    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2",
-    libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.2.0",
-    libraryDependencies ++= scalaDependencies
-  ) ++ assemblySettings ++ extraAssemblySettings
 
 
 
