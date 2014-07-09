@@ -31,6 +31,8 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonArray
 import com.adatao.ddf.ml.{IModel, Model}
 import org.apache.spark.mllib.clustering.KMeansModel
+import com.adatao.ddf.DDF
+
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().
  * It also automatically has a val "class" containing its class name.
@@ -86,7 +88,7 @@ object TJsonSerializable {
 	 * Returns a new Gson with both the standard serializer and deserializer registered for all types for which
 	 * we have special serdes support, excluding TJsonSerializable itself (to avoid infinite loops)
 	 */
-	private def getGsonBuilderNoTJsonSerializable: GsonBuilder = TJsonSerializable.registerSerializers(TJsonSerializable.registerDeserializers(new GsonBuilder))
+	private def getGsonBuilderNoTJsonSerializable: GsonBuilder = TJsonSerializable.registerSerializers(TJsonSerializable.registerDeserializers(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()))
 
 	/**
 	 * Returns a new Gson with both the standard serializer and deserializer registered
@@ -207,6 +209,14 @@ private object SpecialSerDes {
 			}
 		}
 	}
+
+  class DDFSerializer extends JsonSerializer[DDF] {
+    def serialize(ddf: DDF, typeofT: Type, context: JsonSerializationContext): JsonElement = {
+      val result = new JsonObject
+      result.add("uri", context.serialize(ddf.getUri))
+      result
+    }
+  }
 
 	class DoubleSerializer extends JsonSerializer[Double] {
 		def serialize(obj: Double, typeOfT: Type, context: JsonSerializationContext): JsonElement = {

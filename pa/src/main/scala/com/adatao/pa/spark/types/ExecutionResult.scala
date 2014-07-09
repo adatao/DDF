@@ -51,7 +51,7 @@ class ExecutionResult[ResultType](val success: Boolean, var result: ResultType, 
 
 object ExecutionResult {
 	/**
-	 * Use this signature for backward-compatibility with old [[ExecutorResult]] [[CExecutors]]
+	 * Use this signature for backward-compatibility with old [[ExecutorResult]] [[CExecutorsCExecutors]]
 	 */
 	def newInstance(xr: ExecutorResult) = {
 		xr match {

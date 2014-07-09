@@ -1,6 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.types.ABigRClientTest
+import com.adatao.ddf.DDF
 
 /**
  * author: daoduchuan
@@ -23,23 +24,23 @@ class GenericExecutorSuite extends ABigRClientTest {
 //    println(s">>>>> numColumns = ${result2.result}")
 //    assert(result2.result == "11")
 //  }
-
-  test("test generic executor with params") {
-    createTableAirline
-    val ddf = this.runSQL2RDDCmd("select * from airline", true)
-    val dcID = ddf.dataContainerID
-
-    val cmd = new GenericExecutor(dcID, "ddf.getVectorQuantiles",  Array("v1", "[0.1, 0.5, 0.9]"))
-
-    val result = bigRClient.execute[String](cmd)
-    println(s">>>>> quantile result = ${result.result}")
-
-    val cmd2 = new GenericExecutor(dcID, "ddf.Views.getRandomSample", Array("10", "false", "0"))
-    val result2 = bigRClient.execute[String](cmd2)
-    assert(result2.result != null)
-    print(s"ddf.Views.getRandomSample = ${result2.result}")
-  }
-
+//
+//  test("test generic executor with params") {
+//    createTableAirline
+//    val ddf = this.runSQL2RDDCmd("select * from airline", true)
+//    val dcID = ddf.dataContainerID
+//
+//    val cmd = new GenericExecutor(dcID, "ddf.getVectorQuantiles",  Array("v1", "[0.1, 0.5, 0.9]"))
+//
+//    val result = bigRClient.execute[String](cmd)
+//    println(s">>>>> quantile result = ${result.result}")
+//
+//    val cmd2 = new GenericExecutor(dcID, "ddf.Views.getRandomSample", Array("10", "false", "0"))
+//    val result2 = bigRClient.execute[String](cmd2)
+//    assert(result2.result != null)
+//    print(s"ddf.Views.getRandomSample = ${result2.result}")
+//  }
+//
 //  test("test generic executor for kmeans") {
 //    createTableAirline
 //    val ddf = this.runSQL2RDDCmd("select v1, v2, v3 from airline", true)
@@ -49,4 +50,9 @@ class GenericExecutorSuite extends ABigRClientTest {
 //    val result = bigRClient.execute[String](cmd)
 //    println(s">>>>> imodel = ${result.result}")
 //  }
+
+  test("test generic executor for DDFManager") {
+    val cmd = new GenericExecutor(null, "manager.sql2ddf", Array("\"select * from airline\""))
+    val result = bigRClient.execute[DDF](cmd)
+  }
 }

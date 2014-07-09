@@ -1,23 +1,28 @@
 package com.adatao.pa.spark.execution
 
-import com.google.gson.{Gson, JsonObject}
+import com.google.gson._
 import java.lang.reflect.Method
 import com.adatao.ML.Utils
 import com.adatao.ddf.util.Utils.ClassMethod
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
+import com.adatao.ddf.DDF
+import java.lang.reflect.Type
+import scala.Some
+import com.adatao.spark.ddf.SparkDDF
+
 
 /**
  * author: daoduchuan
  */
-class GenericExecutor(dcID: String, command: String, params: Array[String] = Array()) extends AExecutor[String] {
+class GenericExecutor(dcID: String, command: String, params: Array[String] = Array()) extends AExecutor[Object] {
 
-  override def runImpl(context: ExecutionContext): String = {
+  override def runImpl(context: ExecutionContext): Object = {
     val manager = context.sparkThread.getDDFManager
     val commandsChain = command.toLowerCase().split('.')
-    val gson = new Gson()
+    //val gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
 
-    val resultObj = commandsChain(0) match {
+    commandsChain(0) match {
       case "ddf" => {
         val ddfName = Utils.dcID2DDFID(dcID)
         val ddf = manager.getDDF(ddfName)
@@ -29,7 +34,6 @@ class GenericExecutor(dcID: String, command: String, params: Array[String] = Arr
       case _ => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error parsing command, " +
         "command must start with ddf or manager", null)
     }
-    gson.toJson(resultObj)
   }
 }
 
@@ -68,8 +72,7 @@ object GenericExecutor {
     val classMethods = obj.getClass.getMethods
     val methodName = commandChain.last
     val foundMethods = classMethods.filter(method => method.getName.toLowerCase == methodName.toLowerCase()).filter(method => method.getParameterTypes.size == params.size)
-    val gson = new Gson()
-
+    val gson: Gson = new Gson()
     if(foundMethods.size > 0) {
       var iter = foundMethods.toIterator
       var found = false

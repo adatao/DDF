@@ -11,6 +11,7 @@ import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.ddf.misc.ADDFFunctionalGroupHandler;
 import com.adatao.ddf.util.DDFUtils;
+import com.google.gson.annotations.Expose;
 
 /**
  */
@@ -21,7 +22,8 @@ public class SchemaHandler extends ADDFFunctionalGroupHandler implements
 		super(theDDF);
 	}
 
-	private Schema mSchema;
+	@Expose
+  private Schema mSchema;
 
 	@Override
 	public Schema getSchema() {

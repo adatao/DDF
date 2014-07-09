@@ -155,7 +155,7 @@ class BigRClient(serverHost: String, serverPort: Int) {
 
 	def execute[T](thriftClient: RCommands.Client, commandName: String, params: String)(implicit m: Manifest[T]): ExecutionResult[T] = {
 		val resultJson = this.executeImpl(thriftClient, commandName, params).getResult
-
+    LOG.info(">>>> get result json = " + resultJson)
 		if (false && classOf[ExecutorResult].isAssignableFrom(m.erasure)) {
 			// This is expecting a result from the old, deprecated CExecutor
 			ExecutionResult.fromJson[T](resultJson) match {

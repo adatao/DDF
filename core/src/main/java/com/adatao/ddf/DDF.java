@@ -90,6 +90,7 @@ public abstract class DDF extends ALoggable //
 
   private static final long serialVersionUID = -2198317495102277825L;
 
+  @Expose
   private Date mCreatedTime;
   /**
    * 
@@ -418,7 +419,9 @@ public abstract class DDF extends ALoggable //
   private IHandlePersistence mPersistenceHandler;
   private IHandleRepresentations mRepresentationHandler;
   private IHandleReshaping mReshapingHandler;
+  @Expose
   private IHandleSchema mSchemaHandler;
+
   private IHandleStreamingData mStreamingDataHandler;
   private IHandleTimeSeries mTimeSeriesHandler;
   private IHandleViews mViewHandler;
