@@ -196,7 +196,7 @@ object RootBuild extends Build {
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
       "com.adatao.ddf" % "ddf_core_2.10" %  rootVersion,
-      "com.adatao.ddf" % "ddf_spark_2_10" % rootVersion,
+      "com.adatao.ddf" % "ddf_spark_2.10" % rootVersion,
       "commons-configuration" % "commons-configuration" % "1.6",
       "com.google.guava" % "guava" % "14.0.1",
       "com.google.code.gson"% "gson" % "2.2.2",
