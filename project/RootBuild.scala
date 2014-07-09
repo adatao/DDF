@@ -115,7 +115,7 @@ object RootBuild extends Build {
 
   val spark_dependencies = Seq(
     "commons-configuration" % "commons-configuration" % "1.6",
-    "com.adatao.ddf" % "ddf_spark_2.10" % "0.9",
+    //"com.adatao.ddf" % "ddf_spark_2.10" % "0.9",
     "com.google.code.gson"% "gson" % "2.2.2",
     //"javax.jdo" % "jdo2-api" % "2.3-ec",
 //    "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
