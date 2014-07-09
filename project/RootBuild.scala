@@ -46,11 +46,6 @@ object RootBuild extends Build {
   val sparkVersion = rootVersion
   val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
-  
-  val enterpriseProjectName = projectName + "_enterprise"
-  val enterpriseVersion = rootVersion
-  val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
-  val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
 
   val paProjectName = projectName + "_pa"
   val paVersion = rootVersion
@@ -67,12 +62,11 @@ object RootBuild extends Build {
   val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
   val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
   
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark, examples, contrib,pa,enterprise)
-  lazy val spark = Project("spark", file("spark"), settings = sparkSettings) 
-  lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings)  dependsOn(spark)
-  lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark)
-  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark)
-  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, examples, contrib,pa)
+  lazy val spark_adatao = Project("spark_adatao", file("spark_adatao"), settings = sparkSettings)
+  lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark_adatao)
+  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark_adatao)
+  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark_adatao)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -505,14 +499,6 @@ object RootBuild extends Build {
     libraryDependencies ++= pa_dependencies,
     initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
 
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
-  def enterpriseSettings = commonSettings ++ Seq(
-    name := enterpriseProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch enterprise/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
