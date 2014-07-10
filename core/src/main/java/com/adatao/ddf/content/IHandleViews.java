@@ -26,7 +26,7 @@ public interface IHandleViews extends IHandleDDFFunctionalGroup {
 
   public DDF getRandomSample(double percent, boolean withReplacement, int seed);
 
-  public List<String> firstNRows(int numRows) throws DDFException;
+  public List<String> head(int numRows) throws DDFException;
   
   public List<String> top(int numRows, String orderCols, String mode) throws DDFException;
 

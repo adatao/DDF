@@ -128,7 +128,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
   // }
 
   @Override
-  public List<String> firstNRows(int numRows) throws DDFException {
+  public List<String> head(int numRows) throws DDFException {
     return this.getDDF().sql2txt(String.format("SELECT * FROM %%s LIMIT %d", numRows),
         String.format("Unable to fetch %d row(s) from table %%s", numRows));
   }
@@ -138,7 +138,7 @@ public class ViewHandler extends ADDFFunctionalGroupHandler implements IHandleVi
     DDF temp = sql2ddf(String.format("SELECT * FROM %%s order by %s %s", orderColumns, mode),
         String.format("Unable to fetch %d row(s) from table %%s", numRows));
     
-    return(temp.Views.firstNRows(numRows));
+    return(temp.VIEWS.head(numRows));
   }
 
   @Override

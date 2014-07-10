@@ -29,7 +29,7 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
     // val ddfModelID = context.sparkThread.getDataManager.getObject(modelID).asInstanceOf[TModel].ddfModelID
 
     val model = ddfManager.getModel(modelID)
-    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
     val cm = projectedDDF.ML.getConfusionMatrix(model, threshold)
     new BinaryConfusionMatrixResult(cm(0)(0), cm(1)(0), cm(0)(1), cm(1)(1))
   }

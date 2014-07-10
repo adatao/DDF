@@ -85,7 +85,7 @@ public class MissingDataHandler extends ADDFFunctionalGroupHandler implements IH
         cols = selectedColumns(numrows, columns);
       }
 
-      newddf = this.getDDF().Views.project(cols);
+      newddf = this.getDDF().VIEWS.project(cols);
 
     } else {
       throw new DDFException(

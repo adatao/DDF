@@ -46,7 +46,7 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
         String.format("Not found dataframe with id %s", modelID), null);
     }
-    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
     if (predictionDDF == null) {

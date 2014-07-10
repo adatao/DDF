@@ -47,8 +47,8 @@ public class ViewsFacade implements IHandleViews {
   }
 
   @Override
-  public List<String> firstNRows(int numRows) throws DDFException {
-    return mViewHandler.firstNRows(numRows);
+  public List<String> head(int numRows) throws DDFException {
+    return mViewHandler.head(numRows);
   }
   
   @Override

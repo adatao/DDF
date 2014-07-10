@@ -59,7 +59,7 @@ public class TopN extends CExecutor {
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     List<String> data;
     try {
-      data = ddf.Views.top(limit, orderedCols, mode);
+      data = ddf.VIEWS.top(limit, orderedCols, mode);
       return new FetchRows.FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
     } catch (Exception e) {
       LOG.error(String.format("Cannot fetch %s rows", limit), e);
