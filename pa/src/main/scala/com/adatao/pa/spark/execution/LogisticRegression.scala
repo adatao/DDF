@@ -57,7 +57,7 @@ class LogisticRegression(
     }
 
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    val projectDDF = ddf.Views.project(trainedColumns: _*)
+    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema

@@ -20,7 +20,7 @@ class XsYpred(dataContainerID: String, val modelID: String) extends AExecutor[Da
       throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "null model", null)
     }
     val featureColumns = model.getTrainedColumns
-    val projectedDDF = ddf.Views.project(featureColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(featureColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter.applyModel(model, false, true)
     ddfManager.addDDF(predictionDDF)

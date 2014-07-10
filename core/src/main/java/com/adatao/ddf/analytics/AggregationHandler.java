@@ -23,24 +23,6 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
   }
 
 
-  public static class FiveNumSumary implements Serializable {
-
-    private static final long serialVersionUID = -2810459228746952242L;
-
-    // private double mMin = Double.MAX_VALUE;
-    // private double mMax = Double.MIN_VALUE;
-    // private double first_quantile;
-    // private double median;
-    // private double third_quantile;
-
-  }
-
-
-  public FiveNumSumary getFiveNumSumary() {
-    // String cmd;
-    return null;
-  }
-
   @Override
   public double computeCorrelation(String columnA, String columnB) throws DDFException {
     if (!(this.getDDF().getColumn(columnA).isNumeric() || this.getDDF().getColumn(columnB).isNumeric())) {

@@ -160,7 +160,7 @@ public class SampleDataFrame implements IExecutor {
        * 
        * return new SampleDataFramePercentResult() .setDataContainerID(uid) .setMetaInfo(tdf.getMetaInfo());
        */
-      DDF sampleDDF = ddf.Views.getRandomSample(percent, replace, seed);
+      DDF sampleDDF = ddf.VIEWS.getRandomSample(percent, replace, seed);
       try {
         MetaInfo[] metaInfos = Utils.generateMetaInfo(sampleDDF.getSchema());
         String dcID = Utils.getDataContainerID(sampleDDF);
@@ -181,7 +181,7 @@ public class SampleDataFrame implements IExecutor {
        * if(data != null && data.size() > 0) { return new SampleDataFrameSizeResult()
        * .setDataContainerID(dataContainerID) .setData(data);
        */
-      List<Object[]> data = ddf.Views.getRandomSample(size, replace, seed);
+      List<Object[]> data = ddf.VIEWS.getRandomSample(size, replace, seed);
       if (data != null && data.size() > 0) {
         return new SampleDataFrameSizeResult().setDataContainerID(dataContainerID).setData(data);
       } else {

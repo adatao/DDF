@@ -80,7 +80,7 @@ public class Subset extends CExecutor {
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     DDF ddf = sparkThread.getDDFManager().getDDF(dataContainerID);
     try {
-      DDF subset = ddf.Views.subset(columns, filter);
+      DDF subset = ddf.VIEWS.subset(columns, filter);
       return new SubsetResult().setDataContainerID(subset.getName()).setMetaInfo(
           Utils.generateMetaInfo(subset.getSchema()));
 
