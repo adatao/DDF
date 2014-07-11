@@ -12,16 +12,19 @@ import com.adatao.ddf.util.Utils;
 import com.adatao.ddf.types.AggregateTypes.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.base.Joiner;
 
 /**
  * 
  */
 public class AggregationHandler extends ADDFFunctionalGroupHandler implements IHandleAggregation {
 
+  private List<String> mGroupedColumns;
+
+
   public AggregationHandler(DDF theDDF) {
     super(theDDF);
   }
-
 
   @Override
   public double computeCorrelation(String columnA, String columnB) throws DDFException {
@@ -78,7 +81,6 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     return this.aggregate(fields);
   }
 
-
   @Override
   public double aggregateOnColumn(AggregateFunction function, String column) throws DDFException {
     return Double.parseDouble(this.getManager()
@@ -100,9 +102,11 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
       selectFuncSql += "," + convertFunc2Sql(aggregateFunctions.get(i));
     }
 
-//    if(aggregateFunctions.size() > 0 && groupedColumns.size() > 0) groupedColSql = "," + groupedColSql;
-    
-    String sqlCmd = String.format("SELECT %s , %s FROM %s GROUP BY %s", selectFuncSql, groupedColSql, tableName, groupedColSql);
+    // if(aggregateFunctions.size() > 0 && groupedColumns.size() > 0)
+    // groupedColSql = "," + groupedColSql;
+
+    String sqlCmd = String.format("SELECT %s , %s FROM %s GROUP BY %s", selectFuncSql, groupedColSql, tableName,
+        groupedColSql);
     mLog.info("SQL Command: " + sqlCmd);
 
     try {
@@ -126,5 +130,53 @@ public class AggregationHandler extends ADDFFunctionalGroupHandler implements IH
     return s;
   }
 
+  @Override
+  public DDF groupBy(List<String> groupedColumns) {
+    mGroupedColumns = groupedColumns;
+    return this.getDDF();
+  }
 
+  @Override
+  public DDF agg(List<String> aggregateFunctions) throws DDFException {
+
+    if (mGroupedColumns.size() > 0) {
+      String tableName = this.getDDF().getTableName();
+
+      String groupedColSql = Joiner.on(",").join(mGroupedColumns);
+
+      String selectFuncSql = convertAggregateFunctionsToSql(aggregateFunctions.get(0));
+      for (int i = 1; i < aggregateFunctions.size(); i++) {
+        selectFuncSql += "," + convertAggregateFunctionsToSql(aggregateFunctions.get(i));
+      }
+
+      String sqlCmd = String.format("SELECT %s , %s FROM %s GROUP BY %s", selectFuncSql, groupedColSql, tableName,
+          groupedColSql);
+      mLog.info("SQL Command: " + sqlCmd);
+
+      try {
+        DDF resultDDF = this.getManager().sql2ddf(sqlCmd);
+        this.getManager().addDDF(resultDDF);
+        return resultDDF;
+
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw new DDFException("Unable to query from " + tableName, e);
+      }
+      
+    } else {
+      throw new DDFException("Need to set grouped columns before aggregation");
+    }
+  }
+  
+  private String convertAggregateFunctionsToSql(String s) {
+    if (s == null) return s;
+
+    String[] splits = s.trim().split("=");
+    if (splits.length == 2) {
+      return AggregateField.fromFieldSpec(splits[1]).setName(splits[0]).toString();
+    } else if (splits.length == 1) { // no name for aggregated value
+      return AggregateField.fromFieldSpec(splits[0]).toString();
+    }
+    return s;
+  }
 }

@@ -19,5 +19,9 @@ public interface IHandleAggregation extends IHandleDDFFunctionalGroup {
 
   public double aggregateOnColumn(AggregateFunction function, String col) throws DDFException;
 
+  public DDF agg(List<String> aggregateFunctions) throws DDFException;
+
+  public DDF groupBy(List<String> groupedColumns);
+
 }
 

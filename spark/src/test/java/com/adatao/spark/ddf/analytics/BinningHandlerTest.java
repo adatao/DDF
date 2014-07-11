@@ -88,7 +88,7 @@ public class BinningHandlerTest {
 
 		Assert.assertEquals(3, ddf.getSchemaHandler().getColumn("distance")
 				.getOptionalFactor().getLevelMap().size());
-		Assert.assertEquals("[162,869]",ddf.Views.firstNRows(3).get(0).split("\t")[6]);
+		Assert.assertEquals("[162,869]",ddf.VIEWS.head(3).get(0).split("\t")[6]);
 		System.out.println(">>>>>NEW 1st ROW" +ddf.getSchemaHandler().getColumn("distance")
         .getOptionalFactor().getLevelMap().keySet().toString());//[162,869], (869,1576], (1576,2283]
 		

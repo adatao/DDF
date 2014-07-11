@@ -76,6 +76,7 @@ public class AggregateTypes {
  public static class AggregateField {
    public String mColumn;
    public AggregateFunction mAggregateFunction;
+   public String mName="";
 
 
    /**
@@ -103,6 +104,11 @@ public class AggregateTypes {
      if (Strings.isNullOrEmpty(mColumn)) mColumn = "*";
      mAggregateFunction = aggregateFunction;
    }
+   
+   public AggregateField setName(String name) {
+     mName = name;
+     return this;
+   }
 
    public boolean isAggregated() {
      return (mAggregateFunction != null);
@@ -118,7 +124,11 @@ public class AggregateTypes {
 
    @Override
    public String toString() {
-     return this.isAggregated() ? this.getAggregateFunction().toString(this.getColumn()) : this.getColumn();
+     //return this.isAggregated() ? this.getAggregateFunction().toString(this.getColumn()) : this.getColumn();
+     if (this.isAggregated()) {
+       String func = this.getAggregateFunction().toString(this.getColumn());
+       return Strings.isNullOrEmpty(mName) ? func : String.format("%s AS %s",func, mName);
+     } else return this.getColumn();
    }
 
    /**
@@ -156,20 +166,24 @@ public class AggregateTypes {
      List<AggregateField> fields = Lists.newArrayList();
      for (String spec : specs) {
        if (Strings.isNullOrEmpty(spec)) continue;
-
-       spec = spec.trim();
-       String[] parts = spec.split("\\(");
-       if (parts.length == 1) {
-         fields.add(new AggregateField(parts[0])); // just column name
-
-       } else {
-         fields.add(new AggregateField(parts[0], parts[1].replaceAll("\\)", ""))); // function(columnName)
-       }
+       fields.add(fromFieldSpec(spec));
      }
 
      return fields;
    }
 
+   public static AggregateField fromFieldSpec(String fieldSpec) {
+     if (Strings.isNullOrEmpty(fieldSpec)) return null;
+
+       String spec = fieldSpec.trim();
+       String[] parts = spec.split("\\(");
+       if (parts.length == 1) {
+         return new AggregateField(parts[0]); // just column name
+
+       } else {
+         return new AggregateField(parts[0], parts[1].replaceAll("\\)", "")); // function(columnName)
+       }
+   }
    private static String toSqlFieldSpecs(List<AggregateField> fields) {
      return toSqlSpecs(fields, true);
    }

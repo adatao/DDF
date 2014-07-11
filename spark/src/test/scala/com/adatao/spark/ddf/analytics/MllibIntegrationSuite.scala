@@ -87,7 +87,7 @@ class MllibIntegrationSuite extends ATestSuite {
       0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray)
     val yTrueYpred = ddfPredict2.ML.applyModel(regressionModel, true, true)
     val yPred = ddfPredict2.ML.applyModel(kmeansModel, false, true)
-    val nrows = yTrueYpred.Views.firstNRows(10)
+    val nrows = yTrueYpred.VIEWS.head(10)
     println("YTrue YPred")
     for (x <- nrows) println(x)
 

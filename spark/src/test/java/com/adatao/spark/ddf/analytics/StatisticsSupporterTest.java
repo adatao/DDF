@@ -1,7 +1,6 @@
 package com.adatao.spark.ddf.analytics;
 
 
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -13,7 +12,6 @@ import com.adatao.ddf.DDFManager;
 import com.adatao.ddf.analytics.AStatisticsSupporter.FiveNumSummary;
 import com.adatao.ddf.exception.DDFException;
 import com.adatao.spark.ddf.SparkDDF;
-import com.adatao.spark.ddf.SparkDDFManager;
 
 
 
@@ -26,10 +24,6 @@ public class StatisticsSupporterTest {
   @Before
   public void setUp() throws Exception {
     manager = DDFManager.get("spark");
-    Map<String, String> params = ((SparkDDFManager) manager).getSparkContextParams();
-    System.out.println(System.getProperty("spark.serializer"));
-    System.out.println(params.get("DDFSPARK_JAR"));
-
     manager.sql2txt("drop table if exists airline");
 
     manager.sql2txt("create table airline (Year int,Month int,DayofMonth int,"
@@ -63,8 +57,8 @@ public class StatisticsSupporterTest {
   @Test
   public void testSampling() throws DDFException {
     DDF ddf2 = manager.sql2ddf("select * from airline");
-    Assert.assertEquals(25, ddf2.Views.getRandomSample(25).size());
-    SparkDDF sampleDDF = (SparkDDF) ddf2.Views.getRandomSample(0.5, false, 1);
+    Assert.assertEquals(25, ddf2.VIEWS.getRandomSample(25).size());
+    SparkDDF sampleDDF = (SparkDDF) ddf2.VIEWS.getRandomSample(0.5, false, 1);
     Assert.assertTrue(sampleDDF.getRDD(Object[].class).count() > 10);
   }
   
@@ -81,7 +75,6 @@ public class StatisticsSupporterTest {
     DDF ddf2 = manager.sql2ddf("select * from airline");
     Double a = ddf2.getVectorMean("year");
     assert(a != null);
-    System.out.println(">>>>> testVectorMean = " + a);
   }
   
   @Test
@@ -89,7 +82,6 @@ public class StatisticsSupporterTest {
     DDF ddf2 = manager.sql2ddf("select * from airline");
     Double a = ddf2.getVectorCor("year", "month");
     assert(a != null);
-    System.out.println(">>>>> testVectorCor = " + a);
   }
 
   @Test

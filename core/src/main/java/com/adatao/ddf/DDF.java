@@ -355,14 +355,12 @@ public abstract class DDF extends ALoggable //
     }
   }
 
-
-  // ///// Aggregate operations
-
-  public RFacade R;
-
   public DDF transform(String transformExpression) throws DDFException {
     return Transform.transformUDF(transformExpression);
   }
+  // ///// Aggregate operations
+
+  public RFacade R;
 
   /**
    * 
@@ -398,6 +396,14 @@ public abstract class DDF extends ALoggable //
   
   public DDF groupBy(List<String> groupedColumns, List<String> aggregateFunctions) throws DDFException {
     return this.getAggregationHandler().groupBy(groupedColumns, aggregateFunctions);
+  }
+  
+  public DDF groupBy(List<String> groupedColumns) {
+    return this.getAggregationHandler().groupBy(groupedColumns);
+  }
+  
+  public DDF aggregate(List<String> aggregateFunctions) throws DDFException {
+    return this.getAggregationHandler().agg(aggregateFunctions);
   }
   // ///// binning 
   public DDF binning(String column, String binningType, int numBins, double[] breaks, boolean includeLowest,

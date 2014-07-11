@@ -45,7 +45,7 @@ class RepresentationHandlerSuite extends ATestSuite {
     ddf.getRepresentationHandler.remove(classOf[RDD[_]], classOf[TablePartition])
     val keys = ddf.getRepresentationHandler.getAllRepresentations.keySet()
     LOG.info(">>>> keys = " + keys.mkString(", "))
-    ddf.Views.firstNRows(10)
+    ddf.VIEWS.head(10)
     ddf.getNumRows
     val arrObj = ddf.getRDD(classOf[Array[Object]])
     assert(arrObj != null)
@@ -143,7 +143,7 @@ class RepresentationHandlerSuite extends ATestSuite {
       "z2 = disp * 0.4251437075, " +
       "z3 = rpois(nrow(df.partition), 1000)")
 
-    val st= newDDF.Views.firstNRows(32)
+    val st= newDDF.VIEWS.head(32)
     val ddf1 = manager.sql2ddf(s"select * from ${newDDF.getTableName}")
 
     assert(ddf1 != null)
