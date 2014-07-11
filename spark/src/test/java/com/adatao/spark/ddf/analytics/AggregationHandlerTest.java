@@ -63,14 +63,14 @@ public class AggregationHandlerTest {
   @Test
   public void testGroupBy() throws DDFException {
     List<String> l1 = Arrays.asList("year", "month");
-    List<String> l2 = Arrays.asList("m=avg(depdelay)");
-    List<String> l3 = Arrays.asList("m= stddev_pop(arrdelay)");
+    List<String> l2 = Arrays.asList("m=mean(depdelay)");
+    List<String> l3 = Arrays.asList("m= stddev(arrdelay)");
     
-//    Assert.assertEquals(13, ddf.groupBy(l1, l2).getNumRows());
-//    Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek"), l3).getNumRows() > 0);
+    Assert.assertEquals(13, ddf.groupBy(l1, l2).getNumRows());
+    Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek"), l3).getNumRows() > 0);
     
-    Assert.assertEquals(13, ddf.groupBy(l1).aggregate(l2).getNumRows());
-    Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek")).aggregate(l3).getNumRows() > 0);
+    Assert.assertEquals(13, ddf.groupBy(l1).agg(l2).getNumRows());
+    Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek")).agg(l3).getNumRows() > 0);
   }
 
   @After

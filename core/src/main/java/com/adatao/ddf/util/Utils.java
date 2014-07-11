@@ -2,6 +2,7 @@ package com.adatao.ddf.util;
 
 
 import com.adatao.ddf.content.ISerializable;
+import com.adatao.ddf.content.Schema.Column;
 import com.adatao.ddf.exception.DDFException;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -219,7 +220,21 @@ public class Utils {
     }
   }
 
+/**
+ * 
+ * @param str e.g., "a, b, c"
+ * @return {"a","b","c"}
+ */
+  public static List<String> parseStringList(String str) {
+    if (Strings.isNullOrEmpty(str)) return null;
+    List<String> res = Lists.newArrayList();
+    String[] segments = str.split(" *, *");
+    for (String segment : segments) {
+      res.add(segment.trim());
+    }
 
+    return res;
+  }
   public static class JsonSerDes {
 
     public static final String SERDES_CLASS_NAME_FIELD = "_class";

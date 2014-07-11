@@ -402,7 +402,7 @@ public abstract class DDF extends ALoggable //
     return this.getAggregationHandler().groupBy(groupedColumns);
   }
   
-  public DDF aggregate(List<String> aggregateFunctions) throws DDFException {
+  public DDF agg(List<String> aggregateFunctions) throws DDFException {
     return this.getAggregationHandler().agg(aggregateFunctions);
   }
   // ///// binning 
