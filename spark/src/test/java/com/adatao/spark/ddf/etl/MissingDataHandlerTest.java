@@ -52,7 +52,7 @@ public class MissingDataHandlerTest {
   @Test
   @Ignore
   public void testFillNA() throws DDFException {
-    DDF ddf1 = ddf.Views.project(Arrays.asList("year", "origin", "securitydelay", "lateaircraftdelay"));
+    DDF ddf1 = ddf.VIEWS.project(Arrays.asList("year", "origin", "securitydelay", "lateaircraftdelay"));
 
     // test fill by scalar value
     DDF newddf = ddf1.fillNA("0");

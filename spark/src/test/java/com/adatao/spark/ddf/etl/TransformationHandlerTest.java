@@ -44,7 +44,7 @@ public class TransformationHandlerTest {
     DDF newddf = ddf.Transform.transformNativeRserve("newcol = deptime / arrtime");
     System.out.println("name " + ddf.getName());
     System.out.println("newname " + newddf.getName());
-    List<String> res = ddf.Views.firstNRows(10);
+    List<String> res = ddf.VIEWS.head(10);
     Assert.assertNotNull(newddf);
     Assert.assertEquals("newcol", newddf.getColumnName(9));
     Assert.assertEquals(10, res.size());
@@ -96,7 +96,7 @@ public class TransformationHandlerTest {
     Assert.assertEquals(31, ddf.getNumRows());
     Assert.assertEquals(9, ddf.getNumColumns());
     Assert.assertEquals("dist", ddf.getColumnName(8));    
-    Assert.assertEquals(9, ddf.Views.firstNRows(1).get(0).split("\\t").length);
+    Assert.assertEquals(9, ddf.VIEWS.head(1).get(0).split("\\t").length);
     
     //udf without assigning column name
     ddf.Transform.transformUDF("arrtime-deptime");

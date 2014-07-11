@@ -1,10 +1,10 @@
 package com.adatao.spark.ddf.analytics
 
-import org.apache.spark.{TaskContext, Partition}
+import org.apache.spark.{ TaskContext, Partition }
 import org.apache.spark.rdd.RDD
 import java.util.Random
-import com.adatao.ddf.{DDFManager, DDF}
-import java.util.{List => JList}
+import com.adatao.ddf.{ DDFManager, DDF }
+import java.util.{ List => JList }
 import com.adatao.spark.ddf.SparkDDF
 import shark.api.Row
 import com.adatao.ddf.exception.DDFException
@@ -12,18 +12,16 @@ import java.util
 import com.adatao.ddf.content.Schema
 import shark.memstore2.TablePartition
 
-private[adatao]
-class SeededPartition(val prev: Partition, val seed: Int) extends Partition with Serializable {
+private[adatao] class SeededPartition(val prev: Partition, val seed: Int) extends Partition with Serializable {
   override val index: Int = prev.index
 }
 
-private[adatao]
-class RandomSplitRDD[T: ClassManifest](
-                                        prev: RDD[T],
-                                        seed: Long,
-                                        lower: Double,
-                                        upper: Double,
-                                        isTraining: Boolean)
+private[adatao] class RandomSplitRDD[T: ClassManifest](
+  prev: RDD[T],
+  seed: Long,
+  lower: Double,
+  upper: Double,
+  isTraining: Boolean)
   extends RDD[T](prev) {
 
   override def getPartitions: Array[Partition] = {
@@ -55,10 +53,11 @@ class RandomSplitRDD[T: ClassManifest](
 }
 
 object CrossValidation {
-  /** Return an Iterator of size k of (train, test) RDD Tuple
-    * for which the probability of each element belonging to each split is (trainingSize, 1-trainingSize).
-    * The train & test data across k split are shuffled differently (different random seed for each iteration).
-    */
+  /**
+   * Return an Iterator of size k of (train, test) RDD Tuple
+   * for which the probability of each element belonging to each split is (trainingSize, 1-trainingSize).
+   * The train & test data across k split are shuffled differently (different random seed for each iteration).
+   */
   def randomSplit[T](rdd: RDD[T], numSplits: Int, trainingSize: Double, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
     require(0 < trainingSize && trainingSize < 1)
     val rg = new Random(seed)
@@ -67,17 +66,17 @@ object CrossValidation {
         new RandomSplitRDD(rdd, z, 0, 1.0 - trainingSize, false))).toIterator
   }
 
-  /** Return an Iterator of of size k of (train, test) RDD Tuple
-    * for which the probability of each element belonging to either split is ((k-1)/k, 1/k).
-    * The location of the test data is shifted consistently between folds
-    * so that the resulting test sets are pair-wise disjoint.
-    */
+  /**
+   * Return an Iterator of of size k of (train, test) RDD Tuple
+   * for which the probability of each element belonging to either split is ((k-1)/k, 1/k).
+   * The location of the test data is shifted consistently between folds
+   * so that the resulting test sets are pair-wise disjoint.
+   */
   def kFoldSplit[T](rdd: RDD[T], numSplits: Int, seed: Long)(implicit _cm: ClassManifest[T]): Iterator[(RDD[T], RDD[T])] = {
     require(numSplits > 0)
     (for (lower <- 0.0 until 1.0 by 1.0 / numSplits)
-    yield (new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, true),
-        new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, false))
-      ).toIterator
+      yield (new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, true),
+      new RandomSplitRDD(rdd, seed, lower, lower + 1.0 / numSplits, false))).toIterator
   }
 
   def DDFRandomSplit(ddf: DDF, numSplits: Int, trainingSize: Double, seed: Long): JList[JList[DDF]] = {
@@ -161,7 +160,6 @@ object CrossValidation {
 
       val tableName1 = trainDDF.getSchemaHandler.newTableName()
       trainDDF.getSchema.setTableName(tableName1)
-
 
       val testSchema = new Schema(null, schema.getColumns)
       val testDDF = new SparkDDF(manager, test, unitType, nameSpace,

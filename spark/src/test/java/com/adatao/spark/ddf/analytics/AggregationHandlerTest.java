@@ -55,19 +55,22 @@ public class AggregationHandlerTest {
 
     Assert.assertEquals(0.87, ddf.correlation("arrdelay", "depdelay"), 0.0);
     // project subset
-    Assert.assertEquals(3, ddf.Views.project(new String[] { "year", "month", "deptime" }).getNumColumns());
-    Assert.assertEquals(5, ddf.Views.firstNRows(5).size());
+    Assert.assertEquals(3, ddf.VIEWS.project(new String[] { "year", "month", "deptime" }).getNumColumns());
+    Assert.assertEquals(5, ddf.VIEWS.head(5).size());
     // manager.shutdown();
   }
 
   @Test
   public void testGroupBy() throws DDFException {
     List<String> l1 = Arrays.asList("year", "month");
-    List<String> l2 = Arrays.asList("m=avg(depdelay)");
-    List<String> l3 = Arrays.asList("m= stddev_pop(arrdelay)");
+    List<String> l2 = Arrays.asList("m=mean(depdelay)");
+    List<String> l3 = Arrays.asList("m= stddev(arrdelay)");
     
     Assert.assertEquals(13, ddf.groupBy(l1, l2).getNumRows());
     Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek"), l3).getNumRows() > 0);
+    
+    Assert.assertEquals(13, ddf.groupBy(l1).agg(l2).getNumRows());
+    Assert.assertTrue(ddf.groupBy(Arrays.asList("dayofweek")).agg(l3).getNumRows() > 0);
   }
 
   @After
