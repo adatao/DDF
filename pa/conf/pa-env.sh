@@ -93,14 +93,15 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name bigr-server-assembly-*.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_pa-assembly-0.9.jar
+        export SPARK_YARN_APP_JAR=hdfs://smaster.adatao.com:9000/user/root/ddf_pa-assembly-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
         [ "X$SPARK_WORKER_CORES" == "X" ] && echo "Notice! SPARK_WORKER_CORES is not defined, the default value will be used instead"
 elif [ "X$cluster" == "Xmesos" ]; then
         echo "Running pAnalytics with Mesos"
-        #export SPARK_MASTER= #mesos://<host>:<port>
+        #export SPARK_MASTER=mesos://smaster.adatao.com:5050
+
 elif [ "X$cluster" == "Xspark" ]; then
         echo "Running pAnalytics with Spark"
         #export SPARK_MASTER= #spark://<host>:<port>
