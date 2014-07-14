@@ -39,7 +39,7 @@ object RootBuild extends Build {
   val projectName = "ddf"
   val rootProjectName = projectName
 
-  val YARN_ENABLED = env("SPARK_YARN").getOrElse("false").toBoolean
+  val YARN_ENABLED = env("SPARK_YARN").getOrElse("true").toBoolean
 
   //val rootVersion = "0.9"
   val rootVersion = if(YARN_ENABLED) {
