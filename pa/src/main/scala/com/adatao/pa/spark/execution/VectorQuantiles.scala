@@ -23,7 +23,7 @@ import com.adatao.pa.spark.types.NumericHistogram
 import org.apache.spark.rdd.RDD
 import java.util.regex.Pattern
 import scala.collection.mutable.{ ArrayBuffer, Map, HashMap }
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 
 import com.adatao.ML.Utils
 

@@ -23,7 +23,7 @@ import scala.collection.JavaConversions._
 import org.apache.hadoop.io.Text
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
-import com.adatao.ddf.types.Matrix
+import io.ddfatrix
 import com.adatao.ddf.types.Vector
 import shark.memstore2.TablePartition
 import shark.memstore2.column._

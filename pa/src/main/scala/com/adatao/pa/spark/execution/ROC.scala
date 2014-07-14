@@ -16,8 +16,8 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import com.adatao.ML.TModel
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.{ Utils ⇒ MLUtils }
@@ -33,8 +33,8 @@ import com.adatao.ML.LinearRegressionModel
 import java.util.HashMap
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.RocMetric
+import io.ddf.DDF
+import io.ddf.ml.RocMetric
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessfulResult
 import com.adatao.pa.spark.types.FailedResult

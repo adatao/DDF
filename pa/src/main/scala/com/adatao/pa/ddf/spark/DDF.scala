@@ -1,7 +1,7 @@
 package com.adatao.pa.ddf.spark
 
 import com.adatao.pa.spark.DataManager.MetaInfo
-import com.adatao.ddf.ml.{ RocMetric, IModel }
+import io.ddf.ml.{ RocMetric, IModel }
 import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
@@ -11,7 +11,7 @@ import com.adatao.pa.spark.DDF.content.Schema
 import java.util.{ List => JList }
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import com.adatao.pa.spark.DDF.analytics.MLFacade
-import com.adatao.ddf.content.Schema.Column
+import io.ddf.content.Schema.Column
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.DDF.content.SchemaHandler
 import com.adatao.pa.spark.execution.SetDDFName.SetDDFNameResult
@@ -19,8 +19,8 @@ import java.util.ArrayList
 import org.apache.commons.lang.StringUtils
 import com.adatao.pa.spark.execution.Subset.SubsetResult
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
-import com.adatao.ddf.content.ViewHandler._
-import com.adatao.ddf.content.ViewHandler
+import io.ddf.content.ViewHandler._
+import io.ddf.content.ViewHandler
 import com.adatao.pa.spark.Utils._
 
 /**

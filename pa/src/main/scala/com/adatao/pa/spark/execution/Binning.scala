@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import scala.annotation.tailrec
 
 
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.Utils
 import shark.api.JavaSharkContext

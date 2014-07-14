@@ -20,7 +20,7 @@ import java.lang.String
 import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
-import com.adatao.ddf.types.Matrix
+import io.ddfatrix
 import com.adatao.ddf.types.Vector
 
 /**

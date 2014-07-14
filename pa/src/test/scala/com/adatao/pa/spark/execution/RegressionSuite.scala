@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 import com.adatao.spark.ddf.analytics.{IRLSLogisticRegressionModel, NQLinearRegressionModel}
 
 //import com.adatao.spark.ddf.analytics.LogisticRegressionModel

@@ -21,8 +21,8 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.Utils
 import com.adatao.ML.TModel
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
 import com.adatao.ML.LogisticRegressionModel
 import com.adatao.ML.ALossFunction
@@ -31,9 +31,9 @@ import java.util.HashMap
 import java.util.List
 import java.util.ArrayList
 
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  * Entry point for SparkThread executor

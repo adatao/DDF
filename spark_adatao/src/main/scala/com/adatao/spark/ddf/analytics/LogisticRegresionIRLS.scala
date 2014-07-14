@@ -1,14 +1,14 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.ddf.types.TupleMatrixVector
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.TupleMatrixVector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
 import org.jblas.Solve
 import java.util.HashMap
-import com.adatao.ddf.exception.DDFException
+import io.ddf.exception.DDFException
 
 class LogisticRegresionIRLS {
 

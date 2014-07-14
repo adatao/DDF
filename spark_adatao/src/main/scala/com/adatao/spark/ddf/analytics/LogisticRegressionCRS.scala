@@ -6,11 +6,11 @@ import scala.util.Random
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.MatrixFunctions
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.MatrixSparse
-import com.adatao.ddf.types.TupleMatrixVector
-import com.adatao.ddf.types.Vector
-import com.adatao.ddf.content.Schema.DummyCoding
+import io.ddf.types.Matrix
+import io.ddf.types.MatrixSparse
+import io.ddf.types.TupleMatrixVector
+import io.ddf.types.Vector
+import io.ddf.content.Schema.DummyCoding
 
 class LogisticRegressionCRS {
 

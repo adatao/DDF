@@ -9,7 +9,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfterAll
 import shark.SharkContext
-import com.adatao.ddf.DDFManager
+import io.ddf.DDFManager
+import io.spark.ddf.SparkDDFManager
 
 /**
  * This makes a Logger LOG variable available to the test suite.

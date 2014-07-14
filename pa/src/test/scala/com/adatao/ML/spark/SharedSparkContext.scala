@@ -22,7 +22,7 @@ import org.scalatest.Suite
 import org.scalatest.BeforeAndAfterAll
 import org.apache.spark.SparkContext
 import org.apache.spark.api.java.JavaSparkContext
-import com.adatao.ddf.DDFManager
+import io.ddf.DDFManager
 import com.adatao.spark.ddf.SparkDDFManager
 
 /**

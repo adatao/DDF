@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.Subset.SubsetResult
-import com.adatao.ddf.analytics.Summary
+import io.ddf.analytics.Summary
 import org.junit.Assert.assertEquals
 
 /**

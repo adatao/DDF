@@ -2,7 +2,7 @@ package com.adatao.ML.spark
 
 import java.util.HashMap
 import org.jblas.DoubleMatrix
-import com.adatao.ddf.types.Matrix
+import io.ddfatrix
 import com.adatao.ddf.types.Vector
 import java.util.Arrays
 import org.apache.log4j.BasicConfigurator;

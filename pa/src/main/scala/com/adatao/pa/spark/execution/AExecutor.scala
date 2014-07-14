@@ -20,8 +20,8 @@
 package com.adatao.pa.spark.execution
 import scala.Array.canBuildFrom
 import com.google.gson.Gson
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import com.adatao.ML._
 import com.adatao.pa.spark.SparkThread
 import org.apache.spark.rdd.RDD
@@ -42,9 +42,9 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import java.util.HashMap
 import org.apache.spark.api.java.JavaSparkContext
-import com.adatao.ddf.DDFManager
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.Model
+import io.ddf.DDFManager
+import io.ddf.DDF
+import io.ddf.ml.Model
 
 /**
  * These classes belong to the package [[com.adatao.pa.spark.execution]], which concern

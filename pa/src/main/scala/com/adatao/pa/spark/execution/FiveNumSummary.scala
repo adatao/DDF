@@ -28,9 +28,9 @@ import shark.api.JavaSharkContext
 import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 import com.adatao.ML.Utils
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 
 /**
  * Created with IntelliJ IDEA.

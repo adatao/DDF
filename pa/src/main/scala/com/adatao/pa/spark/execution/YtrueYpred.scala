@@ -4,16 +4,16 @@ import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import com.adatao.pa.spark.{ SharkUtils, DataManager }
 import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Vector
 import com.adatao.ML.spark.RddUtils
 import org.apache.spark.api.java.JavaRDD
 import shark.api.JavaSharkContext
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.IModel
+import io.ddf.DDF
+import io.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.ML.Utils
-import com.adatao.ddf.exception.DDFException
+import io.ddf.exception.DDFException
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,

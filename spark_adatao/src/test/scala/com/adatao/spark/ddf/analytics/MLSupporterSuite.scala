@@ -1,9 +1,10 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.spark.ddf.{SparkDDF, ATestSuite}
-import com.adatao.ddf.{DDF, DDFManager}
-import com.adatao.ddf.ml.IModel
+import io.spark.ddf.{SparkDDF}
+import io.ddf.{DDF, DDFManager}
+import io.ddf.ml.IModel
 import org.apache.spark.rdd.RDD
+import com.adatao.spark.ddf.ATestSuite
 
 /**
  * author: daoduchuan

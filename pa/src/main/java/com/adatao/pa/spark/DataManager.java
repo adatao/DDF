@@ -34,8 +34,8 @@ import shark.api.JavaTableRDD;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
 import com.adatao.pa.spark.SharkUtils;
-import com.adatao.ddf.types.Matrix;
-import com.adatao.ddf.types.Vector;
+import io.ddf.types.Matrix;
+import io.ddf.types.Vector;
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult;
 
 @SuppressWarnings("serial")

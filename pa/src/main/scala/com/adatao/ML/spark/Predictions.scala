@@ -1,7 +1,7 @@
 package com.adatao.ML.spark
 /*
 import com.adatao.ML._
-import com.adatao.ddf.types.Matrix
+import io.ddfatrix
 import com.adatao.ddf.types.Vector
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager.SharkDataFrame

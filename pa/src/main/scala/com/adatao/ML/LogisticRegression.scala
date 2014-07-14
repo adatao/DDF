@@ -21,9 +21,8 @@ import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
-import java.util.HashMap
+import io.ddfatrix
+import com.adatio.ddfecio.ddfa.util.HashMap
 import com.adatao.ddf.ml.IModel
 import org.apache.spark.rdd.RDD
 
