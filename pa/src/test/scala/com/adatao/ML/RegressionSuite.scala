@@ -22,7 +22,7 @@ package com.adatao.ML
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import io.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Vector
 
 /**
  * @author ctn
