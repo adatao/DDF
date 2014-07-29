@@ -6,7 +6,7 @@ import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 import io.ddf.DDF
 import io.ddf.ml.IModel
-import com.adatao.spark.ddf.SparkDDF
+import io.spark.ddf.SparkDDF
 
 /**
  * Created with IntelliJ IDEA.

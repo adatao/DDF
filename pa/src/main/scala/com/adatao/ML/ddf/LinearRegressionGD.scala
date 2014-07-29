@@ -22,6 +22,7 @@ import com.adatao.ML.ALossFunction
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.ML.Utils
 import io.ddf.types.TupleMatrixVector
+import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
