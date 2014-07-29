@@ -60,8 +60,6 @@
 	<modules>
 	  <module>spark_adatao</module>
           <module>pa</module>
-          <module>enterprise</module>
-	  <module>contrib</module>
 	  <module>examples</module>
 	</modules>
 
