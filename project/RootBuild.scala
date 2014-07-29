@@ -123,11 +123,13 @@ object RootBuild extends Build {
 
   val spark_adatao_dependencies = Seq(
     "io.ddf" % "core_2.10" %  rootVersion,
-    "io.ddf" % "spark_2.10" % rootVersion
+    "io.ddf" % "spark_2.10" % rootVersion,
+    "com.novocode" % "junit-interface" % "0.10" % "test"
   )
 
   val pa_dependencies = Seq(
-    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14"
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
+    "com.novocode" % "junit-interface" % "0.10" % "test"
     //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
 
