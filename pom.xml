@@ -59,8 +59,7 @@
 	
 	<modules>
 	  <module>spark_adatao</module>
-          <module>pa</module>
-          <module>enterprise</module>
+    <module>pa</module>
 	  <module>contrib</module>
 	  <module>examples</module>
 	</modules>
@@ -70,12 +69,12 @@
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>2.9.3</version>
+			<version>2.10.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_2.9.3</artifactId>
+			<artifactId>scalatest_2.10</artifactId>
 			<version>1.9.1</version>
 			<scope>test</scope>
 		</dependency>
