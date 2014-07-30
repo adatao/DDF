@@ -59,12 +59,7 @@
 	
 	<modules>
 	  <module>spark_adatao</module>
-<<<<<<< HEAD
     <module>pa</module>
-	  <module>contrib</module>
-=======
-          <module>pa</module>
->>>>>>> FETCH_HEAD
 	  <module>examples</module>
 	</modules>
 
