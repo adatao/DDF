@@ -157,45 +157,45 @@ class CrossValidationSuite extends ABigRClientTest {
 //  		}
 //  	}
 
-//  test("Test ROC metric with CV random split") {
-//    createTableAdmission
-//    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
-//    val dataContainerId = df.dataContainerID
-//
-//    val lambda = 0.0
-//
-//    val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
-//    val r = bigRClient.execute[Array[Array[String]]](splitter)
-//    assert(r.isSuccess)
-//    println(r.result)
-//    assert(r.result.length === 1)
-//
-//    val alpha_length: Int = 100
-//
-//    r.result.foreach {
-//      split ⇒
-//        val Array(train, test) = split
-//        val lambda = 0.0
-//
-//        // fake the training with learningRate = 0.0
-//        val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-//        val r = bigRClient.execute[IModel](trainer)
-//        assert(r.isSuccess)
-//
-//        val persistenceID = r.result.getName
-//
-//        val predictor = new YtrueYpred(dataContainerId, persistenceID)
-//        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
-//        assert(r2.isSuccess)
-//        val predictionId = r2.result.dataContainerID
-//
-//        val executor = new ROC(predictionId, alpha_length)
-//        val ret = bigRClient.execute[RocObject](executor)
-//        println(ret.toJson)
-//        assert(ret.isSuccess)
-//    }
-//  }
-//
+  test("Test ROC metric with CV random split") {
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
+
+    val lambda = 0.0
+
+    val splitter = new CVRandomSplit(dataContainerId, 1, 0.5, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 1)
+
+    val alpha_length: Int = 100
+
+    r.result.foreach {
+      split ⇒
+        val Array(train, test) = split
+        val lambda = 0.0
+
+        // fake the training with learningRate = 0.0
+        val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
+        val r = bigRClient.execute[IModel](trainer)
+        assert(r.isSuccess)
+
+        val persistenceID = r.result.getName
+
+        val predictor = new YtrueYpred(dataContainerId, persistenceID)
+        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+        assert(r2.isSuccess)
+        val predictionId = r2.result.dataContainerID
+
+        val executor = new ROC(predictionId, alpha_length)
+        val ret = bigRClient.execute[RocObject](executor)
+        println(ret.toJson)
+        assert(ret.isSuccess)
+    }
+  }
+
   test("Test ROC metric with CV random split on Shark") {
     createTableAdmission
     val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)

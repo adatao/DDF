@@ -49,7 +49,7 @@ import com.adatao.pa.spark.types.ExecutionException
  *
  */
 
-class ROC(val dataContainerID: String, val alpha_length: Int) extends AExecutor[RocMetric] {
+class ROC(dataContainerID: String, alpha_length: Int) extends AExecutor[RocMetric] {
 
 	override def run(ctx: ExecutionContext): ExecutionResult[RocMetric] = {
 		try {
@@ -67,53 +67,13 @@ class ROC(val dataContainerID: String, val alpha_length: Int) extends AExecutor[
 		//TODO double check if ytrueypred back by table i.e has schema
 		//    val df = ctx.sparkThread.getDataManager.get(dataContainerID)
 		val ddfManager = ctx.sparkThread.getDDFManager()
-		val ddfId = "SparkDDF_spark_" + dataContainerID.replaceAll("-", "_")
-		val predictionDDF: DDF = ddfManager.getDDF((ddfId));
+    LOG.info(">>> dataContainerID = " + dataContainerID)
+		val predictionDDF: DDF = ddfManager.getDDF(dataContainerID);
+    if(predictionDDF.getMLMetricsSupporter == null) {
+      LOG.info(">>>>>> MLMetricsSupporter is null")
+    } else {
+      LOG.info(">>>>>> MLMetricsSupporter is not null")
+    }
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
-
-	/*
-	 * map partition, one partition reduce to Array[Array[Double]]
-	 */
-	//	def getData(inputRows: Iterator[Array[Double]]): Iterator[Array[Array[Double]]] = {
-	//		val rows = new ListBuffer[Array[Double]]
-	//		var numRows = 0
-	//		while (inputRows.hasNext) {
-	//			val aRow = inputRows.next
-	//			if (aRow != null) {
-	//				rows.append(aRow)
-	//				numRows += 1
-	//			}
-	//		}
-	//		val X = new Array[Array[Double]](numRows)
-	//		var row = 0
-	//		rows.foreach(inputRow ⇒ {
-	//			X(row) = Array(inputRow(0), inputRow(1))
-	//			row += 1
-	//		})
-	//		Iterator(X)
-	//	}
-	//
-	//	/*
-	//	 */
-	//	def checkBinaryClassification(inputRows: Iterator[Array[Double]]): Iterator[Array[Int]] = {
-	//		val isBinary = new Array[Int](1)
-	//		val isNotBinary = new Array[Int](1)
-	//
-	//		isBinary(0) = 1
-	//		isNotBinary(0) = 0
-	//
-	//		var numRows = 0
-	//		val YTRUE_INDEX = 0
-	//		while (inputRows.hasNext) {
-	//			val aRow = inputRows.next
-	//			if (aRow != null) {
-	//				if (aRow(YTRUE_INDEX) != 0 && aRow(YTRUE_INDEX) != 1) {
-	//					return (Iterator(isNotBinary))
-	//				}
-	//			}
-	//		}
-	//		println(">>>isNotBinary=" + isBinary(0))
-	//		return (Iterator(isBinary))
-	//	}
 }

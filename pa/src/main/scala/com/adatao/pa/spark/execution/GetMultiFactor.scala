@@ -26,12 +26,11 @@ class GetMultiFactor(dataContainerID: String,
   extends AExecutor[Array[(JInt, java.util.Map[String, JInt])]] {
 
   protected override def runImpl(context: ExecutionContext): Array[(JInt, java.util.Map[String, JInt])] = {
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
 
-    val ddf = context.sparkThread.getDDFManager.getDDF(ddfId)
+    val ddf = context.sparkThread.getDDFManager.getDDF(dataContainerID)
 
     if (ddf == null) {
-      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + ddfId, null)
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + dataContainerID, null)
     }
     val schemaHandler = ddf.getSchemaHandler
     for (columnIndex <- columnIndexs) {

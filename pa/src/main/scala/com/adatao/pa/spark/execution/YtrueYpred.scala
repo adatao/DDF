@@ -36,7 +36,8 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
     val predDDFID = if(predictionDDF == null) {
         throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error predicting, prediction DDF is null.", null)
     } else {
-        ddfManager.addDDF(predictionDDF)
+        val predID = ddfManager.addDDF(predictionDDF)
+        LOG.info(">>>>> predDDFID  = " + predID)
     }
 
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))
