@@ -63,7 +63,7 @@ public class SparkThread extends ASessionThread {
 	DataManager dataManager = new DataManager();
 	DDFManager ddfManager;
 
-	int driverPort = 20001;
+	int driverPort = 20002;
 	int uiPort = 30001;
 
 	GsonBuilder gsonBld = new GsonBuilder().serializeSpecialFloatingPointValues()
