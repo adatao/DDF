@@ -23,7 +23,7 @@ import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
-import io.ddf.ml.RocMetric
+import io.ddf.ml.{IModel, RocMetric}
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.HashMap
 
@@ -112,10 +112,10 @@ class MetricsSuite extends ABigRClientTest {
 		
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 		println(">>>>>>model=" + r.result)
-		val modelID = r.persistenceID
+		val modelID = r.result.getName
 		
 		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
 
@@ -155,7 +155,7 @@ class MetricsSuite extends ABigRClientTest {
 		assert(r.isSuccess)
 
 		val modelID = r.persistenceID
-		
+
 
 		val scorer = new R2Score(dataContainerId, modelID)
 		val r2 = bigRClient.execute[Double](scorer)
@@ -249,7 +249,7 @@ class MetricsSuite extends ABigRClientTest {
 
 	ignore("can get linear predictions categorical columns") {
 		createTableAirline
-			
+
 		val df = this.runSQL2RDDCmd("select v4, v17, v18, v3 from airline", true)
 
 		val dataContainerId = df.dataContainerID
@@ -308,7 +308,7 @@ class MetricsSuite extends ABigRClientTest {
 		val r = bigRClient.execute[LogisticRegressionModel](trainer)
 		assert(r.isSuccess)
 		val persistenceID = r.persistenceID
-		
+
 		println(">>>>model r.result = " + r.result)
 
 		val threshold = 0.5
