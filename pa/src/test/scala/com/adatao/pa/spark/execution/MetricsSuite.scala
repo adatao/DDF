@@ -64,10 +64,10 @@ class MetricsSuite extends ABigRClientTest {
 		columnsSummary.put("max", hmax)
 
 		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0,1), 2, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344, 1))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 
-		val modelID = r.persistenceID
+		val modelID = r.result.getName
 
 		//run prediction
 		val predictor = new YtrueYpred(dataContainerId, modelID)
@@ -151,10 +151,10 @@ class MetricsSuite extends ABigRClientTest {
 		// 37.285       -5.344
 		// fake the training with learningRate = 0.0
 		val trainer = new LinearRegression(dataContainerId, Array(0), 1, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LinearRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 
-		val modelID = r.persistenceID
+		val modelID = r.result.getName
 
 
 		val scorer = new R2Score(dataContainerId, modelID)
@@ -173,10 +173,10 @@ class MetricsSuite extends ABigRClientTest {
 		val lambda = 0.0
 
 		val trainer = new LinearRegression(dataContainerId, Array(0), 1, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LinearRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 
-		val modelID = r.persistenceID
+		val modelID = r.result.getName
 
 		val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
 		val residuals = bigRClient.execute[Double](scorer)
@@ -236,10 +236,10 @@ class MetricsSuite extends ABigRClientTest {
 		// 37.285       -5.344
 		// fake the training with learningRate = 0.0
 		val trainer = new LinearRegression(dataContainerId, Array(0), 1, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LinearRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 
-		val persistenceID = r.persistenceID
+		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
@@ -256,11 +256,11 @@ class MetricsSuite extends ABigRClientTest {
 
 		val lambda = 0.0
 		val trainer = new LinearRegression(dataContainerId, Array(0, 1, 2), 3, 50, 0.01, lambda, null)
-		val r = bigRClient.execute[LinearRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 
 		assert(r.isSuccess)
 
-		val persistenceID = r.persistenceID
+		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
@@ -283,9 +283,9 @@ class MetricsSuite extends ABigRClientTest {
 
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
-		val persistenceID = r.persistenceID
+		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
 		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
@@ -305,9 +305,9 @@ class MetricsSuite extends ABigRClientTest {
 
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
-		val persistenceID = r.persistenceID
+		val persistenceID = r.result.getName
 
 		println(">>>>model r.result = " + r.result)
 
@@ -358,10 +358,10 @@ class MetricsSuite extends ABigRClientTest {
 		// 37.285       -5.344
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegressionCRS(dataContainerId, Array(0), 1, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344))
-		val r = bigRClient.execute[LogisticRegressionModel](trainer)
+		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 
-		val modelID = r.persistenceID
+		val modelID = r.result.getName
 		assertTrue(modelID != null)
 
 		val scorer = new R2Score(dataContainerId, modelID)
