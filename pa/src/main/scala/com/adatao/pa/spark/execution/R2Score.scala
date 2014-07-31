@@ -58,6 +58,5 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
     val yMean = summary(projectedDDF.getNumColumns - 1).mean()
 
     ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
-
   }
 }
