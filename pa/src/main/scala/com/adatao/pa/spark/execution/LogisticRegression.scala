@@ -57,6 +57,7 @@ class LogisticRegression(
     }
 
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+    LOG.info(">>>> trainedColumns = " + trainedColumns.mkString(", "))
     val projectDDF = ddf.Views.project(trainedColumns: _*)
 
     //call dummy coding explicitly
@@ -70,7 +71,9 @@ class LogisticRegression(
 
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols,
+      yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double,
+      ridgeLambda: java.lang.Double, initialWeights)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
     if (projectDDF.getSchema().getDummyCoding() != null)
