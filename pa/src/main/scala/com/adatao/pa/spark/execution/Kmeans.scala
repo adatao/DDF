@@ -32,7 +32,7 @@ class Kmeans(
     // this is costly
 
     val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
-    val projectedDDF = ddf.Views.project(trainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
   }

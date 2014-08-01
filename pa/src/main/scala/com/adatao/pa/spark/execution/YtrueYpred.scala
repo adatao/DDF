@@ -29,7 +29,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
 
     //apply model on dataContainerID
     val model: IModel = ddfManager.getModel(modelID)
-    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
 

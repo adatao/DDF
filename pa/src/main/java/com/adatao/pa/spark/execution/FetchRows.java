@@ -69,7 +69,7 @@ public class FetchRows extends CExecutor {
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     List<String> data;
     try {
-      data = ddf.Views.firstNRows(limit);
+      data = ddf.VIEWS.head(limit);
       return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
     } catch (Exception e) {
       LOG.error(String.format("Cannot fetch %s rows", limit), e);

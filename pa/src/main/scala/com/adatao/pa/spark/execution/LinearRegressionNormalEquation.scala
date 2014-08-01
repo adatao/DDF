@@ -69,7 +69,7 @@ class LinearRegressionNormalEquation(
     }
     //project first
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    val projectedDDF = ddf.Views.project(trainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     projectedDDF.getSchemaHandler().generateDummyCoding()
