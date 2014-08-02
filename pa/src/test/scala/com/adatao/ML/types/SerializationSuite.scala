@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.Gson
 import com.adatao.ML.ATimedAlgorithmTest
 import com.adatao.ML.AAlgorithmTest
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
 
 private class AJsonSerializable extends TJsonSerializable {
 	val aField = "someValue"

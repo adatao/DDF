@@ -29,7 +29,7 @@ import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
 import io.ddf.DDF
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.DDF
 
 /**

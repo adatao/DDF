@@ -14,8 +14,8 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML
-
+package com.adatao.spark.ddf.analytics
+import com.adatao.spark.ddf.analytics.ALossFunction
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 

@@ -16,11 +16,11 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML
-import com.adatao.ML.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import io.ddf.ml.{IModel, RocMetric}

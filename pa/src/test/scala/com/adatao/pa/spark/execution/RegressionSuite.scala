@@ -22,8 +22,8 @@ package com.adatao.pa.spark.execution
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 import io.ddf.ml.IModel
 import com.adatao.spark.ddf.analytics.{IRLSLogisticRegressionModel, NQLinearRegressionModel}
 

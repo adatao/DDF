@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 
 import com.adatao.ML.ATestSuite
 import com.adatao.ML.spark.SharedSparkContext
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 
 /**
  * @author ctn

@@ -18,15 +18,15 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
+import com.adatao.spark.ddf.analytics._
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
 import java.util.List
 import java.util.ArrayList
@@ -72,7 +72,7 @@ class LogisticRegression(
 
     val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
-    val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
+    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
     model
@@ -88,7 +88,7 @@ object LogisticRegression {
    * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
    * objects, if we were to place this class within [[class LogisticRegression]].
    */
-  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALogisticGradientLossFunction(XYData, ridgeLambda) {
+  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
     def compute: Vector => ALossFunction = {
       (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
     }

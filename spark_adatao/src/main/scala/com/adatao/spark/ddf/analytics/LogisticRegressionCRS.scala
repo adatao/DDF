@@ -113,63 +113,63 @@ object LogisticRegressionCRS {
   def randWeights(numFeatures: Int) = Vector(Seq.fill(numFeatures)(Random.nextDouble).toArray)
 }
 
-class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends Serializable {
-  
-  override def toString(): String = {
-    weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
-  }
-
-  def predict(point: Array[Double]): java.lang.Double = {
-    val features = Vector(Array[Double](1) ++ point)
-    val linearPredictor = weights.dot(features)
-    ALossFunction.sigmoid(linearPredictor)
-  }
-
-  def getWeights(): Vector = {
-    this.weights
-  }
-  def getTrainingLosses(): Vector = {
-    this.trainingLosses
-  }
-  def getNumSamples(): Long = {
-    this.numSamples
-  }
-  
-  var dc: DummyCoding = null
-  def setDummy(_dc: DummyCoding) {
-    dc = _dc
-  }
-  def getDummy(): DummyCoding = {
-    return dc;
-  }
-
-}
-
-object GradientDescent {
-
-  def runBatch[XYDataType](
-    lossFunction: ALossFunction,
-    initialWeights: Vector,
-    learningRate: Double,
-    numIters: Int): (Vector, Vector, Long) = {
-
-    // Track training errors for all iterations, plus 1 more for the error before the first iteration
-    val trainingLosses = new Vector(numIters + 1)
-    val weights = initialWeights.dup
-
-    var iter = 0
-    var computedLoss: ALossFunction = null
-    while (iter < numIters + 1) {
-      computedLoss = lossFunction.compute(weights)
-      // Update the weights, except for the last iteration
-      // weights = weights - alpha * averageGradient
-      if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
-      trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
-      iter += 1
-    }
-    (weights, trainingLosses, computedLoss.numSamples)
-  }
-}
+//class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends Serializable {
+//  
+//  override def toString(): String = {
+//    weights.toString + "\t" + trainingLosses.toString() + "\t" + numSamples
+//  }
+//
+//  def predict(point: Array[Double]): java.lang.Double = {
+//    val features = Vector(Array[Double](1) ++ point)
+//    val linearPredictor = weights.dot(features)
+//    ALossFunction.sigmoid(linearPredictor)
+//  }
+//
+//  def getWeights(): Vector = {
+//    this.weights
+//  }
+//  def getTrainingLosses(): Vector = {
+//    this.trainingLosses
+//  }
+//  def getNumSamples(): Long = {
+//    this.numSamples
+//  }
+//  
+//  var dc: DummyCoding = null
+//  def setDummy(_dc: DummyCoding) {
+//    dc = _dc
+//  }
+//  def getDummy(): DummyCoding = {
+//    return dc;
+//  }
+//
+//}
+//
+//object GradientDescent {
+//
+//  def runBatch[XYDataType](
+//    lossFunction: ALossFunction,
+//    initialWeights: Vector,
+//    learningRate: Double,
+//    numIters: Int): (Vector, Vector, Long) = {
+//
+//    // Track training errors for all iterations, plus 1 more for the error before the first iteration
+//    val trainingLosses = new Vector(numIters + 1)
+//    val weights = initialWeights.dup
+//
+//    var iter = 0
+//    var computedLoss: ALossFunction = null
+//    while (iter < numIters + 1) {
+//      computedLoss = lossFunction.compute(weights)
+//      // Update the weights, except for the last iteration
+//      // weights = weights - alpha * averageGradient
+//      if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
+//      trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
+//      iter += 1
+//    }
+//    (weights, trainingLosses, computedLoss.numSamples)
+//  }
+//}
 
 //class LossFunction(@transient XYData: RDD[TupleMatrixVector], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
 //    def compute: Vector ⇒ ALossFunction = {
@@ -241,26 +241,26 @@ class LossFunction(@transient XYData: RDD[(MatrixSparse, Vector)], ridgeLambda: 
  * Useful functions such as sigmoid() are defined here
  */
 
-object ALossFunction {
-  def sigmoid(z: DoubleMatrix): Vector = Vector(MatrixFunctions.expi(z.neg).addi(1.0)).reciprocal
-  def sigmoid(z: Vector): Vector = Vector(MatrixFunctions.expi(z.neg).addi(1.0)).reciprocal
-  def sigmoid(z: Double): Double = 1 / (math.exp(-z) + 1)
-
-  /**
-   * Avoid over/underflow of log(sigmoid(x)) for very large values x < -710 or x > 710.
-   * We substitute overflowed valeus by appropriate given limits (given by caller).
-   */
-  def safeLogOfSigmoid(hypothesis: DoubleMatrix, subtituteIfInfinity: DoubleMatrix) = {
-    var result = MatrixFunctions.log(hypothesis)
-    var i = 0
-    while (i < hypothesis.length) {
-      if (result.get(i).isInfinity) result.put(i, subtituteIfInfinity.get(i))
-      i += 1
-    }
-
-    result
-  }
-}
+//object ALossFunction {
+//  def sigmoid(z: DoubleMatrix): Vector = Vector(MatrixFunctions.expi(z.neg).addi(1.0)).reciprocal
+//  def sigmoid(z: Vector): Vector = Vector(MatrixFunctions.expi(z.neg).addi(1.0)).reciprocal
+//  def sigmoid(z: Double): Double = 1 / (math.exp(-z) + 1)
+//
+//  /**
+//   * Avoid over/underflow of log(sigmoid(x)) for very large values x < -710 or x > 710.
+//   * We substitute overflowed valeus by appropriate given limits (given by caller).
+//   */
+//  def safeLogOfSigmoid(hypothesis: DoubleMatrix, subtituteIfInfinity: DoubleMatrix) = {
+//    var result = MatrixFunctions.log(hypothesis)
+//    var i = 0
+//    while (i < hypothesis.length) {
+//      if (result.get(i).isInfinity) result.put(i, subtituteIfInfinity.get(i))
+//      i += 1
+//    }
+//
+//    result
+//  }
+//}
 
 /**
  * ALossFunction is a class with methods defined to compute loss surfaces
@@ -270,52 +270,52 @@ object ALossFunction {
  * If we wanted to be even faster we could skip computing losses altogether,
  * and focus only on the gradients needed to update the weights.
  */
-abstract class ALossFunction extends Serializable {
-  var gradients: Vector = _
-  var loss: Double = 0
-  var weights: Vector = _
-  var numSamples: Long = 0
-
-  /**
-   * Simply returns the client-provided XYData, if ever needed
-   */
-  //  def getXYData: XYDataType = XYData
-
-  /**
-   * Sum in-place to avoid new object alloc.
-   *
-   * May override this to define an associative-commutative summing function that
-   * aggregates multiple ALossFunction into one.
-   *
-   */
-  def aggregate(other: ALossFunction): ALossFunction = {
-    gradients.addi(other.gradients)
-    loss += other.loss
-    numSamples += other.numSamples
-    this
-  }
-
-  /**
-   * Must override this to compute the gradient for a given X (features),Y (output) data table, and input weights.
-   *
-   * @param X - Matrix of input features. Row matrix of size [m x n] where m = number of samples, and n is number of features.
-   * @param Y - Output values.
-   * @param weights - Column vector containing weights for every feature.
-   */
-  def compute(X: Matrix, Y: Vector, weights: Vector): ALossFunction
-
-  /**
-   * Must override this to define a hyper-function that calls [[this.compute(X, Y, weights)]] while transforming
-   * the input data XYData: XYDataType into the appropriate X: Matrix and Y: Vector.
-   *
-   * This is the key to decoupling of the algorithm from the execution environment's data representation, since
-   * [[XYDataType]] is parameterized. Each implementation can provide its own [[ALossFunction]] that knows how to take
-   * source data of type [[XYDataType]], and provides a way to compute the loss function value out of it.
-   * See, e.g., [[com.adatao.ML.LinearRegression.LossFunction]] and compare it with
-   * [[com.adatao.pa.spark.execution.LinearRegression.LossFunction]].
-   */
-  def compute: Vector ⇒ ALossFunction
-}
+//abstract class ALossFunction extends Serializable {
+//  var gradients: Vector = _
+//  var loss: Double = 0
+//  var weights: Vector = _
+//  var numSamples: Long = 0
+//
+//  /**
+//   * Simply returns the client-provided XYData, if ever needed
+//   */
+//  //  def getXYData: XYDataType = XYData
+//
+//  /**
+//   * Sum in-place to avoid new object alloc.
+//   *
+//   * May override this to define an associative-commutative summing function that
+//   * aggregates multiple ALossFunction into one.
+//   *
+//   */
+//  def aggregate(other: ALossFunction): ALossFunction = {
+//    gradients.addi(other.gradients)
+//    loss += other.loss
+//    numSamples += other.numSamples
+//    this
+//  }
+//
+//  /**
+//   * Must override this to compute the gradient for a given X (features),Y (output) data table, and input weights.
+//   *
+//   * @param X - Matrix of input features. Row matrix of size [m x n] where m = number of samples, and n is number of features.
+//   * @param Y - Output values.
+//   * @param weights - Column vector containing weights for every feature.
+//   */
+//  def compute(X: Matrix, Y: Vector, weights: Vector): ALossFunction
+//
+//  /**
+//   * Must override this to define a hyper-function that calls [[this.compute(X, Y, weights)]] while transforming
+//   * the input data XYData: XYDataType into the appropriate X: Matrix and Y: Vector.
+//   *
+//   * This is the key to decoupling of the algorithm from the execution environment's data representation, since
+//   * [[XYDataType]] is parameterized. Each implementation can provide its own [[ALossFunction]] that knows how to take
+//   * source data of type [[XYDataType]], and provides a way to compute the loss function value out of it.
+//   * See, e.g., [[com.adatao.ML.LinearRegression.LossFunction]] and compare it with
+//   * [[com.adatao.pa.spark.execution.LinearRegression.LossFunction]].
+//   */
+//  def compute: Vector ⇒ ALossFunction
+//}
 
 /*
  * transform RDD[(Matrix, Vector)] to RDD[(MatrixSparse, Vector)] 

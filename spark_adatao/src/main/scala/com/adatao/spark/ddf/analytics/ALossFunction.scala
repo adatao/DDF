@@ -18,13 +18,12 @@
  * @author ctn
  *
  */
-package com.adatao.ML
+package com.adatao.spark.ddf.analytics
 
 import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-
 /**
  * Useful functions such as sigmoid() are defined here
  */

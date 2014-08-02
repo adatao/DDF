@@ -18,18 +18,17 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.ALossFunction
-import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
 import java.util.ArrayList
 
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics._
 
 import io.ddf.DDF
 import io.ddf.ml.IModel
@@ -77,7 +76,7 @@ class LinearRegression(
       initialWeights, numFeatures)
 
     // converts DDF model to old PA model
-    val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LinearRegressionModel]
+    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
     if (projectedDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectedDDF.getSchema().getDummyCoding().getMapping())
 
@@ -93,7 +92,7 @@ object LinearRegression {
    * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
    * objects, if we were to place this class within [[class LinearRegression]].
    */
-  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALinearGradientLossFunction(XYData, ridgeLambda) {
+  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
     def compute: Vector => ALossFunction = {
       (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
     }

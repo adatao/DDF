@@ -18,18 +18,18 @@ package com.adatao.pa.spark.execution
 
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.ML.TModel
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.{ Utils ⇒ MLUtils }
-import com.adatao.ML.spark.RddUtils
+import com.adatao.spark.ddf.analytics.TModel
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils }
+import com.adatao.spark.ddf.analytics._
 import java.util.ArrayList
 import org.jblas.DoubleMatrix
 import org.apache.spark.rdd.RDD
-//import com.adatao.ML.spark.RocObject
-//import com.adatao.ML.spark.Metrics
+//import com.adatao.spark.ddf.analytics.spark.RocObject
+//import com.adatao.spark.ddf.analytics.spark.Metrics
 import scala.collection.mutable.ListBuffer
-import com.adatao.ML.ALinearModel
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.ALinearModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import java.util.HashMap
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode

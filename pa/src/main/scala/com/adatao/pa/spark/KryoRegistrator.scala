@@ -5,12 +5,12 @@ import shark.{KryoRegistrator => SharkKryoRegistrator}
 import com.esotericsoftware.kryo.serializers.{JavaSerializer => KryoJavaSerializer, FieldSerializer}
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.ML.ALossFunction
+import com.adatao.spark.ddf.analytics.ALossFunction
 import com.adatao.pa.spark.execution.LinearRegression
 import com.adatao.pa.spark.execution.LogisticRegression
 import com.adatao.pa.ML.types.randomforest.node.{Leaf, NumericalNode, CategoricalNode, Node}
-import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 import org.rosuda.REngine.{RList, REXP}
 import org.jblas.DoubleMatrix
 

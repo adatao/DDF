@@ -16,7 +16,7 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils, _ 
 }
 import scala.Some
 import io.ddf.DDF
@@ -24,7 +24,7 @@ import io.ddf.ml.IModel
 import io.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.ml.IModel
 import io.ddf.DDF
 

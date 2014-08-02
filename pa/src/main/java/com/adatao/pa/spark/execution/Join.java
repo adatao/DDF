@@ -91,8 +91,8 @@ public class Join extends CExecutor {
     Utils.assertNull(leftDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     Utils.assertNull(rightDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     
-    String leftDdfId = com.adatao.ML.Utils.dcID2DDFID(leftDataContainerID);
-    String rightDdfId = com.adatao.ML.Utils.dcID2DDFID(rightDataContainerID);
+    String leftDdfId = com.adatao.spark.ddf.analytics.Utils.dcID2DDFID(leftDataContainerID);
+    String rightDdfId = com.adatao.spark.ddf.analytics.Utils.dcID2DDFID(rightDataContainerID);
     DDF leftddf = sparkThread.getDDFManager().getDDF(leftDdfId);
     DDF rightddf = sparkThread.getDDFManager().getDDF(rightDdfId);
     

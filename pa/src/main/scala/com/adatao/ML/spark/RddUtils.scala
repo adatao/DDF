@@ -18,7 +18,7 @@ package com.adatao.ML.spark
 
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import org.apache.spark.rdd.RDD
 
 // @author: aht

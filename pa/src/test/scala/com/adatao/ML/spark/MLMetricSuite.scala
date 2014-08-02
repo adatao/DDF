@@ -17,7 +17,7 @@
 package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils, _ }
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import org.junit.Assert._

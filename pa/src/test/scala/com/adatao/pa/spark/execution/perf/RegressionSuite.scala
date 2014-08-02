@@ -19,11 +19,11 @@
  */
 package com.adatao.pa.spark.execution.perf
 
-import com.adatao.ML
+import com.adatao.spark.ddf.analytics._
 import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.ML.ATimedAlgorithmTest
-import com.adatao.ML.LinearRegressionModel
+import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
 
 /**

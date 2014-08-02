@@ -38,7 +38,7 @@ object LogisticRegressionIRLS {
     ret
   }
 
-  /**
+  /**com.adatao.spark.ddf.analytis
    * d: (r x 1): array of diagonal elements
    * m:(r x c)
    * Multifly d with m and put result back to m
