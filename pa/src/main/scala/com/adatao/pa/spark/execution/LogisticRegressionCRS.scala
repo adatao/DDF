@@ -87,11 +87,14 @@ class LogisticRegressionCRS(
       val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
-      val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
+      val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       //TODO need to move this to spark layer
       //TODO remove comment out this
 //      if (projectDDF.getSchema().getDummyCoding() != null)
 //        model.setDummy(projectDDF.getSchema().getDummyCoding())
+      
+      if (projectDDF.getSchema().getDummyCoding() != null)
+        rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
       regressionModel
     } catch {
