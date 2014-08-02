@@ -30,8 +30,6 @@ import java.util.HashMap
 object LinearRegressionGD {
 
     def train(dataPartition: RDD[TupleMatrixVector],
-        xCols: Array[Int],
-        yCol: Int,
         numIters: Int,
         learningRate: Double,
         ridgeLambda: Double,

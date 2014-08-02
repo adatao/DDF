@@ -34,8 +34,6 @@ object LogisticRegressionGD {
 
   def train(dataPartition: RDD[TupleMatrixVector],
     numFeatures: java.lang.Integer,
-    xCols: Array[Int],
-    yCol: Int,
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,

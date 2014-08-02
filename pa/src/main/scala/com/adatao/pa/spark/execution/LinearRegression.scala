@@ -71,8 +71,7 @@ class LinearRegression(
 
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val model = projectedDDF.ML.train("linearRegressionWithGD", xCols, yCol: java.lang.Integer,
-      numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
+    val model = projectedDDF.ML.train("linearRegressionWithGD", numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
       initialWeights, numFeatures)
 
     // converts DDF model to old PA model
