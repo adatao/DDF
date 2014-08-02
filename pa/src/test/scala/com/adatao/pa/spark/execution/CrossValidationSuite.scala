@@ -22,7 +22,7 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
 import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
-import com.adatao.spark.ddf.analytics.RocObject
+//import com.adatao.spark.ddf.analytics.RocObject
 import io.ddf.ml.{RocMetric, IModel}
 import com.adatao.pa.spark.execution.NRow.NRowResult
 
@@ -191,7 +191,7 @@ class CrossValidationSuite extends ABigRClientTest {
 //        val predictionId = r2.result.dataContainerID
 //
 //        val executor = new ROC(predictionId, alpha_length)
-//        val ret = bigRClient.execute[RocObject](executor)
+//        val ret = bigRClient.execute[RocMetric](executor)
 //        println(ret.toJson)
 //        assert(ret.isSuccess)
 //    }

@@ -80,20 +80,20 @@ class LogisticRegression(
 
 }
 
-object LogisticRegression {
-  /**
-   * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
-   * knows how to handle that data.
-   *
-   * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
-   * objects, if we were to place this class within [[class LogisticRegression]].
-   */
-  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
-    def compute: Vector => ALossFunction = {
-      (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
-    }
-  }
-}
+//object LogisticRegression {
+//  /**
+//   * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
+//   * knows how to handle that data.
+//   *
+//   * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
+//   * objects, if we were to place this class within [[class LogisticRegression]].
+//   */
+//  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
+//    def compute: Vector => ALossFunction = {
+//      (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+//    }
+//  }
+//}
 
 /**
 * Entry point for SparkThread executor to execute predictions
