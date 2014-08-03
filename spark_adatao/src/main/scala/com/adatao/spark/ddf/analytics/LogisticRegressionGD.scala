@@ -47,12 +47,6 @@ object LogisticRegressionGD {
     model
   }
 
-  //post process, set column mapping to model
-  def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-    model.dummyColumnMapping = mapping
-    model
-  }
-
   /**
    * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
    * knows how to handle that data.
