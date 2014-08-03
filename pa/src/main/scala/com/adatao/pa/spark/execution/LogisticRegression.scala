@@ -95,9 +95,3 @@ class LogisticRegression(
 //  }
 //}
 
-/**
-* Entry point for SparkThread executor to execute predictions
-*/
-class LogisticRegressionPredictor(val model: LogisticRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-  def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
-}
