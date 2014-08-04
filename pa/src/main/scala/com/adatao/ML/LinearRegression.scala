@@ -17,10 +17,9 @@
 package com.adatao.ML
 
 import org.jblas.DoubleMatrix
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.{Matrix, Vector}
 import java.util.HashMap
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 import java.util.Arrays
 /**
  * Companion object to provide friendly-name access to clients.

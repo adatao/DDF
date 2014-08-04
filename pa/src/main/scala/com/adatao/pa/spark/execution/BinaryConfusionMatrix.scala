@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Vector
 //import com.adatao.ML.spark.{ Metrics, RddUtils }
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager
@@ -10,7 +10,7 @@ import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import com.adatao.ML.Utils
 
 
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 
 /**
  * Compute the confusion matrix for a binary classification model, given a threshold.

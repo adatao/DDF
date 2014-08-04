@@ -1,9 +1,10 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.spark.ddf.{SparkDDF, ATestSuite}
-import com.adatao.ddf.content.Schema
+import io.spark.ddf.SparkDDF
+import io.ddf.content.Schema
 import scala.collection.JavaConversions._
 import org.junit.Assert._
+import com.adatao.spark.ddf.ATestSuite
 
 /**
   */

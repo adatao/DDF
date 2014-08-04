@@ -17,8 +17,8 @@
 package com.adatao.spark.ddf.analytics
 
 import java.lang.String
-import com.adatao.ddf.types.Vector
-import com.adatao.ddf.types._
+import io.ddf.types.Vector
+import io.ddf.types._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
@@ -27,8 +27,8 @@ import org.jblas.exceptions.LapackSingularityException
 import org.jblas.exceptions.LapackException
 import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
-import com.adatao.ddf.content.Schema.DummyCoding
-import com.adatao.ddf.exception.DDFException
+import io.ddf.content.Schema.DummyCoding
+import io.ddf.exception.DDFException
 
 /**
  * Author: NhanVLC

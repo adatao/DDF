@@ -23,8 +23,8 @@ import shark.SharkEnv
 import com.adatao.pa.spark.types.ATestBase
 //import com.adatao.pa.spark.DataManager.SharkDataFrame
 import com.adatao.pa.spark.types.ABigRClientTest
-import com.adatao.ddf.DDFManager
-import com.adatao.spark.ddf.SparkDDFManager
+import io.ddf.DDFManager
+import io.spark.ddf.SparkDDFManager
 
 /**
  * @author bachbui

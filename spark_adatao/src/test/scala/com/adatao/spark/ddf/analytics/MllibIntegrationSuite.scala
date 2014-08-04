@@ -1,10 +1,11 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.spark.ddf.{ SparkDDF, SparkDDFManager, ATestSuite }
-import com.adatao.ddf.DDFManager
+import io.spark.ddf.{ SparkDDF, SparkDDFManager }
+import io.ddf.DDFManager
 import scala.collection.JavaConversions._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
+import com.adatao.spark.ddf.ATestSuite
 
 /**
  */

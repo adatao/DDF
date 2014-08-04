@@ -16,8 +16,8 @@
 
 package com.adatao.ML
 
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 
 /**
  * @author ctn

@@ -3,10 +3,9 @@ package com.adatao.pa.spark.execution
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.spark.rdd.RDD
-import com.adatao.ddf.DDF
-import com.adatao.spark.ddf.content.RepresentationHandler
-import com.adatao.ddf.ml.IModel
+import io.ddf.DDF
+import io.spark.ddf.content.RepresentationHandler
+import io.ddf.ml.IModel
 import org.apache.spark.mllib.clustering.KMeansModel
 import com.adatao.pa.spark.types.{ExecutionException, SuccessfulResult, FailedResult, ExecutionResult}
 

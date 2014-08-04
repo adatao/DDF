@@ -1,6 +1,6 @@
 package com.adatao.pa.spark.DDF.analytics
 
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 import com.adatao.pa.spark.execution.{LogisticRegressionIRLS, LinearRegressionNormalEquation, Kmeans}
 import com.adatao.pa.ddf.spark.{DDF, DDFManager}
 import com.adatao.pa.ddf.spark.DDFManager.client

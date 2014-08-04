@@ -27,15 +27,15 @@ import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
-import com.adatao.spark.ddf.util.MLUtils;
+import io.spark.ddf.util.MLUtils;
 import shark.api.ColumnDesc;
 import shark.api.JavaSharkContext;
 import shark.api.JavaTableRDD;
 import shark.api.Row;
 import shark.memstore2.TablePartition;
 import com.adatao.pa.spark.SharkUtils;
-import com.adatao.ddf.types.Matrix;
-import com.adatao.ddf.types.Vector;
+import io.ddf.types.Matrix;
+import io.ddf.types.Vector;
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult;
 
 @SuppressWarnings("serial")

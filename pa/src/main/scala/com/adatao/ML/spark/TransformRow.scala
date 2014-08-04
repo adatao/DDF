@@ -2,8 +2,8 @@ package com.adatao.ML.spark
 
 import java.util.HashMap
 import org.jblas.DoubleMatrix
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import java.util.Arrays
 import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;

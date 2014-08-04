@@ -18,7 +18,7 @@ package com.adatao.ML
 
 import org.jblas.DoubleMatrix
 import java.util.HashMap
-import com.adatao.ddf.types._
+import io.ddf.types._
 
 /**
  * Constructor parameters are accessible via 'val' so they would show up on (JSON) serialization

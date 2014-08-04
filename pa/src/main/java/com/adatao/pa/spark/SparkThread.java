@@ -29,10 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shark.SharkEnv;
 import shark.api.JavaSharkContext;
-import com.adatao.ddf.DDFManager;
-import com.adatao.spark.ddf.SparkDDFManager;
-import com.adatao.ddf.content.ViewHandler.Expression;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDFManager;
+import io.spark.ddf.SparkDDFManager;
+import io.ddf.content.ViewHandler.Expression;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.execution.ExecutionContext;
@@ -63,7 +63,7 @@ public class SparkThread extends ASessionThread {
 	DataManager dataManager = new DataManager();
 	DDFManager ddfManager;
 
-	int driverPort = 20001;
+	int driverPort = 20002;
 	int uiPort = 30001;
 
 	GsonBuilder gsonBld = new GsonBuilder().serializeSpecialFloatingPointValues()

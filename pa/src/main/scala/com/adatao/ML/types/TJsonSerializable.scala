@@ -29,7 +29,7 @@ import com.google.gson.JsonSerializer
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonNull
 import com.google.gson.JsonArray
-import com.adatao.ddf.ml.{IModel, Model}
+import io.ddf.ml.{IModel, Model}
 import org.apache.spark.mllib.clustering.KMeansModel
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().

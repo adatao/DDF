@@ -1,11 +1,12 @@
 package com.adatao.spark.ddf.analytics
 
-import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager, ATestSuite}
-import com.adatao.ddf.DDFManager
+import io.spark.ddf.{SparkDDF, SparkDDFManager}
+import io.ddf.DDFManager
 import org.apache.spark.rdd.RDD
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import java.util.HashMap
+import com.adatao.spark.ddf.ATestSuite
 
 
 class RegressionSuite extends ATestSuite {

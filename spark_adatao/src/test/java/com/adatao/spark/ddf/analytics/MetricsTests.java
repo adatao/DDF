@@ -4,13 +4,13 @@ package com.adatao.spark.ddf.analytics;
 import junit.framework.Assert;
 import org.apache.spark.rdd.RDD;
 import org.junit.Test;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.misc.Config;
-import com.adatao.ddf.misc.Config.ConfigConstant;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.exception.DDFException;
+import io.ddf.misc.Config;
+import io.ddf.misc.Config.ConfigConstant;
 import com.google.common.base.Strings;
-import com.adatao.ddf.ml.IModel;
+import io.ddf.ml.IModel;
 
 public class MetricsTests {
 

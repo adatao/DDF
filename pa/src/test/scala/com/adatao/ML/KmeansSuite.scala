@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.GetFactor.GetFactorResult
 import java.util.Arrays
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  */

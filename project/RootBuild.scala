@@ -32,8 +32,6 @@ object RootBuild extends Build {
   val theScalaVersion = "2.10.3"
         val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
   val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
-  //val theScalaVersion = "2.9.3"
-  //val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
   val rootOrganization = "com.adatao"
   val projectName = "ddf"
@@ -122,12 +120,14 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "core_2.10" %  rootVersion,
-    "io.ddf" % "spark_2.10" % rootVersion
+    "io.ddf" % "ddf_core_2.10" %  rootVersion,
+    "io.ddf" % "ddf_spark_2.10" % rootVersion,
+    "com.novocode" % "junit-interface" % "0.10" % "test"
   )
 
   val pa_dependencies = Seq(
-    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14"
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
+    "com.novocode" % "junit-interface" % "0.10" % "test"
     //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
 
@@ -174,6 +174,11 @@ object RootBuild extends Build {
     publishMavenStyle := true, // generate pom.xml with "sbt make-pom"
 
     libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-api" % slf4jVersion,
+      "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
+      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
+      "com.novocode" % "junit-interface" % "0.10" % "test"
     ),
 
 
@@ -233,6 +238,7 @@ object RootBuild extends Build {
     dependencyOverrides += "javax.xml.bind" % "jaxb-api" % "2.2.2",
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
+    dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     pomExtra := (
       <!--
       **************************************************************************************************
@@ -457,6 +463,7 @@ object RootBuild extends Build {
     ),
     libraryDependencies ++= com_adatao_unmanaged,
     libraryDependencies ++= spark_adatao_dependencies
+    //libraryDependencies ++= scalaDependencies
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
@@ -467,8 +474,8 @@ object RootBuild extends Build {
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
     libraryDependencies ++= pa_dependencies,
+    //libraryDependencies ++= scalaDependencies,
     initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
-
   ) ++ assemblySettings ++ extraAssemblySettings
 
 

@@ -3,19 +3,19 @@ package com.adatao.spark.content
 import com.esotericsoftware.kryo.Kryo
 import shark.{ KryoRegistrator => SharkKryoRegistrator }
 import com.esotericsoftware.kryo.serializers.{ JavaSerializer => KryoJavaSerializer, FieldSerializer }
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
-import com.adatao.spark.ddf.analytics._
-import com.adatao.spark.ddf.content._
-import com.adatao.spark.ddf.ml.ROCComputer
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
+import io.spark.ddf.analytics._
+import io.spark.ddf.content._
+import io.spark.ddf.ml.ROCComputer
 import org.jblas.DoubleMatrix
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.RList
-import com.adatao.ddf.ml.RocMetric
-import com.adatao.ddf.types.Vector
-import com.adatao.ddf.types.Matrix
-import com.adatao.spark.ddf.ml.ROCComputer
-import com.adatao.ddf.ml.RocMetric
+import io.ddf.ml.RocMetric
+import io.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.spark.ddf.ml.ROCComputer
+import io.ddf.ml.RocMetric
 
 class KryoRegistrator extends SharkKryoRegistrator {
   override def registerClasses(kryo: Kryo) {

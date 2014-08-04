@@ -18,7 +18,7 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDFManager;
+import io.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.GetURI.StringResult;

@@ -20,8 +20,8 @@ import java.lang.String
 import com.adatao.ML
 import com.adatao.ML.ALossFunction
 import com.adatao.ML.Utils
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import com.adatao.spark.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
@@ -41,11 +41,11 @@ import org.apache.spark.api.java.JavaRDD
 import com.adatao.pa.spark.SharkUtils
 import shark.api.JavaSharkContext
 import java.util.ArrayList
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
 import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  * Author: NhanVLC

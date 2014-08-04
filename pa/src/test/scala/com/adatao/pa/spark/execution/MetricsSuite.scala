@@ -23,7 +23,7 @@ import org.junit.Assert._
 import com.adatao.ML.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
-import com.adatao.ddf.ml.RocMetric
+import io.ddf.ml.RocMetric
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.HashMap
 

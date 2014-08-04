@@ -22,8 +22,8 @@ import org.scalatest.Suite
 import org.scalatest.BeforeAndAfterAll
 import org.apache.spark.SparkContext
 import org.apache.spark.api.java.JavaSparkContext
-import com.adatao.ddf.DDFManager
-import com.adatao.spark.ddf.SparkDDFManager
+import io.ddf.DDFManager
+import io.spark.ddf.SparkDDFManager
 
 /**
  * After spark/core/src/test/scala/spark/SharedSparkContext.scala

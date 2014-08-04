@@ -27,17 +27,17 @@ import org.slf4j.LoggerFactory;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.util.StatCounter;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.analytics.Summary;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.analytics.Summary;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
-import com.adatao.ddf.util.Utils;
+import io.ddf.util.Utils;
 import com.adatao.pa.spark.Utils.*;
 
 /**

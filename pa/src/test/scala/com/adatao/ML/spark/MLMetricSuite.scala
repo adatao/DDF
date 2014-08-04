@@ -18,13 +18,13 @@ package com.adatao.ML.spark
 
 import org.scalatest.FunSuite
 import com.adatao.ML.{ Utils ⇒ MLUtils, _ }
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.junit.Assert._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.pa.spark.execution.YtrueYpred
-import com.adatao.ddf.ml.RocMetric
+import io.ddf.ml.RocMetric
 
 /**
  * Tests for model scoring metrics
