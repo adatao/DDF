@@ -172,114 +172,7 @@ class  RegressionSuite  extends ABigRClientTest {
 	}
 
 
-//	test(" categorical variables linear regression on as.factor(Int column)") {
-//
-//		val loader = new Sql2DataFrame("select * from airline", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		val dataContainerId = r0.dataContainerID
-//		val lambda = 0.0
-//
-//		val cmd = new GetMultiFactor(dataContainerId, Array(0))
-//		val result = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd).result
-//		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(0), 15, lambda)
-//		val r = bigRClient.execute[IModel](executor)
-//
-//		assert(r.isSuccess)
-//
-//		val model = r.result
-//	}
-//
-	//temporarily don't support normal dataframe just yet
 
-//	test("Categorical multiple variables linear regression on Shark") {
-//		createTableAirline
-//
-//		val loader = new Sql2DataFrame("select * from airline", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		val dataContainerId = r0.dataContainerID
-//
-//		val lambda = 0.0
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 16, 17), 2)
-//		val executor = new LinearRegression(dataContainerId, Array(3, 16, 17), 2, 50, 0.01, lambda, null)
-//		val r = bigRClient.execute[IModel](executor)
-//
-//		assert(r.isSuccess)
-//
-//		val model = r.result.getRawModel.asInstanceOf[LinearRegressionModel]
-//		println(">>>>>>>>>>>>>>>>> final model =" + model.toString)
-//
-//		if (model.dummyColumnMapping != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.dummyColumnMapping)
-//		assert(model.weights.length === 12)
-//		assert(model.dummyColumnMapping != null)
-//	}
-//
-//	test("lm categorical and reference level on shark") {
-//		createTableAirline
-//
-//		val loader = new Sql2DataFrame("select v4, v17, v18, v3 from airline", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		val dataContainerId = r0.dataContainerID
-//
-//		val lambda = 1.0
-//
-//		var mapReferenceLevel: HashMap[String, String] = new HashMap[String, String]()
-//		mapReferenceLevel.put("v17", "ISP")
-//		mapReferenceLevel.put("v18", "LAS")
-//
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1, 2), 3)
-//		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(0, 1, 2), 3, lambda, mapReferenceLevel)
-//		val r = bigRClient.execute[IModel](executor)
-//
-//		assert(r.isSuccess)
-//
-//		val model = r.result.getRawModel.asInstanceOf[NQLinearRegressionModel]
-//
-//		if (model.getDummy() != null) println(">>>>>>>>>>>>>>>> model.dummyColumnMapping  =" + model.getDummy())
-//		assert(model.weights.length === 12)
-//		assert(model.getDummy() != null)
-//		println(">>>>.model.dummyColumnMapping = " + model.getDummy())
-//		//		//check reference level if equal 0.0
-//
-//		//TODO need to support dummy coding reference level 
-////		assert(model.dummyColumnMapping.get(16).get("ISP") === 0.0)
-////		assert(model.dummyColumnMapping.get(17).get("LAS") === 0.0)
-//
-//	}
-//
-//	
-//	test("glm categorical and reference level on shark") {
-//		createTableAdmission
-//
-//		val loader = new Sql2DataFrame("select * from admission", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		val dataContainerId = r0.dataContainerID
-//		val lambda = 1.0
-//
-//		var cmd1 = new GetMultiFactor(dataContainerId, Array(3))
-//		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
-//
-//		var mapReferenceLevel: HashMap[String, String] = new HashMap[String, String]()
-//		mapReferenceLevel.put("v4", "4")
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(3), 0)
-//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(3), 0, 25, 1e-8, lambda, null, mapReferenceLevel, false)
-//		val r = bigRClient.execute[IModel](executor)
-//
-//		assert(r.isSuccess)
-//
-//		val model = r.result
-//		//TODO need to support reference level then check reference level if equal 0.0
-//		//assert(model.dummyColumnMapping.get(3).get("4") === 0.0)
-//		println(">>>>>>>>>>>>>>>>> final model =" + model.toString)
-//	}
-//
 	test("Single-variable linear regression with null initialWeights") {
 		createTableMtcars
 
@@ -346,111 +239,47 @@ class  RegressionSuite  extends ABigRClientTest {
 	}
 
 
-//	//TO DO: recheck this: assert(truncate(model.nullDeviance, 6) === 68.0292)
-//	test("Multiple-variable logistic regression IRLS - no regularization") {
-//		val dataContainerId = this.loadFile(List("resources/flu.table.noheader", "server/resources/flu.table.noheader"), false, " ")
+//	test("Single-variable linear regression with null initialWeights") {
+//		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 //		val lambda = 0.0
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(1, 2), 0)
-//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(1, 2), 0, 25, 1e-8, lambda, null, null, false)
-//		val r = bigRClient.execute[IModel](executor)
+//
+//		val executor = new LinearRegression(dataContainerId, Array(5), 0, 1, 0.05, lambda, null)
+//		val r = bigRClient.execute[LinearRegressionModel](executor)
 //
 //		assert(r.isSuccess)
-//
-//		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
-//		/*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2))
-//	    println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2))
-//	    println(model.numSamples + " " + model.numFeatures)
-//	    println(model.deviance + " " + model.nullDeviance)
-//	    println(model.numIters)*/
-//
-//		assert(truncate(model.weights(0), 6) === -21.584582)
-//		assert(truncate(model.weights(1), 6) === 0.221777)
-//		assert(truncate(model.weights(2), 6) === 0.203507)
-//		assert(truncate(model.deviance, 6) === 32.416312)
-//		//assert(truncate(model.nullDeviance, 6) === 68.0292)
-//		assert(truncate(model.stderrs(0), 6) === 6.417354)
-//		assert(truncate(model.stderrs(1), 6) === 0.074349)
-//		assert(truncate(model.stderrs(2), 6) === 0.062723)
-//		print(">>>>>>>>>>>>>>>>>> model numFeatures =" + model.numFeatures)
-//		assert(model.numFeatures == 2)
-//		assert(model.numSamples == 50)
-//		assert(model.numIters == 6)
 //	}
 //
-//  //TODO need to check the assertion, BigR works fine ?
-//	ignore("Categorical variable logistic regression IRLS - no regularization - Shark ") {
-//		createTableAdmission
-//
-//		val loader = new Sql2DataFrame("select v4, v1 from admission", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//
-//		System.setProperty("bigr.lm.maxNumFeatures", "50")
-//
-//		val dataContainerId = r0.dataContainerID
-//
-//		var cmd1 = new GetMultiFactor(dataContainerId, Array(0))
-//		bigRClient.execute[GetFactor.GetFactorResult](cmd1)
-//
+//	test("Multiple-variable linear regression") {
+//		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 //		val lambda = 0.0
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(0), 1)
-//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0), 1, 25, 1e-8, lambda, null, null, false)
+//		val executor = new LinearRegression(dataContainerId, Array(3, 5), 0, 1, 0.00005, lambda, Array(37.3, -0.04, -3.9))
 //		val r = bigRClient.execute[IModel](executor)
 //
 //		assert(r.isSuccess)
 //
-//		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
+//		val model = r.result.getRawModel.asInstanceOf[LinearRegressionModel]
 //
-//		/*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2) + " " + model.weights(3))
-//		println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2) + " " + model.stderrs(3))
-//		println(model.numSamples + " " + model.numFeatures)
-//		println(model.deviance + " " + model.nullDeviance)
-//		println(model.numIters)*/
-//
-//		println(">>>>>> model.weights=" + model.weights)
-//		assert(truncate(model.weights(0), 6) === -1.200395)
-//		assert(truncate(model.weights(1), 6) === 0.614668)
-//		assert(truncate(model.weights(2), 6) === 1.364698)
-//		assert(truncate(model.weights(3), 6) === -0.322032)
-//		//		assert(truncate(model.deviance, 6) === 474.966718)
-//		//		assert(truncate(model.nullDeviance, 6) === 499.976518)
-//		assert(truncate(model.stderrs(0), 6) === 0.215562)
-//		assert(truncate(model.stderrs(1), 6) === 0.274399)
-//		assert(truncate(model.stderrs(2), 6) === 0.335387)
-//		assert(truncate(model.stderrs(3), 6) === 0.384677)
-//
-//		assert(model.numFeatures == 3)
-//		assert(model.numSamples == 400)
-//		assert(model.numIters == 4)
-//
-//		assert(model.dummyColumnMapping != null)
+//		assertEquals(37.227, model.weights(0), 0.1)
+//		assertEquals(-0.031, model.weights(1), 0.1)
+//		assertEquals(-3.877, model.weights(2), 0.1)
 //	}
 //
-//	//24/7 bug
-//	test("Categorical variable logistic regression IRLS - normal dataframe") {
-//		createTableAdmission
-//
-////		val dataContainerId = this.loadFile(List("resources/airline-transform.3.csv", "server/resources/airline-transform.3.csv"), false, ",")
-//
-//		createTableAirline
-//		val loader = new Sql2DataFrame("select * from airline", true)
-//		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//		assert(r0.isSuccess)
-//		val dataContainerId = r0.dataContainerID
-//		
-//		val lambda = 2.0
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(2, 8, 10), 3)
-//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(2, 8, 10), 3, 10, 1e-8, lambda, null, null, false)
+//	test("Single-variable linear regression with regularization") {
+//		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
+//		val lambda = 1.0
+////		val projDataContainerId = this.projectDDF(dataContainerId, Array(5), 0)
+//		val executor = new LinearRegression(dataContainerId, Array(5), 0, 40, 0.05, lambda, Array(38, -3))
 //		val r = bigRClient.execute[IModel](executor)
 //
 //		assert(r.isSuccess)
 //
-//		val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
+//		val model = r.result.getRawModel.asInstanceOf[LinearRegressionModel]
+//		println(">>>model=" + model)
 //
-//		assert(model.numFeatures == 29)
-//		assert(model.numSamples == 31)
-//
-////		assert(model.dummyColumnMapping != null)
+//		assertEquals(model.weights(0), 33.2946, 0.1)
+//		assertEquals(model.weights(1), -4.2257, 0.1)
+//		assertEquals(model.trainingLosses(0), 86.3981, 0.1)
+//		assertEquals(model.trainingLosses(1), 54.1295, 0.1)
 //	}
 //
 	test("Single-variable logistic regression") {
