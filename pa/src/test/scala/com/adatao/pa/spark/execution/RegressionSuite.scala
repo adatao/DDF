@@ -171,6 +171,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		assert(model.getDummy() != null)
 	}
 
+
 //	test(" categorical variables linear regression on as.factor(Int column)") {
 //
 //		val loader = new Sql2DataFrame("select * from airline", true)
@@ -191,6 +192,7 @@ class  RegressionSuite  extends ABigRClientTest {
 //	}
 //
 	//temporarily don't support normal dataframe just yet
+
 //	test("Categorical multiple variables linear regression on Shark") {
 //		createTableAirline
 //
@@ -342,6 +344,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		assertEquals(model.trainingLosses(0), 86.3981, 0.1)
 		assertEquals(model.trainingLosses(1), 54.1295, 0.1)
 	}
+
 
 //	//TO DO: recheck this: assert(truncate(model.nullDeviance, 6) === 68.0292)
 //	test("Multiple-variable logistic regression IRLS - no regularization") {
@@ -533,6 +536,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		assertEquals(model.weights(1), -6.5206, 0.1)
 		assertEquals(model.trainingLosses(0), 60.5567, 0.1)
 	}
+
 //
 //	test("Multiple-variable logistic regression") {
 //		val dataContainerId = this.loadFile(List("resources/admission.csv", "server/resources/admission.csv"), false, " ")
@@ -806,6 +810,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
 		assert(r.isSuccess)
 	}
+
 //	
 //	test("test dummy coding") {
 //
