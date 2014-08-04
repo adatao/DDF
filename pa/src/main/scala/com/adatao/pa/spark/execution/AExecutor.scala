@@ -160,7 +160,7 @@ abstract class AModelTrainer[T <: TModel](
     for (col ← xCols) columnList.add(ddf.getSchema().getColumn(col).getName)
     //project on yCol
     columnList.add(ddf.getSchema().getColumn(yCol).getName)
-    val projectedDDF = ddf.Views.project(columnList)
+    val projectedDDF = ddf.VIEWS.project(columnList)
     projectedDDF
 	}
 	

@@ -70,7 +70,7 @@ class LogisticRegressionCRS(
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
       val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-      val projectDDF = ddf.Views.project(trainedColumns: _*)
+      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
       // project the xCols, and yCol as a new DDF
       // this is costly
