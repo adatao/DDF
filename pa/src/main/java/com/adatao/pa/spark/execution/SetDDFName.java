@@ -49,9 +49,9 @@ public class SetDDFName extends CExecutor {
       return new FailResult().setMessage("ddfName string is empty");
     }
     try {
-      String ddfId = Utils.dcID2DDFID(dataContainerId);
+
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDF(ddfId);
+      DDF ddf = ddfManager.getDDF(dataContainerId);
 
       if (ddf != null) {
         LOG.info(" succesful setting ddf to alias name = " + ddfName);
