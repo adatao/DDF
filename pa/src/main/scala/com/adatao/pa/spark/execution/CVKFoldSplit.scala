@@ -18,13 +18,13 @@ package com.adatao.pa.spark.execution
 
 import scala.collection.JavaConversions._
 
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 //  @author aht
 
 /*
 * Return an Array of Tuple (train, test) of dataContainerID
 * */
-class CVKFoldSplit(dataContainerID: String, numSplits: Int, seed: Long) extends AExecutor[Array[Array[String]]] {
+class CVKFoldSplit(val dataContainerID: String, val numSplits: Int, val seed: Long) extends AExecutor[Array[Array[String]]] {
   override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
 
     val ddfId = Utils.dcID2DDFID(dataContainerID)

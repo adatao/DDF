@@ -18,19 +18,18 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
-import com.adatao.ML.ALinearModel
-import com.adatao.ML.ADiscreteIterativeLinearModel
-import com.adatao.ML.AContinuousIterativeLinearModel
+import com.adatao.spark.ddf.analytics.ALinearModel
+import com.adatao.spark.ddf.analytics.ADiscreteIterativeLinearModel
+import com.adatao.spark.ddf.analytics.AContinuousIterativeLinearModel
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
 import scala.collection.mutable.ArrayBuilder
@@ -77,7 +76,7 @@ class LogisticRegressionIRLS(
 
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
 
-    val projectDDF = ddf.Views.project(trainedColumns: _*)
+    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema

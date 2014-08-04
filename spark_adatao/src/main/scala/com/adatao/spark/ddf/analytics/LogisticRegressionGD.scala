@@ -14,26 +14,19 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML.ddf
+package com.adatao.spark.ddf.analytics
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
-import io.ddf.types.TupleMatrixVector
-
+import org.apache.spark.rdd.RDD
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
+import java.util.HashMap
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
-import java.util.HashMap
-import java.util.List
-import java.util.ArrayList
+import io.ddf.types._
+import com.adatao.spark.ddf.analytics.LogisticRegression
 
-import io.ddf.DDF
-import scala.collection.mutable.ArrayBuffer
+
 /**
  * Entry point for SparkThread executor
  */
@@ -41,8 +34,6 @@ object LogisticRegressionGD {
 
   def train(dataPartition: RDD[TupleMatrixVector],
     numFeatures: java.lang.Integer,
-    xCols: Array[Int],
-    yCol: Int,
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
@@ -51,14 +42,8 @@ object LogisticRegressionGD {
     //depend on length of weights
     val weights = if (initialWeights == null || initialWeights.length != numFeatures) Utils.randWeights(numFeatures) else Vector(initialWeights)
 
-    var model = ML.LogisticRegression.train(
+    var model = LogisticRegression.train(
       new LogisticRegressionGD.LossFunction(dataPartition.map { row => (row._1, row._2) }, ridgeLambda), numIters, learningRate, weights, numFeatures)
-    model
-  }
-
-  //post process, set column mapping to model
-  def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-    model.dummyColumnMapping = mapping
     model
   }
 
@@ -69,7 +54,7 @@ object LogisticRegressionGD {
    * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
    * objects, if we were to place this class within [[class LogisticRegression]].
    */
-  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALogisticGradientLossFunction(XYData, ridgeLambda) {
+  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
     def compute: Vector => ALossFunction = {
       (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
     }

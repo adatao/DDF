@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.adatao.spark
+package com.adatao.spark.ddf.analytics
 
 import org.apache.spark.rdd.RDD
 

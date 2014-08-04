@@ -14,24 +14,24 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML.spark
+package com.adatao.spark.ddf.analytics
+
+import java.util.HashMap
+import java.util.HashMap
+
+import scala.collection.mutable.ListBuffer
+import scala.util.Random
 
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.spark.ddf.analytics.RDDImplicits._
-import org.apache.spark.rdd.RDD
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import java.util
 
-// @author: aht
+object Utils {
 
-object RddUtils {
+  // random initial weights (uniform distributed)
+  def randWeights(numFeatures: Int) = Vector(Seq.fill(numFeatures)(Random.nextDouble).toArray)
 
-	// calculate the mean value of the distributed Vector y from a RDD[(Matrix, Vector)]
-	def yMean(xyRdd: RDD[(Matrix, Vector)], defaultIfEmpty: Double = Double.NaN): Double = {
-		val tupSumCount = xyRdd.map(xy ⇒ xy match {
-			case (x, y) ⇒
-				(y.columnSum, y.rows) // sum and count tuple
-		}).safeReduce((a, b) ⇒ (a._1 + b._1, a._2 + b._2), (Double.NaN, 1))
-
-		if (tupSumCount._1.isNaN) defaultIfEmpty else tupSumCount._1 / tupSumCount._2
-	}
 }
+

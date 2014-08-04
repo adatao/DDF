@@ -101,7 +101,8 @@ public class SparkThread extends ASessionThread {
 
 	@SuppressWarnings("unused")
 	private void processJsonCommand(JsonCommand jsCmd) throws JsonSyntaxException, InterruptedException, ClassNotFoundException, AdataoException {
-			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
+			LOG.info(">>>> jsonCommand.params = " + (jsCmd.params.toString()));
+            Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
 			LOG.info("Created Executor: " + exec.toString());
 
 			ExecutionResult<?> execRes = null;
@@ -124,7 +125,8 @@ public class SparkThread extends ASessionThread {
 	
 	public ExecutionResult<?> processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
 			Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
-			LOG.info("Created Executor: " + exec.toString());
+        LOG.info(">>>> jsonCommand.params = " + (jsCmd.params.toString()));
+        LOG.info("Created Executor: " + exec.toString());
 
 			ExecutionResult<?> execRes = null;
 			if (exec instanceof IExecutor) {

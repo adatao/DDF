@@ -16,7 +16,7 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils, _ 
 }
 import scala.Some
 import io.ddf.DDF
@@ -24,7 +24,7 @@ import io.ddf.ml.IModel
 import io.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.ml.IModel
 import io.ddf.DDF
 
@@ -46,7 +46,7 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
         String.format("Not found dataframe with id %s", modelID), null);
     }
-    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
     if (predictionDDF == null) {
@@ -58,6 +58,5 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
     val yMean = summary(projectedDDF.getNumColumns - 1).mean()
 
     ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
-
   }
 }

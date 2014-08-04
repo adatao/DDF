@@ -23,6 +23,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
+import com.adatao.spark.ddf.analytics._
 
 /**
  * @author ctn

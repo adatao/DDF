@@ -14,17 +14,13 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML.ddf
+package com.adatao.spark.ddf.analytics
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.ALossFunction
-import com.adatao.ML.LinearRegressionModel
-import com.adatao.ML.Utils
 import io.ddf.types.TupleMatrixVector
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
 
@@ -34,8 +30,6 @@ import java.util.HashMap
 object LinearRegressionGD {
 
     def train(dataPartition: RDD[TupleMatrixVector],
-        xCols: Array[Int],
-        yCol: Int,
         numIters: Int,
         learningRate: Double,
         ridgeLambda: Double,
@@ -44,18 +38,12 @@ object LinearRegressionGD {
         //val numFeatures = xCols.length + 1
         //depend on length of weights
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-        var model = ML.LinearRegression.train(
+        var model = LinearRegression.train(
             new LinearRegressionGD.LossFunction(dataPartition.map {row => (row._1, row._2)}, ridgeLambda), numIters, learningRate, weights, numFeatures
         )
 
         model
     }
-    //post process, set column mapping to model
-    def instrumentModel(model: LinearRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]) :LinearRegressionModel = {
-      model.dummyColumnMapping = mapping
-      model
-    }
-    
     /**
      * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
      * knows how to handle that data.
@@ -63,7 +51,7 @@ object LinearRegressionGD {
      * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
      * objects, if we were to place this class within [[class LinearRegression]].
      */
-    class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALinearGradientLossFunction(XYData, ridgeLambda) {
+    class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
         def compute: Vector => ALossFunction = {
             (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
         }

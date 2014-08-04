@@ -1,4 +1,4 @@
-package com.adatao.ML
+package com.adatao.spark.ddf.analytics
 
 
 /**

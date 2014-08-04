@@ -198,10 +198,10 @@ public class LoadTable implements IExecutor {
   	  
   	  String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
-  	  String dataContainerID = ddfName.substring(15).replace("_", "-");;
+
   		// LOG.info("Meta info: " + Arrays.toString(metaInfo));
   
-  		return new LoadTableResult().setDataContainerID(dataContainerID).setMetaInfo(generateMetaInfo(ddf.getSchema()));
+  		return new LoadTableResult().setDataContainerID(ddfName).setMetaInfo(generateMetaInfo(ddf.getSchema()));
 	  } catch (Exception e) {
 	    return null;
 	  }

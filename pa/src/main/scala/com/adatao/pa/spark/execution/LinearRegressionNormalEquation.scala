@@ -17,17 +17,17 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.ALossFunction
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
 import com.adatao.pa.spark.DataManager._
-import com.adatao.ML.ALinearModel
+import com.adatao.spark.ddf.analytics.ALinearModel
 import java.util.HashMap
 import scala.collection.mutable.ListBuffer
 import org.jblas.exceptions.LapackArgumentException
@@ -69,7 +69,7 @@ class LinearRegressionNormalEquation(
     }
     //project first
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    val projectedDDF = ddf.Views.project(trainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
     projectedDDF.getSchemaHandler().generateDummyCoding()

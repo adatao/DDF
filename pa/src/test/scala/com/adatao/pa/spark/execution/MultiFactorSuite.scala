@@ -105,6 +105,7 @@ class MultiFactorSuite extends ABigRClientTest {
     val cmd = new GetMultiFactor(dcID, Array(0, 8, 16, 17, 24, 25, 10000))
     try {
       val result = bigRClient.execute[Array[(Int, JMap[String, java.lang.Double])]](cmd)
+      fail()
     }
     catch {
       case e =>

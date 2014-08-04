@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.Utils.DataFrameResult
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 
@@ -20,7 +20,7 @@ class XsYpred(dataContainerID: String, val modelID: String) extends AExecutor[Da
       throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "null model", null)
     }
     val featureColumns = model.getTrainedColumns
-    val projectedDDF = ddf.Views.project(featureColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(featureColumns: _*)
 
     val predictionDDF = projectedDDF.getMLSupporter.applyModel(model, false, true)
     ddfManager.addDDF(predictionDDF)

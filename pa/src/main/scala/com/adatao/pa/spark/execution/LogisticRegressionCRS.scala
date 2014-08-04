@@ -17,20 +17,19 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
+import com.adatao.spark.ddf.analytics._
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
 import org.jblas.DoubleMatrix
 import no.uib.cipr.matrix.sparse.CompRowMatrix
 import io.ddf.types.MatrixSparse
 import org.jblas.MatrixFunctions
-import com.adatao.ML.GradientDescent
 import scala.util.Random
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import io.ddf.DDFManager
@@ -43,7 +42,6 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
 import io.ddf.ml.IModel
-import com.adatao.ML.LogisticRegressionModel
 
 class LogisticRegressionCRSResult(model: LogisticRegressionModel) extends SuccessResult {
 }
@@ -72,7 +70,7 @@ class LogisticRegressionCRS(
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
       val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-      val projectDDF = ddf.Views.project(trainedColumns: _*)
+      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
       // project the xCols, and yCol as a new DDF
       // this is costly
@@ -89,10 +87,9 @@ class LogisticRegressionCRS(
       val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
-      val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-      //TODO need to move this to spark layer
+      val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       if (projectDDF.getSchema().getDummyCoding() != null)
-        model.setDummy(projectDDF.getSchema().getDummyCoding())
+        rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
       regressionModel
     } catch {

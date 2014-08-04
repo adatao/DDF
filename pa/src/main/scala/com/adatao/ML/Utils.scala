@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML
+package com.adatao.spark.ddf.analytics
 
 import java.util.HashMap
 import java.util.HashMap
@@ -130,7 +130,7 @@ object Utils {
     //get categorical column map with its column values 
     //example {16={ISP=1.0, IAD=1.0, IND=1.0}}
     var metaInfo = dataContainer.getMetaInfo()
-    var mapColumnToDouble = com.adatao.ML.Utils.getMultipleFactor(dataContainer, metaInfo, arrCategoricalIndex)
+    var mapColumnToDouble = com.adatao.spark.ddf.analytics.Utils.getMultipleFactor(dataContainer, metaInfo, arrCategoricalIndex)
     mapColumnToDouble
   }
 

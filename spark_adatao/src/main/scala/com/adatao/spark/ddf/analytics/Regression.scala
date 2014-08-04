@@ -14,12 +14,9 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML
-
-import java.lang.String
-import java.util.Arrays
-import org.jblas.DoubleMatrix
+package com.adatao.spark.ddf.analytics
 import scala.util.Random
+import com.adatao.spark.ddf.analytics.ALossFunction
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 

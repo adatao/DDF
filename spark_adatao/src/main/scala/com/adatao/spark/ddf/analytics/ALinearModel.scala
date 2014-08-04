@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 
-package com.adatao.ML
+package com.adatao.spark.ddf.analytics
 
 import org.jblas.DoubleMatrix
 import java.util.HashMap
 import io.ddf.types._
+import scala.Array.canBuildFrom
 
 /**
  * Constructor parameters are accessible via 'val' so they would show up on (JSON) serialization

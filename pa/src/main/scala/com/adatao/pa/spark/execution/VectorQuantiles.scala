@@ -25,7 +25,7 @@ import java.util.regex.Pattern
 import scala.collection.mutable.{ ArrayBuffer, Map, HashMap }
 import io.ddf.DDF
 
-import com.adatao.ML.Utils
+import com.adatao.spark.ddf.analytics.Utils
 
 /**
  * Created with IntelliJ IDEA.

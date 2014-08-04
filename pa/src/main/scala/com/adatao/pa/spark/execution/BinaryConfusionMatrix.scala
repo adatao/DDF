@@ -1,15 +1,12 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
+import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
+import com.adatao.spark.ddf.analytics.ALinearModel
 import io.ddf.types.Vector
-//import com.adatao.ML.spark.{ Metrics, RddUtils }
 import org.apache.spark.rdd.RDD
 import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-
-import com.adatao.ML.Utils
-
-
+import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.DDF
 
 /**
@@ -29,7 +26,7 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
     // val ddfModelID = context.sparkThread.getDataManager.getObject(modelID).asInstanceOf[TModel].ddfModelID
 
     val model = ddfManager.getModel(modelID)
-    val projectedDDF = ddf.Views.project(model.getTrainedColumns: _*)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
     val cm = projectedDDF.ML.getConfusionMatrix(model, threshold)
     new BinaryConfusionMatrixResult(cm(0)(0), cm(1)(0), cm(0)(1), cm(1)(1))
   }
