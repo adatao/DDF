@@ -58,21 +58,9 @@ object RootBuild extends Build {
   val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
-  val examplesProjectName = projectName + "_examples"
-  val examplesVersion = rootVersion
-  val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
-  val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
-
-  val contribProjectName = projectName + "_contrib"
-  val contribVersion = rootVersion
-  val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
-  val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
-  
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, examples, contrib,pa)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, pa)
   lazy val spark_adatao = Project("spark_adatao", file("spark_adatao"), settings = spark_adatao_Settings)
   lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark_adatao)
-  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark_adatao)
-  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark_adatao)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -478,25 +466,6 @@ object RootBuild extends Build {
     //libraryDependencies ++= scalaDependencies,
     initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
   ) ++ assemblySettings ++ extraAssemblySettings
-
-
-  def examplesSettings = commonSettings ++ Seq(
-    name := examplesProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
-
-  def contribSettings = commonSettings ++ Seq(
-    name := contribProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch contrib/" + targetDir + "/*timestamp") }
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
 
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
     mergeStrategy in assembly := {
