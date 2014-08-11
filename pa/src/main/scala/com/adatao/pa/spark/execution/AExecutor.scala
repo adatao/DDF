@@ -25,9 +25,6 @@ import io.ddf.types.Vector
 import com.adatao.ML._
 import com.adatao.pa.spark.SparkThread
 import org.apache.spark.rdd.RDD
-import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-import com.adatao.pa.spark.DataManager
-import com.adatao.pa.spark.DataManager.{ SharkDataFrame, DataFrame }
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessfulResult
 import com.adatao.pa.spark.types.FailedResult
@@ -92,14 +89,6 @@ abstract class AExecutor[ResultType](var doPersistResult: Boolean = false)(impli
 	 * Override [[runImpl]] to do your own run() work
 	 */
 	protected def runImpl(context: ExecutionContext): ResultType
-
-	/**
-	 * Gets an RDD[Array[Object]] from dataContainerID in context
-	 */
-	def getRDD(dataContainerID: String, context: ExecutionContext): Option[RDD[Array[Object]]] = {
-		Option(context.sparkThread.getDataManager.get(dataContainerID)).map(df ⇒ df.getRDD.rdd)
-	}
-
 
 }
 

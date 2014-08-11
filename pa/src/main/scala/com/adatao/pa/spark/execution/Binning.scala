@@ -6,8 +6,7 @@ import scala.annotation.tailrec
 import io.ddf.DDF
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.Utils
-import shark.api.JavaSharkContext
-import shark.api.Row
+
 
 class BinningResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])
 

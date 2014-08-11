@@ -25,7 +25,6 @@ import io.ddf.DDF;
 import io.ddf.DDFManager;
 import io.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.DataContainer;
-import com.adatao.pa.spark.DataManager.SharkColumnVector;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.VectorCorrelation.VectorCorrelationResult;
 import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult;

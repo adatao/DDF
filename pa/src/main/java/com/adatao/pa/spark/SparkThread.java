@@ -23,12 +23,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-import com.adatao.pa.spark.execution.DDFExecutor;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shark.SharkEnv;
-import shark.api.JavaSharkContext;
+
 import io.ddf.DDFManager;
 import io.spark.ddf.SparkDDFManager;
 import io.ddf.content.ViewHandler.Expression;
@@ -60,7 +58,6 @@ public class SparkThread extends ASessionThread {
 	Date latestCommandTime;
 
 	JavaSparkContext sparkContext;
-	DataManager dataManager = new DataManager();
 	DDFManager ddfManager;
 
 	int driverPort = 20002;
@@ -141,9 +138,7 @@ public class SparkThread extends ASessionThread {
 			} else if (exec instanceof TExecutor) {
 				// New-style, Scala-based class hierarchy
 				execRes = ((TExecutor<?>) exec).run(new ExecutionContext(this));
-			} else if (exec instanceof DDFExecutor) {
-        execRes = ((DDFExecutor) exec).run(new ExecutionContext(this));
-      }
+			}
 			
 			return execRes;
 	}
@@ -224,12 +219,6 @@ public class SparkThread extends ASessionThread {
 		return sc;
 	}
 
-	public JavaSparkContext startLocalSparkContext(Boolean isShark) {
-		if (!isShark)
-			return new JavaSparkContext("local[2]", "BigR");
-		else
-			return SharkEnv.initWithJavaSharkContext(new JavaSharkContext("local[2]", "BigR"));
-	}
 
 	public void run() {
 		LOG.info("Starting SparkThread ...");
@@ -238,11 +227,8 @@ public class SparkThread extends ASessionThread {
 		String sparkMode = System.getenv("SPARK_MODE");
 
 		try {
-			if (sparkMode != null && sparkMode.toLowerCase().trim().equals("local")) {
-				sparkContext = startLocalSparkContext(isShark);
-			} else {
-				sparkContext = startSparkContext(isShark);
-			}
+
+		  sparkContext = startSparkContext(isShark);
 		} catch (Exception e) {
 			LOG.error("Exception while starting SharkContext: ", e);
 			LOG.error(AdataoExceptionCode.ERR_GENERAL.name());
@@ -286,10 +272,6 @@ public class SparkThread extends ASessionThread {
 
 	public ArrayBlockingQueue<Object> getResultQueue() {
 		return resQueue;
-	}
-
-	public DataManager getDataManager() {
-		return dataManager;
 	}
 
 	public Date getLatestCommandTime() {

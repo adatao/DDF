@@ -52,13 +52,8 @@ public class FillNA implements IExecutor {
       return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
-
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
-        LOG.error("Cannot fill NAs in the DDF", e);
-        return null;
-      }
+      LOG.error("Cannot fill NAs in the DDF", e);
+      return null;
     }
   }
 

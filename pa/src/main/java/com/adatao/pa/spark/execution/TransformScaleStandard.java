@@ -33,12 +33,8 @@ public class TransformScaleStandard extends CExecutor {
 
     } catch (Exception e) {
 
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
-        LOG.error("Cannot transform the DDF", e);
-        return null;
-      }
+      LOG.error("Cannot transform the DDF", e);
+      return null;
     }
   }
 

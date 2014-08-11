@@ -8,7 +8,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfterAll
-import shark.SharkContext
 import io.ddf.DDFManager
 import io.spark.ddf.SparkDDFManager
 

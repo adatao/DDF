@@ -10,11 +10,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.UnionRDD
 import org.apache.spark.storage.StorageLevel
 
-import shark.api.QueryExecutionException
-//import shark.memstore2.{ CacheType, MemoryMetadataManager, PartitionedMemoryTable }
-//import shark.tgf.{ RDDSchema, Schema }
-//
-//import shark.SharkRunner._
 
 class AlgorithmRunnerTestSuite extends FunSuite {
 /*  var sc: SharkContext = SharkRunner.init()

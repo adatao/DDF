@@ -96,15 +96,9 @@ public class Sql2DataFrame extends CExecutor {
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
+
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;
-      }
     }
   }
 }

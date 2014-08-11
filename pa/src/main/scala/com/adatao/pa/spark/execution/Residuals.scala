@@ -2,8 +2,6 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import org.apache.spark.api.java.JavaRDD
-import com.adatao.pa.spark.SharkUtils
-import shark.api.JavaSharkContext
 import io.ddf.DDF
 import io.ddf.ml.IModel
 import io.spark.ddf.SparkDDF

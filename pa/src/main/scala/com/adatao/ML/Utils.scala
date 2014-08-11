@@ -24,15 +24,6 @@ import scala.util.Random
 
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
-import com.adatao.pa.spark.DataManager
-import com.adatao.pa.spark.DataManager
-import com.adatao.pa.spark.DataManager.DataContainer
-import com.adatao.pa.spark.DataManager.DataFrame
-import com.adatao.pa.spark.DataManager.MetaInfo
-import com.adatao.pa.spark.DataManager.SharkDataFrame
-import com.adatao.pa.spark.DataManager.SharkDataFrame
-import com.adatao.pa.spark.execution.GetFactor
-import com.adatao.pa.spark.execution.GetMultiFactor.{ MultiFactorMapper, SharkMultiFactorMapper, MultiFactorReducer }
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import java.util
@@ -103,70 +94,8 @@ object Utils {
     case _ => throw new RuntimeException("not a numeric Object")
   }
 
-  /*
-	 * 
-	 */
-  def getMultipleFactor(dc: DataContainer, metaInfo: Array[MetaInfo], categoricalColumns: Array[Int]): HashMap[Int, HashMap[String, java.lang.Integer]] = {
 
-    val indexsWithTypes = for {
-      idx <- categoricalColumns
-    } yield (idx, metaInfo(idx).getType)
-    dc match {
-      case sdf: SharkDataFrame => {
-        val mapper = new SharkMultiFactorMapper(indexsWithTypes)
-        sdf.getTablePartitionRDD.map(mapper).reduce(new MultiFactorReducer)
-      }
-      case df: DataFrame => {
-        val mapper = new MultiFactorMapper(indexsWithTypes)
-        df.getRDD.rdd.mapPartitions(mapper).reduce(new MultiFactorReducer)
-      }
-    }
-  }
 
-  /*
-	 * 
-	 */
-  def getMapCategoricalColumnValueToDoubleOld(dataContainer: DataContainer, arrCategoricalIndex: Array[Int]): HashMap[Int, HashMap[String, java.lang.Integer]] = {
-    //get categorical column map with its column values 
-    //example {16={ISP=1.0, IAD=1.0, IND=1.0}}
-    var metaInfo = dataContainer.getMetaInfo()
-    var mapColumnToDouble = com.adatao.spark.ddf.analytics.Utils.getMultipleFactor(dataContainer, metaInfo, arrCategoricalIndex)
-    mapColumnToDouble
-  }
-
-  def getMapCategoricalColumnValueToDouble(dc: DataContainer, arrCategoricalIndex: Array[Int]): HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] = {
-    //get categorical column map with its column values 
-    //example {16={ISP=1.0, IAD=1.0, IND=1.0}}
-    val metaInfo = dc.getMetaInfo()
-    var factor = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]()
-
-    val needToGetFactors = arrCategoricalIndex.filter(idx => metaInfo(idx).getFactor == null)
-    val alreadyHasFactors = arrCategoricalIndex.filter(idx => metaInfo(idx).getFactor != null)
-
-    if (!needToGetFactors.isEmpty) {
-      val newFactors = getMultipleFactor(dc, metaInfo, needToGetFactors)
-      newFactors.map {
-        case (idx, smap) => {
-          val newsmap: java.util.HashMap[String, java.lang.Double] = new util.HashMap[String, java.lang.Double]()
-          smap.foreach { case (s, num) => newsmap.put(s, num.toDouble) }
-          factor.put(idx: java.lang.Integer, newsmap)
-        }
-      }
-    }
-    if (!alreadyHasFactors.isEmpty) {
-      alreadyHasFactors.foreach {
-        idx =>
-          {
-            val f = metaInfo(idx).getFactor
-            val newsmap = new util.HashMap[String, java.lang.Double]()
-            f.foreach { case (s, num) => newsmap.put(s, num.toDouble) }
-            factor.put(idx: java.lang.Integer, newsmap)
-          }
-      }
-    }
-    println(">>>>factor=" + factor)
-    factor
-  }
 
   /**
    * Helps safely parse a String into a java Double.

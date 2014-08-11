@@ -24,7 +24,6 @@ import com.adatao.pa.spark.{ SparkThread, DataManager }
 import com.adatao.pa.spark.types.{ SuccessResult, ExecutorResult }
 import scala.collection.JavaConversions._
 import java.util.Map
-import shark.api.JavaSharkContext
 import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec

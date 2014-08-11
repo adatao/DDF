@@ -2,13 +2,12 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-import com.adatao.pa.spark.{ SharkUtils, DataManager }
+import com.adatao.pa.spark.DataManager
 import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
 import com.adatao.spark.ddf.analytics.ALinearModel
 import io.ddf.types.Vector
 import com.adatao.spark.ddf.analytics._
 import org.apache.spark.api.java.JavaRDD
-import shark.api.JavaSharkContext
 import com.adatao.spark.ddf.analytics._
 import io.ddf.DDF
 import io.ddf.ml.IModel

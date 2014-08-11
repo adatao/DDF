@@ -17,8 +17,7 @@
 package com.adatao.pa.spark.execution
 
 
-import com.adatao.pa.spark.DataManager.{ SharkColumnVector, DataFrame }
-import shark.api.JavaSharkContext
+import com.adatao.pa.spark.DataManager.DataFrame
 import com.adatao.pa.spark.types.NumericHistogram
 import org.apache.spark.rdd.RDD
 import java.util.regex.Pattern

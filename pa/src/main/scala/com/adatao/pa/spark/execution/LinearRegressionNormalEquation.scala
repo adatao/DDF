@@ -38,8 +38,6 @@ import scala.collection.Iterator
 import scala.collection.immutable.List
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.api.java.JavaRDD
-import com.adatao.pa.spark.SharkUtils
-import shark.api.JavaSharkContext
 import java.util.ArrayList
 import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
