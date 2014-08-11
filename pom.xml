@@ -60,7 +60,6 @@
 	<modules>
 	  <module>spark_adatao</module>
     <module>pa</module>
-	  <module>examples</module>
 	</modules>
 
 	<dependencies>
