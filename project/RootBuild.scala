@@ -18,13 +18,13 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  lazy val MAIN_SHARK_VERSION = "0.9.2"
-  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
-
-  lazy val MAIN_SPARK_VERSION = "0.9.2"
-  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
+//  lazy val MAIN_SHARK_VERSION = "0.9.2"
+//  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
+//  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
+//
+//  lazy val MAIN_SPARK_VERSION = "0.9.2"
+//  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
+//  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -39,12 +39,12 @@ object RootBuild extends Build {
 
   val YARN_ENABLED = env("SPARK_YARN").getOrElse("true").toBoolean
 
-  //val rootVersion = "0.9"
-  val rootVersion = if(YARN_ENABLED) {
-    "0.9"
-  } else {
-    "0.9-mesos"
-  }
+  val rootVersion = "1.0"
+//  val rootVersion = if(YARN_ENABLED) {
+//    "0.9"
+//  } else {
+//    "0.9-mesos"
+//  }
 
   val projectOrganization = rootOrganization + "." + projectName
 
@@ -239,6 +239,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
+    dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     pomExtra := (
       <!--
       **************************************************************************************************
