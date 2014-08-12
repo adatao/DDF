@@ -52,7 +52,7 @@ public class TestGroupBy extends BaseTest {
         .setSid(sid)
         .setCmdName("GroupBy")
         .setParams(
-            String.format("{dataContainerID: %s," + "groupedColumns: [cyl]," + "selectFunctions: [avg(disp)]}",
+            String.format("{dataContainerID: %s," + "groupedColumns: [cyl]," + "selectFunctions: [mean(disp)]}",
                 mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 
@@ -71,7 +71,7 @@ public class TestGroupBy extends BaseTest {
         .setCmdName("GroupBy")
         .setParams(
             String.format("{dataContainerID: %s," + "groupedColumns: [cyl],"
-                + "selectFunctions: ['adisp=avg(disp)', cyl]}", mtcarsID)));
+                + "selectFunctions: ['adisp=mean(disp)']}", mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 
     metaInfo = groupbyResult.getMetaInfo();
@@ -86,15 +86,15 @@ public class TestGroupBy extends BaseTest {
         .setCmdName("GroupBy")
         .setParams(
             String.format("{dataContainerID: %s," + "groupedColumns: [cyl, disp],"
-                + "selectFunctions: ['smpg=stddev_pop(disp)', disp, cyl]}", mtcarsID)));
+                + "selectFunctions: ['smpg=stddev(disp)']}", mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 
     metaInfo = groupbyResult.getMetaInfo();
     LOG.info("GroupBy result: " + Arrays.toString(metaInfo));
 
     Assert.assertTrue(metaInfo[0].getHeader().equals("smpg"));
-    Assert.assertTrue(metaInfo[1].getHeader().equals("disp"));
-    Assert.assertTrue(metaInfo[2].getHeader().equals("cyl"));
+    Assert.assertTrue(metaInfo[1].getHeader().equals("cyl"));
+    Assert.assertTrue(metaInfo[2].getHeader().equals("disp"));
 
     res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
         .setParams(String.format("{dataContainerID: %s}", groupbyResult.getDataContainerID())));
@@ -107,7 +107,7 @@ public class TestGroupBy extends BaseTest {
         .setCmdName("GroupBy")
         .setParams(
             String.format("{dataContainerID: %s," + "groupedColumns: [],"
-                + "selectFunctions: ['smpg=stddev_pop(disp)', disp, cyl]}", mtcarsID)));
+                + "selectFunctions: ['smpg=stddev(disp)', disp, cyl]}", mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
     Assert.assertNull(groupbyResult);
 
@@ -122,7 +122,7 @@ public class TestGroupBy extends BaseTest {
 
     // Missing dataframe
     res = client.execJsonCommand(cmd.setSid(sid).setCmdName("GroupBy")
-        .setParams(String.format("{" + "groupedColumns: [cyl]," + "selectFunctions: [avg(disp)]}", mtcarsID)));
+        .setParams(String.format("{" + "groupedColumns: [cyl]," + "selectFunctions: [mean(disp)]}", mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
     Assert.assertNull(groupbyResult);
 
@@ -140,7 +140,7 @@ public class TestGroupBy extends BaseTest {
         .setSid(sid)
         .setCmdName("GroupBy")
         .setParams(
-            String.format("{dataContainerID: %s," + "groupedColumns: [cyl1]," + "selectFunctions: [avg(disp)]}",
+            String.format("{dataContainerID: %s," + "groupedColumns: [cyl1]," + "selectFunctions: [mean(disp)]}",
                 mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
     Assert.assertNull(groupbyResult);
