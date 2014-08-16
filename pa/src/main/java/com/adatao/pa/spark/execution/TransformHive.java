@@ -26,19 +26,18 @@ public class TransformHive extends CExecutor {
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     try {
-
       DDFManager manager = sparkThread.getDDFManager();
       DDF ddf = manager.getDDF(dataContainerID);
-
       DDF newddf = ddf.Transform.transformUDF(transformExpression);
 
-      manager.addDDF(newddf);
-
-      return new Utils.DataFrameResult(newddf);
-
+      if(newddf == null) {
+          throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error transform DDF", null);
+      } else {
+          manager.addDDF(newddf);
+          return new Utils.DataFrameResult(newddf);
+      }
     } catch (Exception e) {
-      LOG.error("Cannot transform the DDF", e);
-      return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,"Cannot transform the DDF", e);
     }
   }
 
