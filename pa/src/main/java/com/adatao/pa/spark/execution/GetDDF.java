@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution;
 
 
+import io.ddf.exception.DDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.ddf.DDF;
@@ -55,18 +56,12 @@ public class GetDDF extends CExecutor {
       DDF ddf = ddfManager.getDDF(ddfName);
       if (ddf != null) {
         LOG.info("succesful getting ddf from name = " + ddfName);
+        return new MutableDataFrameResult(ddf);
       } else {
-        LOG.info("Can not get ddf from name = " + ddfName);
+        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF " + ddfName, null);
       }
-      return new MutableDataFrameResult(ddf);
-
     } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-
-        LOG.error("Cannot create a ddf from the sql command", e);
-        return null;
+        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF " + ddfName, null);
     }
   }
 }
