@@ -38,6 +38,11 @@ do_parse_args $@
 cd `dirname $0`/../ >/dev/null 2>&1
 DIR=`pwd`
 
+if [[ -z "$SPARK_MEM" ]]; then
+	. ${DIR}/exe/mem-size-detection.sh
+fi
+echo "SPARK_MEM = "$SPARK_MEM
+
 paenv="${DIR}/conf/pa-env.sh"
 [ ! -f $paenv ] && echo "Fatal: $paenv file does not exist" && exit 1
 
@@ -55,10 +60,6 @@ mkdir -p ${LOG_DIR}
 
 ${DIR}/exe/stop-pa-server.sh
 
-if [[ -z "$SPARK_MEM" ]]; then
-	. ${DIR}/exe/mem-size-detection.sh
-fi
-echo "SPARK_MEM = "$SPARK_MEM
 
 [ "X$start_spark" == "X1" ] && ${DIR}/exe/start-spark-cluster.sh $@
 
