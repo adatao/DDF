@@ -119,7 +119,8 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
     .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
-    .registerTypeAdapter(classOf[KMeansModel], new SpecialSerDes.KmeansModelDeserializer)
+    .registerTypeAdapter(classOf[Vector], new SpecialSerDes.VectorInstanceCreator)
+    //.registerTypeAdapter(classOf[KMeansModel], new SpecialSerDes.KmeansModelDeserializer)
 }
 
 /**
@@ -312,27 +313,31 @@ private object SpecialSerDes {
       }
     }
   }
-
-  class KmeansModelDeserializer extends JsonDeserializer[KMeansModel] {
-
-    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): KMeansModel = {
-      jElem match {
-        case jObj: JsonObject => {
-          val arr = jObj.get("clusterCenters") match {
-            case jArr: JsonArray => {
-              val arrVector = new Array[Vector](jArr.size())
-              var i = 0
-              while(i < jArr.size()) {
-                val vector = Vectors.dense(standardGson.fromJson(jArr.get(i), classOf[Array[Double]]))
-                arrVector(i) = vector
-                i += 1
-              }
-              arrVector
-            }
-          }
-          new KMeansModel(arr)
-        }
-      }
+  class VectorInstanceCreator extends InstanceCreator[Vector] {
+    def createInstance(typ: Type): Vector = {
+      return Vectors.dense(Array(1.0));
     }
   }
+//  class KmeansModelDeserializer extends JsonDeserializer[KMeansModel] {
+//
+//    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): KMeansModel = {
+//      jElem match {
+//        case jObj: JsonObject => {
+//          val arr = jObj.get("clusterCenters") match {
+//            case jArr: JsonArray => {
+//              val arrVector = new Array[Vector](jArr.size())
+//              var i = 0
+//              while(i < jArr.size()) {
+//                val vector = Vectors.dense(standardGson.fromJson(jArr.get(i), classOf[Array[Double]]))
+//                arrVector(i) = vector
+//                i += 1
+//              }
+//              arrVector
+//            }
+//          }
+//          new KMeansModel(arr)
+//        }
+//      }
+//    }
+//  }
 }
