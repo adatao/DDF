@@ -35,7 +35,12 @@ class Kmeans(
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
 //    projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
-    projectedDDF.ML.KMeans(K, numIterations, 1)
+    val model = projectedDDF.ML.KMeans(K, numIterations, 1)
+    val kmeansModel = model.getRawModel.asInstanceOf[KMeansModel]
+    kmeansModel.clusterCenters.foreach{
+      row => println(">>>> clusterCenters= " + row.toArray.mkString(", "))
+    }
+    model
   }
 }
 
