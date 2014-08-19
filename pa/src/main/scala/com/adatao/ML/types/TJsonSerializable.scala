@@ -174,7 +174,10 @@ private class TJsonSerializableSerializer extends JsonSerializer[TJsonSerializab
 }
 
 private object SpecialSerDes {
-	private lazy val standardGson = new GsonBuilder().create // used when we need to serdes without going through the registered type hierarchy
+	private lazy val standardGson = new GsonBuilder()
+    .registerTypeAdapter(classOf[Vector], new VectorDeserializer)
+    .registerTypeAdapter(classOf[DenseVector], new DenseVectorInstanceCreator)
+    .create // used when we need to serdes without going through the registered type hierarchy
 
 	class ExceptionSerializer extends JsonSerializer[Exception] {
 		def serialize(e: Exception, typeOfT: Type, context: JsonSerializationContext): JsonElement = {
@@ -321,6 +324,7 @@ private object SpecialSerDes {
       return new DenseVector(Array(1.0))
     }
   }
+
   class VectorDeserializer extends JsonDeserializer[Vector] {
     def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): Vector = {
       jElem match {
@@ -330,6 +334,7 @@ private object SpecialSerDes {
       }
     }
   }
+
 //  class KmeansModelDeserializer extends JsonDeserializer[KMeansModel] {
 //
 //    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): KMeansModel = {
