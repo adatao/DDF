@@ -45,9 +45,9 @@ class KmeansSuite extends ABigRClientTest {
     model.clusterCenters.foreach{
       row => println(">>>>> clusterCenters = " + row.asInstanceOf[DenseVector].toArray.mkString(", "))
     }
-//    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-7.75, -8.25).deep))
-//    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-8.7, 6.75).deep))
-//    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.5, 6.071428571428571).deep))
-//    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.333333333333333, -8.0).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-7.75, -8.25).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-8.7, 6.75).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.5, 6.071428571428571).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.333333333333333, -8.0).deep))
   }
 }
