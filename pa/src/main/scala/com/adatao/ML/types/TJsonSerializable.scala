@@ -120,7 +120,9 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
     .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
+    .registerTypeAdapter(classOf[Vector], new SpecialSerDes.VectorDeserializer)
     .registerTypeAdapter(classOf[DenseVector], new SpecialSerDes.DenseVectorInstanceCreator)
+
     //.registerTypeAdapter(classOf[KMeansModel], new SpecialSerDes.KmeansModelDeserializer)
 }
 
