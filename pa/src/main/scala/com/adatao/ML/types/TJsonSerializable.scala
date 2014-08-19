@@ -20,7 +20,7 @@ import java.lang.reflect.Type
 import com.google.gson._
 import io.ddf.ml.{IModel, Model}
 import org.apache.spark.mllib.clustering.KMeansModel
-import org.apache.spark.mllib.linalg.{Vectors, Vector}
+import org.apache.spark.mllib.linalg.{DenseVector, Vectors, Vector}
 import scala.Tuple9
 import scala.Tuple5
 import scala.Tuple7
@@ -32,6 +32,7 @@ import scala.Tuple6
 import scala.Tuple8
 import scala.Tuple2
 import scala.Tuple4
+import org.apache.spark.mllib.linalg.DenseVector
 
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().
@@ -119,7 +120,7 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
     .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
-    .registerTypeAdapter(classOf[Vector], new SpecialSerDes.VectorInstanceCreator)
+    .registerTypeAdapter(classOf[DenseVector], new SpecialSerDes.DenseVectorInstanceCreator)
     //.registerTypeAdapter(classOf[KMeansModel], new SpecialSerDes.KmeansModelDeserializer)
 }
 
@@ -313,9 +314,18 @@ private object SpecialSerDes {
       }
     }
   }
-  class VectorInstanceCreator extends InstanceCreator[Vector] {
-    def createInstance(typ: Type): Vector = {
-      return Vectors.dense(Array(1.0));
+  class DenseVectorInstanceCreator extends InstanceCreator[DenseVector] {
+    def createInstance(typ: Type): DenseVector = {
+      return new DenseVector(Array(1.0))
+    }
+  }
+  class VectorDeserializer extends JsonDeserializer[Vector] {
+    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): Vector = {
+      jElem match {
+        case jObj: JsonObject => {
+          standardGson.fromJson(jObj, classOf[DenseVector])
+        }
+      }
     }
   }
 //  class KmeansModelDeserializer extends JsonDeserializer[KMeansModel] {
