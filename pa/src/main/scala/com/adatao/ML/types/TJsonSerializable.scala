@@ -17,20 +17,22 @@
 package com.adatao.ML.types
 
 import java.lang.reflect.Type
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParseException
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonNull
-import com.google.gson.JsonArray
+import com.google.gson._
 import io.ddf.ml.{IModel, Model}
 import org.apache.spark.mllib.clustering.KMeansModel
+import org.apache.spark.mllib.linalg.{Vectors, Vector}
+import scala.Tuple9
+import scala.Tuple5
+import scala.Tuple7
+import scala.Tuple1
+import scala.Tuple3
+import scala.Tuple10
+import scala.Some
+import scala.Tuple6
+import scala.Tuple8
+import scala.Tuple2
+import scala.Tuple4
+
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().
  * It also automatically has a val "class" containing its class name.
@@ -117,6 +119,7 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
     .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
+    .registerTypeAdapter(classOf[KMeansModel], new SpecialSerDes.KmeansModelDeserializer)
 }
 
 /**
@@ -305,6 +308,29 @@ private object SpecialSerDes {
           val deserializedModel: Model = standardGson.fromJson(jObj, classOf[Model])
           deserializedModel.setRawModel(rawModel)
           return deserializedModel
+        }
+      }
+    }
+  }
+
+  class KmeansModelDeserializer extends JsonDeserializer[KMeansModel] {
+
+    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): KMeansModel = {
+      jElem match {
+        case jObj: JsonObject => {
+          val arr = jObj.get("clusterCenters") match {
+            case jArr: JsonArray => {
+              val arrVector = new Array[Vector](jArr.size())
+              var i = 0
+              while(i < jArr.size()) {
+                val vector = Vectors.dense(standardGson.fromJson(jArr.get(i), classOf[Array[Double]]))
+                arrVector(i) = vector
+                i += 1
+              }
+              arrVector
+            }
+          }
+          new KMeansModel(arr)
         }
       }
     }
