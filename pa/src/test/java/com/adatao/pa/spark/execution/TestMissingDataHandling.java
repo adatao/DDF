@@ -101,5 +101,4 @@ public class TestMissingDataHandling extends BaseTest {
     aggResult = ExecutionResult.fromJson(res.getResult(), AggregateResult.class).result();
     Assert.assertEquals(aggResult.results.get("2008")[0], 301, 0.1);
   }
-
 }

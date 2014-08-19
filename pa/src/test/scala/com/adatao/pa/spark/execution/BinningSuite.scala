@@ -126,50 +126,48 @@ class BinningSuite extends ABigRClientTest {
 
   }
 
-  test("test Binning with equal frequency") {
-    val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
-    assert(df.isSuccess)
-    val dcID = df.dataContainerID
-    LOG.info("Got dataContainerID = " + dcID)
-    val cmd = new Binning(dcID, "mpg", binningType = "equalFreq", numBins = 3, includeLowest = true)
-    val result = bigRClient.execute[BinningResult](cmd)
-
-    var cmd3 = new GetMultiFactor(result.result.dataContainerID, Array(0))
-    var result3 = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd3).result
-    var factor = result3(0)._2
-
-  }
+//  test("test Binning with equal frequency") {
+//    val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
+//    assert(df.isSuccess)
+//    val dcID = df.dataContainerID
+//    LOG.info("Got dataContainerID = " + dcID)
+//    val cmd = new Binning(dcID, "mpg", binningType = "equalFreq", numBins = 3, includeLowest = true)
+//    val result = bigRClient.execute[BinningResult](cmd)
+//    var cmd3 = new GetMultiFactor(result.result.dataContainerID, Array(0))
+//    var result3 = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd3).result
+//    var factor = result3(0)._2
+//  }
 
   test("test mutable Binning with equal intervals") {
     val df = this.runSQL2RDDCmd("SELECT * FROM airline", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
     LOG.info("Got dataContainerID = " + dcID)
-    
+
     //before binning
     val fetcher = new FetchRows().setDataContainerID(dcID).setLimit(3)
     val r = bigRClient.execute[FetchRowsResult](fetcher)
     assert(r.isSuccess)
     //assert(r.result.getData().get(0).split("\\t")(18) === "810")
     System.out.println(">>>>>OLD 1st ROW" + r.result.getData().get(0))
-    
+
     //set mutable
     val cmd1 = new MutableDDF(dcID, true)
     val result1 = bigRClient.execute[Sql2DataFrameResult](cmd1)
-    
+
     val cmd = new Binning(dcID, "v19", binningType = "equalInterval", numBins = 3,
       includeLowest = true, right = true)
     val result = bigRClient.execute[BinningResult](cmd)
-    
-    
+
+
     assert(result.result.dataContainerID == result1.result.dataContainerID)
     assert(result.result.dataContainerID == dcID)
 
     var cmd3 = new GetMultiFactor(result.result.dataContainerID, Array(0))
     var result3 = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd3).result
     var factor = result3(0)._2
-    
-    
+
+
     val fetcher2 = new FetchRows().setDataContainerID(dcID).setLimit(3)
     val r2 = bigRClient.execute[FetchRowsResult](fetcher2)
     assert(r2.isSuccess)
