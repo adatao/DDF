@@ -14,11 +14,12 @@ import org.apache.spark.mllib.linalg.DenseVector
 
 class KmeansSuite extends ABigRClientTest {
 
-  test("test Kmeans") {
+  ignore("test Kmeans") {
     val numIters = 10
     val xCols = Array(0, 1)
     val K = 4
     val dataContainerID = this.loadFile(List("resources/KmeansTest.csv", "server/resources/KmeansTest.csv"), false, ",")
+    println("dataContainerID = " + dataContainerID)
     val executor = new Kmeans(dataContainerID, xCols, numIters, K, null, "random")
     val r = bigRClient.execute[IModel](executor)
     assert(r.isSuccess)

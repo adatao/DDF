@@ -18,6 +18,9 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
+
+import com.adatao.pa.AdataoException;
+import com.adatao.pa.spark.types.FailResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.ddf.DDF;
@@ -201,9 +204,10 @@ public class LoadTable implements IExecutor {
 
   		// LOG.info("Meta info: " + Arrays.toString(metaInfo));
   
-  		return new LoadTableResult().setDataContainerID(ddfName).setMetaInfo(generateMetaInfo(ddf.getSchema()));
+      return new LoadTableResult().setDataContainerID(ddfName).setMetaInfo(generateMetaInfo(ddf.getSchema()));
 	  } catch (Exception e) {
-	    return null;
+        System.out.println(">>>>> fail message = " + e.getMessage());
+        return new FailResult().setMessage(e.getMessage());
 	  }
 	}
 	
