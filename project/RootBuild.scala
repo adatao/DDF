@@ -227,6 +227,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
+    dependencyOverrides += "org.apache.commons" % "commons-lang3" % "3.3.2",
     pomExtra := (
       <!--
       **************************************************************************************************
