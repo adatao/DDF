@@ -29,6 +29,7 @@ class GetMultiFactor(dataContainerID: String,
     if (ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + dataContainerID, null)
     }
+
     val schemaHandler = ddf.getSchemaHandler
     for (columnIndex <- columnIndexs) {
       schemaHandler.setAsFactor(columnIndex)

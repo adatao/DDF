@@ -34,9 +34,8 @@ import io.ddf.DDF
 class R2Score(var dataContainerID: String, var modelID: String) extends AExecutor[Double] {
 
   def runImpl(ctx: ExecutionContext): Double = {
-    val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf: DDF = ddfManager.getDDF(ddfId);
+    val ddfManager = ctx.sparkThread.getDDFManager()
+    val ddf: DDF = ddfManager.getDDF(dataContainerID)
 
     // first, compute RDD[(ytrue, ypred)]
     //old API val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)

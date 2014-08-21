@@ -46,7 +46,7 @@ class  RegressionSuite  extends ABigRClientTest {
 
 
 	//smoke test
-	ignore("Single-variable linear regression - normal equation categorical - no regularization") {
+	test("Single-variable linear regression - normal equation categorical - no regularization") {
 //		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
 		createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -641,20 +641,20 @@ class  RegressionSuite  extends ABigRClientTest {
 	}
 
 //	
-//	test("test dummy coding") {
-//
-//		//load data
-//		createTableAirline
-////		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
-//		
-//		val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
-//		
-//		val dataContainerId = df.dataContainerID
-//		val lambda = 1.0
-//
-////		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
-//		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
-//		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
-//		assert(r.isSuccess)
-//	}
+	test("test dummy coding") {
+
+		//load data
+		createTableAirline
+//		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
+
+		val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
+
+		val dataContainerId = df.dataContainerID
+		val lambda = 1.0
+
+//		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
+		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
+		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		assert(r.isSuccess)
+	}
 }
