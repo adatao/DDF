@@ -1,9 +1,9 @@
 package com.adatao.pa.ddf.spark
 
-import com.adatao.pa.spark.execution.{ListDDF, GetDDF, LoadModel, Sql2DataFrame}
+import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import io.ddf.ml.IModel
-import com.adatao.pa.spark.Utils.MutableDataFrameResult
+import com.adatao.pa.spark.Utils.{DataFrameResult, MutableDataFrameResult}
 import io.ddf.DDF.DDFInformation
 import com.adatao.pa.spark.DDF.ManagerClient
 import com.adatao.pa.ddf.spark.DDFManager.client
@@ -28,6 +28,12 @@ class DDFManager() {
   def sql2ddf(command: String): DDF = {
     val cmd = new Sql2DataFrame(command, true)
     val result = client.execute[Sql2DataFrameResult](cmd)
+    new DDF(result.result.dataContainerID, result.result.metaInfo)
+  }
+
+  def cql2ddf(cqlCommand: String): DDF = {
+    val cmd = new CQL2DDF(cqlCommand)
+    val result = client.execute[DataFrameResult](cmd)
     new DDF(result.result.dataContainerID, result.result.metaInfo)
   }
 
