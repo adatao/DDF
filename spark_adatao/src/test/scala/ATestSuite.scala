@@ -97,6 +97,15 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
     manager.sql2txt("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/airlineWithNA.csv' " +
       "INTO TABLE airlineWithNA")
   }
+  
+  def createTableRatings() {
+    manager.sql2txt("set shark.test.data.path=../resources")
+    manager.sql2txt("drop table if exists ratings")
+    manager.sql2txt("create table raings (userid int, movieid int, score double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','") 
+    manager.sql2txt("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/test/ratings.data' " +
+      "INTO TABLE ratings")
+  }
+  
 }
 
 /**
