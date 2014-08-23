@@ -31,7 +31,7 @@ class ALS(
     val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
     val trainedData = ddf.VIEWS.project(trainedColumns: _*)
 
-    trainedData.ML.train("collaborateFiltering", rank: java.lang.Integer, numIterations: java.lang.Integer, lamda: java.lang.Double)
+    trainedData.ML.train("collaborativeFiltering", rank: java.lang.Integer, numIterations: java.lang.Integer, lamda: java.lang.Double)
   }
 
   def computeRmse(model: MatrixFactorizationModel, data: RDD[Rating], implicitPrefs: Boolean) = {

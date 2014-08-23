@@ -376,8 +376,8 @@ object BigRClientTestUtils {
 	
 	def createTableRatings(bigRClient: BigRClient) {
 	assert(runSQLCmd(bigRClient, "set shark.test.data.path=resources").isSuccess)
-    assert(runSQLCmd(bigRClient, "drop table if exists test").isSuccess)
-	assert(runSQLCmd(bigRClient, "create table raings (userid int, movieid int, score double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess)
+    assert(runSQLCmd(bigRClient, "drop table if exists ratings").isSuccess)
+	assert(runSQLCmd(bigRClient, "create table ratings (userid int, movieid int, score double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess)
 	assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/ratings.data' INTO TABLE ratings").isSuccess)  
   }
 	
