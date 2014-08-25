@@ -37,6 +37,12 @@ class DDFManager() {
     new DDF(result.result.dataContainerID, result.result.metaInfo)
   }
 
+  def cql2txt(cqlCommand: String): String = {
+    val cmd = new CQL2TXT(cqlCommand)
+    val result = client.execute[String](cmd)
+    result
+  }
+
   def getDDF(ddfName: String): DDF = {
     val cmd = new GetDDF(ddfName)
     val result = client.execute[MutableDataFrameResult](cmd).result
