@@ -7,6 +7,7 @@ import com.adatao.pa.spark.Utils.{DataFrameResult, MutableDataFrameResult}
 import io.ddf.DDF.DDFInformation
 import com.adatao.pa.spark.DDF.ManagerClient
 import com.adatao.pa.ddf.spark.DDFManager.client
+import java.util.List
 
 
 class DDFManager() {
@@ -39,8 +40,8 @@ class DDFManager() {
 
   def cql2txt(cqlCommand: String): String = {
     val cmd = new CQL2TXT(cqlCommand)
-    val result = client.execute[String](cmd)
-    result
+    val result = client.execute[List[String]](cmd).result
+    result.toString()
   }
 
   def getDDF(ddfName: String): DDF = {
