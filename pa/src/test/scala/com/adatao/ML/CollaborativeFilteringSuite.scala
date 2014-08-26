@@ -7,6 +7,7 @@ import java.util.Arrays
 import io.ddf.ml.IModel
 import com.adatao.pa.spark.execution.ALS
 import com.adatao.pa.spark.execution.Sql2DataFrame
+import com.adatao.ML.spark.ALSUtils._
 
 class CollaborativeFilteringSuite extends ABigRClientTest {
   test("Test ALS") {
@@ -22,13 +23,13 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](cmd).result
     assert(r0.isSuccess)
     val dataContainerID = r0.dataContainerID
-    val executor = new ALS(dataContainerID, xCols, rank, numIterations, lamda)
+    val executor = new ALS(dataContainerID, xCols, rank, lamda, numIterations)
     val r = bigRClient.execute[IModel](executor)
     assert(r.isSuccess)
 
-    val model = r.result.getRawModel.asInstanceOf[MatrixFactorizationModel]
+    val model = r.result.getRawModel.asInstanceOf[ALSModel]
 
-    assert(model.predict(1,4) >0)
+    assert(model.predict(1,3) >0)
   }
 
 }
