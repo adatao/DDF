@@ -38,15 +38,10 @@ class DDFManager() {
     new DDF(result.result.dataContainerID, result.result.metaInfo)
   }
 
-  def cql2txt(cqlCommand: String): String = {
+  def cql2txt(cqlCommand: String): List[String] = {
     val cmd = new CQL2TXT(cqlCommand)
     val result = client.execute[List[String]](cmd).result
-    var finalRes = ""
-    for (i <- 0 to result.size()) {
-      if (i > 0) finalRes += ","
-      finalRes += result.get(i)
-    }
-    finalRes
+    result
   }
 
   def getDDF(ddfName: String): DDF = {
