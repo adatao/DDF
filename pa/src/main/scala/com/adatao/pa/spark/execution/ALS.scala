@@ -45,7 +45,7 @@ class ALS(
 
     print(">>>>>>>>>>>IN ALS train " + numUsers + "and " + numProducts);
     val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures)
-    
+
     val model = new Model(alsModel)
     ddfManager.addModel(model);
     return model;
@@ -59,8 +59,8 @@ object ALS {
     val productFeatures = getProductFeatureMatrix(model, products, features);
     new ALSModel(features, userFeatures, productFeatures)
   }
-  
-/*  def toDoubleMatrix(componentMatrix: RDD[(Int, Array[Double])], m: Int, n: Int): DoubleMatrix = {
+
+  /*  def toDoubleMatrix(componentMatrix: RDD[(Int, Array[Double])], m: Int, n: Int): DoubleMatrix = {
     val prediction = new DoubleMatrix(m, n)
     val list = componentMatrix.collect();
     
@@ -88,5 +88,5 @@ object ALS {
     }.join(data.map(x => ((x.user, x.product), x.rating))).values
     math.sqrt(predictionsAndRatings.map(x => (x._1 - x._2) * (x._1 - x._2)).mean())
   }
-  
+
 }

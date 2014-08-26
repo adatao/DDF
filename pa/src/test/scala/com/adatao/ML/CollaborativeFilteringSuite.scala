@@ -18,7 +18,7 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
     val lamda = 10.0
 
     createTableRatings
-    
+
     val cmd = new Sql2DataFrame("select * from ratings", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](cmd).result
     assert(r0.isSuccess)
@@ -29,7 +29,10 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
 
     val model = r.result.getRawModel.asInstanceOf[ALSModel]
 
-    assert(model.predict(1,3) >0)
+    assert(model.predict(1, 3) > 0)
+
+    assert(model.predict(2, Array(0, 1, 2, 3))(0) < 5)
+
   }
 
 }

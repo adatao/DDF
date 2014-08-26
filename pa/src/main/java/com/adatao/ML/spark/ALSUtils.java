@@ -34,7 +34,8 @@ public class ALSUtils implements Serializable {
     return toDoubleMatrix(model.productFeatures().toJavaRDD(), products, features);
   }
 
-  public static class ALSModel implements Serializable{
+
+  public static class ALSModel implements Serializable {
 
     int numFeatures;
     DoubleMatrix userFeatures;
@@ -52,6 +53,15 @@ public class ALSUtils implements Serializable {
       DoubleMatrix pUser = userFeatures.getRow(userId);
       DoubleMatrix pProduct = productFeatures.getRow(productId);
       return pUser.dot(pProduct);
+    }
+
+    public double[] predict(int userId, int[] candidateProducts) {
+      int cands = candidateProducts.length;
+      double[] predictedRatings = new double[cands];
+      for (int i = 0; i < cands; i++) {
+        predictedRatings[i] = predict(userId, candidateProducts[i]);
+      }
+      return predictedRatings;
     }
   }
 
