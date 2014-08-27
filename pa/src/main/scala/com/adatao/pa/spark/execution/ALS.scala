@@ -18,11 +18,11 @@ import org.jblas.{ DoubleMatrix, SimpleBlas, Solve }
 import com.adatao.ML.spark.ALSUtils._
 
 class ALS(
-  dataContainerID: String,
-  xCols: Array[Int],
-  val numFeatures: Int,
-  val lamda: Double,
-  val numIterations: Int,
+  var dataContainerID: String,
+  var xCols: Array[Int],
+  var numFeatures: Int,
+  var lambda: Double,
+  var numIterations: Int,
   var implicitFeedback: Boolean = false,
   var alpha: Double = 1.0,
   var seed: Long = System.nanoTime())
@@ -39,15 +39,15 @@ class ALS(
     val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
     val trainedData = ddf.VIEWS.project(trainedColumns: _*)
 
-    val imodel = trainedData.ML.train("collaborativeFiltering", numFeatures: java.lang.Integer, numIterations: java.lang.Integer, lamda: java.lang.Double)
+    val imodel = trainedData.ML.train("collaborativeFiltering", numFeatures: java.lang.Integer, numIterations: java.lang.Integer, lambda: java.lang.Double)
     val matrixFactorizationModel = imodel.getRawModel.asInstanceOf[MatrixFactorizationModel]
-    
+
     //TODO: Assume all users and products are including in rating file, otherwise consider having numUsers and numProducts as input params
     var numUsers = matrixFactorizationModel.userFeatures.count.toInt
     var numProducts = matrixFactorizationModel.productFeatures.count.toInt
 
     print(">>>>>>>>>>>IN ALS train " + numUsers + "and " + numProducts);
-    
+
     val rmse = ALS.computeRmse(matrixFactorizationModel, trainedData.getRepresentationHandler().get(classOf[RDD[_]], classOf[Rating]).asInstanceOf[RDD[Rating]], false)
     print(">>>>>>>>>>>IN ALS train RMES =" + rmse);
     val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures, rmse)
@@ -55,6 +55,50 @@ class ALS(
     val model = new Model(alsModel)
     ddfManager.addModel(model);
     return model;
+  }
+
+  def this() = this("dataContainerID", Array(0,1,2), 10, 0.01, 10)
+  def setDataContainerID(dataContainerID: String): ALS = {
+    this.dataContainerID = dataContainerID
+    this
+  }
+  
+  def setTrainColumns(xCols: Array[Int]): ALS = {
+    this.xCols = xCols
+    this
+  }
+  /** Set the rank of the feature matrices computed (number of features). Default: 10. */
+  def setNumFeatures(rank: Int): ALS = {
+    this.numFeatures = rank
+    this
+  }
+
+  /** Set the number of iterations to run. Default: 10. */
+  def setNumIterations(iterations: Int): ALS = {
+    this.numIterations = iterations
+    this
+  }
+
+  /** Set the regularization parameter, lambda. Default: 0.01. */
+  def setLambda(lambda: Double): ALS = {
+    this.lambda = lambda
+    this
+  }
+
+  def setImplicitFeedback(implicitPrefs: Boolean): ALS = {
+    this.implicitFeedback = implicitPrefs
+    this
+  }
+
+  def setAlpha(alpha: Double): ALS = {
+    this.alpha = alpha
+    this
+  }
+
+  /** Sets a random seed to have deterministic results. */
+  def setSeed(seed: Long): ALS = {
+    this.seed = seed
+    this
   }
 }
 
