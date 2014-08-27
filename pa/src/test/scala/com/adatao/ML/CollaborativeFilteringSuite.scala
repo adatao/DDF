@@ -13,9 +13,9 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
   test("Test ALS") {
 
     val xCols = Array(0, 1, 2)
-    val rank = 8
+    val numFeatures = 8
     val numIterations = 15
-    val lamda = 10.0
+    val lamda = 8.0
 
     createTableRatings
 
@@ -23,7 +23,7 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](cmd).result
     assert(r0.isSuccess)
     val dataContainerID = r0.dataContainerID
-    val executor = new ALS(dataContainerID, xCols, rank, lamda, numIterations)
+    val executor = new ALS(dataContainerID, xCols, numFeatures, lamda, numIterations)
     val r = bigRClient.execute[IModel](executor)
     assert(r.isSuccess)
 
@@ -32,6 +32,7 @@ class CollaborativeFilteringSuite extends ABigRClientTest {
     assert(model.predict(1, 3) > 0)
 
     assert(model.predict(2, Array(0, 1, 2, 3))(0) < 5)
+    print("RMSE = " + model.getRmse())
 
   }
 

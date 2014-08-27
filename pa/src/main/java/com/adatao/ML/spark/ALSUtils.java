@@ -14,11 +14,12 @@ import org.apache.spark.rdd.RDD;
 public class ALSUtils implements Serializable {
 
   public static DoubleMatrix toDoubleMatrix(JavaRDD<scala.Tuple2<Object, double[]>> componentMatrix, int m, int n) {
-    DoubleMatrix prediction = new DoubleMatrix(m, n);
+    DoubleMatrix prediction = new DoubleMatrix(m+1, n);
     List<scala.Tuple2<Object, double[]>> list = componentMatrix.collect();
-    for (int i = 0; i < m; i++) {
-      for (scala.Tuple2<Object, double[]> predicted : list) {
+    for (scala.Tuple2<Object, double[]> predicted : list) {
+      for (int i = 0; i < n; i++) {
         prediction.put((Integer) predicted._1(), i, predicted._2()[i]);
+        System.out.println(">>>>>>>>>>>toDoubleMatrix >>> " );
       }
     }
     return prediction;
@@ -40,13 +41,15 @@ public class ALSUtils implements Serializable {
     int numFeatures;
     DoubleMatrix userFeatures;
     DoubleMatrix productFeatures;
+    double rmse;
 
 
-    public ALSModel(int numFeatures, DoubleMatrix userFeatures, DoubleMatrix productFeatures) {
+    public ALSModel(int numFeatures, DoubleMatrix userFeatures, DoubleMatrix productFeatures, double rmse) {
       super();
       this.numFeatures = numFeatures;
       this.userFeatures = userFeatures;
       this.productFeatures = productFeatures;
+      this.rmse = rmse;
     }
 
     public double predict(int userId, int productId) {
@@ -62,6 +65,10 @@ public class ALSUtils implements Serializable {
         predictedRatings[i] = predict(userId, candidateProducts[i]);
       }
       return predictedRatings;
+    }
+    
+    public double getRmse() {
+      return this.rmse;
     }
   }
 

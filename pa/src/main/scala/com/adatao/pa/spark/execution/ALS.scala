@@ -5,6 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import io.ddf.DDF
 import io.spark.ddf.content.RepresentationHandler
+import io.spark.ddf.content.RepresentationHandler._
 import io.ddf.ml.IModel
 import io.ddf.ml.Model
 import com.adatao.pa.spark.types.{ ExecutionException, SuccessfulResult, FailedResult, ExecutionResult }
@@ -40,11 +41,16 @@ class ALS(
 
     val imodel = trainedData.ML.train("collaborativeFiltering", numFeatures: java.lang.Integer, numIterations: java.lang.Integer, lamda: java.lang.Double)
     val matrixFactorizationModel = imodel.getRawModel.asInstanceOf[MatrixFactorizationModel]
+    
+    //TODO: Assume all users and products are including in rating file, otherwise consider having numUsers and numProducts as input params
     var numUsers = matrixFactorizationModel.userFeatures.count.toInt
     var numProducts = matrixFactorizationModel.productFeatures.count.toInt
 
     print(">>>>>>>>>>>IN ALS train " + numUsers + "and " + numProducts);
-    val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures)
+    
+    val rmse = ALS.computeRmse(matrixFactorizationModel, trainedData.getRepresentationHandler().get(classOf[RDD[_]], classOf[Rating]).asInstanceOf[RDD[Rating]], false)
+    print(">>>>>>>>>>>IN ALS train RMES =" + rmse);
+    val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures, rmse)
 
     val model = new Model(alsModel)
     ddfManager.addModel(model);
@@ -54,10 +60,10 @@ class ALS(
 
 object ALS {
 
-  def computeALSModel(model: MatrixFactorizationModel, users: Int, products: Int, features: Int): ALSModel = {
+  def computeALSModel(model: MatrixFactorizationModel, users: Int, products: Int, features: Int, rmse: Double): ALSModel = {
     val userFeatures = getUserFeatureMatrix(model, users, features);
     val productFeatures = getProductFeatureMatrix(model, products, features);
-    new ALSModel(features, userFeatures, productFeatures)
+    new ALSModel(features, userFeatures, productFeatures, rmse)
   }
 
   /*  def toDoubleMatrix(componentMatrix: RDD[(Int, Array[Double])], m: Int, n: Int): DoubleMatrix = {
