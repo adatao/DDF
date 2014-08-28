@@ -104,7 +104,7 @@ elif [ "X$cluster" == "Xspark" ]; then
         #export SPARK_MASTER= #spark://<host>:<port>
 elif [ "X$cluster" == "Xlocalspark" ]; then
         echo "Running pAnalytics with Spark in local node"
-        export SPARK_MEM=#
+        export SPARK_MEM=512m
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_MASTER=spark://localhost:7070
 fi
