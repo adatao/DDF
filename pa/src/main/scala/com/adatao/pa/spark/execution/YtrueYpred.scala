@@ -2,18 +2,19 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-import com.adatao.pa.spark.{ SharkUtils, DataManager }
-import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
-import com.adatao.ddf.types.Vector
-import com.adatao.ML.spark.RddUtils
+import com.adatao.pa.spark.DataManager
+import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
+import com.adatao.spark.ddf.analytics.ALinearModel
+import io.ddf.types.Vector
+import com.adatao.spark.ddf.analytics._
 import org.apache.spark.api.java.JavaRDD
-import shark.api.JavaSharkContext
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.IModel
+import com.adatao.spark.ddf.analytics._
+import io.ddf.DDF
+import io.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ML.Utils
-import com.adatao.ddf.exception.DDFException
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.exception.DDFException
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -21,7 +22,7 @@ import com.adatao.ddf.exception.DDFException
  *
  * Works with LinearRegressionModel and LogisticRegressionModel.
  *
- */
+ */ 
 class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor[YtrueYpredResult] {
   override def runImpl(ctx: ExecutionContext): YtrueYpredResult = {
     val ddfManager = ctx.sparkThread.getDDFManager()
@@ -36,7 +37,8 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
     val predDDFID = if(predictionDDF == null) {
         throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error predicting, prediction DDF is null.", null)
     } else {
-        ddfManager.addDDF(predictionDDF)
+        val predID = ddfManager.addDDF(predictionDDF)
+        LOG.info(">>>>> predDDFID  = " + predID)
     }
 
     val metaInfo = Array(new MetaInfo("ytrue", "java.lang.Double"), new MetaInfo("yPredict", "java.lang.Double"))

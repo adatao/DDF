@@ -18,22 +18,22 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import com.adatao.spark.ddf.analytics._
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
 import java.util.List
 import java.util.ArrayList
 
-import com.adatao.ddf.DDF
+import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  * Entry point for SparkThread executor
@@ -59,6 +59,7 @@ class LogisticRegression(
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
     val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
+    LOG.info(">>>> trainedColumns = " + trainedColumns.mkString(", "))
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
     projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
@@ -70,9 +71,10 @@ class LogisticRegression(
 
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, xCols, yCol: java.lang.Integer, numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
+    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
+      learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
-    val rawModel = model.getRawModel.asInstanceOf[com.adatao.ML.LogisticRegressionModel]
+    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
     if (projectDDF.getSchema().getDummyCoding() != null)
       rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
     model
@@ -80,24 +82,18 @@ class LogisticRegression(
 
 }
 
-object LogisticRegression {
-  /**
-   * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
-   * knows how to handle that data.
-   *
-   * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
-   * objects, if we were to place this class within [[class LogisticRegression]].
-   */
-  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ML.ALogisticGradientLossFunction(XYData, ridgeLambda) {
-    def compute: Vector => ALossFunction = {
-      (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
-    }
-  }
-}
+//object LogisticRegression {
+//  /**
+//   * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
+//   * knows how to handle that data.
+//   *
+//   * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
+//   * objects, if we were to place this class within [[class LogisticRegression]].
+//   */
+//  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALogisticGradientLossFunction(XYData, ridgeLambda) {
+//    def compute: Vector => ALossFunction = {
+//      (weights: Vector) => XYData.map { case (x, y) ⇒ this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+//    }
+//  }
+//}
 
-/**
-* Entry point for SparkThread executor to execute predictions
-*/
-class LogisticRegressionPredictor(val model: LogisticRegressionModel, val features: Array[Double]) extends APredictionExecutor[java.lang.Double] {
-  def predict: java.lang.Double = model.predict(features).asInstanceOf[java.lang.Double]
-}

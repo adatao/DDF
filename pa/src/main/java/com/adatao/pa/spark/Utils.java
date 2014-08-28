@@ -19,11 +19,11 @@ package com.adatao.pa.spark;
 
 import java.util.List;
 import com.adatao.pa.AdataoException;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
-import com.adatao.ddf.content.Schema.ColumnClass;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.content.Schema;
+import io.ddf.content.Schema.Column;
+import io.ddf.content.Schema.ColumnClass;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.types.SuccessResult;
 

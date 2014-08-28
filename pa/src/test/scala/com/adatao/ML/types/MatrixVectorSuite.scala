@@ -18,7 +18,7 @@ package com.adatao.ML.types
 
 import com.adatao.ML.ATestSuite
 import com.adatao.ML.AAlgorithmTest
-import com.adatao.ML.ALossFunction
+import com.adatao.spark.ddf.analytics.ALossFunction
 import org.jblas.MatrixFunctions
 import org.jblas.DoubleMatrix
 import org.junit.Assert.assertEquals

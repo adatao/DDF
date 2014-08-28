@@ -1,9 +1,9 @@
 package com.adatao.pa.spark.execution;
 
 
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.types.AggregateTypes.AggregationResult;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.types.AggregateTypes.AggregationResult;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;

@@ -1,6 +1,6 @@
 package com.adatao.pa.spark.DDF
 
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 import com.adatao.pa.spark.execution.PersistModel
 import com.adatao.pa.ddf.spark.DDFManager
 import com.adatao.pa.ddf.spark.DDFManager.client

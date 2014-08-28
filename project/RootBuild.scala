@@ -32,53 +32,35 @@ object RootBuild extends Build {
   val theScalaVersion = "2.10.3"
         val majorScalaVersion = theScalaVersion.split(".[0-9]+$")(0)
   val targetDir = "target/scala-" + majorScalaVersion // to help mvn and sbt share the same target dir
-  //val theScalaVersion = "2.9.3"
-  //val targetDir = "target/scala-" + theScalaVersion // to help mvn and sbt share the same target dir
 
   val rootOrganization = "com.adatao"
   val projectName = "ddf"
   val rootProjectName = projectName
-  val rootVersion = "0.9"
+
+  val YARN_ENABLED = env("SPARK_YARN").getOrElse("true").toBoolean
+
+  //val rootVersion = "0.9"
+  val rootVersion = if(YARN_ENABLED) {
+    "0.9"
+  } else {
+    "0.9-mesos"
+  }
 
   val projectOrganization = rootOrganization + "." + projectName
 
-  val coreProjectName = projectName + "_core"
-  val coreVersion = rootVersion
-  val coreJarName = coreProjectName.toLowerCase + "_" + theScalaVersion + "-" + coreVersion + ".jar"
-  val coreTestJarName = coreProjectName + "-" + coreVersion + "-tests.jar"
-
-  val sparkProjectName = projectName + "_spark"
+  val sparkProjectName = projectName + "_spark_adatao"
   val sparkVersion = rootVersion
   val sparkJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val sparkTestJarName = sparkProjectName.toLowerCase + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
-  
-  val enterpriseProjectName = projectName + "_enterprise"
-  val enterpriseVersion = rootVersion
-  val enterpriseJarName = enterpriseProjectName + "-" + sparkVersion + ".jar"
-  val enterpriseTestJarName = enterpriseProjectName + "-" + sparkVersion + "-tests.jar"
 
   val paProjectName = projectName + "_pa"
   val paVersion = rootVersion
   val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
-  val examplesProjectName = projectName + "_examples"
-  val examplesVersion = rootVersion
-  val examplesJarName = examplesProjectName + "-" + sparkVersion + ".jar"
-  val examplesTestJarName = examplesProjectName + "-" + sparkVersion + "-tests.jar"
-
-  val contribProjectName = projectName + "_contrib"
-  val contribVersion = rootVersion
-  val contribJarName = contribProjectName + "-" + contribVersion + ".jar"
-  val contribTestJarName = contribProjectName + "-" + contribVersion + "-tests.jar"
-  
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core, spark, examples, contrib,pa,enterprise)
-  lazy val core = Project("core", file("core"), settings = coreSettings)
-  lazy val spark = Project("spark", file("spark"), settings = sparkSettings) dependsOn (core)
-  lazy val enterprise = Project("enterprise", file("enterprise"), settings = enterpriseSettings) dependsOn (core) dependsOn(spark)
-  lazy val pa = Project("pa", file("pa"), settings = paSettings) dependsOn (core) dependsOn(spark)
-  lazy val examples = Project("examples", file("examples"), settings = examplesSettings) dependsOn (spark) dependsOn (core)
-  lazy val contrib = Project("contrib", file("contrib"), settings = contribSettings) dependsOn (spark) dependsOn(core)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao,pa)
+  lazy val spark_adatao = Project("spark_adatao", file("spark_adatao"), settings = spark_adatao_Settings)
+  lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark_adatao)
 
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
@@ -119,39 +101,21 @@ object RootBuild extends Build {
   val scalaArtifacts = Seq("jline", "scala-compiler", "scala-library", "scala-reflect")
   val scalaDependencies = scalaArtifacts.map( artifactId => "org.scala-lang" % artifactId % theScalaVersion)
 
-  val spark_dependencies = Seq(
-    "commons-configuration" % "commons-configuration" % "1.6",
-    "com.google.code.gson"% "gson" % "2.2.2",
-    //"javax.jdo" % "jdo2-api" % "2.3-ec",
-//    "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-util" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-plus" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-servlet" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
-//    "org.eclipse.jetty" % "jetty-jsp" % "8.1.14.v20131031",
-    //"org.scalatest" %% "scalatest" % "1.9.1" % "test",
-    //"org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "com.novocode" % "junit-interface" % "0.10" % "test",
-    "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
-    "org.apache.thrift" % "libthrift" % "0.9.0",
-    "org.apache.thrift" % "libfb303" % "0.9.0",
-    //"org.antlr" % "antlr" % "3.4", // needed by shark.SharkDriver.compile
-    // needed by Hive
-    //"commons-dbcp" % "commons-dbcp" % "1.4",
-    //"org.apache.derby" % "derby" % "10.4.2.0",
-   // "org.apache.spark" % "spark-streaming_2.10" % SPARK_VERSION excludeAll(excludeSpark),
-    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
-    //"edu.berkeley.cs.amplab" % "shark_2.9.3" % SHARK_VERSION excludeAll(excludeSpark)
-    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
-    "com.google.protobuf" % "protobuf-java" % "2.5.0"
+//  val ddfSparkVersion = if(YARN_ENABLED) {
+//    rootVersion
+//  } else {
+//    rootVersion + "-mesos"
+//  }
+
+  val spark_adatao_dependencies = Seq(
+    "io.ddf" % "ddf_core_2.10" %  rootVersion,
+    "io.ddf" % "ddf_spark_2.10" % rootVersion,
+    "com.novocode" % "junit-interface" % "0.10" % "test"
   )
 
   val pa_dependencies = Seq(
-    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14"
+    "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
+    "com.novocode" % "junit-interface" % "0.10" % "test"
     //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
 
@@ -200,19 +164,9 @@ object RootBuild extends Build {
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "commons-configuration" % "commons-configuration" % "1.6",
-      "com.google.guava" % "guava" % "14.0.1",
-      "com.google.code.gson"% "gson" % "2.2.2",
-      //"org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
       "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
       "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
-      "com.novocode" % "junit-interface" % "0.10" % "test",
-      "org.jblas" % "jblas" % "1.2.3", // for fast linear algebra
-      "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
-      "commons-io" % "commons-io" % "1.3.2",
-      "org.easymock" % "easymock" % "3.1" % "test",
-      //"edu.berkeley.cs.shark" % "hive-contrib" % "0.11.0-shark" exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-      "mysql" % "mysql-connector-java" % "5.1.25"
+      "com.novocode" % "junit-interface" % "0.10" % "test"
     ),
 
 
@@ -272,6 +226,7 @@ object RootBuild extends Build {
     dependencyOverrides += "javax.xml.bind" % "jaxb-api" % "2.2.2",
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
+    dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     pomExtra := (
       <!--
       **************************************************************************************************
@@ -301,7 +256,7 @@ object RootBuild extends Build {
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>com.adatao.spark.content.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
-                  <log4j.configuration>ddf-log4j.properties</log4j.configuration>
+                  <log4j.configuration>pa-local-log4j.properties</log4j.configuration>
                   <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
                 </systemPropertyVariables>
                 <additionalClasspathElements>
@@ -481,19 +436,9 @@ object RootBuild extends Build {
   def rootSettings = commonSettings ++ Seq(publish := {})
 
 
-  def coreSettings = commonSettings ++ Seq(
-    name := coreProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch core/" + targetDir + "/*timestamp") },
-    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.7.2",
-    libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.2.0",
-    libraryDependencies ++= scalaDependencies
-  ) ++ assemblySettings ++ extraAssemblySettings
 
 
-
-  def sparkSettings = commonSettings ++ Seq(
+  def spark_adatao_Settings = commonSettings ++ Seq(
     name := sparkProjectName,
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
@@ -505,7 +450,8 @@ object RootBuild extends Build {
       //"Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
     ),
     libraryDependencies ++= com_adatao_unmanaged,
-    libraryDependencies ++= spark_dependencies
+    libraryDependencies ++= spark_adatao_dependencies
+    //libraryDependencies ++= scalaDependencies
   ) ++ assemblySettings ++ extraAssemblySettings
 
 
@@ -516,36 +462,9 @@ object RootBuild extends Build {
     // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
     compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch pa/" + targetDir + "/*timestamp") },
     libraryDependencies ++= pa_dependencies,
+    //libraryDependencies ++= scalaDependencies,
     initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
-
   ) ++ assemblySettings ++ extraAssemblySettings
-
-
-  def enterpriseSettings = commonSettings ++ Seq(
-    name := enterpriseProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch enterprise/" + targetDir + "/*timestamp") }
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
-  def examplesSettings = commonSettings ++ Seq(
-    name := examplesProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch examples/" + targetDir + "/*timestamp") }
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
-
-  def contribSettings = commonSettings ++ Seq(
-    name := contribProjectName,
-    //javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    // Add post-compile activities: touch the maven timestamp files so mvn doesn't have to compile again
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch contrib/" + targetDir + "/*timestamp") }
-  ) ++ assemblySettings ++ extraAssemblySettings
-
-
 
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
     mergeStrategy in assembly := {

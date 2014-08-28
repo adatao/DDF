@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.etl.IHandleMissingData.FillMethod;
-import com.adatao.ddf.exception.DDFException;
-import com.adatao.ddf.types.AggregateTypes.AggregateFunction;
+import io.ddf.DDF;
+import io.ddf.etl.IHandleMissingData.FillMethod;
+import io.ddf.exception.DDFException;
+import io.ddf.types.AggregateTypes.AggregateFunction;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -52,13 +52,8 @@ public class FillNA implements IExecutor {
       return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
-
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
-        LOG.error("Cannot fill NAs in the DDF", e);
-        return null;
-      }
+      LOG.error("Cannot fill NAs in the DDF", e);
+      return null;
     }
   }
 

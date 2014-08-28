@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
+import io.ddf.DDF;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -32,13 +32,8 @@ public class TransformScaleMinMax extends CExecutor {
       return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
-
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
-        LOG.error("Cannot transform the DDF", e);
-        return null;
-      }
+      LOG.error("Cannot transform the DDF", e);
+      return null;
     }
   }
 

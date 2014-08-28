@@ -18,8 +18,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;

@@ -1,16 +1,12 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
-import com.adatao.ddf.types.Vector
-//import com.adatao.ML.spark.{ Metrics, RddUtils }
+import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
+import com.adatao.spark.ddf.analytics.ALinearModel
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-
-import com.adatao.ML.Utils
-
-
-import com.adatao.ddf.DDF
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.DDF
 
 /**
  * Compute the confusion matrix for a binary classification model, given a threshold.
@@ -26,7 +22,6 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    // val ddfModelID = context.sparkThread.getDataManager.getObject(modelID).asInstanceOf[TModel].ddfModelID
 
     val model = ddfManager.getModel(modelID)
     val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)

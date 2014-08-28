@@ -24,13 +24,12 @@ import com.adatao.pa.spark.{ SparkThread, DataManager }
 import com.adatao.pa.spark.types.{ SuccessResult, ExecutorResult }
 import scala.collection.JavaConversions._
 import java.util.Map
-import shark.api.JavaSharkContext
 import com.google.gson.Gson
 import com.adatao.ML.types.TJsonSerializable
 import scala.annotation.tailrec
-import com.adatao.ddf.DDF
-import com.adatao.ML.Utils
-import com.adatao.ddf.DDF
+import io.ddf.DDF
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.DDF
 
 /**
  * Created with IntelliJ IDEA.
@@ -54,7 +53,7 @@ class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]]
       case _ ⇒ throw new IllegalArgumentException(s"Only accept DDF, ddfID: $ddfId")
     }
     val fiveNums = ddf.getFiveNumSummary
-    val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirst_quantile, s.getMedian, s.getThird_quantile)
+    val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirstQuantile, s.getMedian, s.getThirdQuantile)
     return fiveNumsResult
   }
 }

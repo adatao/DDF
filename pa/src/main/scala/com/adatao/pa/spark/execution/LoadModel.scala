@@ -1,8 +1,8 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.basic.ddf.content.PersistenceHandler
-import com.adatao.basic.ddf.BasicDDF
-import com.adatao.ddf.ml.{IModel, Model}
+import io.basic.ddf.content.PersistenceHandler
+import io.basic.ddf.BasicDDF
+import io.ddf.ml.{IModel, Model}
 import org.apache.spark.mllib.clustering.KMeansModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode

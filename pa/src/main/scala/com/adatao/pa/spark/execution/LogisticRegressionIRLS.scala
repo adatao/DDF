@@ -18,19 +18,18 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
-import com.adatao.ML.ALinearModel
-import com.adatao.ML.ADiscreteIterativeLinearModel
-import com.adatao.ML.AContinuousIterativeLinearModel
+import com.adatao.spark.ddf.analytics.ALinearModel
+import com.adatao.spark.ddf.analytics.ADiscreteIterativeLinearModel
+import com.adatao.spark.ddf.analytics.AContinuousIterativeLinearModel
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
 import scala.collection.mutable.ArrayBuilder
@@ -39,11 +38,11 @@ import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ddf.exception.DDFException
-import com.adatao.ddf.DDF
-import com.adatao.ddf.types.TupleMatrixVector
+import io.ddf.exception.DDFException
+import io.ddf.DDF
+import io.ddf.types.TupleMatrixVector
 import scala.util.Random
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  * NhanVLC

@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.GetFactor.GetFactorResult
 import java.util.Arrays
-import com.adatao.ddf.ml.IModel
+import io.ddf.ml.IModel
 
 /**
  */
@@ -22,10 +22,10 @@ class KmeansSuite extends ABigRClientTest {
     val r = bigRClient.execute[IModel](executor)
     assert(r.isSuccess)
     val model = r.result.getRawModel.asInstanceOf[KMeansModel]
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(-7.75, -8.25).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(-8.7, 6.75).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(7.5, 6.071428571428571).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(7.333333333333333, -8.0).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-7.75, -8.25).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-8.7, 6.75).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.5, 6.071428571428571).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.333333333333333, -8.0).deep))
   }
 
   test("test Kmeans on Shark") {
@@ -42,9 +42,9 @@ class KmeansSuite extends ABigRClientTest {
 
     assert(model.clusterCenters.size == 4)
 
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(-7.75, -8.25).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(-8.7, 6.75).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(7.5, 6.071428571428571).deep))
-    assert(model.clusterCenters.exists(centers => centers.deep == Array(7.333333333333333, -8.0).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-7.75, -8.25).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-8.7, 6.75).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.5, 6.071428571428571).deep))
+    assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.333333333333333, -8.0).deep))
   }
 }

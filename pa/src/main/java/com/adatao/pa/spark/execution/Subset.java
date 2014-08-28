@@ -21,10 +21,10 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.content.ViewHandler.Column;
-import com.adatao.ddf.content.ViewHandler.Expression;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.content.ViewHandler.Column;
+import io.ddf.content.ViewHandler.Expression;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
@@ -62,7 +62,7 @@ public class Subset extends CExecutor {
 
       try {
         Expression expression = (Expression) gson.fromJson(json.toString(),
-            Class.forName("com.adatao.ddf.content.ViewHandler$" + type));
+            Class.forName("io.ddf.content.ViewHandler$" + type));
 
         return expression;
 

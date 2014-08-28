@@ -16,17 +16,17 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils, _ 
 }
 import scala.Some
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.IModel
-import com.adatao.spark.ddf.SparkDDF
+import io.ddf.DDF
+import io.ddf.ml.IModel
+import io.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ML.Utils
-import com.adatao.ddf.ml.IModel
-import com.adatao.ddf.DDF
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.ml.IModel
+import io.ddf.DDF
 
 /**
  *
@@ -58,6 +58,5 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
     val yMean = summary(projectedDDF.getNumColumns - 1).mean()
 
     ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
-
   }
 }

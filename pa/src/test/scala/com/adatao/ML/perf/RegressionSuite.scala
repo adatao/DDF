@@ -22,10 +22,10 @@ package com.adatao.ML.perf
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.AAlgorithmTest
-import com.adatao.ML.LinearRegression
-import com.adatao.ML.LogisticRegression
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import com.adatao.spark.ddf.analytics.LinearRegression
+import com.adatao.spark.ddf.analytics.LogisticRegression
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.adatao.ML.ATimedAlgorithmTest

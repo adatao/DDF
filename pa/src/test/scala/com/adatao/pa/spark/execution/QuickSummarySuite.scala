@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.Subset.SubsetResult
-import com.adatao.ddf.analytics.Summary
+import io.ddf.analytics.Summary
 import org.junit.Assert.assertEquals
 
 /**
@@ -14,18 +14,7 @@ import org.junit.Assert.assertEquals
  * To change this template use File | Settings | File Templates.
  */
 class QuickSummarySuite extends ABigRClientTest{
-	test("Test DataFrame"){
-		createTableAirline
- 		val df= this.runSQL2RDDCmd("select * from airline", true)
- 		val dcID= df.dataContainerID
-		
- 		val cmd = new DDFExecutor("summary", dcID)
-		val result= bigRClient.execute[Array[Summary]](cmd).result
-		
-		println(">>>>result=" + result)
-		assertEquals(result(0).mean(), 2008, 0.1)
 
-	}
 	test("test Shark"){
 		createTableMtcars
 		val df= this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
