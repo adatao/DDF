@@ -33,7 +33,8 @@ import java.util.ArrayList
 
 import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
-import io.ddf.ml.IModel
+import io.ddf.ml.{StandardFeatureExtraction, IModel}
+import com.adatao.spark.ddf.ml.DummyCodingFeatureExtraction
 
 /**
  * Entry point for SparkThread executor
@@ -57,26 +58,31 @@ class LogisticRegression(
     }
 
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+//    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
     LOG.info(">>>> trainedColumns = " + trainedColumns.mkString(", "))
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
-    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchema().generateDummyCoding()
+//    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+//    projectDDF.getSchema().generateDummyCoding()
+//
+//    var numFeatures: Integer = xCols.length + 1
+//    if (projectDDF.getSchema().getDummyCoding() != null)
+//      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
-    var numFeatures: Integer = xCols.length + 1
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
-
+    val numFeatures = xCols.size + 1
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
+    val featureExtraction = new DummyCodingFeatureExtraction(trainedColumns: _*)
+    //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
+    ddf.ML.setFeatureExtraction(featureExtraction)
+
+    val model = ddf.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
       learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+//    if (projectDDF.getSchema().getDummyCoding() != null)
+//      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
     model
   }
 

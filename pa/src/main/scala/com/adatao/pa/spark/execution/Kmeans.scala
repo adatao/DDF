@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import io.ddf.DDF
 import io.spark.ddf.content.RepresentationHandler
-import io.ddf.ml.IModel
+import io.ddf.ml.{StandardFeatureExtraction, IModel}
 import org.apache.spark.mllib.clustering.KMeansModel
 import com.adatao.pa.spark.types.{ExecutionException, SuccessfulResult, FailedResult, ExecutionResult}
 
@@ -28,13 +28,12 @@ class Kmeans(
       case x: DDF ⇒ x
       case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
     }
-    // project the xCols, and yCol as a new DDF
-    // this is costly
 
     val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
-    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
-
-    projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
+    val featureExtraction = new StandardFeatureExtraction(trainedColumns: _*)
+    //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
+    ddf.ML.setFeatureExtraction(featureExtraction)
+    ddf.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
   }
 }
 

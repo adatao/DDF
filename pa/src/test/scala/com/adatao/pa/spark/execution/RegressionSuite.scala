@@ -46,7 +46,7 @@ class  RegressionSuite  extends ABigRClientTest {
 
 
 	//smoke test
-	ignore("Single-variable linear regression - normal equation categorical - no regularization") {
+	test("Single-variable linear regression - normal equation categorical - no regularization") {
 //		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
 		createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -70,7 +70,7 @@ class  RegressionSuite  extends ABigRClientTest {
 
 	// TODO: failed due to 
 	// TestFailedException: 37.674034 did not equal 37.22727
-  ignore("Multiple-variable linear regression - normal equation - no regularization") {
+  test("Multiple-variable linear regression - normal equation - no regularization") {
 		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
 		val lambda = 0.0
 //		val projDataContainerId = this.projectDDF(dataContainerId, Array(3, 5), 0)
