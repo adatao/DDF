@@ -36,9 +36,14 @@ class ALS(
       case _ ⇒ throw new IllegalArgumentException("Only accept DDF")
     }
 
-    val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
-    val trainedData = ddf.VIEWS.project(trainedColumns: _*)
-
+    var trainedData: DDF = null
+    if (xCols.length == 3 || xCols == null) {
+      trainedData = ddf
+    } else {
+      val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
+      trainedData = ddf.VIEWS.project(trainedColumns: _*)
+    }
+    
     val imodel = trainedData.ML.train("collaborativeFiltering", numFeatures: java.lang.Integer, numIterations: java.lang.Integer, lambda: java.lang.Double)
     val matrixFactorizationModel = imodel.getRawModel.asInstanceOf[MatrixFactorizationModel]
 
@@ -46,7 +51,7 @@ class ALS(
     var numUsers = matrixFactorizationModel.userFeatures.count.toInt
     var numProducts = matrixFactorizationModel.productFeatures.count.toInt
 
-    print(">>>>>>>>>>>IN ALS train " + numUsers + "and " + numProducts);
+    print(">>>>>>>>>>>IN ALS train numUsers = " + numUsers + "and numProducts = " + numProducts);
 
     val rmse = ALS.computeRmse(matrixFactorizationModel, trainedData.getRepresentationHandler().get(classOf[RDD[_]], classOf[Rating]).asInstanceOf[RDD[Rating]], false)
     print(">>>>>>>>>>>IN ALS train RMES =" + rmse);

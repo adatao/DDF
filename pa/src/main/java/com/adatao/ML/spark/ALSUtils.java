@@ -1,14 +1,11 @@
 package com.adatao.ML.spark;
 
 
-import io.ddf.ml.IModel;
 import java.io.Serializable;
 import java.util.List;
-import org.jblas.DoubleMatrix;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
-import org.apache.spark.mllib.recommendation.Rating;
-import org.apache.spark.rdd.RDD;
+import org.jblas.DoubleMatrix;
 
 @SuppressWarnings("serial")
 public class ALSUtils implements Serializable {
@@ -19,7 +16,6 @@ public class ALSUtils implements Serializable {
     for (scala.Tuple2<Object, double[]> predicted : list) {
       for (int i = 0; i < n; i++) {
         prediction.put((Integer) predicted._1(), i, predicted._2()[i]);
-        System.out.println(">>>>>>>>>>>toDoubleMatrix >>> " );
       }
     }
     return prediction;
