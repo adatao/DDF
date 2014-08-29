@@ -43,6 +43,7 @@ import io.ddf.DDF
 import io.ddf.types.TupleMatrixVector
 import scala.util.Random
 import io.ddf.ml.IModel
+import com.adatao.spark.ddf.ml.DummyCodingFeatureExtraction
 
 /**
  * NhanVLC
@@ -76,28 +77,35 @@ class LogisticRegressionIRLS(
 
     val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
 
-    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+//    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+//    //call dummy coding explicitly
+//    //make sure all input ddf to algorithm MUST have schema
+//    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+//    projectDDF.getSchema().generateDummyCoding()
+//
+//    //including bias term or intercept
+//    var numFeatures: Integer = xCols.length + 1
+//    if (projectDDF.getSchema().getDummyCoding() != null)
+//      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
-    //call dummy coding explicitly
-    //make sure all input ddf to algorithm MUST have schema
-    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchema().generateDummyCoding()
-
-    //including bias term or intercept
-    var numFeatures: Integer = xCols.length + 1
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+    val featureExtraction = new DummyCodingFeatureExtraction(trainedColumns: _*)
+    //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
+    ddf.ML.setFeatureExtraction(featureExtraction)
+    val numFeatures = featureExtraction.getNumberOfFeatures()
 
     try {
-      val regressionModel = projectDDF.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
-      val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
+      val regressionModel = ddf.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
+        eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+      val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel =
+        regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        model.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-
+//      if (ddf.getSchema().getDummyCoding() != null)
+//        model.setMapping(ddf.getSchema().getDummyCoding().getMapping())
+      if (featureExtraction.getDummyCoding() != null)
+        model.setMapping(featureExtraction.getDummyCoding().getMapping)
       regressionModel
     } catch {
-      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
+      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, ioe.getMessage(), null);
     }
   }
 }

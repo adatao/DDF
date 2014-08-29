@@ -83,6 +83,8 @@ class LogisticRegression(
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
 //    if (projectDDF.getSchema().getDummyCoding() != null)
 //      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+    if (featureExtraction.getDummyCoding() != null)
+      rawModel.setMapping(featureExtraction.getDummyCoding().getMapping)
     model
   }
 

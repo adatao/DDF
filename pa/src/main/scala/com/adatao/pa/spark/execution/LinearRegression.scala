@@ -32,6 +32,7 @@ import com.adatao.spark.ddf.analytics._
 
 import io.ddf.DDF
 import io.ddf.ml.{StandardFeatureExtraction, IModel}
+import com.adatao.spark.ddf.ml.DummyCodingFeatureExtraction
 
 /**
  * Entry point for SparkThread executor
@@ -71,18 +72,17 @@ class LinearRegression(
 
     // project the xCols, and yCol as a new DDF
     // this is costly
-    val numFeatures = trainedColumns.size
-    LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-    val featureExtraction = new StandardFeatureExtraction(trainedColumns: _*)
+    val featureExtraction = new DummyCodingFeatureExtraction(trainedColumns: _*)
     //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
     ddf.ML.setFeatureExtraction(featureExtraction)
-
-    val model = ddf.ML.train("linearRegressionWithGD", numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
-      initialWeights, numFeatures: java.lang.Integer)
+    val numFeatures = featureExtraction.getNumberOfFeatures()
+    LOG.info(">>>>>>>>>>>>>> LinearRegression numFeatures = " + numFeatures)
+    val model = ddf.ML.train("linearRegressionWithGD", numIters: java.lang.Integer, learningRate: java.lang.Double,
+      ridgeLambda: java.lang.Double, initialWeights, numFeatures: java.lang.Integer)
 
     // converts DDF model to old PA model
-    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
+//    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
 //    if (ddf.getSchema().getDummyCoding() != null)
 //      rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
 

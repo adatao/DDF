@@ -44,13 +44,10 @@ object GradientDescent extends TCanLog {
     while (iter < numIters + 1) {
 
       computedLoss = lossFunction.compute(weights)
-
       // Update the weights, except for the last iteration
       // weights = weights - alpha * averageGradient
       if (iter <= numIters) weights.subi(computedLoss.gradients.mul(learningRate / computedLoss.numSamples))
       trainingLosses.put(iter, computedLoss.loss / computedLoss.numSamples)
-
-//      _LOG.info(">>>>>> trainingLoss(" + iter + ")=" + trainingLosses.get(iter))
 
       iter += 1
     }

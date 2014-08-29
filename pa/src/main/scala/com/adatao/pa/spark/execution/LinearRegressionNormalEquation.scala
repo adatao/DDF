@@ -80,17 +80,16 @@ class LinearRegressionNormalEquation(
 //      projectedDDF.getSchema().getDummyCoding().toPrint()
 //    }
 
-    val numFeatures = trainedColumns.size
-    LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-
     val featureExtraction = new DummyCodingFeatureExtraction(trainedColumns: _*)
     //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
     ddf.ML.setFeatureExtraction(featureExtraction)
-    val model = ddf.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+    val numFeatures = featureExtraction.getNumberOfFeatures()
+    LOG.info(">>>>>>>>>>>>>> LinearRegressionNormalEquation numFeatures = " + numFeatures)
+    val model = ddf.ML.train("linearRegressionNQ", ridgeLambda: java.lang.Double)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
-//    if (ddf.getSchema().getDummyCoding() != null)
-//      rawModel.setDummy(ddf.getSchema().getDummyCoding())
+    if (featureExtraction.getDummyCoding() != null)
+      rawModel.setDummy(featureExtraction.getDummyCoding())
 
     return model
   }

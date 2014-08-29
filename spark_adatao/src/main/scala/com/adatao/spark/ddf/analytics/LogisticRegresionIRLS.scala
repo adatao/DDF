@@ -109,7 +109,7 @@ object LogisticRegressionIRLS {
     val lossFunction = new LossFunction(data, ridgeLambda)
 
     var lastDev = Double.MaxValue
-    var computedLoss = lossFunction.compute(weights)
+    val computedLoss = lossFunction.compute(weights)
     println(computedLoss.gradients.toString)
     var currentDev = 2 * computedLoss.loss
     val numSamples: Long = computedLoss.numSamples

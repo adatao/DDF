@@ -42,6 +42,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
 import io.ddf.ml.IModel
+import com.adatao.spark.ddf.ml.DummyCodingFeatureExtraction
 
 class LogisticRegressionCRSResult(model: LogisticRegressionModel) extends SuccessResult {
 }
@@ -70,26 +71,32 @@ class LogisticRegressionCRS(
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
       val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+//      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+//
+//      // project the xCols, and yCol as a new DDF
+//      // this is costly
+//      val schema = projectDDF.getSchema()
+//      //call dummy coding explicitly
+//      //make sure all input ddf to algorithm MUST have schema
+//      projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
+//      projectDDF.getSchema().generateDummyCoding()
+//
+//      var numFeatures: Integer = xCols.length + 1
+//      if (projectDDF.getSchema().getDummyCoding() != null)
+//        numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
-      // project the xCols, and yCol as a new DDF
-      // this is costly
-      val schema = projectDDF.getSchema()
-      //call dummy coding explicitly
-      //make sure all input ddf to algorithm MUST have schema
-      projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-      projectDDF.getSchema().generateDummyCoding()
+      val featureExtraction = new DummyCodingFeatureExtraction(trainedColumns: _*)
+      //val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
+      ddf.ML.setFeatureExtraction(featureExtraction)
 
-      var numFeatures: Integer = xCols.length + 1
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+      val numFeatures = featureExtraction.getNumberOfFeatures()
+      val regressionModel = ddf.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+        0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double],
+        numFeatures: java.lang.Integer, columnsSummary)
 
-      val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-        0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
-
-      val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+//      val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
+//      if (ddf.getSchema().getDummyCoding() != null)
+//        rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
 
       regressionModel
     } catch {
