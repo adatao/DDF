@@ -164,8 +164,8 @@ object RootBuild extends Build {
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.1.5" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.11.3" % "test",
       "com.novocode" % "junit-interface" % "0.10" % "test"
     ),
 
@@ -228,6 +228,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
+    dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
     pomExtra := (
       <!--
       **************************************************************************************************
