@@ -96,7 +96,7 @@ public class TestMissingDataHandling extends BaseTest {
         .setSid(sid)
         .setCmdName("Aggregate")
         .setParams(
-            String.format("{dataContainerID: %s," + "colnames: [LateAircraftDelay]," + "groupBy: [year],"
+            String.format("{dataContainerID: %s," + "colnames: [lateaircraftdelay]," + "groupBy: [year],"
                 + "func: sum}", fillNAResult.getDataContainerID())));
     aggResult = ExecutionResult.fromJson(res.getResult(), AggregateResult.class).result();
     Assert.assertEquals(aggResult.results.get("2008")[0], 301, 0.1);
