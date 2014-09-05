@@ -97,7 +97,7 @@ class LogisticRegressionIRLS(
 
       regressionModel
     } catch {
-      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
+      case e: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }
