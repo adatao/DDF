@@ -103,13 +103,13 @@ public class BaseTest {
 
 
   void createTableMtcars(String sid) throws TException {
-    assert runSQLCmd(sid, "drop table if exists mtcars").isSuccess();
-    assert runSQLCmd(
+    runSQLCmd(sid, "drop table if exists mtcars");
+    runSQLCmd(
         sid,
         "CREATE TABLE mtcars ("
             + "mpg double, cyl int, disp double, hp int, drat double, wt double, qesc double, vs int, am int, gear int, carb int"
-            + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '").isSuccess();
-    assert runSQLCmd(sid, "LOAD DATA LOCAL INPATH 'resources/mtcars' INTO TABLE mtcars").isSuccess();
+            + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ' '");
+    runSQLCmd(sid, "LOAD DATA LOCAL INPATH 'resources/mtcars' INTO TABLE mtcars");
   }
 
 

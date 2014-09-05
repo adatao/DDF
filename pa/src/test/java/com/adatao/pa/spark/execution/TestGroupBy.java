@@ -5,6 +5,7 @@ import java.util.Arrays;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +67,32 @@ public class TestGroupBy extends BaseTest {
     nrResult = ExecutionResult.fromJson(res.getResult(), NRowResult.class).result();
     Assert.assertEquals(nrResult.nrow, 3);
 
+    // count(disp), count(*) and count(1) work
     res = client.execJsonCommand(cmd
         .setSid(sid)
         .setCmdName("GroupBy")
         .setParams(
             String.format("{dataContainerID: %s," + "groupedColumns: [cyl],"
-                + "selectFunctions: ['adisp=mean(disp)']}", mtcarsID)));
+                + "selectFunctions: ['metrics= count(*)']}", mtcarsID)));
+    groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
+
+    metaInfo = groupbyResult.getMetaInfo();
+    LOG.info("GroupBy result: " + Arrays.toString(metaInfo));
+
+    Assert.assertTrue(metaInfo[0].getHeader().equals("metrics"));
+
+    res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
+        .setParams(String.format("{dataContainerID: %s}", groupbyResult.getDataContainerID())));
+    nrResult = ExecutionResult.fromJson(res.getResult(), NRowResult.class).result();
+    Assert.assertEquals(nrResult.nrow, 3);
+
+    res = client.execJsonCommand(cmd
+        .setSid(sid)
+        .setCmdName("GroupBy")
+        .setParams(
+            String
+                .format("{dataContainerID: %s," + "groupedColumns: [cyl]," + "selectFunctions: ['adisp=mean(disp)']}",
+                    mtcarsID)));
     groupbyResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
 
     metaInfo = groupbyResult.getMetaInfo();
@@ -100,6 +121,17 @@ public class TestGroupBy extends BaseTest {
         .setParams(String.format("{dataContainerID: %s}", groupbyResult.getDataContainerID())));
     nrResult = ExecutionResult.fromJson(res.getResult(), NRowResult.class).result();
     Assert.assertEquals(nrResult.nrow, 27);
+
+
+  }
+
+  @Test
+  public void testNullResult() throws TException {
+    JsonCommand cmd = new JsonCommand();
+    JsonResult res;
+    com.adatao.pa.spark.Utils.DataFrameResult groupbyResult;
+    NRowResult nrResult;
+    MetaInfo[] metaInfo;
 
     // Negative tests
     res = client.execJsonCommand(cmd
