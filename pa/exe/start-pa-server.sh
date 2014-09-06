@@ -69,9 +69,9 @@ echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
-nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.rest.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
 echo
 
 sleep 5
-pgrep -fl com.adatao.pa.thrift.Server >/dev/null 2>&1 || echo "Error: No 'Server' Java process found. Something is wrong"
+pgrep -fl com.adatao.pa.rest.Server >/dev/null 2>&1 || echo "Error: No 'Server' Java process found. Something is wrong"
 
