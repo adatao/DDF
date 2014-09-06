@@ -18,8 +18,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
@@ -142,7 +142,7 @@ public class SampleDataFrame implements IExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(Utils.getDDFNameFromDataContainerID(dataContainerID));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
 
     if (ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF " + dataContainerID,
@@ -160,7 +160,7 @@ public class SampleDataFrame implements IExecutor {
        * 
        * return new SampleDataFramePercentResult() .setDataContainerID(uid) .setMetaInfo(tdf.getMetaInfo());
        */
-      DDF sampleDDF = ddf.Views.getRandomSample(percent, replace, seed);
+      DDF sampleDDF = ddf.VIEWS.getRandomSample(percent, replace, seed);
       try {
         MetaInfo[] metaInfos = Utils.generateMetaInfo(sampleDDF.getSchema());
         String dcID = Utils.getDataContainerID(sampleDDF);
@@ -181,7 +181,7 @@ public class SampleDataFrame implements IExecutor {
        * if(data != null && data.size() > 0) { return new SampleDataFrameSizeResult()
        * .setDataContainerID(dataContainerID) .setData(data);
        */
-      List<Object[]> data = ddf.Views.getRandomSample(size, replace, seed);
+      List<Object[]> data = ddf.VIEWS.getRandomSample(size, replace, seed);
       if (data != null && data.size() > 0) {
         return new SampleDataFrameSizeResult().setDataContainerID(dataContainerID).setData(data);
       } else {

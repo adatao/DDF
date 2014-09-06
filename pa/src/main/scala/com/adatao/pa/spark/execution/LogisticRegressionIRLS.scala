@@ -18,19 +18,18 @@ package com.adatao.pa.spark.execution
 
 import java.lang.String
 
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.LogisticRegressionModel
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
-import com.adatao.ML.ALinearModel
-import com.adatao.ML.ADiscreteIterativeLinearModel
-import com.adatao.ML.AContinuousIterativeLinearModel
+import com.adatao.spark.ddf.analytics.ALinearModel
+import com.adatao.spark.ddf.analytics.ADiscreteIterativeLinearModel
+import com.adatao.spark.ddf.analytics.AContinuousIterativeLinearModel
 import org.jblas.DoubleMatrix
 import org.jblas.Solve
 import scala.collection.mutable.ArrayBuilder
@@ -39,10 +38,11 @@ import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ddf.exception.DDFException
-import com.adatao.ddf.DDF
-import com.adatao.ddf.types.TupleMatrixVector
+import io.ddf.exception.DDFException
+import io.ddf.DDF
+import io.ddf.types.TupleMatrixVector
 import scala.util.Random
+import io.ddf.ml.IModel
 
 /**
  * NhanVLC
@@ -62,9 +62,9 @@ class LogisticRegressionIRLS(
   var ridgeLambda: Double,
   var initialWeights: Array[Double],
   mapReferenceLevel: HashMap[String, String] = null, nullModel: Boolean = false)
-  extends AModelTrainer[IRLSLogisticRegressionModel](dataContainerID, xCols, yCol, mapReferenceLevel) {
+  extends AExecutor[IModel] {
 
-  override def runImpl(ctx: ExecutionContext): IRLSLogisticRegressionModel = {
+  override def runImpl(ctx: ExecutionContext): IModel = {
     if (numIters == 0) // when client does not send numIters to this executor 
       numIters = 25
     if (eps == 0) // when client does not send eps to this executor 
@@ -74,10 +74,10 @@ class LogisticRegressionIRLS(
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
 
-    val projectDDF = project(ddf)
-    // project the xCols, and yCol as a new DDF
-    // this is costly
-    val schema = projectDDF.getSchema()
+    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+
+    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
+
     //call dummy coding explicitly
     //make sure all input ddf to algorithm MUST have schema
     projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
@@ -89,43 +89,16 @@ class LogisticRegressionIRLS(
       numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
 
     try {
-
       val regressionModel = projectDDF.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
-
-      //      val glmModel = ddfTrain3.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-      //    0.1: java.lang.Double, 0.1: java.lang.Double, initialWeight.toArray : scala.Array[Double], ddfTrain3.getNumColumns: java.lang.Integer, columnsSummary)
-
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
       if (projectDDF.getSchema().getDummyCoding() != null)
         model.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
-      //excluding intercept, bias term
-      val modelFeatures = numFeatures.longValue() - 1
-      val pamodel = new IRLSLogisticRegressionModel(model.getWeights, model.getDeviance, model.getNullDeviance, model.getNumSamples, modelFeatures, model.getNumIters, model.getStdErrs)
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        pamodel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
-
-      pamodel
+      regressionModel
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
-
-  }
-
-  override def train(dataContainerID: String, context: ExecutionContext): IRLSLogisticRegressionModel = {
-    null.asInstanceOf[IRLSLogisticRegressionModel]
-  }
-
-  //post process, set column mapping to model
-  def instrumentModel(model: IRLSLogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): IRLSLogisticRegressionModel = {
-    null.asInstanceOf[IRLSLogisticRegressionModel]
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long, val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
-  override def predict(features: Vector): Double = ALossFunction.sigmoid(this.linearPredictor(features))
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
-  }
-}

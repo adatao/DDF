@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
+import io.ddf.DDF;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult;
@@ -24,7 +24,7 @@ public class MutableDDF extends CExecutor {
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     ddf.setMutable(isMutable);
 
     if (ddf == null) {

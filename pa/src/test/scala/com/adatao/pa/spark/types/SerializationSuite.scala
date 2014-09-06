@@ -18,7 +18,7 @@ package com.adatao.pa.spark.types
 
 import com.adatao.ML.ATestSuite
 import com.google.gson.GsonBuilder
-import com.adatao.ML.LogisticRegressionModel
+import com.adatao.spark.ddf.analytics.LogisticRegressionModel
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 

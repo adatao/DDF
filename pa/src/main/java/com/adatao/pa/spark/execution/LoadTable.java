@@ -20,10 +20,10 @@ package com.adatao.pa.spark.execution;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.content.Schema;
+import io.ddf.content.Schema.Column;
 import com.adatao.pa.spark.DataManager.MetaInfo;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
@@ -198,10 +198,10 @@ public class LoadTable implements IExecutor {
   	  
   	  String ddfName = ddfManager.addDDF(ddf);
       LOG.info("DDF Name: " + ddfName);
-  	  String dataContainerID = ddfName.substring(15).replace("_", "-");;
+
   		// LOG.info("Meta info: " + Arrays.toString(metaInfo));
   
-  		return new LoadTableResult().setDataContainerID(dataContainerID).setMetaInfo(generateMetaInfo(ddf.getSchema()));
+  		return new LoadTableResult().setDataContainerID(ddfName).setMetaInfo(generateMetaInfo(ddf.getSchema()));
 	  } catch (Exception e) {
 	    return null;
 	  }

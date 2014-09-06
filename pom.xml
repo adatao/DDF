@@ -58,12 +58,8 @@
 	</pluginRepositories>
 	
 	<modules>
-	  <module>core</module>
-	  <module>spark</module>
-          <module>pa</module>
-          <module>enterprise</module>
-	  <module>contrib</module>
-	  <module>examples</module>
+	  <module>spark_adatao</module>
+    <module>pa</module>
 	</modules>
 
 	<dependencies>
@@ -71,19 +67,12 @@
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>2.9.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
+			<version>2.10.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_2.9.3</artifactId>
+			<artifactId>scalatest_2.10</artifactId>
 			<version>1.9.1</version>
 			<scope>test</scope>
 		</dependency>

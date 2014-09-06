@@ -4,9 +4,9 @@ package com.adatao.pa.spark.execution;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.etl.Types.JoinType;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.etl.Types.JoinType;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -91,8 +91,8 @@ public class Join extends CExecutor {
     Utils.assertNull(leftDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     Utils.assertNull(rightDataContainerID, new AdataoException(AdataoExceptionCode.ERR_MISSING_DATAFRAME, null));
     
-    String leftDdfId = com.adatao.ML.Utils.dcID2DDFID(leftDataContainerID);
-    String rightDdfId = com.adatao.ML.Utils.dcID2DDFID(rightDataContainerID);
+    String leftDdfId = com.adatao.spark.ddf.analytics.Utils.dcID2DDFID(leftDataContainerID);
+    String rightDdfId = com.adatao.spark.ddf.analytics.Utils.dcID2DDFID(rightDataContainerID);
     DDF leftddf = sparkThread.getDDFManager().getDDF(leftDdfId);
     DDF rightddf = sparkThread.getDDFManager().getDDF(rightDdfId);
     

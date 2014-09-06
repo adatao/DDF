@@ -17,10 +17,12 @@
 package com.adatao.pa.spark.execution;
 
 
+import com.adatao.spark.ddf.analytics.Utils;
+import com.adatao.pa.spark.types.SuccessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.Utils.DataFrameResult;
@@ -47,22 +49,31 @@ public class SetDDFName extends CExecutor {
       return new FailResult().setMessage("ddfName string is empty");
     }
     try {
+
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.getDDF(dataContainerId);
 
-
       if (ddf != null) {
         LOG.info(" succesful setting ddf to alias name = " + ddfName);
-        ddfManager.setDDFByName(ddf, ddfName);
+        ddf.setName(ddfName);
+        ddfManager.addDDF(ddf);
       } else LOG.error("Can not set ddf to alias name = " + ddfName);
 
-      return new DataFrameResult(ddf);
+      return new SetDDFNameResult(ddf.getUri());
 
     } catch (Exception e) {
       // I cannot catch shark.api.QueryExecutionException directly
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
       return null;
+    }
+  }
+
+  public static class SetDDFNameResult extends SuccessResult {
+    public String uri;
+
+    public SetDDFNameResult(String uri) {
+      this.uri = uri;
     }
   }
 }

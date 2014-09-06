@@ -16,22 +16,22 @@
 
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ Utils ⇒ MLUtils, _ 
+import com.adatao.spark.ddf.analytics.{ Utils ⇒ MLUtils, _ 
 }
 import scala.Some
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.IModel
-import com.adatao.spark.ddf.SparkDDF
+import io.ddf.DDF
+import io.ddf.ml.IModel
+import io.spark.ddf.SparkDDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.ML.Utils
-import com.adatao.ddf.ml.IModel
-import com.adatao.ddf.DDF
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.ml.IModel
+import io.ddf.DDF
 
 /**
  *
  */
-class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int, var modelID: String) extends AExecutor[Double] {
+class R2Score(var dataContainerID: String, var modelID: String) extends AExecutor[Double] {
 
   def runImpl(ctx: ExecutionContext): Double = {
     val ddfManager = ctx.sparkThread.getDDFManager();
@@ -41,22 +41,22 @@ class R2Score(var dataContainerID: String, val xCols: Array[Int], val yCol: Int,
     // first, compute RDD[(ytrue, ypred)]
     //old API val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
 
-    val mymodel: IModel = ddfManager.getModel(modelID)
-    if (mymodel == null) {
+    val model: IModel = ddfManager.getModel(modelID)
+    if (model == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
         String.format("Not found dataframe with id %s", modelID), null);
     }
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
 
-    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, false)
+    val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
     if (predictionDDF == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
         "Can not run prediction on dataContainerID: " + dataContainerID + "\t with modelID =" + modelID, null);
     }
     //get column mean
-    val summary = ddf.getStatisticsSupporter().getSummary()
-    val yMean = summary(yCol).mean()
+    val summary = projectedDDF.getStatisticsSupporter().getSummary()
+    val yMean = summary(projectedDDF.getNumColumns - 1).mean()
 
     ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
-
   }
 }
