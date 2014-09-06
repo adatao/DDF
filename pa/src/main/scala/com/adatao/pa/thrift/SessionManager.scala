@@ -31,7 +31,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	private val cidThreadMap = new HashMap[String, Session]() with SynchronizedMap[String, Session]
 	
 	private var currentUIPort = System.getProperty("bigr.multiuser.server.initialUIPort", "30001").toInt;
-	private var currentDriverPort = System.getProperty("bigr.multiuser.server.initialDriverport", "20001").toInt;
+	private var currentDriverPort = System.getProperty("bigr.multiuser.server.initialDriverport", "20002").toInt;
 	
 	def getNewThriftPort = this.synchronized { currentThriftPort+=1; currentThriftPort }
 	def getNewUIPort = this.synchronized { currentUIPort+=1; currentUIPort }

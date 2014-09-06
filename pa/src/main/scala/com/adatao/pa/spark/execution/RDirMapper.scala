@@ -29,7 +29,6 @@ import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.SerializableWritable
 import java.util.Arrays
 import com.adatao.pa.spark.types.FailedResult
-import shark.api.JavaSharkContext
 
 class RDirMapper(val mapScript: String, val inputPath: String, val outputPath: String) extends AExecutor[Unit] {
 	//TODO: broadcast mapScript and reduceScript

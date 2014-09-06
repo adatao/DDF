@@ -29,7 +29,8 @@ import com.google.gson.JsonSerializer
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonNull
 import com.google.gson.JsonArray
-
+import io.ddf.ml.{IModel, Model}
+import org.apache.spark.mllib.clustering.KMeansModel
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().
  * It also automatically has a val "class" containing its class name.
@@ -81,7 +82,6 @@ object TJsonSerializable {
 		.getGsonBuilderNoTJsonSerializable
 		.registerTypeHierarchyAdapter(classOf[TJsonSerializable], new TJsonSerializableSerializer)
 		.registerTypeHierarchyAdapter(classOf[TJsonSerializable], new TJsonSerializableDeserializer)
-
 	/**
 	 * Returns a new Gson with both the standard serializer and deserializer registered for all types for which
 	 * we have special serdes support, excluding TJsonSerializable itself (to avoid infinite loops)
@@ -116,6 +116,7 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Float], new SpecialSerDes.FloatDeserializer)
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
+    .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
 }
 
 /**
@@ -292,4 +293,20 @@ private object SpecialSerDes {
 			}
 		}
 	}
+
+  class ModelDeserializer extends JsonDeserializer[Model] {
+
+    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): Model = {
+      jElem match {
+        case jObj: JsonObject => {
+          val clazz = Class.forName(jObj.get("modelType").getAsString)
+          val rawModel = standardGson.fromJson(jObj.get("mRawModel"), clazz)
+          jObj.remove("mRawModel")
+          val deserializedModel: Model = standardGson.fromJson(jObj, classOf[Model])
+          deserializedModel.setRawModel(rawModel)
+          return deserializedModel
+        }
+      }
+    }
+  }
 }

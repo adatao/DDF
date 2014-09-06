@@ -17,10 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 
-import com.adatao.ML.Utils;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.exception.DDFException;
+import com.adatao.spark.ddf.analytics.Utils;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;

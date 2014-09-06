@@ -36,7 +36,7 @@ public class Server {
 	String host = "localhost";
 	TServer server;
 	RCommands.Iface handler;
-	public static Boolean MULTIUSER_DEFAULT = true;
+	public static Boolean MULTIUSER_DEFAULT = false;
 	static Boolean multiUser = Boolean.parseBoolean(System.getProperty("bigr.multiuser", MULTIUSER_DEFAULT.toString()));
 
 	public Logger LOG = LoggerFactory.getLogger(Server.class);

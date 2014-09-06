@@ -12,7 +12,7 @@ public class SessionManagerJava {
 	
 	private int thriftPort = 7911;
 	private int uiPort = 30001;
-	private int driverPort = 20001;
+	private int driverPort = 20002;
 	
 	public static class Session {
 		private String sessionID;

@@ -3,7 +3,6 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import scala.collection.JavaConversions._
-import com.adatao.pa.spark.execution.LoadHiveTable.LoadHiveTableResult
 import com.adatao.pa.spark.execution.NRow.NRowResult
 
 /**
@@ -47,31 +46,6 @@ class SqlExecutionSuite extends ABigRClientTest {
 		val listData=result.result.getData
 		for(data <- listData){
 			LOG.info("FetchVectors result: " + data.mkString(", "))
-		}
-	}
-
-	//no longer support loadHiveTable command
-	ignore("Test LoadHiveTable"){
-		this.runSQLCmd("drop table if exists test")
-		this.runSQLCmd("CREATE TABLE test (uid Int, type String)")
-		this.runSQLCmd("LOAD DATA LOCAL INPATH 'resources/sharkfiles/kv3.txt' INTO TABLE test")
-
-		val cmd= new LoadHiveTable().setTableName("test")
-
-		val result= bigRClient.execute[LoadHiveTableResult](cmd)
-		assert(result.isSuccess)
-		val dcId= result.result.getDataContainerID
-		LOG.info("Got dataContainerID= " + dcId)
-		assert(result.result.metaInfo(0).getHeader == "uid")
-		assert(result.result.metaInfo(1).getHeader == "type")
-
-		val params= String.format("{dataContainerID: %s, limit: 100}", dcId)
-		val result2 = bigRClient.execute[FetchRowsResult]("FetchRows", params)
-		assert(result2.isSuccess)
-
-		val data= result2.result.getData
-		for(x <- data){
-			LOG.info("FetchVectors result: " + x.mkString(", "))
 		}
 	}
 

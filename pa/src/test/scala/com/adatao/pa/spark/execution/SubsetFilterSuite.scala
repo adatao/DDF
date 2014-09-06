@@ -8,7 +8,7 @@ import  org.junit.Assert.assertTrue;
 import com.adatao.ML.ATestSuite
 import com.adatao.pa.spark.execution.SubsetFilterSuite._
 import com.adatao.pa.spark.execution.Subset.ExpressionDeserializer
-import com.adatao.ddf.content.ViewHandler._
+import io.ddf.content.ViewHandler._
 ;
 
 import com.google.gson.Gson;

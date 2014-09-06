@@ -20,10 +20,10 @@ package com.adatao.pa.spark.execution;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.content.Schema;
-import com.adatao.ddf.content.Schema.Column;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.content.Schema;
+import io.ddf.content.Schema.Column;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.DataManager.MetaInfo;
@@ -59,7 +59,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
     public Sql2DataFrameResult(DDF ddf) {
-      this.dataContainerID = ddf.getName().substring(15).replace("_", "-");
+      this.dataContainerID = ddf.getName();
       this.metaInfo = generateMetaInfo(ddf.getSchema());
     }
 
@@ -96,15 +96,9 @@ public class Sql2DataFrame extends CExecutor {
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
+
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;
-      }
     }
   }
 }

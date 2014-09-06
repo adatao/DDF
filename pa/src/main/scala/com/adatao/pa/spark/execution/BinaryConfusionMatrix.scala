@@ -1,23 +1,19 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.ML.{ TModel, ALinearModel, TPredictiveModel }
-import com.adatao.ddf.types.Vector
-//import com.adatao.ML.spark.{ Metrics, RddUtils }
+import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
+import com.adatao.spark.ddf.analytics.ALinearModel
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.pa.spark.DataManager
 import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-
-import com.adatao.ML.Utils
-
-
-import com.adatao.ddf.DDF
+import com.adatao.spark.ddf.analytics.Utils
+import io.ddf.DDF
 
 /**
  * Compute the confusion matrix for a binary classification model, given a threshold.
  * The given model should be able to predict y such that 0 <= y <= 1.
  * @author aht
  */
-class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int, val threshold: Double) extends AExecutor[BinaryConfusionMatrixResult] {
+class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val threshold: Double) extends AExecutor[BinaryConfusionMatrixResult] {
 
   override def runImpl(context: ExecutionContext): BinaryConfusionMatrixResult = {
     val ddfManager = context.sparkThread.getDDFManager()
@@ -26,9 +22,10 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val xC
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    // val ddfModelID = context.sparkThread.getDataManager.getObject(modelID).asInstanceOf[TModel].ddfModelID
-    val ddfModel = ddfManager.getModel(modelID)
-    val cm = ddf.ML.getConfusionMatrix(ddfModel, threshold)
+
+    val model = ddfManager.getModel(modelID)
+    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
+    val cm = projectedDDF.ML.getConfusionMatrix(model, threshold)
     new BinaryConfusionMatrixResult(cm(0)(0), cm(1)(0), cm(0)(1), cm(1)(1))
   }
 }

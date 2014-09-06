@@ -2,11 +2,9 @@ package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
 import org.apache.spark.api.java.JavaRDD
-import com.adatao.pa.spark.SharkUtils
-import shark.api.JavaSharkContext
-import com.adatao.ddf.DDF
-import com.adatao.ddf.ml.IModel
-import com.adatao.spark.ddf.SparkDDF
+import io.ddf.DDF
+import io.ddf.ml.IModel
+import io.spark.ddf.SparkDDF
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +18,7 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
   override def runImpl(ctx: ExecutionContext): ResidualsResult = {
 
     val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = com.adatao.ML.Utils.dcID2DDFID(dataContainerID)
+    val ddfId = dataContainerID
     val ddf: DDF = ddfManager.getDDF(ddfId);
     // first, compute RDD[(ytrue, ypred)]
 
@@ -32,7 +30,7 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
 
     //return dataframe
     val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
-    val uid = residualsDDF.getName().replace("_", "-").replace("SparkDDF-spark-", "").replace("-com.adatao.ML.LogisticRegressionModel-YTrueYPredict", "")
+    val uid = residualsDDF.getName()
 
     new ResidualsResult(uid, metaInfo)
   }

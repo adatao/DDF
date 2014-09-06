@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.types.AggregateTypes.AggregationResult;
-import com.adatao.ddf.exception.DDFException;
+import io.ddf.DDF;
+import io.ddf.DDFManager;
+import io.ddf.types.AggregateTypes.AggregationResult;
+import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -64,7 +64,7 @@ public class Xtabs extends CExecutor {
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     DDFManager dm = sparkThread.getDDFManager();
-    DDF ddf = (DDF) dm.getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf =  dm.getDDF(dataContainerID);
     if (ddf == null) {
       LOG.info("Cannot find the DDF " + dataContainerID);
     } else {

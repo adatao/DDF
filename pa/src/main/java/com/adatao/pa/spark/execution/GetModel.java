@@ -19,8 +19,8 @@ package com.adatao.pa.spark.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDFManager;
-import com.adatao.ddf.ml.IModel;
+import io.ddf.DDFManager;
+import io.ddf.ml.IModel;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -58,12 +58,9 @@ public class GetModel extends CExecutor {
       // I cannot catch shark.api.QueryExecutionException directly
       // most probably because of the problem explained in this
       // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      if (e instanceof shark.api.QueryExecutionException) {
-        throw new AdataoException(AdataoExceptionCode.ERR_LOAD_TABLE_FAILED, e.getMessage(), null);
-      } else {
+
         LOG.error("Cannot create a ddf from the sql command", e);
         return null;
-      }
     }
   }
 
@@ -74,7 +71,7 @@ public class GetModel extends CExecutor {
     public ModelResult(IModel model) {
       this.id = model.getName();// .substring(15).replace("_", "-");
       //TODO change NQLinearRegressionModel to be generic
-      NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
+      //NQLinearRegressionModel rawModel = (NQLinearRegressionModel) model.getRawModel();
     }
   }
 

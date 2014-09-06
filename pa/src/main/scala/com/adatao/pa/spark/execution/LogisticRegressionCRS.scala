@@ -17,33 +17,31 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-import com.adatao.ML
-import com.adatao.ML.Utils
-import com.adatao.ML.TModel
-import com.adatao.ddf.types.Matrix
-import com.adatao.ddf.types.Vector
+import com.adatao.spark.ddf.analytics._
+import com.adatao.spark.ddf.analytics.Utils
+import com.adatao.spark.ddf.analytics.TModel
+import io.ddf.types.Matrix
+import io.ddf.types.Vector
 import org.apache.spark.rdd.RDD
-import com.adatao.ML.ALossFunction
-import com.adatao.spark.RDDImplicits._
+import com.adatao.spark.ddf.analytics.ALossFunction
+import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
 import org.jblas.DoubleMatrix
 import no.uib.cipr.matrix.sparse.CompRowMatrix
-import com.adatao.ddf.types.MatrixSparse
+import io.ddf.types.MatrixSparse
 import org.jblas.MatrixFunctions
-import com.adatao.ML.GradientDescent
 import scala.util.Random
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
-import com.adatao.ddf.DDFManager
+import io.ddf.DDFManager
 import com.adatao.pa.spark.SparkThread
 import com.adatao.pa.spark.types.ExecutorResult
-import com.adatao.ddf.DDF
-import com.adatao.ddf.exception.DDFException
+import io.ddf.DDF
+import io.ddf.exception.DDFException
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
-import com.adatao.ddf.ml.IModel
-import com.adatao.ML.LogisticRegressionModel
+import io.ddf.ml.IModel
 
 class LogisticRegressionCRSResult(model: LogisticRegressionModel) extends SuccessResult {
 }
@@ -59,20 +57,21 @@ class LogisticRegressionCRS(
   var numIters: Int,
   var learningRate: Double,
   var ridgeLambda: Double,
-  var initialWeights: Array[Double]) extends AModelTrainer[LogisticRegressionModel](dataContainerID, xCols, yCol) {
+  var initialWeights: Array[Double]) extends AExecutor[IModel] {
 
   var ddfManager: DDFManager = null
 
   //  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
   //	override def run(sparkThread: SparkThread): ExecutorResult = {
-  override def runImpl(ctx: ExecutionContext): LogisticRegressionModel = {
+  override def runImpl(ctx: ExecutionContext): IModel = {
 
     ddfManager = ctx.sparkThread.getDDFManager();
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
+      val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
+      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
 
-      val projectDDF = project(ddf)
       // project the xCols, and yCol as a new DDF
       // this is costly
       val schema = projectDDF.getSchema()
@@ -88,29 +87,14 @@ class LogisticRegressionCRS(
       val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
-      val model: com.adatao.spark.ddf.analytics.LogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-      //TODO need to move this to spark layer
+      val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       if (projectDDF.getSchema().getDummyCoding() != null)
-        model.setDummy(projectDDF.getSchema().getDummyCoding())
+        rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
 
-      //set dummyCoding for PA model
-      val glm = new LogisticRegressionModel(model.getWeights, model.getTrainingLosses(), model.getNumSamples())
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        glm.setMapping(model.getDummy().getMapping())
-
-      return (glm)
+      regressionModel
     } catch {
       case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
     }
   }
-
-  override def train(dataContainerID: String, context: ExecutionContext): LogisticRegressionModel = {
-    null.asInstanceOf[LogisticRegressionModel]
-  }
-
-  override def instrumentModel(model: LogisticRegressionModel, mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]): LogisticRegressionModel = {
-    null.asInstanceOf[LogisticRegressionModel]
-  }
-
 }
 

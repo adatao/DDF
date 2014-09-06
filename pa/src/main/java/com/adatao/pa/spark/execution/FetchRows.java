@@ -20,7 +20,7 @@ package com.adatao.pa.spark.execution;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.ddf.DDF;
+import io.ddf.DDF;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -50,16 +50,26 @@ public class FetchRows extends CExecutor {
     public List<String> getData() {
       return data;
     }
+
+//    public String toString() {
+//      int totalIndent = 14;
+//      StringBuilder sb = new StringBuilder();
+//      List<String> data = this.getData();
+//      for (int i = 0; i < data.size(); i++) {
+//        sb.append(com.adatao.pa.spark.Utils.reindent("column", totalIndent));
+//      }
+//      return(sb.toString());
+//    }
   }
 
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
 
-    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(("SparkDDF-spark-" + dataContainerID).replace("-", "_"));
+    DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     List<String> data;
     try {
-      data = ddf.Views.firstNRows(limit);
+      data = ddf.VIEWS.head(limit);
       return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
     } catch (Exception e) {
       LOG.error(String.format("Cannot fetch %s rows", limit), e);
