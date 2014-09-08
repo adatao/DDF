@@ -39,12 +39,12 @@ import scala.collection.immutable.List
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.api.java.JavaRDD
 import java.util.ArrayList
-import com.adatao.spark.ddf.{DDF => AdataoDDF}
 import scala.collection.mutable.ArrayBuffer
 import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
 import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
 import io.ddf.ml.IModel
 import io.ddf.DDF
+import com.adatao.spark.ddf.etl.TransformationHandler
 
 /**
  * Author: NhanVLC
@@ -64,15 +64,34 @@ class LinearRegressionNormalEquation(
     val ddfId = Utils.dcID2DDFID(dataContainerID)
 
     ddfManager.getDDF(ddfId) match {
-      case ddf: AdataoDDF => {
+      case ddf: DDF => {
         val xColsName = xCols.map{idx => ddf.getColumnName(idx)}
         val yColName = ddf.getColumnName(yCol)
-        val mlFacade: com.adatao.spark.ddf.ml.MLFacade = ddf.ML.asInstanceOf[com.adatao.spark.ddf.ml.MLFacade]
 
-        return mlFacade.LinearRegressionNQ(xColsName, yColName, ridgeLambda)
-      }
-      case ddf: DDF => {
-        throw new IllegalArgumentException("Only accept AdataoDDF")
+
+
+        val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
+        //TODO fix this on opensource
+        //TODO set factor for all string columns then compute factor levels
+        transformedDDF.getSchemaHandler.computeFactorLevelsForAllStringColumns()
+        transformedDDF.getSchemaHandler.generateDummyCoding()
+
+        //TODO get rid of this
+        val numFeatures: Int = if(transformedDDF.getSchema.getDummyCoding != null) {
+          transformedDDF.getSchema.getDummyCoding.getNumberFeatures
+        } else {
+          xCols.length + 1
+        }
+
+        val model = transformedDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+
+        //TODO: get rid of this
+        val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
+        if(transformedDDF.getSchema.getDummyCoding != null) {
+          rawModel.setDummy(transformedDDF.getSchema.getDummyCoding)
+        }
+
+        model
       }
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
