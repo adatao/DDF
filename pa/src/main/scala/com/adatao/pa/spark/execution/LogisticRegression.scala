@@ -30,6 +30,7 @@ import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
 import java.util.List
 import java.util.ArrayList
+import com.adatao.spark.ddf.etl.TransformationHandler
 
 import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
@@ -46,7 +47,7 @@ class LogisticRegression(
   var learningRate: Double,
   var ridgeLambda: Double,
   var initialWeights: Array[Double])
-  extends AExecutor[IModel]{
+  extends AExecutor[IModel] {
 
   override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
@@ -56,27 +57,22 @@ class LogisticRegression(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
 
-    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
-
-    LOG.info(">>>> trainedColumns = " + trainedColumns.mkString(", "))
-    //call dummy coding explicitly
-    //make sure all input ddf to algorithm MUST have schema
-    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchema().generateDummyCoding()
+    val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
+    val yColName = ddf.getColumnName(yCol)
+    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
     var numFeatures: Integer = xCols.length + 1
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+    if (ddf.getSchema().getDummyCoding() != null)
+      numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
 
     LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
 
-    val model = projectDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
+    val model = transformedDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
       learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+    if (ddf.getSchema().getDummyCoding() != null)
+      rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
     model
   }
 

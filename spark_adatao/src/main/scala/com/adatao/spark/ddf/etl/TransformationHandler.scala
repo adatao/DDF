@@ -19,40 +19,80 @@ import shark.memstore2.column.ColumnType
 import org.apache.hadoop.io._
 import java.nio.ByteOrder
 import java.util.HashMap
+import io.spark.ddf.ml.TransformRow
 
 /**
  */
 class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
-  def dummyCoding(xCols: Array[String], yCol: String): DDF = {
-    //TODO @Khang please implement the optimized dummyCoding version here
-    //the return DDF will contain single representation which is TupleMatrixVector
-    
-    
+  override def dummyCoding(xCols: Array[String], yCol: String): DDF = {
+
     mDDF.getSchemaHandler.setFactorLevelsForAllStringColumns()
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
     mDDF.getSchemaHandler.generateDummyCoding()
-    
+
     //convert column name to column index
-    val xColsIndex: Array[Int] = xCols.map ( columnName => mDDF.getSchema().getColumnIndex(columnName))
-    val yColIndex: Int  = mDDF.getSchema().getColumnIndex(yCol)
+    val xColsIndex: Array[Int] = xCols.map(columnName => mDDF.getSchema().getColumnIndex(columnName))
+    val yColIndex: Int = mDDF.getSchema().getColumnIndex(yCol)
     val categoricalMap = mDDF.getSchema.getDummyCoding.getMapping()
     val tp = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[TablePartition])
-
     //return Matrix Vector
-    val mv = getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+    val mv = TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+    //convert to dummy column
+    val mv2 = mv.map(TransformDummy.instrument(xColsIndex, categoricalMap))
 
-    val dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv, classOf[(Matrix, Vector)], mDDF.getNamespace(), null, null)
+    val dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[(Matrix, Vector)], mDDF.getNamespace(), null, null)
     dummyCodingDDF
 
   }
+}
 
+object TransformDummy {
   def getDataTable(rdd: RDD[TablePartition],
     xCols: Array[Int],
     yCol: Int,
     categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]] = null): RDD[(Matrix, Vector)] = {
     rdd.map(tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap))
       .filter(xy ⇒ (xy._1.columns > 0) && (xy._2.rows > 0))
+  }
+
+  /* 
+   * input: categoricalColumnSize is the mapping between column id and a number of unique values in categorical column 
+   *    key = original column id of X
+   *    value = length of dummy column, including original one 
+   * input: original matrix
+   * output: new matrix with new dummy columns
+   */
+  def instrument[InputType](xCols: Array[Int], mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]])(inputRow: (Matrix, Vector)): (Matrix, Vector) = {
+
+    //so we need to do minus one for original column
+    var oldX = inputRow._1
+    var oldY = inputRow._2
+
+    //add dummy columns
+    val numCols = oldX.columns
+    var numRows = oldX.rows
+    var newColumnMap = new Array[Int](numCols)
+
+    //row transformer
+    var trRow = new TransformRow(xCols, mapping)
+
+    //for each row
+    var indexRow = 0
+    var currentRow = null.asInstanceOf[Matrix]
+    var newRowValues = null.asInstanceOf[DoubleMatrix]
+    while (indexRow < oldX.rows) {
+
+      //for each rows
+      currentRow = Matrix(oldX.getRow(indexRow))
+      newRowValues = trRow.transform(currentRow)
+      //add new row
+      oldX.putRow(indexRow, newRowValues)
+
+      //convert oldX to new X
+      indexRow += 1
+    }
+    (oldX, oldY)
   }
 
   def tablePartitionToMatrixVectorMapper(xCols: Array[Int], yCol: Int, categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]])(tp: TablePartition): (Matrix, Vector) = {
@@ -72,19 +112,22 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
       val numRows = tp.numRows.toInt - nullBitmap.cardinality()
       val numXCols = xCols.length + 1
 
+      xCols(0)
+
       var numDummyCols = 0
       if (categoricalMap != null) {
-        val iterator2 = categoricalMap.keySet().iterator()
-        while (iterator2.hasNext) {
-          numDummyCols += categoricalMap.get(iterator2.next).size() - 2
+        var i: Integer = 0
+        while (i < xCols.length) {
+          if (categoricalMap.containsKey(xCols(i))) {
+            var currentMap = categoricalMap.get(xCols(i)).keySet()
+            numDummyCols += currentMap.size() - 2
+          }
+          i += 1
         }
       }
 
       val Y = new Vector(numRows)
       val X = new Matrix(numRows, numXCols + numDummyCols) // this allocation won't be feasible for sparse features
-      //      LOG.info("tablePartitiontoMapper: numRows = {}, null bitmap cardinality = {}, xCols = {}, nunNewFeatures = {}",
-      //        numRows.toString, nullBitmap.cardinality().toString, util.Arrays.toString(xCols), numDummyCols.toString)
-
       // fill in the first X column with bias value
       fillConstantColumn(X, 0, numRows, 1.0)
 
@@ -100,7 +143,6 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
         val columnType = getColType(colIter)
         columnType match {
           case INT | LONG | FLOAT | DOUBLE | BOOLEAN | BYTE | SHORT => {
-            //            LOG.info("extracting numeric column id {}, columnType {}", xColId, columnType.toString)
             if (categoricalMap != null && categoricalMap.containsKey(xColId)) {
               val columnMap = categoricalMap.get(xColId)
               fillColumnWithConversion(X, i, colIter, numRows, nullBitmap, (current: Object) => {
@@ -117,7 +159,6 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
             if (categoricalMap != null && categoricalMap.containsKey(xColId)) {
               val columnMap = categoricalMap.get(xColId)
               fillColumnWithConversion(X, i, colIter, numRows, nullBitmap, (current: Object) => {
-                // invariant: columnMap.contains(x)
                 val k = current.asInstanceOf[Text].toString
                 columnMap.get(k)
               })
@@ -221,7 +262,6 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
   def getColType(colIter: ColumnIterator): ColumnType[_, _] = {
     // decode the ColumnIterator to get ColumnType
     // using implementations details from Shark ColumnIterator.scala and NullableColumnIterator.scala
-
     // The first 4 bytes after null encoding indicates the column type
     // null encoding: first 4 byte is null count, then null positions
     val buffer = colIter.asInstanceOf[NullableColumnIterator].getBuffer.duplicate().order(ByteOrder.nativeOrder())

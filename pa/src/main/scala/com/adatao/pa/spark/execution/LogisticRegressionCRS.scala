@@ -41,6 +41,8 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.types.ExecutionResult
 import com.adatao.pa.spark.types.SuccessResult
+
+import com.adatao.spark.ddf.etl.TransformationHandler
 import io.ddf.ml.IModel
 
 class LogisticRegressionCRSResult(model: LogisticRegressionModel) extends SuccessResult {
@@ -69,27 +71,20 @@ class LogisticRegressionCRS(
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
     try {
-      val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-      val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
-
-      // project the xCols, and yCol as a new DDF
-      // this is costly
-      val schema = projectDDF.getSchema()
-      //call dummy coding explicitly
-      //make sure all input ddf to algorithm MUST have schema
-      projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-      projectDDF.getSchema().generateDummyCoding()
+      val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
+      val yColName = ddf.getColumnName(yCol)
+      val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
       var numFeatures: Integer = xCols.length + 1
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+      if (ddf.getSchema().getDummyCoding() != null)
+        numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
 
-      val regressionModel = projectDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
+      val regressionModel = transformedDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
 
       val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        rawModel.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+      if (ddf.getSchema().getDummyCoding() != null)
+        rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
 
       regressionModel
     } catch {
