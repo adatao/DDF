@@ -37,21 +37,20 @@ object LogisticRegressionCRS {
     learningRate: java.lang.Double,
     ridgeLambda: java.lang.Double,
     initialWeights: scala.Array[Double],
-    numFeatures: Int,
     columnsSummary: HashMap[String, Array[Double]]): LogisticRegressionModel = {
 
     var (sparseColumns, sparseColumnsPaddingIndex, sumAllRange) = buildParameters(columnsSummary)
-    //plus bias term, old code NO NEED
-    //    var nfeatures = numFeatures + 1
-
+    
+    val transformer: TransformSparseMatrix = new TransformSparseMatrix(sparseColumns, sparseColumnsPaddingIndex, sumAllRange)
+    //convert to MatrixSparse
+    val XYSparse = transformer.transform(XYData)
+    
+    val numFeatures = XYSparse.map(xy => xy._1.crs.numColumns()).first()
+    
     var weights = null.asInstanceOf[Vector]
     if (sumAllRange > 0)
       weights = randWeights(numFeatures + sumAllRange) //Vector(initialWeights)
     else weights = if (initialWeights == null || initialWeights.length != numFeatures) randWeights(numFeatures) else Vector(initialWeights)
-
-    val transformer: TransformSparseMatrix = new TransformSparseMatrix(sparseColumns, sparseColumnsPaddingIndex, sumAllRange)
-    //convert to MatrixSparse
-    val XYSparse = transformer.transform(XYData)
 
     val snumIters: Int = numIters.asInstanceOf[Int]
     val slearningRate: Double = learningRate.asInstanceOf[Double]

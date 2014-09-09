@@ -65,7 +65,7 @@ class RegressionSuite extends AAlgorithmTest {
 
 	test("Single-variable linear regression") {
 		val lambda = 0.0
-		val model = LinearRegression.train(XYData, numIters, learningRate, lambda, initialWeights, numFeatures)
+		val model = LinearRegression.train(XYData, numIters, learningRate, lambda, initialWeights)
 
 		assert(model != null)
 		assert(model.weights != null)
@@ -78,7 +78,7 @@ class RegressionSuite extends AAlgorithmTest {
 
 	test("Single-variable linear regression with regularization") {
 		val lambda = 1.0
-		val model = LinearRegression.train(XYData, numIters, learningRate, lambda, initialWeights, numFeatures)
+		val model = LinearRegression.train(XYData, numIters, learningRate, lambda, initialWeights)
 
 		assert(model != null)
 		assert(model.weights != null)
@@ -91,7 +91,7 @@ class RegressionSuite extends AAlgorithmTest {
 
 	test("Single-variable logistic regression") {
 		val lambda = 0.0
-		val model = LogisticRegression.train(XY2Data, numIters, learningRate, lambda, initialWeights, numFeatures)
+		val model = LogisticRegression.train(XY2Data, numIters, learningRate, lambda, initialWeights)
 
 		assert(model != null)
 		assert(model.weights != null)
@@ -104,7 +104,7 @@ class RegressionSuite extends AAlgorithmTest {
 
 	test("Single-variable logistic regression with regularization") {
 		val lambda = 1.0
-		val model = LogisticRegression.train(XY2Data, numIters, learningRate, lambda, initialWeights, numFeatures)
+		val model = LogisticRegression.train(XY2Data, numIters, learningRate, lambda, initialWeights)
 
 		assert(model != null)
 		assert(model.weights != null)

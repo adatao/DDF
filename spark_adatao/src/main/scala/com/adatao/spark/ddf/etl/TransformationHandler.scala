@@ -25,7 +25,7 @@ import io.spark.ddf.ml.TransformRow
  */
 class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
-  override def dummyCoding(xCols: Array[String], yCol: String): DDF = {
+  def dummyCoding(xCols: Array[String], yCol: String): DDF = {
 
     mDDF.getSchemaHandler.setFactorLevelsForAllStringColumns()
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()

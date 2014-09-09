@@ -68,22 +68,9 @@ class LinearRegressionNormalEquation(
         val xColsName = xCols.map{idx => ddf.getColumnName(idx)}
         val yColName = ddf.getColumnName(yCol)
 
-
-        //TODO fix this on opensource
-        //TODO set factor for all string columns then compute factor levels
-//        transformedDDF.getSchemaHandler.setFactorLevelsForAllStringColumns()
-//        transformedDDF.getSchemaHandler.generateDummyCoding()
-
         val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
         
-        //TODO get rid of this
-        val numFeatures: Int = if(ddf.getSchema.getDummyCoding != null) {
-          ddf.getSchema.getDummyCoding.getNumberFeatures
-        } else {
-          xCols.length + 1
-        }
-
-        val model = transformedDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
+        val model = transformedDDF.ML.train("linearRegressionNQ", ridgeLambda: java.lang.Double)
 
         //TODO: get rid of this
         val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]

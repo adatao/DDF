@@ -86,8 +86,7 @@ class RegressionSuite extends ATestSuite {
       
       val initialWeight = Array.fill(4){0.0}
 
-    val glmModel = ddfTrain3.ML.train("logisticRegressionIRLS", ddfTrain3.getNumColumns(): java.lang.Integer, 
-        25: java.lang.Integer, 1e-8: java.lang.Double, 0: java.lang.Double, 
+    val glmModel = ddfTrain3.ML.train("logisticRegressionIRLS", ddfTrain3.getNumColumns(): java.lang.Integer, 1e-8: java.lang.Double, 0: java.lang.Double, 
         initialWeight.toArray: scala.Array[Double], false: java.lang.Boolean)
     
     val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = glmModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]

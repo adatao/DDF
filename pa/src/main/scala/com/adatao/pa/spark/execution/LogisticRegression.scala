@@ -61,13 +61,8 @@ class LogisticRegression(
     val yColName = ddf.getColumnName(yCol)
     val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
-    var numFeatures: Integer = xCols.length + 1
-    if (ddf.getSchema().getDummyCoding() != null)
-      numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
 
-    LOG.info(">>>>>>>>>>>>>> LogisticRegressionIRLS numFeatures = " + numFeatures)
-
-    val model = transformedDDF.ML.train("logisticRegressionWithGD", numFeatures: java.lang.Integer, numIters: java.lang.Integer,
+    val model = transformedDDF.ML.train("logisticRegressionWithGD", numIters: java.lang.Integer,
       learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]

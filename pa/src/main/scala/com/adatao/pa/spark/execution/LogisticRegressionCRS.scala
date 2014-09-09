@@ -75,12 +75,9 @@ class LogisticRegressionCRS(
       val yColName = ddf.getColumnName(yCol)
       val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
-      var numFeatures: Integer = xCols.length + 1
-      if (ddf.getSchema().getDummyCoding() != null)
-        numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
 
       val regressionModel = transformedDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
-        0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], numFeatures: java.lang.Integer, columnsSummary)
+        0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], columnsSummary)
 
       val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       if (ddf.getSchema().getDummyCoding() != null)

@@ -8,6 +8,7 @@ import com.adatao.spark.ddf.ATestSuite
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import io.ddf.DDF
+import com.adatao.spark.ddf.etl.TransformationHandler
 
 class TransformSuite extends ATestSuite {
   createTableAirlineSmall()
@@ -15,7 +16,7 @@ class TransformSuite extends ATestSuite {
   test("dummy coding") {
     val ddf: DDF = manager.sql2ddf("select * from airline")
 
-    val ddf2 = ddf.getTransformationHandler().dummyCoding(Array("origin"), "arrdelay")
+    val ddf2 = (ddf.getTransformationHandler()).asInstanceOf[TransformationHandler].dummyCoding(Array("origin"), "arrdelay")
 
     val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[(Matrix, Vector)])
     val a = rdd.collect()

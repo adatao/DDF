@@ -33,13 +33,14 @@ import com.adatao.spark.ddf.analytics.LogisticRegression
 object LogisticRegressionGD {
 
   def train(dataPartition: RDD[TupleMatrixVector],
-    numFeatures: java.lang.Integer,
+    
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
     initialWeights: Array[Double]): LogisticRegressionModel = {
     //    val numFeatures = xCols.length + 1
     //depend on length of weights
+    val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
     val weights = if (initialWeights == null || initialWeights.length != numFeatures) Utils.randWeights(numFeatures) else Vector(initialWeights)
 
     var model = LogisticRegression.train(

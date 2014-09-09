@@ -34,9 +34,10 @@ object LinearRegression {
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
-    initialWeights: Vector,
-    numFeatures: Int): LinearRegressionModel = {
+    initialWeights: Vector
+    ): LinearRegressionModel = {
 
+    val numFeatures = XYData._1.getColumns()
     this.train(new LinearRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
   }
 

@@ -41,9 +41,10 @@ object LogisticRegression {
 		numIters: Int,
 		learningRate: Double,
 		ridgeLambda: Double,
-		initialWeights: Vector,
-		numFeatures: Int): LogisticRegressionModel = {
+		initialWeights: Vector
+		): LogisticRegressionModel = {
 
+	  val numFeatures: Int = XYData._1.getColumns()
 		this.train(new LogisticRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
 	}
 

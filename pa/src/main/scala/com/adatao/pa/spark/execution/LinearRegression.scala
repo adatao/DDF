@@ -56,28 +56,12 @@ class LinearRegression(
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
 
-    //project first
-    //    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-    //    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
-    //
-    //    //call dummy coding explicitly
-    //    //make sure all input ddf to algorithm MUST have schema
-    //    projectedDDF.getSchemaHandler().setFactorLevelsForAllStringColumns()
-    //    projectedDDF.getSchema().generateDummyCoding()
-    //    
     val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
     val yColName = ddf.getColumnName(yCol)
     val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
-    //plus bias term
-    var numFeatures: Integer = xCols.length + 1
-    if (ddf.getSchema().getDummyCoding() != null)
-      numFeatures = ddf.getSchema().getDummyCoding().getNumberFeatures
-
-    // project the xCols, and yCol as a new DDF
-    // this is costly
     val model = transformedDDF.ML.train("linearRegressionWithGD", numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
-      initialWeights, numFeatures)
+      initialWeights)
 
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
