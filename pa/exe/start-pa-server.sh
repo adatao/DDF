@@ -70,7 +70,9 @@ echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
-nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+#nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+
+${DIR}/exe/bin/spark-submit --class com.adatao.pa.thrift.Server --master ${SPARK_MASTER} --num-executors ${SPARK_WORKER_INSTANCES} --driver-memory ${SPARK_MEM} --executor-memory ${SPARK_MEM} --executor-cores ${SPARK_WORKER_CORES} hdfs://pa3.adatao.com:9000/user/root/ddf_pa-assembly-1.0.jar  >${LOG_DIR}/pa.out 
 echo
 
 sleep 5

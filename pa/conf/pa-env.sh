@@ -82,17 +82,16 @@ SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
-export SPARK_JAVA_OPTS
+#export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=20
+        export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_pa-assembly-0.9.jar
-        [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
+        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_pa-assembly-1.0.jar
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
         [ "X$SPARK_WORKER_CORES" == "X" ] && echo "Notice! SPARK_WORKER_CORES is not defined, the default value will be used instead"
