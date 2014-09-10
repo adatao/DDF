@@ -93,9 +93,6 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
     this.predict(Vector(features))
   }
 
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
-  }
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {

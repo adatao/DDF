@@ -73,10 +73,6 @@ class LinearRegressionModel(weights: Vector, trainingLosses: Vector, numSamples:
     if (ddfModel != null) ddfModel.getName()
     else null
   }
-
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
-  }
 }
 
 
