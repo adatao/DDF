@@ -29,54 +29,91 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
   def dummyCoding(xCols: Array[String], yCol: String): SparkDDF = {
 
-    mDDF.getSchemaHandler.setFactorLevelsForAllStringColumns()
+    println(">>>>>>>>>>>>>> before dummy coding")
+
+    mDDF.getSchemaHandler.setFactorLevelsForStringColumns(xCols)
+
+    println(">>>>>>>>>>>>>> 11111111111")
+
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
+
+    println(">>>>>>>>>>>>>> 22222222222")
+
     mDDF.getSchemaHandler.generateDummyCoding()
+
+    println(">>>>>>>>>>>>>> after dummy coding")
 
     //convert column name to column index
     val xColsIndex: Array[Int] = xCols.map(columnName => mDDF.getSchema().getColumnIndex(columnName))
     val yColIndex: Int = mDDF.getSchema().getColumnIndex(yCol)
     val categoricalMap = mDDF.getSchema.getDummyCoding.getMapping()
-    
+
     val tp = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[TablePartition])
     //return Matrix Vector
     val mv = TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
-    
+
     //check if contains dummy coding
     var hasDummyCoding = false
-    var  i = 0
-    while( i < xColsIndex.length) {
-      if(categoricalMap.containsKey(xColsIndex(i)))
-          hasDummyCoding = true
+    var i = 0
+    while (i < xColsIndex.length) {
+      if (categoricalMap.containsKey(xColsIndex(i)))
+        hasDummyCoding = true
       i += 1
     }
-    
-    
+
     //copy schema
-    
     //convert to dummy column
-    if(hasDummyCoding) {
+    if (hasDummyCoding) {
       val mv2 = mv.map(TransformDummy.instrument(xColsIndex, categoricalMap))
-      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, null)
-      dummyCodingDDF
-    }
-    //no dummy coding
-    else {
-      println(">>>>>>>>>>>>>> no dummy coding")
+      //build schema for dummyCodingDDF
       var cList = ""
-        i = 0
-      while(i < xCols.length) {
+      i = 0
+      while (i < xCols.length) {
         var c = mDDF.getSchema.getColumn(xCols(i))
-        c.getColumnClass()
-        c.getType()
-        cList += c.getName() + " " + c.getType().toString().toLowerCase() + "," 
-        i += 1
+        //dummy columns
+        if (c.getColumnClass() == Schema.ColumnClass.FACTOR && categoricalMap.containsKey(xColsIndex(i))) {
+          //build map
+          val currentMap = categoricalMap.get(xColsIndex(i))
+          val it = currentMap.keySet().iterator()
+          var dummyColumnsLabel = new Array[String](currentMap.size) 
+          while(it.hasNext()) {
+            val key = it.next()
+            val value = Math.floor(currentMap.get(key)).intValue()
+            dummyColumnsLabel(value) = c.getName() + "_" + key + " " + c.getType().toString().toLowerCase() + ","
+          }
+          //loop
+          var j = 0
+          while(j < currentMap.size) {
+             cList += dummyColumnsLabel(j)
+             j += 1
+          }
+          i += 1
+        }
+        else {
+          cList += c.getName() + " " + c.getType().toString().toLowerCase() + ","
+          i += 1
+        }
       }
       cList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
       
-      println(">>>>>>>>>>>>> cList = " + cList)
-      
-      var schema = new Schema(mDDF.getSchema().getTableName()+ "_dummy_" + yCol.toString(), cList);
+      var schema = new Schema(mDDF.getSchema().getTableName() + "_dummy_" + yCol.toString(), cList);
+      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), mDDF.getNamespace(), schema)
+      dummyCodingDDF
+    } //no dummy coding
+    else {
+
+      //build schema for dummyCodingDDF
+      var cList = ""
+      i = 0
+      while (i < xCols.length) {
+        var c = mDDF.getSchema.getColumn(xCols(i))
+        cList += c.getName() + " " + c.getType().toString().toLowerCase() + ","
+        i += 1
+      }
+      cList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
+
+
+      var schema = new Schema(mDDF.getSchema().getTableName() + "_dummy_" + yCol.toString(), cList);
       var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), mDDF.getNamespace(), schema)
       dummyCodingDDF
     }
@@ -128,7 +165,7 @@ object TransformDummy {
       //convert oldX to new X
       indexRow += 1
     }
-    new TupleMatrixVector (oldX, oldY)
+    new TupleMatrixVector(oldX, oldY)
   }
 
   def tablePartitionToMatrixVectorMapper(xCols: Array[Int], yCol: Int, categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]])(tp: TablePartition): TupleMatrixVector = {

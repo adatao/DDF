@@ -163,7 +163,7 @@ class  RegressionSuite  extends ABigRClientTest {
 		val dataContainerId = r0.dataContainerID
 
 		val lambda = 0.1
-		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(14), 7, lambda)
+		val executor = new LinearRegressionNormalEquation(dataContainerId, Array(16), 7, lambda)
 		val r = bigRClient.execute[IModel](executor)
 
 		assert(r.isSuccess)
@@ -599,8 +599,8 @@ class  RegressionSuite  extends ABigRClientTest {
 		
 		val dataContainerId = df.dataContainerID
 		val lambda = 1.0
-		val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
-		val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+		val executor = new LogisticRegression(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
+		val r = bigRClient.execute[LogisticRegressionModel](executor)
 		assert(r.isSuccess)
 	}
 }
