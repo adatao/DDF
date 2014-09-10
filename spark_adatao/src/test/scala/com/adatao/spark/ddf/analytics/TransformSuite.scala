@@ -9,6 +9,7 @@ import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import io.ddf.DDF
 import com.adatao.spark.ddf.etl.TransformationHandler
+import io.ddf.types.TupleMatrixVector
 
 class TransformSuite extends ATestSuite {
   createTableAirlineSmall()
@@ -18,27 +19,27 @@ class TransformSuite extends ATestSuite {
 
     val ddf2 = (ddf.getTransformationHandler()).asInstanceOf[TransformationHandler].dummyCoding(Array("origin"), "arrdelay")
 
-    val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[(Matrix, Vector)])
+    val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     val a = rdd.collect()
     var m = a(0)._1
-    
+
     assertEquals(m.getRows(), 16, 0.0)
     assertEquals(m.getColumns(), 3, 0.0)
     //first row
     assertEquals(m(0, 0), 1.0, 0.0)
     assertEquals(m(0, 1), 0.0, 0.0)
     assertEquals(m(0, 2), 1.0, 0.0)
-    
+
     //second row
     assertEquals(m(1, 2), 1.0, 0.0)
-    
+
     //second partition
     m = a(1)._1
     //first row
     assertEquals(m(0, 0), 1.0, 0.0)
     assertEquals(m(0, 1), 0.0, 0.0)
     assertEquals(m(0, 2), 0.0, 0.0)
-    
+
     assertEquals(m(3, 0), 1.0, 0.0)
     assertEquals(m(3, 1), 1.0, 0.0)
     assertEquals(m(3, 2), 0.0, 0.0)

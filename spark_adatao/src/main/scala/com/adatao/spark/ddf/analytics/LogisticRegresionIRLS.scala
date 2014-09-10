@@ -233,7 +233,6 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
   extends ALossFunction {
 
   final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = {
-    println(">>>> X.numCols=" + X.getColumns() + "\t weights size = " + weights.getRows())
     X.mmul(weights)
   }
 

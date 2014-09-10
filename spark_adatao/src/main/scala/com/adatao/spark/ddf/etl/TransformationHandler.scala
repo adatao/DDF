@@ -20,12 +20,14 @@ import org.apache.hadoop.io._
 import java.nio.ByteOrder
 import java.util.HashMap
 import io.spark.ddf.ml.TransformRow
+import io.ddf.content.Schema
+import io.ddf.types.TupleMatrixVector
 
 /**
  */
 class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
-  def dummyCoding(xCols: Array[String], yCol: String): DDF = {
+  def dummyCoding(xCols: Array[String], yCol: String): SparkDDF = {
 
     mDDF.getSchemaHandler.setFactorLevelsForAllStringColumns()
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
@@ -35,15 +37,49 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
     val xColsIndex: Array[Int] = xCols.map(columnName => mDDF.getSchema().getColumnIndex(columnName))
     val yColIndex: Int = mDDF.getSchema().getColumnIndex(yCol)
     val categoricalMap = mDDF.getSchema.getDummyCoding.getMapping()
+    
     val tp = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[TablePartition])
     //return Matrix Vector
     val mv = TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+    
+    //check if contains dummy coding
+    var hasDummyCoding = false
+    var  i = 0
+    while( i < xColsIndex.length) {
+      if(categoricalMap.containsKey(xColsIndex(i)))
+          hasDummyCoding = true
+      i += 1
+    }
+    
+    
+    //copy schema
+    
     //convert to dummy column
-    val mv2 = mv.map(TransformDummy.instrument(xColsIndex, categoricalMap))
-
-    val dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[(Matrix, Vector)], mDDF.getNamespace(), null, null)
-    dummyCodingDDF
-
+    if(hasDummyCoding) {
+      val mv2 = mv.map(TransformDummy.instrument(xColsIndex, categoricalMap))
+      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, null)
+      dummyCodingDDF
+    }
+    //no dummy coding
+    else {
+      println(">>>>>>>>>>>>>> no dummy coding")
+      var cList = ""
+        i = 0
+      while(i < xCols.length) {
+        var c = mDDF.getSchema.getColumn(xCols(i))
+        c.getColumnClass()
+        c.getType()
+        cList += c.getName() + " " + c.getType().toString().toLowerCase() + "," 
+        i += 1
+      }
+      cList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
+      
+      println(">>>>>>>>>>>>> cList = " + cList)
+      
+      var schema = new Schema(mDDF.getSchema().getTableName()+ "_dummy_" + yCol.toString(), cList);
+      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), mDDF.getNamespace(), schema)
+      dummyCodingDDF
+    }
   }
 }
 
@@ -51,7 +87,7 @@ object TransformDummy {
   def getDataTable(rdd: RDD[TablePartition],
     xCols: Array[Int],
     yCol: Int,
-    categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]] = null): RDD[(Matrix, Vector)] = {
+    categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]] = null): RDD[TupleMatrixVector] = {
     rdd.map(tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap))
       .filter(xy ⇒ (xy._1.columns > 0) && (xy._2.rows > 0))
   }
@@ -63,7 +99,7 @@ object TransformDummy {
    * input: original matrix
    * output: new matrix with new dummy columns
    */
-  def instrument[InputType](xCols: Array[Int], mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]])(inputRow: (Matrix, Vector)): (Matrix, Vector) = {
+  def instrument[InputType](xCols: Array[Int], mapping: HashMap[java.lang.Integer, HashMap[String, java.lang.Double]])(inputRow: TupleMatrixVector): TupleMatrixVector = {
 
     //so we need to do minus one for original column
     var oldX = inputRow._1
@@ -92,16 +128,16 @@ object TransformDummy {
       //convert oldX to new X
       indexRow += 1
     }
-    (oldX, oldY)
+    new TupleMatrixVector (oldX, oldY)
   }
 
-  def tablePartitionToMatrixVectorMapper(xCols: Array[Int], yCol: Int, categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]])(tp: TablePartition): (Matrix, Vector) = {
+  def tablePartitionToMatrixVectorMapper(xCols: Array[Int], yCol: Int, categoricalMap: HashMap[Integer, HashMap[String, java.lang.Double]])(tp: TablePartition): TupleMatrixVector = {
     // get the list of used columns
     val xyCol = xCols :+ yCol
 
     if (tp.iterator.columnIterators.isEmpty) {
 
-      (new Matrix(0, 0), Vector(0))
+      (new TupleMatrixVector(new Matrix(0, 0), new Vector(0)))
 
     } else {
 
@@ -174,7 +210,7 @@ object TransformDummy {
 
         i += 1
       }
-      (X, Y)
+      new TupleMatrixVector(X, Y)
     }
   }
 
@@ -242,7 +278,7 @@ object TransformDummy {
       case INT => (x: Object) => x.asInstanceOf[IntWritable].get().toDouble
       case LONG => (x: Object) => x.asInstanceOf[LongWritable].get.toDouble
       case FLOAT => (x: Object) => x.asInstanceOf[FloatWritable].get().toDouble
-      case DOUBLE => (x: Object) => x.asInstanceOf[DoubleWritable].get()
+      case DOUBLE => (x: Object) => x.asInstanceOf[org.apache.hadoop.hive.serde2.io.DoubleWritable].get()
       case BOOLEAN => (x: Object) => { if (x.asInstanceOf[BooleanWritable].get()) 1 else 0 }
       case BYTE => (x: Object) => x.asInstanceOf[ByteWritable].get().toDouble
       case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble

@@ -24,6 +24,8 @@ import org.scalatest.junit.JUnitRunner
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
 import com.adatao.spark.ddf.analytics._
+import com.adatao.spark.ddf.analytics.LinearRegression
+import com.adatao.spark.ddf.analytics.LogisticRegression
 
 /**
  * @author ctn

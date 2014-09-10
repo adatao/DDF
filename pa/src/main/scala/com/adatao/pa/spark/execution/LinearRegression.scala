@@ -23,6 +23,8 @@ import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
+import io.spark.ddf.SparkDDF
+
 import com.adatao.spark.ddf.analytics.RDDImplicits._
 import org.apache.spark.rdd.RDD
 import java.util.HashMap
@@ -58,7 +60,7 @@ class LinearRegression(
 
     val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
     val yColName = ddf.getColumnName(yCol)
-    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
+    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName).asInstanceOf[SparkDDF]
 
     val model = transformedDDF.ML.train("linearRegressionWithGD", numIters: java.lang.Integer, learningRate: java.lang.Double, ridgeLambda: java.lang.Double,
       initialWeights)
