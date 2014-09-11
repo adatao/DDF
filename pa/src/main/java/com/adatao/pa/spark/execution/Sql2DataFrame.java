@@ -80,14 +80,8 @@ public class Sql2DataFrame extends CExecutor {
       return new FailResult().setMessage("Sql command string is empty");
     }
 
-    // SharkDataFrame df = new SharkDataFrame();
-
     try {
-      // JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
-      // df.loadTableFromQuery(sc, sqlCmd, cache);
 
-      // DataManager dm = sparkThread.getDataManager();
-      // String dataContainerID = dm.add(df);
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.sql2ddf(sqlCmd);
       String ddfName = ddfManager.addDDF(ddf);
@@ -97,8 +91,8 @@ public class Sql2DataFrame extends CExecutor {
 
     } catch (Exception e) {
 
-        LOG.error("Cannot create a ddf from the sql command", e);
-        return null;
+      LOG.error("Cannot create a ddf from the sql command", e);
+      return null;
     }
   }
 }
