@@ -29,19 +29,15 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
   def dummyCoding(xCols: Array[String], yCol: String): SparkDDF = {
 
-    println(">>>>>>>>>>>>>> before dummy coding")
 
     mDDF.getSchemaHandler.setFactorLevelsForStringColumns(xCols)
 
-    println(">>>>>>>>>>>>>> 11111111111")
 
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
 
-    println(">>>>>>>>>>>>>> 22222222222")
 
     mDDF.getSchemaHandler.generateDummyCoding()
 
-    println(">>>>>>>>>>>>>> after dummy coding")
 
     //convert column name to column index
     val xColsIndex: Array[Int] = xCols.map(columnName => mDDF.getSchema().getColumnIndex(columnName))
