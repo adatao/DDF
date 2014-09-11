@@ -34,9 +34,10 @@ object LinearRegression {
     numIters: Int,
     learningRate: Double,
     ridgeLambda: Double,
-    initialWeights: Vector,
-    numFeatures: Int): LinearRegressionModel = {
+    initialWeights: Vector
+    ): LinearRegressionModel = {
 
+    val numFeatures = XYData._1.getColumns()
     this.train(new LinearRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
   }
 
@@ -71,10 +72,6 @@ class LinearRegressionModel(weights: Vector, trainingLosses: Vector, numSamples:
   override def ddfModelID: String = {
     if (ddfModel != null) ddfModel.getName()
     else null
-  }
-
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
   }
 }
 

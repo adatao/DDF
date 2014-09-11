@@ -41,9 +41,10 @@ object LogisticRegression {
 		numIters: Int,
 		learningRate: Double,
 		ridgeLambda: Double,
-		initialWeights: Vector,
-		numFeatures: Int): LogisticRegressionModel = {
+		initialWeights: Vector
+		): LogisticRegressionModel = {
 
+	  val numFeatures: Int = XYData._1.getColumns()
 		this.train(new LogisticRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
 	}
 
@@ -92,9 +93,6 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
     this.predict(Vector(features))
   }
 
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
-  }
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {

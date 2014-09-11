@@ -46,6 +46,10 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
 	protected def linearPredictor(features: Vector): Double = {
 		weights.dot(features)
 	}
+	
+	def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+    dummyColumnMapping = _mapping
+  }
 }
 object ALinearModel {
 	val MAXNUMFEATURES_DEFAULT = 50

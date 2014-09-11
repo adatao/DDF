@@ -28,18 +28,17 @@ import java.util.HashMap
  * Entry point for SparkThread executor
  */
 object LinearRegressionGD {
-
     def train(dataPartition: RDD[TupleMatrixVector],
         numIters: Int,
         learningRate: Double,
         ridgeLambda: Double,
-        initialWeights: Array[Double],
-        numFeatures: Int): LinearRegressionModel = {
-        //val numFeatures = xCols.length + 1
-        //depend on length of weights
+        initialWeights: Array[Double]
+        ): LinearRegressionModel = {
+      
+        val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
         var model = LinearRegression.train(
-            new LinearRegressionGD.LossFunction(dataPartition.map {row => (row._1, row._2)}, ridgeLambda), numIters, learningRate, weights, numFeatures
+            new LinearRegressionGD.LossFunction(dataPartition.map {row => (row.x, row.y)}, ridgeLambda), numIters, learningRate, weights, numFeatures
         )
 
         model
@@ -53,7 +52,7 @@ object LinearRegressionGD {
      */
     class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
         def compute: Vector => ALossFunction = {
-            (weights: Vector) => XYData.map { case (x, y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
+            (weights: Vector) => XYData.map { case (x,y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
         }
     }
 }

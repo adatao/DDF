@@ -163,12 +163,12 @@ object LogisticRegressionIRLS {
   }
 
   def train(XYData: RDD[TupleMatrixVector],
-    numFeatures: Int,
     numIters: Int,
     eps: Double,
     ridgeLambda: Double,
     initialWeights: Array[Double], nullModel: Boolean): IRLSLogisticRegressionModel = {
-
+    
+    val numFeatures: Int = XYData.map(xy => xy._1.getColumns()).first()
     if (!nullModel) {
       val ret = doIRLS(XYData.map { row ⇒ (row._1, row._2) }, initialWeights, numFeatures, eps, ridgeLambda, numIters)
 
@@ -233,7 +233,6 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
   extends ALossFunction {
 
   final def computeLinearPredictor(X: Matrix, weights: Vector): DoubleMatrix = {
-    println(">>>> X.numCols=" + X.getColumns() + "\t weights size = " + weights.getRows())
     X.mmul(weights)
   }
 

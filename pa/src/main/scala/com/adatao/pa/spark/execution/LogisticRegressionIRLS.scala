@@ -43,6 +43,7 @@ import io.ddf.DDF
 import io.ddf.types.TupleMatrixVector
 import scala.util.Random
 import io.ddf.ml.IModel
+import com.adatao.spark.ddf.etl.TransformationHandler
 
 /**
  * NhanVLC
@@ -74,30 +75,20 @@ class LogisticRegressionIRLS(
     val ddfId = Utils.dcID2DDFID(dataContainerID)
     val ddf: DDF = ddfManager.getDDF(ddfId)
 
-    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-
-    val projectDDF = ddf.VIEWS.project(trainedColumns: _*)
-
-    //call dummy coding explicitly
-    //make sure all input ddf to algorithm MUST have schema
-    projectDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-    projectDDF.getSchema().generateDummyCoding()
-
-    //including bias term or intercept
-    var numFeatures: Integer = xCols.length + 1
-    if (projectDDF.getSchema().getDummyCoding() != null)
-      numFeatures = projectDDF.getSchema().getDummyCoding().getNumberFeatures
+    val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
+    val yColName = ddf.getColumnName(yCol)
+    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
 
     try {
-      val regressionModel = projectDDF.ML.train("logisticRegressionIRLS", numFeatures: java.lang.Integer, numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
+      val regressionModel = transformedDDF.ML.train("logisticRegressionIRLS", numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
-      if (projectDDF.getSchema().getDummyCoding() != null)
-        model.setMapping(projectDDF.getSchema().getDummyCoding().getMapping())
+      if (ddf.getSchema().getDummyCoding() != null)
+        model.setMapping(ddf.getSchema().getDummyCoding().getMapping())
 
       regressionModel
     } catch {
-      case ioe: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_SHARK_QUERY_FAILED, ioe.getMessage(), null);
+      case e: DDFException ⇒ throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }

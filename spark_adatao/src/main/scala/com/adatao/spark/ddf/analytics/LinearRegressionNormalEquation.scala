@@ -36,8 +36,13 @@ import io.ddf.exception.DDFException
  */
 object LinearRegressionNormalEquation {
   // Purpose of this function is to handle empty partitions using mapPartitions, :((((((
-  def doMatrixCalculation(numFeatures: Int)(inputRows: TupleMatrixVector): TempCalculationValue = {
-
+  def doMatrixCalculation(inputRows: TupleMatrixVector): TempCalculationValue = {
+    // we should have 1 non-empty (Matrix, Vector) here
+    val x = inputRows._1
+    val y = inputRows._2
+    
+    val numFeatures: Int = x.getColumns()
+    
     var XtX: DoubleMatrix = null
     var Xty: DoubleMatrix = null
     var nRows: Long = 0
@@ -45,9 +50,7 @@ object LinearRegressionNormalEquation {
     var y1: Double = 0
     var x1: DoubleMatrix = null
     var numEmptyPartitions: Long = 0
-    // we should have 1 non-empty (Matrix, Vector) here
-    val x = inputRows._1
-    val y = inputRows._2
+  
     if (x.columns == 0 && y.columns == 0) {
       XtX = DoubleMatrix.zeros(numFeatures, numFeatures)
       Xty = DoubleMatrix.zeros(numFeatures, 1)
@@ -91,7 +94,7 @@ object LinearRegressionNormalEquation {
     new TempCalculationValue(XtX, Xty, nRows, y2, y1, x1, numEmptyPartitions)
   }
 
-  def train(dataPartition1: RDD[TupleMatrixVector], numFeatures: Int, ridgeLambda: Double): NQLinearRegressionModel = {
+  def train(dataPartition1: RDD[TupleMatrixVector],  ridgeLambda: Double): NQLinearRegressionModel = {
     //Steps to solve Normal equation: w=(XtX)^-1 * Xty and coefficients' p-values
     //1. Compute XtX (Covariance matrix, Hessian matrix) , Xty distributedly.
     //2. Compute w and inverse of XtX in driver program.
@@ -99,7 +102,7 @@ object LinearRegressionNormalEquation {
     //4. Compute coefficients standard errors  sqrt(diag((XtX)-1)*SSE/(n-k-1)) in driver program.
     //5. Compute t-values and p-values in R based on coefficients’ standard errors
     // Ref: http://www.stat.purdue.edu/~jennings/stat514/stat512notes/topic3.pdf
-    val ret = dataPartition1.map(doMatrixCalculation(numFeatures)).reduce((x, y) ⇒ (x.compute(y)))
+    val ret = dataPartition1.map(xy => doMatrixCalculation(xy)).reduce((x, y) ⇒ (x.compute(y)))
     //val ret = dataPartition.filter(Xy ⇒ (Xy._1.columns > 0) && (Xy._2.rows > 0)).map(doMatrixCalculation).reduce((x, y) ⇒ (x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6)))
     var messages: Array[String] = Array()
 
@@ -110,7 +113,7 @@ object LinearRegressionNormalEquation {
     val sst = ret.x4 - (ret.x5 * ret.x5) / ret.x3
 
     var XtXlambda: DoubleMatrix = ret.x1
-    // LOG.info(XtXlambda.toString())
+    val numFeatures = XtXlambda.getColumns()
 
     if (ridgeLambda != 0) {
       XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numFeatures).muli(ridgeLambda))
