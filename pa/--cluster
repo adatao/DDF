@@ -1,6 +1,0 @@
-/mnt/ddf-enterprise/pa/exe/bin/spark-class: line 35: /mnt/ddf-enterprise/pa/exe/bin/load-spark-env.sh: No such file or directory
-Warning: SPARK_MEM is deprecated, please use a more specific config option
-(e.g., spark.executor.memory or spark.driver.memory).
-ls: cannot access /mnt/ddf-enterprise/pa/exe/jars/spark-assembly*.jar: No such file or directory
-Error: Unrecognized option '-Dpa.security=false'.
-Run with --help for usage help or --verbose for debug output

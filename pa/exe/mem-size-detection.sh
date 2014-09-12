@@ -13,9 +13,9 @@ else
 fi
 
 if [ "$free_mem" -le "1024" ]; then
-	export SPARK_MEM=512m
+	export SPARK_MEMORY=512m
 else
-	export SPARK_MEM=`expr $free_mem - 512`m
+	export SPARK_MEMORY=`expr $free_mem - 512`m
 fi
 
 echo
@@ -23,4 +23,4 @@ echo "###########################"
 echo "# Calculating Memory Size #"
 echo "###########################"
 echo
-echo -e "\t SPARK_MEM="$SPARK_MEM
+echo -e "\t SPARK_MEMORY="$SPARK_MEMORY

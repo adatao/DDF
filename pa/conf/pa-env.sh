@@ -54,7 +54,7 @@ export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
 export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
-export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
+export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`:`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
 export DDF_SPARK_JAR=`find ${PA_HOME}/../spark_adatao/ -name ddf_spark_adatao*.jar | grep -v '\-tests.jar'`
 echo RSERVER_JAR=$RSERVER_JAR
 echo DDF_SPARK_JAR=$DDF_SPARK_JAR
@@ -74,24 +74,27 @@ export SPARK_CLASSPATH
 SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
 SPARK_JAVA_OPTS+=" -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer -Dspark.kryo.registrator=io.spark.content.KryoRegistrator"
-SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties "
+SPARK_JAVA_OPTS+=" -Dlog4j.configuration=ddf-log4j.properties "
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
-SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
+SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEMORY}"
+SPARK_JAVA_OPTS+=" -Dspark.driver.memory=${SPARK_MEMORY}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
+SPARK_JAVA_OPTS+=" -Dspark.jars=hdfs:///user/root/ddf_pa-assembly-1.0.jar"
 #export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
         export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
-        export SPARK_WORKER_MEMORY=$SPARK_MEM
-        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
+        #export SPARK_WORKER_MEMORY=$SPARK_MEMO
+        #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
+        echo $SPARK_JAR
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs://${HADOOP_NAMENODE}:9000/user/root/ddf_pa-assembly-1.0.jar
+        #export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-1.0.jar
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
         [ "X$SPARK_WORKER_CORES" == "X" ] && echo "Notice! SPARK_WORKER_CORES is not defined, the default value will be used instead"
