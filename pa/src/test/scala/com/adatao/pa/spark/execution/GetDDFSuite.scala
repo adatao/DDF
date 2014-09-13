@@ -33,7 +33,7 @@ class GetDDFSuite extends ABigRClientTest {
     val r1 = bigRClient.execute[SetDDFNameResult](setddf).result
     println(">>>>>>>>>>> after setting get r1.dataContainerID= " + r1.uri)
 
-    val getddf = new GetDDF("ddf://adatao.com/my_awsome_ddf")
+    val getddf = new GetDDF("ddf://adatao/my_awsome_ddf")
     val r2 = bigRClient.execute[com.adatao.pa.spark.Utils.MutableDataFrameResult](getddf).result
     assert(r2.isSuccess)
     println(">>>>>>>>>>> after getting get r2.dataContainerID= " + r2.dataContainerID)
