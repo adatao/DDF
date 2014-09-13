@@ -7,7 +7,7 @@ echo $DDF_OPENSOURCE_HOME
 
 echo "***********BUILDING DDF-OPENSOURCE**********"
 cd $DDF_OPENSOURCE_HOME
-bin/sbt clean compile package; bin/make-pom.sh; mvn install -DskipTests
+bin/sbt clean compile package; ${DDF_OPENSOURCE_HOME}/bin/make-poms.sh; mvn install -DskipTests
 
 echo "***********BUILDING DDF-ENTERPRISE**********"
 cd $DDF_ENTERPRISE_HOME
