@@ -18,6 +18,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
+
+import com.adatao.pa.AdataoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.ddf.DDF;
@@ -64,7 +66,7 @@ public class FetchRows extends CExecutor {
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) {
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
 
     DDF ddf = (DDF) sparkThread.getDDFManager().getDDF(dataContainerID);
     List<String> data;
@@ -72,10 +74,8 @@ public class FetchRows extends CExecutor {
       data = ddf.VIEWS.head(limit);
       return new FetchRowsResult().setDataContainerID(dataContainerID).setData(data);
     } catch (Exception e) {
-      LOG.error(String.format("Cannot fetch %s rows", limit), e);
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
-
-    return null;
   }
 
   public FetchRows setDataContainerID(String dataContainerID) {

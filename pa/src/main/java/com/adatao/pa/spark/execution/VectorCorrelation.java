@@ -18,6 +18,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
+
+import com.adatao.pa.AdataoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.spark.ddf.analytics.Utils;
@@ -60,7 +62,7 @@ public class VectorCorrelation extends CExecutor {
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) {
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     
     DDFManager ddfManager = sparkThread.getDDFManager();
     String ddfId = Utils.dcID2DDFID(xDataContainerID);
@@ -77,9 +79,7 @@ public class VectorCorrelation extends CExecutor {
       result = ddf.getVectorCor(xColumn, yColumn);
       return new VectorCorrelationResult(result);
     } catch (DDFException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }
