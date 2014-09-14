@@ -28,7 +28,6 @@ import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
-// Create a DDF from an SQL Query
 @SuppressWarnings("serial")
 public class GetModel extends CExecutor {
   String modelName;
@@ -55,12 +54,7 @@ public class GetModel extends CExecutor {
       return new ModelResult(model);
 
     } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-
-        LOG.error("Cannot create a ddf from the sql command", e);
-        return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 
