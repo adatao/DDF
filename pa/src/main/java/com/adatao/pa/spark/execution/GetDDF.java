@@ -17,11 +17,10 @@
 package com.adatao.pa.spark.execution;
 
 
-import io.ddf.exception.DDFException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import io.ddf.DDF;
 import io.ddf.DDFManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.adatao.pa.AdataoException;
 import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
@@ -29,39 +28,38 @@ import com.adatao.pa.spark.Utils.MutableDataFrameResult;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.FailResult;
 
-// Create a DDF from an SQL Query
 @SuppressWarnings("serial")
 public class GetDDF extends CExecutor {
-  String ddfName;
+  String ddfUri;
 
   public static Logger LOG = LoggerFactory.getLogger(GetDDF.class);
 
 
-  public GetDDF(String ddfName) {
-    this.ddfName = ddfName;
+  public GetDDF(String ddfUri) {
+    this.ddfUri = ddfUri;
   }  
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
-    if (ddfName == null) {
-      return new FailResult().setMessage("ddfName string is empty");
+    if (ddfUri == null) {
+      return new FailResult().setMessage("ddfUri string is empty");
     }
     try {
-      if(ddfName.startsWith("ddf://")) {
+/*      if(ddfName.startsWith("ddf://")) {
         int lastIdx = ddfName.lastIndexOf("/");
         ddfName = ddfName.substring(lastIdx + 1);
-      }
+      }*/
 
       DDFManager ddfManager = sparkThread.getDDFManager();
-      DDF ddf = ddfManager.getDDF(ddfName);
+      DDF ddf = ddfManager.getDDF(ddfUri);
       if (ddf != null) {
-        LOG.info("succesful getting ddf from name = " + ddfName);
+        LOG.info("Succesfully getting ddf from given URI = " + ddfUri);
         return new MutableDataFrameResult(ddf);
       } else {
-        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF " + ddfName, null);
+        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF from given URI " + ddfUri, null);
       }
     } catch (Exception e) {
-        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF " + ddfName, null);
+        throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Error getting DDF from given URI " + ddfUri, null);
     }
   }
 }

@@ -17,7 +17,6 @@
 package com.adatao.pa.spark.execution;
 
 
-//import com.adatao.spark.ddf.analytics.Utils;
 import io.ddf.DDF;
 import io.ddf.DDFManager;
 import io.ddf.exception.DDFException;
@@ -26,56 +25,73 @@ import org.slf4j.LoggerFactory;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
+import java.util.List;
+import com.google.common.collect.Lists;
+import io.ddf.analytics.AStatisticsSupporter.HistogramBin;
 
 @SuppressWarnings("serial")
-public class VectorCorrelation extends CExecutor {
+public class VectorHistogram extends CExecutor {
   private String dataContainerID;
-  private String xColumn;
-  private String yColumn;
-  
-  public VectorCorrelation setDataContainerID(String dataContainerID) {
+  private String columnName;
+  private int numBins;
+
+
+  public VectorHistogram setDataContainerID(String dataContainerID) {
     this.dataContainerID = dataContainerID;
     return this;
   }
-  
-  public VectorCorrelation setXColumn(String xColumn) {
-    this.xColumn = xColumn;
-    return this;
-  }
-  
-  public VectorCorrelation setYColumn(String yColumn) {
-    this.yColumn = yColumn;
+
+  public VectorHistogram setColumnName(String columnName) {
+    this.columnName = columnName;
     return this;
   }
 
-  public static Logger LOG = LoggerFactory.getLogger(VectorCorrelation.class);
-  static public class VectorCorrelationResult extends SuccessResult {
-    public double correlation;
-    public VectorCorrelationResult(double correlation) {
-      this.correlation = correlation;
+  public VectorHistogram setNumBins(int numBins) {
+    this.numBins = numBins;
+    return this;
+  }
+
+
+  public static Logger LOG = LoggerFactory.getLogger(VectorHistogram.class);
+
+
+  static public class VectorHistogramResult extends SuccessResult {
+    String dataContainerID;
+    List<HistogramBin> histogramBins;
+
+
+    public List<HistogramBin> getHistogramBins() {
+      return histogramBins;
     }
-    public double getCorrelation() {
-      return correlation;
+
+    public VectorHistogramResult setHistogramBins(List<HistogramBin> histogramBins) {
+      this.histogramBins = histogramBins;
+      return this;
+    }
+
+    public String getDataContainerID() {
+      return dataContainerID;
+    }
+
+    public VectorHistogramResult setDataContainerID(String dataContainerID) {
+      this.dataContainerID = dataContainerID;
+      return this;
     }
   }
 
 
   @Override
   public ExecutorResult run(SparkThread sparkThread) {
-    
+
     DDFManager ddfManager = sparkThread.getDDFManager();
-//    String ddfId = Utils.dcID2DDFID(dataContainerID);
-//    String otherddfId = Utils.dcID2DDFID(yDataContainerID);
-    
+
     DDF ddf = ddfManager.getDDF(dataContainerID);
-    
-//    String xColumn = ddf.getSchema().getColumn(0).getName();
-//    String yColumn = otherddf.getSchema().getColumn(0).getName();
-    
-    double result;
+
+    List<HistogramBin> bins = Lists.newArrayList();
     try {
-      result = ddf.getVectorCor(xColumn, yColumn);
-      return new VectorCorrelationResult(result);
+      bins = ddf.getVectorHistogram(columnName, numBins);
+
+      return new VectorHistogramResult().setDataContainerID(dataContainerID).setHistogramBins(bins);
     } catch (DDFException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -83,5 +99,3 @@ public class VectorCorrelation extends CExecutor {
     }
   }
 }
-
-
