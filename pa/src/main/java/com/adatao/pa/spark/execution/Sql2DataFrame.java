@@ -96,9 +96,7 @@ public class Sql2DataFrame extends CExecutor {
       return new Sql2DataFrameResult(ddf);
 
     } catch (Exception e) {
-
-        LOG.error("Cannot create a ddf from the sql command", e);
-        return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }
