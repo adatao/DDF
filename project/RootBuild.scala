@@ -108,8 +108,8 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "ddf_core_2.10" %  rootVersion,
-    "io.ddf" % "ddf_spark_2.10" % rootVersion,
+    "io.ddf" % "ddf_core_2.10" %  rootVersion exclude("org.apache.hadoop", "hadoop-core"),
+    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.hadoop", "hadoop-core"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0"
   )
