@@ -51,7 +51,6 @@ export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
 export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
-export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
 export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`:`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
@@ -64,7 +63,7 @@ SPARK_CLASSPATH+=:"$DDF_SPARK_JAR"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/bundles/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/orbits/*"
-SPARK_CLASSPATH+=:"${PA_HOME}/conf/"
+SPARK_CLASSPATH+=:"${PA_HOME}/conf/distributed/"
 
 #The order of the following two lines is important please dont change
 SPARK_CLASSPATH+=":${HIVE_CONF_DIR}"
@@ -74,7 +73,7 @@ export SPARK_CLASSPATH
 SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
 SPARK_JAVA_OPTS+=" -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer -Dspark.kryo.registrator=io.spark.content.KryoRegistrator"
-SPARK_JAVA_OPTS+=" -Dlog4j.configuration=ddf-log4j.properties "
+SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties"
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
@@ -90,7 +89,7 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_MASTER="yarn-client"
         export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
-        #export SPARK_WORKER_MEMORY=$SPARK_MEMO
+        export SPARK_WORKER_MEMORY=$SPARK_MEMORY
         #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         echo $SPARK_JAR
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`

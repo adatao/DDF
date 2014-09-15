@@ -71,8 +71,10 @@ echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
 #nohup
-${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT #>${LOG_DIR}/pa.out 2>&1 &
-#${DIR}/exe/bin/spark-submit --class com.adatao.pa.thrift.Server --master ${SPARK_MASTER} --num-executors ${SPARK_WORKER_INSTANCES} --driver-memory ${SPARK_MEM} --executor-memory ${SPARK_MEM} --executor-cores ${SPARK_WORKER_CORES} ${DIR}/target/scala-2.10/ddf_pa-assembly-1.0.jar  #>${LOG_DIR}/pa.out 
+
+nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+
+#nohup ${DIR}/exe/bin/spark-submit --class com.adatao.pa.thrift.Server --master ${SPARK_MASTER}  --num-executors ${SPARK_WORKER_INSTANCES} --driver-memory ${SPARK_MEM} --executor-memory ${SPARK_MEM} --executor-cores ${SPARK_WORKER_CORES} local:/mnt/ddf-enterprise-1.1.0/pa/target/scala-2.10/ddf_pa-assembly-1.0.jar >${LOG_DIR}/pa.out 2>&1 & 
 echo
 
 sleep 5
