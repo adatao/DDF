@@ -74,34 +74,14 @@ class LinearRegressionNormalEquation(
 
         //TODO: get rid of this
         val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
-        if(ddf.getSchema.getDummyCoding != null) {
-          rawModel.setDummy(ddf.getSchema.getDummyCoding)
+        if(transformedDDF.getSchema.getDummyCoding != null) {
+          rawModel.setDummy(transformedDDF.getSchema.getDummyCoding)
         }
 
         model
       }
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-//    //project first
-//    val trainedColumns = (xCols :+ yCol).map(idx => ddf.getColumnName(idx))
-//    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
-//
-//    projectedDDF.getSchemaHandler().computeFactorLevelsForAllStringColumns()
-//    projectedDDF.getSchemaHandler().generateDummyCoding()
-//
-//    //plus bias term
-//    var numFeatures = xCols.length + 1
-//    if (projectedDDF.getSchema().getDummyCoding() != null) {
-//      numFeatures = projectedDDF.getSchema().getDummyCoding().getNumberFeatures
-//      projectedDDF.getSchema().getDummyCoding().toPrint()
-//    }
-//
-//    val model = projectedDDF.ML.train("linearRegressionNQ", numFeatures: java.lang.Integer, ridgeLambda: java.lang.Double)
-//
-//    val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.NQLinearRegressionModel]
-//    if (projectedDDF.getSchema().getDummyCoding() != null)
-//      rawModel.setDummy(projectedDDF.getSchema().getDummyCoding())
-
   }
 }
 

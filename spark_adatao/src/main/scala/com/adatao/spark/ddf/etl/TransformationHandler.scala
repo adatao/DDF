@@ -29,15 +29,9 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
   def dummyCoding(xCols: Array[String], yCol: String): SparkDDF = {
 
-
     mDDF.getSchemaHandler.setFactorLevelsForStringColumns(xCols)
-
-
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
-
-
     mDDF.getSchemaHandler.generateDummyCoding()
-
 
     //convert column name to column index
     val xColsIndex: Array[Int] = xCols.map(columnName => mDDF.getSchema().getColumnIndex(columnName))
@@ -70,12 +64,12 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
         if (c.getColumnClass() == Schema.ColumnClass.FACTOR && categoricalMap.containsKey(xColsIndex(i))) {
           //build map
           val currentMap = categoricalMap.get(xColsIndex(i))
-          val it = currentMap.keySet().iterator()
-          var dummyColumnsLabel = new Array[String](currentMap.size) 
-          while(it.hasNext()) {
-            val key = it.next()
-            val value = Math.floor(currentMap.get(key)).intValue()
-            dummyColumnsLabel(value) = c.getName() + "_" + key + " " + c.getType().toString().toLowerCase() + ","
+          val dummyCodingIterator = currentMap.keySet().iterator()
+          val dummyColumnsLabel = new Array[String](currentMap.size)
+          while(dummyCodingIterator.hasNext()) {
+            val levelName = dummyCodingIterator.next()
+            val value = Math.floor(currentMap.get(levelName)).intValue()
+            dummyColumnsLabel(value) = c.getName() + "_" + levelName + " " + c.getType().toString().toLowerCase() + ","
           }
           //loop
           var j = 0
@@ -92,12 +86,11 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
       }
       cList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
       
-      var schema = new Schema(mDDF.getSchema().getTableName() + "_dummy_" + yCol.toString(), cList);
-      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), mDDF.getNamespace(), schema)
-      dummyCodingDDF
+      val schema = new Schema(null, cList)
+      schema.setDummyCoding(mDDF.getSchema.getDummyCoding)
+      new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
     } //no dummy coding
     else {
-
       //build schema for dummyCodingDDF
       var cList = ""
       i = 0
@@ -108,10 +101,8 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
       }
       cList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
 
-
-      var schema = new Schema(mDDF.getSchema().getTableName() + "_dummy_" + yCol.toString(), cList);
-      var dummyCodingDDF = new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), mDDF.getNamespace(), schema)
-      dummyCodingDDF
+      val schema = new Schema(null, cList)
+      new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
     }
   }
 }
