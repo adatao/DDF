@@ -50,15 +50,13 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
-export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`:`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
+export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
 export DDF_SPARK_JAR=`find ${PA_HOME}/../spark_adatao/ -name ddf_spark_adatao*.jar | grep -v '\-tests.jar'`
 echo RSERVER_JAR=$RSERVER_JAR
 echo DDF_SPARK_JAR=$DDF_SPARK_JAR
 SPARK_CLASSPATH=$RSERVER_JAR
-SPARK_CLASSPATH+=:"$DDF_CORE_JAR"
 SPARK_CLASSPATH+=:"$DDF_SPARK_JAR"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/bundles/*"
@@ -86,6 +84,7 @@ SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
+        export HADOOP_CONF_DIR=/mnt/hadoop-2.2.0.2.0.6.0-101/conf        
         export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEMORY
@@ -105,6 +104,6 @@ elif [ "X$cluster" == "Xspark" ]; then
 elif [ "X$cluster" == "Xlocalspark" ]; then
         echo "Running pAnalytics with Spark in local node"
         export SPARK_MEM=$SPARK_MEMORY
-        export SPARK_WORKER_MEMORY=$SPARK_MEMORY
-        export SPARK_MASTER=spark://localhost:7070
+       # export SPARK_WORKER_MEMORY=$SPARK_MEMORY
+        export SPARK_MASTER=local
 fi
