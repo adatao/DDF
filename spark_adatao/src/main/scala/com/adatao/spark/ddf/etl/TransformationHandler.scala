@@ -41,7 +41,7 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
     val tp = mDDF.asInstanceOf[SparkDDF].getRDD(classOf[TablePartition])
     //return Matrix Vector
-    val mv = TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+    val rddMatrixVector = TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
 
     //check if contains dummy coding
     var hasDummyCoding = false
@@ -51,52 +51,19 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
         hasDummyCoding = true
       i += 1
     }
-
+    val trainedColumns = (xCols :+ yCol).map{colIdx => mDDF.getSchema.getColumn(colIdx)}
+    val newSchema = new Schema(null, trainedColumns)
     //copy schema
     //convert to dummy column
     if (hasDummyCoding) {
-      val mv2 = mv.map(TransformDummy.instrument(xColsIndex, categoricalMap))
-      //build schema for dummyCodingDDF
-      var columnList = "intercept double, "
-      i = 0
-      while (i < xCols.length) {
-        var c = mDDF.getSchema.getColumn(xCols(i))
-        //dummy columns
-        if (c.getColumnClass() == Schema.ColumnClass.FACTOR && categoricalMap.containsKey(xColsIndex(i))) {
-          //build map
-          val dummyMapping = categoricalMap.get(xColsIndex(i))
-          val dummyCodingIterator = dummyMapping.keySet().iterator()
-          val dummyColumnsLabel = new Array[String](dummyMapping.size)
-          while(dummyCodingIterator.hasNext()) {
-            val levelName = dummyCodingIterator.next()
-            val value = Math.floor(dummyMapping.get(levelName)).intValue()
-            dummyColumnsLabel(value) = c.getName() + "_" + levelName + " " + c.getType().toString().toLowerCase() + ","
-          }
-          //loop
-          var j = 1
-          while(j < dummyMapping.size) {
-            columnList += dummyColumnsLabel(j)
-             j += 1
-          }
-        } else {
-          columnList += c.getName() + " " + c.getType().toString().toLowerCase() + ","
-        }
-        i += 1
-      }
-      columnList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
-      
-      val schema = new Schema(null, columnList)
-      schema.setDummyCoding(mDDF.getSchema.getDummyCoding)
-      new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
+      val rddMatrixVector2 = rddMatrixVector.map(TransformDummy.instrument(xColsIndex, categoricalMap))
+
+      newSchema.setDummyCoding(mDDF.getSchema.getDummyCoding)
+      new SparkDDF(mDDF.getManager(), rddMatrixVector2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
     } else {
       //build schema for dummyCodingDDF
-      val cols = (xCols :+ yCol).map{colIdx => mDDF.getSchema.getColumn(colIdx)}.map {
-        column => column.getName + " " + column.getType.toString.toLowerCase()
-      }
-      val columnList = "intercept double," + cols.mkString(", ")
 
-      val schema = new Schema(null, columnList)
-      new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
+      new SparkDDF(mDDF.getManager(), rddMatrixVector, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
     }
   }
 }
