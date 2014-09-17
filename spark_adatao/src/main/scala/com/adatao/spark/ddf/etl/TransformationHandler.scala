@@ -22,6 +22,7 @@ import java.util.HashMap
 import io.spark.ddf.ml.TransformRow
 import io.ddf.content.Schema
 import io.ddf.types.TupleMatrixVector
+import scala.collection.JavaConversions._
 
 /**
  */
@@ -77,11 +78,10 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
             columnList += dummyColumnsLabel(j)
              j += 1
           }
-          i += 1
         } else {
           columnList += c.getName() + " " + c.getType().toString().toLowerCase() + ","
-          i += 1
         }
+        i += 1
       }
       columnList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
       
@@ -90,14 +90,10 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
       new SparkDDF(mDDF.getManager(), mv2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
     } else {
       //build schema for dummyCodingDDF
-      var columnList = "intercept double, "
-      i = 0
-      while (i < xCols.length) {
-        var c = mDDF.getSchema.getColumn(xCols(i))
-        columnList += c.getName() + " " + c.getType().toString().toLowerCase() + ","
-        i += 1
+      val cols = (xCols :+ yCol).map{colIdx => mDDF.getSchema.getColumn(colIdx)}.map {
+        column => column.getName + " " + column.getType.toString.toLowerCase()
       }
-      columnList += mDDF.getSchema.getColumn(yCol).getName() + " " + mDDF.getSchema.getColumn(yCol).getType().toString().toLowerCase()
+      val columnList = "intercept double," + cols.mkString(", ")
 
       val schema = new Schema(null, columnList)
       new SparkDDF(mDDF.getManager(), mv, classOf[TupleMatrixVector], mDDF.getNamespace(), null, schema)
