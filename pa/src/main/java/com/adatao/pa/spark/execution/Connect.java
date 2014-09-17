@@ -18,9 +18,13 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.concurrent.ArrayBlockingQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.adatao.pa.AdataoException.AdataoExceptionCode;
 import com.adatao.pa.spark.SparkThread;
+import com.adatao.pa.spark.types.FailedResult;
 import com.adatao.pa.thrift.SessionManager;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.annotations.Expose;
@@ -44,26 +48,52 @@ public class Connect {
   }
 
   /**
-   * All clientIDs are currently shared a same session
+   * All clientIDs are currently shared a same session, at the same time we want to keep track of clientID that map to SparkThread
+   * We do that by assign the single SparkThread to anonymous user when it is first created
+   * In later connection, we will check if anonymous already have a SparkThread.
+   * If yes, the user will be assigned that SparkThread.
+   * 
    * 
    * @return JsonResult
    * @throws InterruptedException
    */
 
   public JsonResult run() throws InterruptedException {
+	// 
     LOG.info("CLIENT ID: " + clientID);
-    clientID = SessionManager.ANONYMOUS();
-    if (sessionManager.hasClient(clientID)) return new JsonResult().setSid(sessionManager.getSessionID(clientID));
+    
+    // currently we map all user to anonymous 
+    String anonymous = SessionManager.ANONYMOUS();
+    
+    // if user already connected
+    if (sessionManager.hasClient(clientID)) {
+    	return new JsonResult().setSid(sessionManager.getSessionID(clientID));
+    }
+    
+    // if someone else already connected (which means anonymous user has a SparkThread)
+    if (sessionManager.hasClient(anonymous)) {
+    	//get sessionID from anonymous and assign it to clientID
+    	String sessionID = sessionManager.getSessionID(anonymous);
+    	SparkThread sparkThread = sessionManager.getSessionThread(sessionID);
+    	sessionManager.addSession(sparkThread, clientID, 0, 0, 0);  
+    	return new JsonResult().setSid(sessionID);
+    }
 
-    ArrayBlockingQueue<Object> cmdQueue = new ArrayBlockingQueue<Object>(1);
-    ArrayBlockingQueue<Object> resQueue = new ArrayBlockingQueue<Object>(1);
+    // if this is the first connect ever
+    SparkThread sparkThread = (SparkThread) new SparkThread().setShark(isShark);
+    
+    if (sparkThread.startSession()){
+    	//uiPort and driverPort information is not important when we run single context
+    	String sessionID = sessionManager.addSession(sparkThread, clientID, 0, 0, 0).sessionID();
+    	
+    	//assign the sparkThead to anynymous too
+    	sessionManager.addSession(sparkThread, anonymous, 0, 0, 0);
+    	return new JsonResult().setSid(sessionID);
+    } else {    	
+    	return new JsonResult().setResult(new FailedResult<Object>(AdataoExceptionCode.ERR_GENERAL.getMessage()).toJson());
+    }
 
-    SparkThread sparkThread = (SparkThread) new SparkThread(cmdQueue, resQueue).setClientID(clientID)
-        .setSessionManager(sessionManager).setShark(isShark);
-    sparkThread.run();
-    // Thread will put a result into queue after restart, we have to get it
-    // out
-    return (JsonResult) resQueue.take();
+    
   }
 
   public Connect setSessionManager(SessionManager sessionManager) {
