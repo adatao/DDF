@@ -23,6 +23,7 @@ import io.spark.ddf.ml.TransformRow
 import io.ddf.content.Schema
 import io.ddf.types.TupleMatrixVector
 import scala.collection.JavaConversions._
+import com.rits.cloning.Cloner
 
 /**
  */
@@ -57,8 +58,15 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
     //convert to dummy column
     if (hasDummyCoding) {
       val rddMatrixVector2 = rddMatrixVector.map(TransformDummy.instrument(xColsIndex, categoricalMap))
+      val cloner = new Cloner()
 
-      newSchema.setDummyCoding(mDDF.getSchema.getDummyCoding)
+      val dummyCoding = cloner.deepClone(mDDF.getSchema.getDummyCoding)
+      val colNameMapping = dummyCoding.getMapping.map {
+        case (k,v) => (mDDF.getSchema.getColumnName(k), v)
+      }
+
+      dummyCoding.setColNameMapping(colNameMapping)
+      newSchema.setDummyCoding(dummyCoding)
       new SparkDDF(mDDF.getManager(), rddMatrixVector2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
     } else {
       //build schema for dummyCodingDDF
