@@ -42,6 +42,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
 //    val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
     val predictionDDF = model.getRawModel match {
       case linearModel: ALinearModel[_] => {
+        LOG.info(">>> ALinearModel, running dummyCoding transformation")
         val dummyCodingDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xs, y(0))
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)

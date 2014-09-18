@@ -145,7 +145,6 @@ class MetricsSuite extends ABigRClientTest {
 		assert(residuals.isSuccess)
 
 		println(">>>>>result =" + residuals.result)
-
 	}
 
 	ignore("smoke residuals metric") {
@@ -334,6 +333,5 @@ class MetricsSuite extends ABigRClientTest {
 
 		// summary(lm(mpg ~ wt, data=mtcars))
 		// Multiple R-squared:  0.7528
-
 	}
 }
