@@ -483,9 +483,9 @@ class  RegressionSuite  extends ABigRClientTest {
 		println("model=" + model)
 		println(">>>>>r=" + r)
 
-//		assertEquals(-3.0251, model.weights(0), 0.0001);
-//		assertEquals(1.4117, model.weights(1), 0.0001);
-//		assertEquals(-0.9493, model.weights(2), 0.0001);
+		assertEquals(-3.0251, model.weights(0), 0.0001);
+		assertEquals(1.4117, model.weights(1), 0.0001);
+		assertEquals(-0.9493, model.weights(2), 0.0001);
 	}
 
 	ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
