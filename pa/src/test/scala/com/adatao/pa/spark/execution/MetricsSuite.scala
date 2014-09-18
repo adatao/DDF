@@ -26,6 +26,7 @@ import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import io.ddf.ml.{IModel, RocMetric}
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.HashMap
+import com.adatao.pa.spark.Utils.DataFrameResult
 
 /**
  *
@@ -53,7 +54,7 @@ class MetricsSuite extends ABigRClientTest {
 
 		//run prediction
 		val predictor = new YtrueYpred(dataContainerId, modelID)
-		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
 
@@ -83,7 +84,7 @@ class MetricsSuite extends ABigRClientTest {
 
 		//run prediction
 		val predictor = new YtrueYpred(dataContainerId, modelID)
-		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
 		
@@ -180,7 +181,7 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.persistenceID
 
 		val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
-		val residuals = bigRClient.execute[ResidualsResult](scorer)
+		val residuals = bigRClient.execute[DataFrameResult](scorer)
 		assert(residuals.isSuccess)
 
 		println(">>>>>residuals =" + residuals.result)
@@ -203,7 +204,7 @@ class MetricsSuite extends ABigRClientTest {
 		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
-		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		assert(r2.isSuccess)
 
 	}
@@ -224,7 +225,7 @@ class MetricsSuite extends ABigRClientTest {
 		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
-		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		assert(r2.isSuccess)
 
 //		val fetcher = new FetchRows().setDataContainerID(r2.result.dataContainerID).setLimit(32)
@@ -249,7 +250,7 @@ class MetricsSuite extends ABigRClientTest {
 		val persistenceID = r.result.getName
 
 		val predictor = new YtrueYpred(dataContainerId, persistenceID)
-		val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		assert(r2.isSuccess)
 
 //		val fetcher = new FetchRows().setDataContainerID(r2.result.dataContainerID).setLimit(32)
