@@ -117,7 +117,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
-    "com.novocode" % "junit-interface" % "0.10" % "test"
+    "com.novocode" % "junit-interface" % "0.10" % "test",
+    "uk.com.robust-it" % "cloning" % "1.9.0"
   )
 
   val pa_dependencies = Seq(
