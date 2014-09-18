@@ -24,6 +24,8 @@ import io.ddf.content.Schema
 import io.ddf.types.TupleMatrixVector
 import scala.collection.JavaConversions._
 import com.rits.cloning.Cloner
+import io.ddf.etl.IHandleTransformations
+import io.ddf.exception.DDFException
 
 /**
  */
@@ -72,6 +74,15 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
       //build schema for dummyCodingDDF
 
       new SparkDDF(mDDF.getManager(), rddMatrixVector, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
+    }
+  }
+}
+
+object TransformationHandler {
+  implicit def transformationHandlerConversion(tHandler: IHandleTransformations): TransformationHandler = {
+    tHandler match {
+      case trHandler: TransformationHandler => trHandler
+      case x => throw new DDFException(String.format("Could not convert %s into com.adatao.spark.ddf.etl.TransformationHandler", x.getClass.toString))
     }
   }
 }

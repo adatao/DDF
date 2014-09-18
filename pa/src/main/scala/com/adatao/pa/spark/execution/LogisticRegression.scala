@@ -17,23 +17,9 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-
-import com.adatao.spark.ddf.analytics._
 import com.adatao.spark.ddf.analytics.Utils
-import com.adatao.spark.ddf.analytics.TModel
-import io.ddf.types.Matrix
-import io.ddf.types.Vector
-import org.apache.spark.rdd.RDD
-import com.adatao.spark.ddf.analytics.LogisticRegressionModel
-import com.adatao.spark.ddf.analytics.ALossFunction
-import com.adatao.spark.ddf.analytics.RDDImplicits._
-import java.util.HashMap
-import java.util.List
-import java.util.ArrayList
-import com.adatao.spark.ddf.etl.TransformationHandler
-
+import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.DDF
-import scala.collection.mutable.ArrayBuffer
 import io.ddf.ml.IModel
 
 /**
@@ -59,7 +45,7 @@ class LogisticRegression(
 
     val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
     val yColName = ddf.getColumnName(yCol)
-    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
+    val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
 
 
     val model = transformedDDF.ML.train("logisticRegressionWithGD", numIters: java.lang.Integer,

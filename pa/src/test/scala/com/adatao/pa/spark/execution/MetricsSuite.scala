@@ -27,6 +27,7 @@ import io.ddf.ml.{IModel, RocMetric}
 import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import java.util.HashMap
 import com.adatao.pa.spark.Utils.DataFrameResult
+import com.adatao.pa.spark.execution.NRow.NRowResult
 
 /**
  *
@@ -59,27 +60,27 @@ class MetricsSuite extends ABigRClientTest {
 		assert(r2.isSuccess)
 
 	}
-//	
+//
 //	/**
 //	 * this will test ROC execution
 //	 * success: if roc execution return success value
 //	 * fail: if not success
 //	 * for accuracy testing, please see MLMetricSuite
 //	 */
-	ignore("Test ROC metric function") {
+	test("Test ROC metric function") {
 
 		createTableAdmission
 		val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
 		val dataContainerId = df.dataContainerID
 		val lambda = 0.0
-		
+
 		// fake the training with learningRate = 0.0
 		val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(37.285, -5.344, 1))
 		val r = bigRClient.execute[IModel](trainer)
 		assert(r.isSuccess)
 		println(">>>>>>model=" + r.result)
 		val modelID = r.result.getName
-		
+
 		println(">>>>>>>>>>>>>>>>>.modelID" + modelID)
 
 		//run prediction
@@ -87,7 +88,7 @@ class MetricsSuite extends ABigRClientTest {
 		val r2 = bigRClient.execute[DataFrameResult](predictor)
 		val predictionResultId = r2.result.dataContainerID
 		assert(r2.isSuccess)
-		
+
 		println(">>>>>>>>>>>>>>>>>.predictionResultId=" + predictionResultId)
 
 		val alpha_length: Int = 10
@@ -100,7 +101,6 @@ class MetricsSuite extends ABigRClientTest {
 		assert(truncate(metric.pred(5)(1), 4) === 0.6220)
 		assert(truncate(metric.pred(5)(2), 4) === 0.3727)
 		assert(truncate(metric.auc, 4) === 0.6743)
-
 	}
 
 	test("R2 metric is correct") {
@@ -127,8 +127,8 @@ class MetricsSuite extends ABigRClientTest {
 		// Multiple R-squared:  0.7528
 		assertEquals(0.7528, r2.result, 0.0001)
 	}
-
-	ignore("Residuals metric is correct") {
+//
+	test("Residuals metric is correct") {
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
 		val dataContainerId = df.dataContainerID
@@ -141,13 +141,17 @@ class MetricsSuite extends ABigRClientTest {
 		val modelID = r.result.getName
 
 		val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
-		val residuals = bigRClient.execute[Double](scorer)
+		val residuals = bigRClient.execute[DataFrameResult](scorer)
 		assert(residuals.isSuccess)
 
-		println(">>>>>result =" + residuals.result)
+    val nrow = new NRow
+    nrow.setDataContainerID(residuals.result.dataContainerID)
+    val numRow = bigRClient.execute[NRowResult](nrow)
+    assert(numRow.result.nrow === 32)
+
 	}
 
-	ignore("smoke residuals metric") {
+	test("smoke test residuals metric") {
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
 		val dataContainerId = df.dataContainerID
@@ -186,7 +190,7 @@ class MetricsSuite extends ABigRClientTest {
 		println(">>>>>residuals =" + residuals.result)
 
 	}
-
+//
 	test("can get linear predictions") {
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
@@ -208,7 +212,7 @@ class MetricsSuite extends ABigRClientTest {
 
 	}
 
-	ignore("can get linear predictions categorical columns") {
+	test("can get linear predictions categorical columns") {
 		createTableAirline
 
 		val df = this.runSQL2RDDCmd("select v4, v17, v18, v3 from airline", true)
@@ -233,7 +237,7 @@ class MetricsSuite extends ABigRClientTest {
 //
 //		println(r3.result.data)
 	}
-//	//
+////	//
 	test("can get logistic predictions") {
 
 		createTableAdmission2
@@ -288,7 +292,7 @@ class MetricsSuite extends ABigRClientTest {
 		assert(cm.trueNeg === 171)
 		assert(400 === cm.truePos + cm.falsePos + cm.falseNeg + cm.trueNeg) // total count
 	}
-//
+
 	test("smoke test for R2 metric - R2 metric works") {
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
@@ -329,7 +333,7 @@ class MetricsSuite extends ABigRClientTest {
 		val r2 = bigRClient.execute[Double](scorer)
 		assert(r2.isSuccess)
 		println(">>>>>result =" + r2.result)
-		//		assertEquals(0.7528, r2.result, 0.0001)
+		assertEquals(0.7528, r2.result, 0.0001)
 
 		// summary(lm(mpg ~ wt, data=mtcars))
 		// Multiple R-squared:  0.7528
