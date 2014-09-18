@@ -23,7 +23,10 @@ class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[I
     // first, compute RDD[(ytrue, ypred)]
 
     val mymodel: IModel = ddfManager.getModel(modelID)
-    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+    val trainedCols = (xCols :+ yCol).map(ddf.getSchema.getColumnName(_))
+
+    val projectedDDF = ddf.VIEWS.project(trainedCols: _*)
+    val predictionDDF = projectedDDF.getMLSupporter().applyModel(mymodel, true, true)
 
     val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
     require(residualsDDF != null)

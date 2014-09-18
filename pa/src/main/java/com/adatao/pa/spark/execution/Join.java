@@ -101,9 +101,7 @@ public class Join extends CExecutor {
       resultDDF = leftddf.join(rightddf, joinType, byColumns, byLeftColumns, byRightColumns);
       return new com.adatao.pa.spark.Utils.DataFrameResult(resultDDF);
     } catch (DDFException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }
