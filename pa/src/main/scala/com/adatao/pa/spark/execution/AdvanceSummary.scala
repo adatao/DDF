@@ -15,6 +15,7 @@ import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.DDF
 import io.ddf.content.Schema.Column
 import io.ddf.content.Schema.ColumnClass
+import io.ddf.content.Schema.ColumnType
 import java.util.HashMap
 
 /*
@@ -32,10 +33,15 @@ class AdvanceSummary(dataContainerID: String) extends AExecutor[AdvanceSummary.A
     }
 
     val cols = ddf.getSchema().getColumns()
+    
+    cols.map(c => println(c.getName() + "\t" + c.getColumnClass() + "\t" + c.getType() )) 
 
     val arrColNames = cols.map(c => c.getName()).toArray[String]
-    val arrColTypes = cols.map(c => if (c.isNumeric()) "integer" else "character").toArray[String]
-    val arrColCategories = cols.map(c => if (c.getColumnClass()== null) "NONE" else if(c.getColumnClass().equals(ColumnClass.FACTOR)) "AdataoFactor" else if (c.getColumnClass().equals(ColumnClass.NUMERIC)) "numeric" else "character").toArray[String]
+    //val arrColTypes = cols.map(c => if (c.isNumeric()) "integer" else "character").toArray[String]
+    val arrColTypes = cols.map(c => if (c.getType()== null) "NONE" else  if (c.getType().equals(ColumnType.INT) || c.getType().equals(ColumnType.DOUBLE) || c.getType().equals(ColumnType.FLOAT) || c.getType().equals(ColumnType.LONG)) "integer" else "character").toArray[String]
+    val arrColCategories = cols.map(c => if (c.getType()== null) "NONE" else if(c.getColumnClass() != null && c.getColumnClass().equals(ColumnClass.FACTOR)) "AdataoFactor" else if (c.getType().equals(ColumnType.INT) || c.getType().equals(ColumnType.DOUBLE) || c.getType().equals(ColumnType.FLOAT) || c.getType().equals(ColumnType.LONG)) "numeric" else "character").toArray[String]
+    
+    
     val arrColUnits = cols.map(c => "NONE").toArray[String]
 
     var aSummary: AdvanceSummary.AdvanceSummaryResult = new AdvanceSummary.AdvanceSummaryResult(arrColNames, arrColTypes, arrColCategories, arrColUnits)
