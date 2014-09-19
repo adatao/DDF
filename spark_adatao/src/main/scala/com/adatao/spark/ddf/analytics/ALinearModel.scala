@@ -27,30 +27,33 @@ import org.apache.spark.rdd.RDD
  */
 
 abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Long) extends TPredictiveModel[Vector, OutputType] {
-    //dummy mapping columng used in lm/glm
-	var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
-	var mapReferenceLevel = new HashMap[String, String] ()
-	def predict(features: Vector): OutputType
-	/**
-	 * Helpful signature for caller to be able to pass in a DoubleMatrix directly
-	 */
-	def predict(features: DoubleMatrix): OutputType = this.predict(Vector(features))
+  //dummy mapping columng used in lm/glm
+  var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]]()
+  var mapReferenceLevel = new HashMap[String, String]()
 
-	/**
-	 * Helpful signature for caller to be able to pass in an Array[Double] directly.
-	 * A Vector is built from the Array with a bias term.
-	 */
-	def predict(features: Array[Double]): OutputType = {
-	  this.predict(Vector(Array[Double](1) ++ features))
-	}
+  def predict(features: Vector): OutputType
+
+  /**
+   * Helpful signature for caller to be able to pass in a DoubleMatrix directly
+   */
+  def predict(features: DoubleMatrix): OutputType = this.predict(Vector(features))
+
+  /**
+   * Helpful signature for caller to be able to pass in an Array[Double] directly.
+   * A Vector is built from the Array with a bias term.
+   */
+  def predict(features: Array[Double]): OutputType = {
+    this.predict(Vector(Array[Double](1) ++ features))
+  }
 
   def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
-    xyRDD.flatMap { xy => {
+    xyRDD.flatMap {
+      xy => {
         val x = xy.x
         val y = xy.y
         val iteratorArrDouble = new Array[Array[Double]](y.size)
         var i = 0
-        while(i < y.size) {
+        while (i < y.size) {
           iteratorArrDouble(i) = Array(y(i), this.linearPredictor(Vector(x.getRow(i))))
           i += 1
         }
@@ -59,19 +62,21 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
     }
   }
 
-	protected def linearPredictor(features: Vector): Double = {
-		weights.dot(features)
-	}
-	
-	def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+  protected def linearPredictor(features: Vector): Double = {
+    weights.dot(features)
+  }
+
+  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
     dummyColumnMapping = _mapping
   }
 }
+
 object ALinearModel {
-	val MAXNUMFEATURES_DEFAULT = 50
+  val MAXNUMFEATURES_DEFAULT = 50
 }
+
 abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLosses: Vector, numSamples: Long) extends ALinearModel[OutputType](weights, numSamples) {
-  
+
 }
 
 /**
@@ -83,8 +88,8 @@ abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLo
  */
 
 abstract class AContinuousIterativeLinearModel(weights: Vector, trainingLosses: Vector, numSamples: Long)
-		extends AIterativeLinearModel[Double](weights, trainingLosses, numSamples) {
-	override def predict(features: Vector): Double = this.linearPredictor(features)
+  extends AIterativeLinearModel[Double](weights, trainingLosses, numSamples) {
+  override def predict(features: Vector): Double = this.linearPredictor(features)
 }
 
 /**
@@ -96,5 +101,5 @@ abstract class AContinuousIterativeLinearModel(weights: Vector, trainingLosses: 
  */
 
 abstract class ADiscreteIterativeLinearModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AIterativeLinearModel[Int](weights, trainingLosses, numSamples) {
-	override def predict(features: Vector): Int = if (this.linearPredictor(features) < 0.5) 0 else 1
+  override def predict(features: Vector): Int = if (this.linearPredictor(features) < 0.5) 0 else 1
 }
