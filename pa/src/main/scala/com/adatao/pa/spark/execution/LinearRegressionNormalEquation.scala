@@ -37,16 +37,12 @@ class LinearRegressionNormalEquation(
 
   override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
-
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-
-    ddfManager.getDDF(ddfId) match {
+    ddfManager.getDDF(dataContainerID) match {
       case ddf: DDF => {
         val xColsName = xCols.map{idx => ddf.getColumnName(idx)}
         val yColName = ddf.getColumnName(yCol)
 
         val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
-        
         val model = transformedDDF.ML.train("linearRegressionNQ", ridgeLambda: java.lang.Double)
 
         //TODO: get rid of this
@@ -54,7 +50,6 @@ class LinearRegressionNormalEquation(
         if(transformedDDF.getSchema.getDummyCoding != null) {
           rawModel.setDummy(transformedDDF.getSchema.getDummyCoding)
         }
-
         model
       }
       case _ => throw new IllegalArgumentException("Only accept DDF")

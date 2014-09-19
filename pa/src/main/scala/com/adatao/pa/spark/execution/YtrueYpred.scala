@@ -37,9 +37,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
     val model: IModel = ddfManager.getModel(modelID)
     val trainedColumns = model.getTrainedColumns
     val (xs, y) = trainedColumns.splitAt(trainedColumns.size - 1)
-//    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
-//
-//    val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
+
     val predictionDDF = model.getRawModel match {
       case linearModel: ALinearModel[_] => {
         LOG.info(">>> ALinearModel, running dummyCoding transformation")

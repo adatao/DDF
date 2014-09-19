@@ -51,15 +51,12 @@ class LogisticRegressionCRS(
   //  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
   //	override def run(sparkThread: SparkThread): ExecutorResult = {
   override def runImpl(ctx: ExecutionContext): IModel = {
-
     ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf: DDF = ddfManager.getDDF(ddfId)
+    val ddf: DDF = ddfManager.getDDF(dataContainerID)
     try {
       val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
       val yColName = ddf.getColumnName(yCol)
       val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
-
 
       val regressionModel = transformedDDF.ML.train("logisticRegressionCRS", 10: java.lang.Integer,
         0.1: java.lang.Double, 0.1: java.lang.Double, initialWeights.toArray: scala.Array[Double], columnsSummary)
@@ -67,7 +64,6 @@ class LogisticRegressionCRS(
       val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       if (ddf.getSchema().getDummyCoding() != null)
         rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
-
       regressionModel
     } catch {
       case e: DDFException ⇒ e.printStackTrace(); throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage, e.getCause);

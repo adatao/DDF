@@ -37,8 +37,7 @@ class LogisticRegression(
 
   override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf = ddfManager.getDDF(ddfId) match {
+    val ddf = ddfManager.getDDF(dataContainerID) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
@@ -46,8 +45,6 @@ class LogisticRegression(
     val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
     val yColName = ddf.getColumnName(yCol)
     val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
-
-
     val model = transformedDDF.ML.train("logisticRegressionWithGD", numIters: java.lang.Integer,
       learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 

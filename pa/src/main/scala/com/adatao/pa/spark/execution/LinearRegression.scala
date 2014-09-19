@@ -38,10 +38,8 @@ class LinearRegression(
   extends AExecutor[IModel] {
 
   override def runImpl(context: ExecutionContext): IModel = {
-
-    val ddfManager = context.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf = ddfManager.getDDF(ddfId) match {
+    val ddfManager = context.sparkThread.getDDFManager()
+    val ddf = ddfManager.getDDF(dataContainerID) match {
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
@@ -57,7 +55,6 @@ class LinearRegression(
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
     if (ddf.getSchema().getDummyCoding() != null)
       rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
-
     model
   }
 }
