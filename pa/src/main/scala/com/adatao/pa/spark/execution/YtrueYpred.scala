@@ -1,11 +1,8 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.pa.spark.DataManager.{ DataFrame, MetaInfo }
-import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
-import com.adatao.pa.spark.DataManager
-import com.adatao.spark.ddf.analytics.{ TModel, TPredictiveModel }
-import com.adatao.spark.ddf.analytics.ALinearModel
-import io.ddf.types.{TupleMatrixVector, Vector}
+import com.adatao.pa.spark.DataManager.{DataFrame, MetaInfo}
+import com.adatao.spark.ddf.analytics.TModel
+import io.ddf.types.TupleMatrixVector
 import com.adatao.spark.ddf.analytics._
 import org.apache.spark.api.java.JavaRDD
 import com.adatao.spark.ddf.analytics._
@@ -13,13 +10,10 @@ import io.ddf.DDF
 import io.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import com.adatao.spark.ddf.analytics.Utils
-import io.ddf.exception.DDFException
 import com.adatao.pa.spark.Utils._
 import com.adatao.spark.ddf.etl.TransformationHandler
 import io.ddf.content.Schema
 import io.spark.ddf.SparkDDF
-import io.spark.ddf.content.RepresentationHandler
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -27,7 +21,7 @@ import io.spark.ddf.content.RepresentationHandler
  *
  * Works with LinearRegressionModel and LogisticRegressionModel.
  *
- */ 
+ */
 class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor[DataFrameResult] {
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val ddfManager = ctx.sparkThread.getDDFManager()
@@ -53,7 +47,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
       }
     }
 
-    if(predictionDDF == null) {
+    if (predictionDDF == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error predicting, prediction DDF is null.", null)
     } else {
       val predID = ddfManager.addDDF(predictionDDF)
