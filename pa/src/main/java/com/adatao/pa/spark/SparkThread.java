@@ -48,12 +48,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-public class SparkThread extends ASessionThread {
+public class SparkThread {
 
 	public static Logger LOG = LoggerFactory.getLogger(SparkThread.class);
 
-	ArrayBlockingQueue<Object> cmdQueue;
-	ArrayBlockingQueue<Object> resQueue;
+//	ArrayBlockingQueue<Object> cmdQueue;
+//	ArrayBlockingQueue<Object> resQueue;
 
 	Date latestCommandTime;
 
@@ -62,7 +62,9 @@ public class SparkThread extends ASessionThread {
 
 	int driverPort = 20002;
 	int uiPort = 30001;
-
+	
+	Boolean isShark;
+	
 	GsonBuilder gsonBld = new GsonBuilder().serializeSpecialFloatingPointValues()
 							.registerTypeAdapter(Expression.class, new Subset.ExpressionDeserializer());
 	Gson gson = gsonBld.setExclusionStrategies(new ExclusionStrategy() {
@@ -88,36 +90,11 @@ public class SparkThread extends ASessionThread {
 	
 	public void stopMe(){
 		ddfManager.shutdown();
-		this.interrupt();
+		//this.interrupt();
 	}
 	
-	public SparkThread(ArrayBlockingQueue<Object> cmdQueue, ArrayBlockingQueue<Object> resQueue) {
-		this.cmdQueue = cmdQueue;
-		this.resQueue = resQueue;
-	}
-
-	@SuppressWarnings("unused")
-	private void processJsonCommand(JsonCommand jsCmd) throws JsonSyntaxException, InterruptedException, ClassNotFoundException, AdataoException {
-			LOG.info(">>>> jsonCommand.params = " + (jsCmd.params.toString()));
-            Object exec = gson.fromJson(jsCmd.params, Class.forName("com.adatao.pa.spark.execution." + jsCmd.getCmdName()));
-			LOG.info("Created Executor: " + exec.toString());
-
-			ExecutionResult<?> execRes = null;
-
-			if (exec instanceof IExecutor) {
-				// Old-style, Java-based class hierarchy
-				// Note: this means every old ExecutorResult will be WRAPPED
-				// within an upon return ExecutionResult.
-				// But based on our ExecutionResult scheme, this is as all
-				// clients should expect. It's just that the
-				// "success" field may annoyingly appear twice: once at the top
-				// level, and once within the "result" object.
-				execRes = ExecutionResult.newInstance(((IExecutor) exec).run(this));
-			} else if (exec instanceof TExecutor) {
-				// New-style, Scala-based class hierarchy
-				execRes = ((TExecutor<?>) exec).run(new ExecutionContext(this));
-			}
-			resQueue.put(new JsonResult().setResult(execRes.toJson()));
+	public SparkThread() {
+		
 	}
 	
 	public ExecutionResult<?> processJsonCommand1(JsonCommand jsCmd) throws JsonSyntaxException, ClassNotFoundException, AdataoException {
@@ -219,44 +196,23 @@ public class SparkThread extends ASessionThread {
 		return sc;
 	}
 
-
-	public void run() {
+//	public void run() {}
+	
+	public Boolean startSession() {
 		LOG.info("Starting SparkThread ...");
 
 		// Use SPARK_MODE to determine whether to run on Spark cluster or local
 		String sparkMode = System.getenv("SPARK_MODE");
 
 		try {
-
-		  sparkContext = startSparkContext(isShark);
+			sparkContext = startSparkContext(isShark);
 		} catch (Exception e) {
 			LOG.error("Exception while starting SharkContext: ", e);
 			LOG.error(AdataoExceptionCode.ERR_GENERAL.name());
-			JsonResult res = new JsonResult().setResult(new FailedResult<Object>(AdataoExceptionCode.ERR_GENERAL.getMessage()).toJson());
-			try {
-				resQueue.put(res);
-			} catch (InterruptedException e1){
-				LOG.info("Thread is interrupted. Failed to send back result!");
-			}
-			return;
+			return false;
 		}
 		
-		if (sessionID != null) {
-			// if the sessionID has been given then use it
-			// this is the case when SparkThread is started by a Worker in MultiUser/MultiContext mode
-			// and the sessionID is given by Server
-			
-			//thriftPort is not used here so set it to 0
-			sessionManager.addSession(this, sessionID, clientID, 0, uiPort, driverPort);
-		} else {
-			//thriftPort is not used here so set it to 0
-			sessionID = sessionManager.addSession(this, clientID, 0, uiPort, driverPort).sessionID();
-		}
-		try {
-			resQueue.put(new JsonResult().setSid(sessionID));
-		} catch (InterruptedException e){
-			LOG.info("Thread is interrupted. Failed to send back result!");
-		}
+		return true;
 	}
 
 	public DDFManager getDDFManager() {
@@ -266,13 +222,13 @@ public class SparkThread extends ASessionThread {
 		return sparkContext;
 	}
 
-	public ArrayBlockingQueue<Object> getCommandQueue() {
-		return cmdQueue;
-	}
-
-	public ArrayBlockingQueue<Object> getResultQueue() {
-		return resQueue;
-	}
+//	public ArrayBlockingQueue<Object> getCommandQueue() {
+//		return cmdQueue;
+//	}
+//
+//	public ArrayBlockingQueue<Object> getResultQueue() {
+//		return resQueue;
+//	}
 
 	public Date getLatestCommandTime() {
 		return latestCommandTime;
@@ -297,13 +253,13 @@ public class SparkThread extends ASessionThread {
 		return this;
 	}
 
-	public SparkThread setCmdQueue(ArrayBlockingQueue<Object> cmdQueue) {
-		this.cmdQueue = cmdQueue;
-		return this;
-	}
-
-	public SparkThread setResQueue(ArrayBlockingQueue<Object> resQueue) {
-		this.resQueue = resQueue;
-		return this;
-	}
+//	public SparkThread setCmdQueue(ArrayBlockingQueue<Object> cmdQueue) {
+//		this.cmdQueue = cmdQueue;
+//		return this;
+//	}
+//
+//	public SparkThread setResQueue(ArrayBlockingQueue<Object> resQueue) {
+//		this.resQueue = resQueue;
+//		return this;
+//	}
 }
