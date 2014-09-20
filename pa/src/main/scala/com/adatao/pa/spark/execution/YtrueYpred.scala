@@ -39,11 +39,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
-        
-        
-        val testdata = ytrueYpredRDD.collect()
-        println(">>>>>>>>>>>>>>>>>>>> ytrueypred running linearModel: ytrueypreidct data = " + testdata(0)(0) + "," +  testdata(0)(1))
-        
+
         new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
       }
       case _ => {
