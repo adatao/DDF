@@ -22,6 +22,8 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import org.junit.Assert._
 import com.adatao.spark.ddf.analytics.LinearRegressionModel
 import com.adatao.pa.spark.types.ExecutionResult
+import com.adatao.pa.spark.Utils.DataFrameResult
+
 //import com.adatao.spark.ddf.analytics.RocObject
 import io.ddf.ml.{RocMetric, IModel}
 import com.adatao.pa.spark.execution.NRow.NRowResult
@@ -152,7 +154,7 @@ class CrossValidationSuite extends ABigRClientTest {
         val persistenceID = r.result.getName
 
         val predictor = new YtrueYpred(dataContainerId, persistenceID)
-        val r2 = bigRClient.execute[YtrueYpredResult](predictor)
+        val r2 = bigRClient.execute[DataFrameResult](predictor)
         assert(r2.isSuccess)
         val predictionId = r2.result.dataContainerID
 

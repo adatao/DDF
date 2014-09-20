@@ -17,7 +17,6 @@ import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import com.adatao.pa.spark.execution.GetMultiFactor
 import com.adatao.pa.spark.execution.TransformNativeRserve
 import com.adatao.pa.spark.execution.YtrueYpred
-import com.adatao.pa.spark.execution.YtrueYpredResult
 import com.adatao.pa.spark.execution.SampleDataFrame
 import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFramePercentResult
 import com.adatao.pa.spark.types.ABigRClientTest

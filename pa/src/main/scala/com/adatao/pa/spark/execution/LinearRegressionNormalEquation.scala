@@ -17,34 +17,11 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-import com.adatao.spark.ddf.analytics
-import com.adatao.spark.ddf.analytics.ALossFunction
 import com.adatao.spark.ddf.analytics.Utils
-import io.ddf.types.Matrix
-import io.ddf.types.Vector
-import com.adatao.spark.ddf.analytics.RDDImplicits._
-import org.apache.spark.rdd.RDD
-import org.jblas.DoubleMatrix
-import org.jblas.Solve
-import com.adatao.pa.spark.DataManager._
-import com.adatao.spark.ddf.analytics.ALinearModel
 import java.util.HashMap
-import scala.collection.mutable.ListBuffer
-import org.jblas.exceptions.LapackArgumentException
-import org.jblas.exceptions.LapackSingularityException
-import org.jblas.exceptions.LapackException
-import scala.collection.TraversableOnce
-import scala.collection.Iterator
-import scala.collection.immutable.List
-import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.api.java.JavaRDD
-import java.util.ArrayList
-import scala.collection.mutable.ArrayBuffer
-import com.adatao.pa.spark.types.{FailedResult, ExecutionException, SuccessfulResult, ExecutionResult}
-import com.adatao.spark.ddf.analytics.NQLinearRegressionModel
 import io.ddf.ml.IModel
 import io.ddf.DDF
-import com.adatao.spark.ddf.etl.TransformationHandler
+import com.adatao.spark.ddf.etl.TransformationHandler._
 
 /**
  * Author: NhanVLC
@@ -60,16 +37,12 @@ class LinearRegressionNormalEquation(
 
   override def runImpl(context: ExecutionContext): IModel = {
     val ddfManager = context.sparkThread.getDDFManager();
-
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-
-    ddfManager.getDDF(ddfId) match {
+    ddfManager.getDDF(dataContainerID) match {
       case ddf: DDF => {
         val xColsName = xCols.map{idx => ddf.getColumnName(idx)}
         val yColName = ddf.getColumnName(yCol)
 
-        val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
-        
+        val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
         val model = transformedDDF.ML.train("linearRegressionNQ", ridgeLambda: java.lang.Double)
 
         //TODO: get rid of this
@@ -77,7 +50,6 @@ class LinearRegressionNormalEquation(
         if(transformedDDF.getSchema.getDummyCoding != null) {
           rawModel.setDummy(transformedDDF.getSchema.getDummyCoding)
         }
-
         model
       }
       case _ => throw new IllegalArgumentException("Only accept DDF")
