@@ -86,7 +86,12 @@ object LogisticRegression {
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
   override def predict(features: Vector): Double = {
-    ALossFunction.sigmoid(this.linearPredictor(Vector(Array[Double](1) ++ features.data)))
+    println(">>>>>>>>>>>> predict " + " features.data = " + features.data(0) + "," + features.data(1) + "," + features.data(2) + ">>>>>" + this.linearPredictor(Vector(features.data)))
+    
+    println(">>>>>>>>>>>> predict exp = " + ALossFunction.sigmoid(this.linearPredictor(Vector(features.data))))
+    
+    
+    ALossFunction.sigmoid(this.linearPredictor(Vector(features.data)))
   }
 
   override def predict(features: Array[Double]): Double = {

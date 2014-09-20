@@ -214,7 +214,7 @@ object LinearRegressionNormalEquation {
 }
 
 class NQLinearRegressionModel(weights: Vector, val rss: Double, val sst: Double, val stdErrs: Vector,
-  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends ALinearModel[Double](weights, numSamples) {
+  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends AContinuousIterativeLinearModel(weights, null, numSamples) {
 
   override def predict(features: Vector): Double = this.linearPredictor(features)
 

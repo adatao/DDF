@@ -46,21 +46,7 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
     this.predict(Vector(Array[Double](1) ++ features))
   }
 
-  def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
-    xyRDD.flatMap {
-      xy => {
-        val x = xy.x
-        val y = xy.y
-        val iteratorArrDouble = new Array[Array[Double]](y.size)
-        var i = 0
-        while (i < y.size) {
-          iteratorArrDouble(i) = Array(y(i), this.linearPredictor(Vector(x.getRow(i))))
-          i += 1
-        }
-        iteratorArrDouble
-      }
-    }
-  }
+  
 
   protected def linearPredictor(features: Vector): Double = {
     weights.dot(features)
@@ -90,6 +76,22 @@ abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLo
 abstract class AContinuousIterativeLinearModel(weights: Vector, trainingLosses: Vector, numSamples: Long)
   extends AIterativeLinearModel[Double](weights, trainingLosses, numSamples) {
   override def predict(features: Vector): Double = this.linearPredictor(features)
+  
+  def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
+    xyRDD.flatMap {
+      xy => {
+        val x = xy.x
+        val y = xy.y
+        val iteratorArrDouble = new Array[Array[Double]](y.size)
+        var i = 0
+        while (i < y.size) {
+          iteratorArrDouble(i) = Array(y(i), this.predict(Vector(x.getRow(i))))
+          i += 1
+        }
+        iteratorArrDouble
+      }
+    }
+  }
 }
 
 /**
