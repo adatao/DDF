@@ -46,7 +46,22 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
     this.predict(Vector(Array[Double](1) ++ features))
   }
 
-  
+  def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
+    val weights = this.weights
+    xyRDD.flatMap {
+      xy => {
+        val x = xy.x
+        val y = xy.y
+        val iteratorArrDouble = new Array[Array[Double]](y.size)
+        var i = 0
+        while (i < y.size) {
+          iteratorArrDouble(i) = Array(y(i), ALinearModel.linearPredictor(weights)(Vector(x.getRow(i))))
+          i += 1
+        }
+        iteratorArrDouble
+      }
+    }
+  }
 
   protected def linearPredictor(features: Vector): Double = {
     weights.dot(features)
@@ -59,6 +74,13 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
 
 object ALinearModel {
   val MAXNUMFEATURES_DEFAULT = 50
+
+  def linearPredictor(weights: Vector)(features: Vector): Double = {
+    weights.dot(features)
+  }
+  def logisticPredictor(weights: Vector)(features: Vector): Double = {
+    ALossFunction.sigmoid(this.linearPredictor(weights)(features))
+  }
 }
 
 abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLosses: Vector, numSamples: Long) extends ALinearModel[OutputType](weights, numSamples) {
@@ -76,22 +98,7 @@ abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLo
 abstract class AContinuousIterativeLinearModel(weights: Vector, trainingLosses: Vector, numSamples: Long)
   extends AIterativeLinearModel[Double](weights, trainingLosses, numSamples) {
   override def predict(features: Vector): Double = this.linearPredictor(features)
-  
-  def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
-    xyRDD.flatMap {
-      xy => {
-        val x = xy.x
-        val y = xy.y
-        val iteratorArrDouble = new Array[Array[Double]](y.size)
-        var i = 0
-        while (i < y.size) {
-          iteratorArrDouble(i) = Array(y(i), this.predict(Vector(x.getRow(i))))
-          i += 1
-        }
-        iteratorArrDouble
-      }
-    }
-  }
+
 }
 
 /**

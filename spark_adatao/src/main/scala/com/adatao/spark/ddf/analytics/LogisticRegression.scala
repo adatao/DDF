@@ -21,7 +21,7 @@ import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import io.ddf.types.{Matrix, Vector}
+import io.ddf.types.{Vector, TupleMatrixVector, Matrix}
 import java.util.HashMap
 import io.ddf.ml.IModel
 import org.apache.spark.rdd.RDD
@@ -93,6 +93,22 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
     this.predict(Vector(features))
   }
 
+  override def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
+    val weights = this.weights
+    xyRDD.flatMap {
+      xy => {
+        val x = xy.x
+        val y = xy.y
+        val iteratorArrDouble = new Array[Array[Double]](y.size)
+        var i = 0
+        while (i < y.size) {
+          iteratorArrDouble(i) = Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
+          i += 1
+        }
+        iteratorArrDouble
+      }
+    }
+  }
 }
 
 class DiscreteLogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends ADiscreteIterativeLinearModel(weights, trainingLosses, numSamples) {
