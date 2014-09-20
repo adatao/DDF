@@ -42,14 +42,12 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         
         
         val testdata = ytrueYpredRDD.collect()
-        println(">>>>>>>>>>>>>>>>>>>> ytrueypred running linearModel: ytrueypreidct data = " + testdata(0)(0) + "," +  testdata(0)(1))
         
         new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
         
-        println(">>>>>>>>>>>>>>>>>>> ytrueypred not linearModel ")
         
         projectedDDF.getMLSupporter().applyModel(model, true, false)
       }
