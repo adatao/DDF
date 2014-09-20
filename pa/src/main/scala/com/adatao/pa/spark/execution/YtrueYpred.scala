@@ -33,16 +33,24 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
     val (xs, y) = trainedColumns.splitAt(trainedColumns.size - 1)
 
     val predictionDDF = model.getRawModel match {
-      case linearModel: ALinearModel[_] => {
+      case linearModel: AContinuousIterativeLinearModel => {
         LOG.info(">>> ALinearModel, running dummyCoding transformation")
         val dummyCodingDDF = ddf.getTransformationHandler.dummyCoding(xs, y(0))
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
+        
+        
+        val testdata = ytrueYpredRDD.collect()
+        println(">>>>>>>>>>>>>>>>>>>> ytrueypred running linearModel: ytrueypreidct data = " + testdata(0)(0) + "," +  testdata(0)(1))
+        
         new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
+        
+        println(">>>>>>>>>>>>>>>>>>> ytrueypred not linearModel ")
+        
         projectedDDF.getMLSupporter().applyModel(model, true, false)
       }
     }

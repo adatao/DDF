@@ -63,8 +63,6 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
     }
   }
 
-
-
   protected def linearPredictor(features: Vector): Double = {
     weights.dot(features)
   }
@@ -100,6 +98,7 @@ abstract class AIterativeLinearModel[OutputType](weights: Vector, val trainingLo
 abstract class AContinuousIterativeLinearModel(weights: Vector, trainingLosses: Vector, numSamples: Long)
   extends AIterativeLinearModel[Double](weights, trainingLosses, numSamples) {
   override def predict(features: Vector): Double = this.linearPredictor(features)
+
 }
 
 /**
