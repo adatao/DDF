@@ -21,7 +21,7 @@ import java.util.HashMap
 import io.ddf.types._
 import scala.Array.canBuildFrom
 import org.apache.spark.rdd.RDD
-
+import scala.collection.mutable.ListBuffer
 /**
  * Constructor parameters are accessible via 'val' so they would show up on (JSON) serialization
  */
@@ -52,13 +52,13 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
       xy => {
         val x = xy.x
         val y = xy.y
-        val iteratorArrDouble = new Array[Array[Double]](y.size)
+        val iterator = new ListBuffer[Array[Double]]
         var i = 0
         while (i < y.size) {
-          iteratorArrDouble(i) = Array(y(i), ALinearModel.linearPredictor(weights)(Vector(x.getRow(i))))
+          iterator += Array(y(i), ALinearModel.linearPredictor(weights)(Vector(x.getRow(i))))
           i += 1
         }
-        iteratorArrDouble
+        iterator
       }
     }
   }
