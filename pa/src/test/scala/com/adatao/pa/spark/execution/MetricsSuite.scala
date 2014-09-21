@@ -101,6 +101,8 @@ class MetricsSuite extends ABigRClientTest {
     println(">>>>>>>>>> metric ")
     assert(ret.isSuccess)
     //this result is idential with confusion matrix unit test
+    assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
+    assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
     assert(truncate(metric.auc, 4) === 0.6691)
   }
 
