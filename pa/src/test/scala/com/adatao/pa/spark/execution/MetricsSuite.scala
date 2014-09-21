@@ -75,8 +75,8 @@ class MetricsSuite extends ABigRClientTest {
     val lambda = 0.0
 
     // fake the training with learningRate = 0.0
-//    val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(37.285, -5.344, 1))
-    val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
+//    val trainer = new LogisticRegression(dataContainerId, Array(2,3), 0, 1, 0.1, lambda, Array(37.285, -5.344, 1))
+    val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
     val r = bigRClient.execute[IModel](trainer)
     assert(r.isSuccess)
     println(">>>>>>model=" + r.result)
@@ -102,8 +102,8 @@ class MetricsSuite extends ABigRClientTest {
     assert(ret.isSuccess)
     //this result is idential with confusion matrix unit test
     assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
-    assert(truncate(ret.result.pred(5)(2), 4) === 0.3727)
-    assert(truncate(metric.auc, 4) === 0.6691)
+    assert(truncate(ret.result.pred(5)(2), 4) === 0.3736)
+    assert(truncate(metric.auc, 4) === 0.6745)
   }
 
   test("R2 metric is correct") {
