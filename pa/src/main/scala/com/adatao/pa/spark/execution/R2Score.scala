@@ -36,26 +36,6 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
   def runImpl(ctx: ExecutionContext): Double = {
     val ddfManager = ctx.sparkThread.getDDFManager()
     val model: IModel = ddfManager.getModel(modelID)
-
-
-    // first, compute RDD[(ytrue, ypred)]
-    //old API val predictions = getYtrueYpred(dataContainerID, modelID, xCols, yCol, ctx)
-
-
-//    if (model == null) {
-//      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
-//        String.format("Not found dataframe with id %s", modelID), null);
-//    }
-//    val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
-//
-//    val predictionDDF = projectedDDF.getMLSupporter().applyModel(model, true, false)
-//    if (predictionDDF == null) {
-//      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
-//        "Can not run prediction on dataContainerID: " + dataContainerID + "\t with modelID =" + modelID, null);
-//    }
-//    //get column mean
-//    val summary = projectedDDF.getStatisticsSupporter().getSummary()
-//    val yMean = summary(projectedDDF.getNumColumns - 1).mean()
     model.getRawModel match {
       case linearModel: ALinearModel[Double] => {
         val ddf: DDF = ddfManager.getDDF(dataContainerID)
@@ -66,7 +46,9 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
         val predictionDDF = ddfManager.getDDF(yTrueYPred.getDataContainerID)
         predictionDDF.getMLMetricsSupporter.r2score(yMean)
       }
+      case _ => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
+        s"Don't know how to get R2Score for ${model.getRawModel.getClass.toString}}", null)
+
     }
-    //ddf.getMLMetricsSupporter().r2score(predictionDDF, yMean)
   }
 }
