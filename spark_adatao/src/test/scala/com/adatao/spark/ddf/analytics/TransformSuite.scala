@@ -63,12 +63,8 @@ class TransformSuite extends ATestSuite {
 
     val model = new DummyModel(Vector(Array(0.5,0.1, 0.2, 0.3)), 100)
     val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
-    rddMatrixVector.foreach{
-      row => println(">>> row = " + row.x.toString()); println("y >>>> " + row.y.toString())
-    }
+    assert(rddMatrixVector.count() > 0)
     val rdd = model.yTrueYPred(rddMatrixVector)
-    rdd.foreach {
-      row => println(">>>> row = " + row.mkString(", "))
-    }
+    assert(rdd.count() == 31)
   }
 }

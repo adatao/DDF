@@ -25,6 +25,7 @@ import io.ddf.types.{Vector, TupleMatrixVector, Matrix}
 import java.util.HashMap
 import io.ddf.ml.IModel
 import org.apache.spark.rdd.RDD
+import scala.collection.mutable.ListBuffer
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -99,13 +100,13 @@ class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSample
       xy => {
         val x = xy.x
         val y = xy.y
-        val iteratorArrDouble = new Array[Array[Double]](y.size)
+        val iterator = new ListBuffer[Array[Double]]
         var i = 0
-        while (i < y.size) {
-          iteratorArrDouble(i) = Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
+        while (i < y.length) {
+          iterator += Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
           i += 1
         }
-        iteratorArrDouble
+        iterator
       }
     }
   }

@@ -3,7 +3,7 @@ package com.adatao.spark.ddf.ml
 import io.spark.ddf.ml.{MLSupporter => IOMLSupporter}
 import io.ddf.DDF
 import io.ddf.ml.{ISupportML, IModel}
-import com.adatao.spark.ddf.analytics.AContinuousIterativeLinearModel
+import com.adatao.spark.ddf.analytics.{ALinearModel, AContinuousIterativeLinearModel}
 import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.types.TupleMatrixVector
 import org.apache.spark.rdd.RDD
@@ -20,7 +20,7 @@ class MLSupporter(mDDF: DDF) extends IOMLSupporter(mDDF) {
     val yCol = trainedColumns(trainedColumns.size - 1)
     val iThreshold = threshold
     model.getRawModel match {
-      case linearModel: AContinuousIterativeLinearModel => {
+      case linearModel: ALinearModel[Double] => {
         mLog.info(">>> ALinearModel, running dummyCoding transformation")
         val dummyCodingDDF = this.mDDF.getTransformationHandler.dummyCoding(xCols, yCol)
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])

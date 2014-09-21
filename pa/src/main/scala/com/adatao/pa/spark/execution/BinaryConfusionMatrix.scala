@@ -19,7 +19,7 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
     val ddfManager = context.sparkThread.getDDFManager()
     val model = ddfManager.getModel(modelID)
     val cm = model.getRawModel match {
-      case linearModel: AContinuousIterativeLinearModel => {
+      case linearModel: ALinearModel[Double] => {
         val ddf = ddfManager.getDDF(dataContainerID)
         ddf.getMLSupporter.getConfusionMatrix(model, threshold)
       }

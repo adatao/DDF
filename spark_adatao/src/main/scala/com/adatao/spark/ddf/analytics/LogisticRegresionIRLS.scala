@@ -9,6 +9,7 @@ import org.jblas.MatrixFunctions
 import org.jblas.Solve
 import java.util.HashMap
 import io.ddf.exception.DDFException
+import scala.collection.mutable.ListBuffer
 
 class LogisticRegresionIRLS {
 
@@ -197,8 +198,8 @@ object LogisticRegressionIRLS {
   }
 }
 
-class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val nullDeviance: Double, val numSamples: Long,
-                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends Serializable {
+class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long,
+                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
   override def toString(): String = {
     val weightString = s"weights: [${weights.data.mkString(", ")}]"
     val devianceString = s"deviance: ${deviance}"
@@ -207,19 +208,33 @@ class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val
     this.getClass.getName + "\n" + weightString + "\n" + devianceString + "\n" + nullDevString + "\n" + stdErrsString
   }
 
-  def predict(point: Array[Double]): java.lang.Double = {
+  override def predict(features: Vector): Double = {
+    ALossFunction.sigmoid(this.linearPredictor(Vector(features.data)))
+  }
+
+  override def predict(point: Array[Double]): Double = {
     val features = Vector(Array[Double](1.0) ++ point)
     if(features.size != weights.size) {
       throw new DDFException(s"error predicting, features.size = ${features.size}, weights.size = ${weights.size}")
     }
-
-    val linearPredictor = weights.dot(features)
-    ALossFunction.sigmoid(linearPredictor)
+    this.predict(features)
   }
 
-  var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
+  override def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
+    val weights = this.weights
+    xyRDD.flatMap {
+      xy => {
+        val x = xy.x
+        val y = xy.y
+        val iterator = new ListBuffer[Array[Double]]
+        var i = 0
+        while (i < y.length) {
+          iterator += Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
+          i += 1
+        }
+        iterator
+      }
+    }
   }
 }
 

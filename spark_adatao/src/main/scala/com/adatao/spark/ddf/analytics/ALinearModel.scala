@@ -52,7 +52,6 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
       xy => {
         val x = xy.x
         val y = xy.y
-        LOG.info(">>> y.length = " + y.length)
         val iterator = new ListBuffer[Array[Double]]
         var i = 0
         while (i < y.length) {
