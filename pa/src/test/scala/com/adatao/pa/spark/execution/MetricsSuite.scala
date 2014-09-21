@@ -70,12 +70,13 @@ class MetricsSuite extends ABigRClientTest {
   test("Test ROC metric function") {
 
     createTableAdmission
-    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
+    val df = this.runSQL2RDDCmd("select * from admission", true)
     val dataContainerId = df.dataContainerID
     val lambda = 0.0
 
     // fake the training with learningRate = 0.0
-    val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+//    val trainer = new LogisticRegression(dataContainerId, Array(2,3), 0, 1, 0.1, lambda, Array(37.285, -5.344, 1))
+    val trainer = new LogisticRegression(dataContainerId, Array(2, 3), 0, 1, 0.0, lambda, Array(-3.0, 1.5, -0.9))
     val r = bigRClient.execute[IModel](trainer)
     assert(r.isSuccess)
     println(">>>>>>model=" + r.result)
@@ -96,11 +97,13 @@ class MetricsSuite extends ABigRClientTest {
     val ret = bigRClient.execute[RocMetric](executor)
 
     val metric = ret.result
+    
+    println(">>>>>>>>>> metric ")
     assert(ret.isSuccess)
     //this result is idential with confusion matrix unit test
-    assert(truncate(metric.pred(5)(1), 4) === 0.6220)
-    assert(truncate(metric.pred(5)(2), 4) === 0.3727)
-    assert(truncate(metric.auc, 4) === 0.6743)
+    assert(truncate(ret.result.pred(5)(1), 4) === 0.6220)
+    assert(truncate(ret.result.pred(5)(2), 4) === 0.3736)
+    assert(truncate(metric.auc, 4) === 0.6745)
   }
 
   test("R2 metric is correct") {
@@ -153,7 +156,8 @@ class MetricsSuite extends ABigRClientTest {
 
   test("smoke test residuals metric") {
     createTableMtcars
-    val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
+//    val df = this.runSQL2RDDCmd("select * from mtcars", true)
+    val df = this.runSQL2RDDCmd("select v3, v4, v1 from admission", true)
     val dataContainerId = df.dataContainerID
     val lambda = 0.0
 
@@ -177,11 +181,11 @@ class MetricsSuite extends ABigRClientTest {
     columnsSummary.put("min", hmin)
     columnsSummary.put("max", hmax)
 
-    val trainer = new LogisticRegressionCRS(dataContainerId, Array(0), 1, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344))
-    val r = bigRClient.execute[LogisticRegressionModel](trainer)
+    val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(37.285, -5.344, 1))
+    val r = bigRClient.execute[IModel](trainer)
     assert(r.isSuccess)
 
-    val modelID = r.persistenceID
+    val modelID = r.result.getName
 
     val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
     val residuals = bigRClient.execute[DataFrameResult](scorer)
@@ -190,7 +194,7 @@ class MetricsSuite extends ABigRClientTest {
     println(">>>>>residuals =" + residuals.result)
 
   }
-  //
+
   test("can get linear predictions") {
     createTableMtcars
     val df = this.runSQL2RDDCmd("select wt, mpg from mtcars", true)
@@ -283,59 +287,11 @@ class MetricsSuite extends ABigRClientTest {
 
     val cm = ret.result
 
-    //		println(">>>>>>>>>>>>>>cm=" + cm.truePos + "\t" + cm.falsePos + "\t" + cm.trueNeg + "\t" + cm.falseNeg)
-
     // TODO: need to double check these results by hand
     assert(cm.truePos === 79)
     assert(cm.falsePos === 102)
     assert(cm.falseNeg === 48)
     assert(cm.trueNeg === 171)
     assert(400 === cm.truePos + cm.falsePos + cm.falseNeg + cm.trueNeg) // total count
-  }
-
-  test("smoke test for R2 metric - R2 metric works") {
-    createTableMtcars
-    val df = this.runSQL2RDDCmd("select drat, vs from mtcars", true)
-    val dataContainerId = df.dataContainerID
-    val lambda = 0.0
-
-    //minimum threshold range for sparse columns
-    System.setProperty("sparse.max.range", "10000")
-    var cmd2 = new FiveNumSummary(dataContainerId)
-    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-    assert(summary.size > 0)
-
-    //construct columnSummary parameter
-    var columnsSummary = new HashMap[String, Array[Double]]
-    var hmin = new Array[Double](summary.size)
-    var hmax = new Array[Double](summary.size)
-    //convert columnsSummary to HashMap
-    var i = 0
-    while (i < summary.size) {
-      hmin(i) = summary(i).min
-      hmax(i) = summary(i).max
-      i += 1
-    }
-    columnsSummary.put("min", hmin)
-    columnsSummary.put("max", hmax)
-
-    // lm(mpg ~ wt, data=mtcars)
-    // 37.285       -5.344
-    // fake the training with learningRate = 0.0
-    val trainer = new LogisticRegressionCRS(dataContainerId, Array(0), 1, columnsSummary, 1, 0.0, lambda, Array(37.285, -5.344))
-    val r = bigRClient.execute[IModel](trainer)
-    assert(r.isSuccess)
-
-    val modelID = r.result.getName
-    assertTrue(modelID != null)
-
-    val scorer = new R2Score(dataContainerId, modelID)
-    val r2 = bigRClient.execute[Double](scorer)
-    assert(r2.isSuccess)
-    println(">>>>>result =" + r2.result)
-    assertEquals(0.7528, r2.result, 0.0001)
-
-    // summary(lm(mpg ~ wt, data=mtcars))
-    // Multiple R-squared:  0.7528
   }
 }

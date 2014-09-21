@@ -11,7 +11,7 @@ import io.ddf.ml.IModel
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.Utils._
-import com.adatao.spark.ddf.etl.TransformationHandler
+import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.content.Schema
 import io.spark.ddf.SparkDDF
 
@@ -33,9 +33,9 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
     val (xs, y) = trainedColumns.splitAt(trainedColumns.size - 1)
 
     val predictionDDF = model.getRawModel match {
-      case linearModel: ALinearModel[_] => {
+      case linearModel: ALinearModel[Double] => {
         LOG.info(">>> ALinearModel, running dummyCoding transformation")
-        val dummyCodingDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xs, y(0))
+        val dummyCodingDDF = ddf.getTransformationHandler.dummyCoding(xs, y(0))
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
@@ -43,6 +43,8 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
+        
+        
         projectedDDF.getMLSupporter().applyModel(model, true, false)
       }
     }

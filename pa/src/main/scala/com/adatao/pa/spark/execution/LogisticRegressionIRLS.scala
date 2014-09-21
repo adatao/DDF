@@ -54,7 +54,7 @@ import com.adatao.spark.ddf.etl.TransformationHandler
  * http://doc.madlib.net/v0.6/group__grp__logreg.html
  * http://www.win-vector.com/blog/2011/09/the-simpler-derivation-of-logistic-regression/
  */
-class LogisticRegressionIRLS(
+class LogisticRegressionIRLS (
   dataContainerID: String,
   xCols: Array[Int],
   yCol: Int,
