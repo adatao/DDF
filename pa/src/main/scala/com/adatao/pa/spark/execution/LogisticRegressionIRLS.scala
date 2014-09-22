@@ -65,7 +65,7 @@ class LogisticRegressionIRLS (
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
       if (ddf.getSchema().getDummyCoding() != null)
-        model.setMapping(ddf.getSchema().getDummyCoding().getMapping())
+        model.setDummy(ddf.getSchema().getDummyCoding())
 
       regressionModel
     } catch {

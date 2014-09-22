@@ -54,7 +54,7 @@ class LinearRegression(
     // converts DDF model to old PA model
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LinearRegressionModel]
     if (ddf.getSchema().getDummyCoding() != null)
-      rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
+      rawModel.setDummy(ddf.getSchema().getDummyCoding())
     model
   }
 }

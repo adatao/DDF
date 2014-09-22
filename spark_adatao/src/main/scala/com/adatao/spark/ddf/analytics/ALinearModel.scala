@@ -22,6 +22,8 @@ import io.ddf.types._
 import scala.Array.canBuildFrom
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable.ListBuffer
+import io.ddf.content.Schema.DummyCoding
+
 /**
  * Constructor parameters are accessible via 'val' so they would show up on (JSON) serialization
  */
@@ -67,8 +69,13 @@ abstract class ALinearModel[OutputType](val weights: Vector, val numSamples: Lon
     weights.dot(features)
   }
 
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
+  var dc: DummyCoding = null
+
+  def setDummy(_dc: DummyCoding) {
+    dc = _dc
+  }
+  def getDummy(): DummyCoding = {
+    return dc;
   }
 }
 

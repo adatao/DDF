@@ -63,7 +63,7 @@ class LogisticRegressionCRS(
 
       val rawModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
       if (ddf.getSchema().getDummyCoding() != null)
-        rawModel.setMapping(ddf.getSchema().getDummyCoding().getMapping())
+        rawModel.setDummy(ddf.getSchema().getDummyCoding())
       regressionModel
     } catch {
       case e: DDFException ⇒ e.printStackTrace(); throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage, e.getCause);
