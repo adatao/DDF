@@ -1,8 +1,10 @@
 package com.adatao.pa.thrift
 
 import java.util.UUID
+
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.SynchronizedMap
+
 import com.adatao.ML.TCanLog
 import com.adatao.pa.spark.SparkThread
 
@@ -112,7 +114,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	}
 
 	def hasClient(clientID: String): Boolean = {
-		if (clientID == null) false else cidThreadMap.contains(clientID)
+		if (clientID == null) cidThreadMap.contains(SessionManager.ANONYMOUS) else cidThreadMap.contains(clientID)
 	}
 	
 	def hasSession(sessionID: String): Boolean = {
@@ -121,11 +123,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 		}
 		sidThreadMap.contains(sessionID);
 	}
-	
-	def getClientID(sessionID: String): String = {
-	    val session = getSession(sessionID)
-	    if (session == null) SessionManager.ANONYMOUS else session.clientID
-	}
+
 }
 
 object SessionManager {

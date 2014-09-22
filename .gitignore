@@ -74,3 +74,4 @@ inst/java/
 pa/rlibs/Rserve/*
 pa/conf/local/hive-site.xml
 spark/conf/local/hive-site.xml
+/bin

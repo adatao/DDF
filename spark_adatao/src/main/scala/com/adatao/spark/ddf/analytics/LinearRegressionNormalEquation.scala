@@ -213,27 +213,10 @@ object LinearRegressionNormalEquation {
 
 }
 
-class NQLinearRegressionModel(val weights: Vector, val rss: Double, val sst: Double, val stdErrs: Vector,
-  val numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends Serializable {
+class NQLinearRegressionModel(weights: Vector, val rss: Double, val sst: Double, val stdErrs: Vector,
+  numSamples: Long, val numFeatures: Int, val vif: Array[Double], val messages: Array[String]) extends AContinuousIterativeLinearModel(weights, null, numSamples) {
 
-  def predictVector(features: Vector): Double = {
-    if(features.size != weights.size) {
-      throw new DDFException(s"Error predicting, feature.size= ${features.size}, weight.size= ${weights.size}", null)
-    }
-    weights.dot(features)
-  }
-
-  def predict(features: Array[Double]): Double = {
-    this.predictVector(Vector(Array[Double](1) ++ features))
-  }
-
-  var dc: DummyCoding = null
-  def setDummy(_dc: DummyCoding) {
-    dc = _dc
-  }
-  def getDummy(): DummyCoding = {
-    return dc;
-  }
+  override def predict(features: Vector): Double = this.linearPredictor(features)
 
   override def toString(): String = {
     val weightString = s"weights: [${weights.data.mkString(", ")}}]"

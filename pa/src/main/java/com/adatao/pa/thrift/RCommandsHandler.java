@@ -17,15 +17,8 @@
 package com.adatao.pa.thrift;
 
 import java.io.FileNotFoundException;
-import java.security.PrivilegedExceptionAction;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
-import org.apache.hadoop.security.token.Token;
-import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +33,6 @@ import com.adatao.pa.thrift.generated.RCommands;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
-import org.apache.spark.deploy.SparkHadoopUtil;
-import org.apache.spark.SparkConf;
 
 public class RCommandsHandler implements RCommands.Iface {
 	public static Logger LOG = LoggerFactory.getLogger(RCommandsHandler.class);
@@ -59,39 +49,22 @@ public class RCommandsHandler implements RCommands.Iface {
 		this.sessionManager = sessionManager;
 	}
 
-	public JsonResult sendJsonCommand(final JsonCommand cmd) throws TException, JsonSyntaxException, ClassNotFoundException {
+	public JsonResult sendJsonCommand(JsonCommand cmd) throws TException, JsonSyntaxException, ClassNotFoundException {
 		if (!sessionManager.hasSession(cmd.getSid())) {
 			return new JsonResult().setResult(new FailResult().setMessage("Session closed. Please reconnect!"));
 		}
 
-		final SparkThread sparkThread = (SparkThread) sessionManager.getSessionThread(cmd.getSid());
-		String clientID = sessionManager.getClientID(cmd.getSid());
-		String resultStr;
-		
+		SparkThread sparkThread = (SparkThread) sessionManager.getSessionThread(cmd.getSid());
+		JsonResult res;
 		try {
-			if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
-				Configuration conf = SparkHadoopUtil.get().newConfiguration();				
-				UserGroupInformation.setConfiguration(conf);
-				
-				//run as clientID 
-				LOG.info("Execute command as: "+clientID);
-				UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(clientID, 
-						System.getProperty("pa.keytab.file"));
-				resultStr = ugi.doAs(new PrivilegedExceptionAction<String>() {
-					public String run() throws Exception {
-						return sparkThread.processJsonCommand1(cmd).toJson();
-					}
-				});
-			} else {
-				resultStr = sparkThread.processJsonCommand1(cmd).toJson();
-			}
-			LOG.info("Returning result: " + resultStr);
-			return new JsonResult().setResult(resultStr);
+		        res = new JsonResult().setResult(sparkThread.processJsonCommand1(cmd).toJson());
 		} catch (Exception e) {
 			LOG.error("Exception: ", e);
 			Exception processedException = ExecutionResultUtils.processException(e);
 			return new JsonResult().setResult(new FailResult().setMessage(processedException.getMessage()));			
 		}
+		LOG.info("Returning result: " + res);
+		return res;
 	}
 
 	public JsonResult disconnect(JsonCommand cmd) throws TException, FileNotFoundException {
@@ -110,34 +83,17 @@ public class RCommandsHandler implements RCommands.Iface {
 					.excludeFieldsWithoutExposeAnnotation()
 					.create();
 				
-				final Connect connect;
+				Connect connect;
 				if (cmd.params == null || cmd.params.equals("")) {
 					connect = new Connect().setSessionManager(sessionManager);
 				} else {
 					connect = gson.fromJson(cmd.params, Connect.class).setSessionManager(sessionManager);
 				}
 				
-				JsonResult res; 
-						
 				connectLock.lock();
-				if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
-					Configuration conf = SparkHadoopUtil.get().newConfiguration();				
-					UserGroupInformation.setConfiguration(conf);
-					
-					//since connect will start the containers on slaves and does not access any data,
-					//we run it as pa.user
-					UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.user"), 
-							System.getProperty("pa.keytab.file"));
-						
-					res = ugi.doAs(new PrivilegedExceptionAction<JsonResult>() {
-						public JsonResult run() throws Exception {
-							return connect.run();
-						}
-					});
-				} else {
-					res = connect.run();
-				}
-				connectLock.unlock();				
+				JsonResult res = connect.run();
+				connectLock.unlock();
+				
 				LOG.info(res.toString());
 				return res;
 			} catch (Exception e) {

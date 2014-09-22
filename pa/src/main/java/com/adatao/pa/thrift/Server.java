@@ -16,15 +16,8 @@
 
 package com.adatao.pa.thrift;
 
-import java.io.IOException;
-import java.security.PrivilegedExceptionAction;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
-import org.apache.hadoop.security.token.Token;
-import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
@@ -32,9 +25,11 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adatao.pa.thrift.generated.RCommands;
+import com.adatao.pa.thrift.RCommandsHandler;
+import com.adatao.pa.thrift.Server;
+import com.adatao.pa.thrift.SessionManager;
 
-import org.apache.spark.deploy.SparkHadoopUtil;
+import com.adatao.pa.thrift.generated.RCommands;
 
 public class Server {
 	int port;
@@ -88,29 +83,12 @@ public class Server {
 		LOG.info("Stopped thrift server on port " + port);
 	}
 
-	public static void main(String args[]) throws IOException, InterruptedException {
+	public static void main(String args[]) {
 		int port = Integer.parseInt(System.getProperty("bigr.server.thriftPort", "7911"));
 		if (args.length > 0) {
 			port = Integer.parseInt(args[0]);
 		}
-		final Server server = new Server(port);
-		
-		if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
-			Configuration conf = SparkHadoopUtil.get().newConfiguration();				
-			UserGroupInformation.setConfiguration(conf);
-			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.user"), 
-					System.getProperty("pa.keytab.file"));
-			
-			ugi.doAs(new PrivilegedExceptionAction<Void>() {
-				public Void run() throws Exception {
-					server.start();
-					return (null);
-				}
-			});
-		} else {
-			server.start();
-		}
-		
-		
+		Server server = new Server(port);
+		server.start();
 	}
 }
