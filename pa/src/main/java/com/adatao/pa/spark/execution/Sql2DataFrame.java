@@ -48,12 +48,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
   static public class Sql2DataFrameResult extends SuccessResult {
-    // public String dataContainerID;
-    // public MetaInfo[] metaInfo;
-    // public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
-    // this.dataContainerID = dataContainerID;
-    // this.metaInfo = df.getMetaInfo();
-    // }
+    
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 

@@ -37,10 +37,11 @@ class ALS(
     }
 
     var trainedData: DDF = null
+    val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
     if (xCols.length == 3 || xCols == null) {
       trainedData = ddf
     } else {
-      val trainedColumns = xCols.map(idx => ddf.getColumnName(idx))
+      
       trainedData = ddf.VIEWS.project(trainedColumns: _*)
     }
     
@@ -58,6 +59,7 @@ class ALS(
     val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures, rmse)
 
     val model = new Model(alsModel)
+    model.setTrainedColumns(trainedColumns)
     ddfManager.addModel(model);
     return model;
   }
