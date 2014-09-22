@@ -64,8 +64,8 @@ class LogisticRegressionIRLS (
       val regressionModel = transformedDDF.ML.train("logisticRegressionIRLS", numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
-      if (ddf.getSchema().getDummyCoding() != null)
-        model.setMapping(ddf.getSchema().getDummyCoding().getMapping())
+      if (transformedDDF.getSchema().getDummyCoding() != null)
+        model.setDummy(transformedDDF.getSchema().getDummyCoding())
 
       regressionModel
     } catch {

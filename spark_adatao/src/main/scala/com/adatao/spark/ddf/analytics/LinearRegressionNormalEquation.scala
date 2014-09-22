@@ -218,14 +218,6 @@ class NQLinearRegressionModel(weights: Vector, val rss: Double, val sst: Double,
 
   override def predict(features: Vector): Double = this.linearPredictor(features)
 
-  var dc: DummyCoding = null
-  def setDummy(_dc: DummyCoding) {
-    dc = _dc
-  }
-  def getDummy(): DummyCoding = {
-    return dc;
-  }
-
   override def toString(): String = {
     val weightString = s"weights: [${weights.data.mkString(", ")}}]"
     val rssString = s"rss: ${rss}"
