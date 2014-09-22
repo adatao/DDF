@@ -48,7 +48,6 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
       }
       case _ => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
         s"Don't know how to get R2Score for ${model.getRawModel.getClass.toString}}", null)
-
     }
   }
 }
