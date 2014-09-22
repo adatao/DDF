@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.ML.AAlgorithmTest
-import com.adatao.ML.spark.clustering.KMeansModel
+import org.apache.spark.mllib.clustering.KMeansModel;
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.GetFactor.GetFactorResult
@@ -46,7 +46,5 @@ class KmeansSuite extends ABigRClientTest {
     assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(-8.7, 6.75).deep))
     assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.5, 6.071428571428571).deep))
     assert(model.clusterCenters.exists(centers => centers.toArray.deep == Array(7.333333333333333, -8.0).deep))
-    
-    assert(model.wcss > 0)
   }
 }

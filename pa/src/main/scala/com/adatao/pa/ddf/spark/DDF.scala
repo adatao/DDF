@@ -164,7 +164,7 @@ class DDF(var name: String, var columns: Array[Column]) {
 
   def applyModel(model: IModel): DDF = {
     val cmd = new YtrueYpred(this.name, model.getName)
-    val result = client.execute[DataFrameResult](cmd).result
+    val result = client.execute[YtrueYpredResult](cmd).result
     new DDF(result.dataContainerID, result.metaInfo)
   }
 

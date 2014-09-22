@@ -22,7 +22,6 @@ import io.ddf.DDFManager;
 import io.ddf.exception.DDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.adatao.pa.AdataoException;
 import com.adatao.pa.spark.SparkThread;
 import com.adatao.pa.spark.types.ExecutorResult;
 import com.adatao.pa.spark.types.SuccessResult;
@@ -82,7 +81,7 @@ public class VectorHistogram extends CExecutor {
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
+  public ExecutorResult run(SparkThread sparkThread) {
 
     DDFManager ddfManager = sparkThread.getDDFManager();
 
@@ -94,7 +93,9 @@ public class VectorHistogram extends CExecutor {
 
       return new VectorHistogramResult().setDataContainerID(dataContainerID).setHistogramBins(bins);
     } catch (DDFException e) {
-      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
     }
   }
 }

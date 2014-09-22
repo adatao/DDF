@@ -69,7 +69,11 @@ class ROC(dataContainerID: String, alpha_length: Int) extends AExecutor[RocMetri
 		val ddfManager = ctx.sparkThread.getDDFManager()
     LOG.info(">>> dataContainerID = " + dataContainerID)
 		val predictionDDF: DDF = ddfManager.getDDF(dataContainerID);
-
+    if(predictionDDF.getMLMetricsSupporter == null) {
+      LOG.info(">>>>>> MLMetricsSupporter is null")
+    } else {
+      LOG.info(">>>>>> MLMetricsSupporter is not null")
+    }
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
 }

@@ -23,7 +23,6 @@ import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.FiveNumSummary.{ASummary}
 import com.adatao.pa.spark.types.ExecutionResult
-import com.adatao.pa.spark.execution.AdvanceSummary.AdvanceSummaryResult
 
 /**
  * Created with IntelliJ IDEA.
@@ -74,25 +73,4 @@ class FiveNumSuite extends ABigRClientTest {
 		expectResult(res(10).min )( 1.0)
 		expectResult(res(10).max )( 8.0)
 	}
-	
-	test("test AdvanceSummary") {
-    this.runSQLCmd("set shark.test.data.path=resources")
-    this.runSQLCmd("drop table if exists airline")
-    this.runSQLCmd("create table airline (Year int,Month int,DayofMonth int, DayOfWeek int,DepTime int, CRSDepTime int,ArrTime int, CRSArrTime int,UniqueCarrier string, FlightNum int, TailNum string, ActualElapsedTime int, CRSElapsedTime int, AirTime int, ArrDelay int, DepDelay int, Origin string, Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, CancellationCode string, Diverted string, CarrierDelay int, WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
-    this.runSQLCmd("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/airline.csv' " +
-      "INTO TABLE mtcars")
-    val df = this.runSQL2RDDCmd("SELECT * FROM airline", true)
-    assert(df.isSuccess)
-    val dcID = df.dataContainerID
-    LOG.info("Got dataConainterID = " + dcID)
-
-    // var cmd1 = new GetFactor().setDataContainerID(dcID).setColumnName("carb")
-    // bigRClient.execute[GetFactor.GetFactorResult](cmd1)
-
-    var cmd2 = new AdvanceSummary(dcID)
-    val res = bigRClient.execute[AdvanceSummaryResult](cmd2).result
-    
-    println(">>>> advanceSummary return:" + res.toString())
-    
-  }
 }

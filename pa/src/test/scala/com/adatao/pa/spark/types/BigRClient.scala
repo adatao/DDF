@@ -258,13 +258,7 @@ object BigRClientTestUtils {
 		bigRClient.execute[LoadTable.LoadTableResult](
 		  new LoadTable().setFileURL(fileUrl).setHasHeader(hasHeader).setSeparator(fieldSeparator).setSampleSize(sampleSize)).result.getDataContainerID
 	}
-  def createTableSample(bigRClient: BigRClient) = {
-    assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
-    assert(runSQLCmd(bigRClient, "drop table if exists stable").isSuccess);
-    assert(runSQLCmd(bigRClient, "CREATE TABLE stable (v1 double, v2 string, v3 int, v4 string, v5 string, v6 string ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
-    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/table_noheader_noNA.csv' INTO TABLE stable").isSuccess);
-  }
-	
+
 	def runSQLCmd(bigRClient: BigRClient, cmdStr: String): Sql2ListStringResult = {
 		val sql: Sql2ListString = new Sql2ListString().setSqlCmd(cmdStr)
 		bigRClient.execute[Sql2ListStringResult](sql).result

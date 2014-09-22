@@ -9,7 +9,6 @@ import org.jblas.MatrixFunctions
 import org.jblas.Solve
 import java.util.HashMap
 import io.ddf.exception.DDFException
-import scala.collection.mutable.ListBuffer
 
 class LogisticRegresionIRLS {
 
@@ -171,14 +170,13 @@ object LogisticRegressionIRLS {
     
     val numFeatures: Int = XYData.map(xy => xy._1.getColumns()).first()
     if (!nullModel) {
-      XYData.cache()
       val ret = doIRLS(XYData.map { row ⇒ (row._1, row._2) }, initialWeights, numFeatures, eps, ridgeLambda, numIters)
 
       val invXtWX = Solve.solvePositive(ret._2, DoubleMatrix.eye(numFeatures))
 
       // standard errors
       val stderrs = org.jblas.MatrixFunctions.sqrt(invXtWX.diag())
-      XYData.unpersist()
+
       return new IRLSLogisticRegressionModel(ret._1, ret._3(ret._4), 0, ret._5, numFeatures - 1, ret._4, Vector(stderrs))
     } else {
       // This is when user want the null deviance only
@@ -188,7 +186,6 @@ object LogisticRegressionIRLS {
       //println(p._1.getRows())
       //println(p._2.getRows())
       val retNull = doIRLS(nullPartition, null, 1, eps, ridgeLambda, numIters)
-      nullPartition.unpersist()
       return new IRLSLogisticRegressionModel(retNull._1, retNull._3(retNull._4), retNull._3(retNull._4), retNull._5, 1, retNull._4, null)
     }
   }
@@ -200,8 +197,8 @@ object LogisticRegressionIRLS {
   }
 }
 
-class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nullDeviance: Double, numSamples: Long,
-                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends ALinearModel[Double](weights, numSamples) {
+class IRLSLogisticRegressionModel(val weights: Vector, val deviance: Double, val nullDeviance: Double, val numSamples: Long,
+                                  val numFeatures: Long, val numIters: Int, val stderrs: Vector) extends Serializable {
   override def toString(): String = {
     val weightString = s"weights: [${weights.data.mkString(", ")}]"
     val devianceString = s"deviance: ${deviance}"
@@ -210,33 +207,19 @@ class IRLSLogisticRegressionModel(weights: Vector, val deviance: Double, val nul
     this.getClass.getName + "\n" + weightString + "\n" + devianceString + "\n" + nullDevString + "\n" + stdErrsString
   }
 
-  override def predict(features: Vector): Double = {
-    ALossFunction.sigmoid(this.linearPredictor(Vector(features.data)))
-  }
-
-  override def predict(point: Array[Double]): Double = {
+  def predict(point: Array[Double]): java.lang.Double = {
     val features = Vector(Array[Double](1.0) ++ point)
     if(features.size != weights.size) {
       throw new DDFException(s"error predicting, features.size = ${features.size}, weights.size = ${weights.size}")
     }
-    this.predict(features)
+
+    val linearPredictor = weights.dot(features)
+    ALossFunction.sigmoid(linearPredictor)
   }
 
-  override def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
-    val weights = this.weights
-    xyRDD.flatMap {
-      xy => {
-        val x = xy.x
-        val y = xy.y
-        val iterator = new ListBuffer[Array[Double]]
-        var i = 0
-        while (i < y.length) {
-          iterator += Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
-          i += 1
-        }
-        iterator
-      }
-    }
+  var dummyColumnMapping = new HashMap[java.lang.Integer, HashMap[String, java.lang.Double]] () 
+  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
+    dummyColumnMapping = _mapping
   }
 }
 

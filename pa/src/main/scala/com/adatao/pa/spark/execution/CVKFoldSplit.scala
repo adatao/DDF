@@ -27,7 +27,8 @@ import com.adatao.spark.ddf.analytics.Utils
 class CVKFoldSplit(val dataContainerID: String, val numSplits: Int, val seed: Long) extends AExecutor[Array[Array[String]]] {
   override def runImpl(ctx: ExecutionContext): Array[Array[String]] = {
 
-    val ddf = ctx.sparkThread.getDDFManager().getDDF(dataContainerID)
+    val ddfId = Utils.dcID2DDFID(dataContainerID)
+    val ddf = ctx.sparkThread.getDDFManager().getDDF(ddfId)
     val cvSets = ddf.ML.CVKFold(numSplits, seed)
     val result = cvSets.map {
       set =>

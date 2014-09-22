@@ -13,10 +13,8 @@ import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
  */
 class SubsetSuite extends ABigRClientTest{
 	test("test DataFrame") {
-    createTableSample
-    val df = this.runSQL2RDDCmd("select * from stable", true)
-    assert(df.isSuccess)
-    val dcID = df.dataContainerID
+		val dcID= this.loadFile("resources/table_noheader_noNA.csv", false, ",")
+
 		val jsCreateVectors= String.format("{filter: {type: Operator, " + "name: lt, " +
 				"operands: [{type: Column, index: 0}," +
 				"{type: DoubleVal, value: 7000.0}]}," +
