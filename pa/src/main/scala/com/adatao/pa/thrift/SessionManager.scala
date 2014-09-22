@@ -4,7 +4,6 @@ import java.util.UUID
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.SynchronizedMap
 import com.adatao.ML.TCanLog
-import com.adatao.pa.thrift.types.ASessionThread
 import com.adatao.pa.spark.SparkThread
 
 class Session(val sessionThread: SparkThread, val sessionID: String, val clientID: String, val thriftPort: Int, 
