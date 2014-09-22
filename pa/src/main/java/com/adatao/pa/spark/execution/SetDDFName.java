@@ -62,10 +62,7 @@ public class SetDDFName extends CExecutor {
       return new SetDDFNameResult(ddf.getUri());
 
     } catch (Exception e) {
-      // I cannot catch shark.api.QueryExecutionException directly
-      // most probably because of the problem explained in this
-      // http://stackoverflow.com/questions/4317643/java-exceptions-exception-myexception-is-never-thrown-in-body-of-corresponding
-      return null;
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 

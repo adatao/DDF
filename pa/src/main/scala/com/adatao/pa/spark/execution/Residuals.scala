@@ -5,7 +5,7 @@ import org.apache.spark.api.java.JavaRDD
 import io.ddf.DDF
 import io.ddf.ml.IModel
 import io.spark.ddf.SparkDDF
-
+import com.adatao.pa.spark.Utils._
 /**
  * Created with IntelliJ IDEA.
  * User: daoduchuan
@@ -14,26 +14,17 @@ import io.spark.ddf.SparkDDF
  * To change this template use File | Settings | File Templates.
  */
 class Residuals(dataContainerID: String, val modelID: String, val xCols: Array[Int], val yCol: Int)
-  extends AExecutor[ResidualsResult] {
-  override def runImpl(ctx: ExecutionContext): ResidualsResult = {
+  extends AExecutor[DataFrameResult] {
+  override def runImpl(ctx: ExecutionContext): DataFrameResult = {
 
-    val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = dataContainerID
-    val ddf: DDF = ddfManager.getDDF(ddfId);
-    // first, compute RDD[(ytrue, ypred)]
+    val ddfManager = ctx.sparkThread.getDDFManager()
 
-    val mymodel: IModel = ddfManager.getModel(modelID)
-    val predictionDDF = ddf.getMLSupporter().applyModel(mymodel, true, true)
+    val yTrueYpred = new YtrueYpred(dataContainerID, modelID).runImpl(ctx)
 
-    val residualsDDF = ddf.getMLMetricsSupporter().residuals(predictionDDF)
+    val predictionDDF = ddfManager.getDDF(yTrueYpred.dataContainerID)
+    val residualsDDF = predictionDDF.getMLMetricsSupporter().residuals()
     require(residualsDDF != null)
-
-    //return dataframe
-    val metaInfo = Array(new MetaInfo("residual", "java.lang.Double"))
-    val uid = residualsDDF.getName()
-
-    new ResidualsResult(uid, metaInfo)
+    new DataFrameResult(residualsDDF)
   }
 }
 
-class ResidualsResult(val dataContainerID: String, val metaInfo: Array[MetaInfo])

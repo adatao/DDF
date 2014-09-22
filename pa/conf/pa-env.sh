@@ -51,6 +51,7 @@ export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
 export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
+
 export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
@@ -104,7 +105,7 @@ elif [ "X$cluster" == "Xspark" ]; then
         #export SPARK_MASTER= #spark://<host>:<port>
 elif [ "X$cluster" == "Xlocalspark" ]; then
         echo "Running pAnalytics with Spark in local node"
-        export SPARK_MEM=#
+        export SPARK_MEM=512m
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_MASTER=spark://localhost:7070
 fi

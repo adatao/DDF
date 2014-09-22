@@ -103,9 +103,7 @@ public class VectorVariance extends CExecutor { // implements IExecutor, Seriali
       result = ddf.getVectorVariance(columnName);
       return new VectorVarianceResult().setDataContainerID(dataContainerID).setVariance(result[0]).setStddev(result[1]);
     } catch (DDFException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }

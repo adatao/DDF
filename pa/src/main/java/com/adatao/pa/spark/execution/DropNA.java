@@ -44,8 +44,7 @@ public class DropNA implements IExecutor {
       return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
-      LOG.error("Cannot filter out NAs from the DDF", e);
-      return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 

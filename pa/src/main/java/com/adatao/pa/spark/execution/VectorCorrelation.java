@@ -18,68 +18,72 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.List;
+
+import com.adatao.pa.AdataoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.adatao.spark.ddf.analytics.Utils;
+
 import io.ddf.DDF;
 import io.ddf.DDFManager;
 import io.ddf.exception.DDFException;
-import com.adatao.pa.spark.DataManager.DataContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.adatao.pa.spark.SparkThread;
-import com.adatao.pa.spark.execution.VectorCorrelation.VectorCorrelationResult;
-import com.adatao.pa.spark.execution.VectorVariance.VectorVarianceResult;
 import com.adatao.pa.spark.types.ExecutorResult;
-import com.adatao.pa.spark.types.FailResult;
 import com.adatao.pa.spark.types.SuccessResult;
 
 @SuppressWarnings("serial")
 public class VectorCorrelation extends CExecutor {
-  private String xDataContainerID;
-  private String yDataContainerID;
+  private String dataContainerID;
+  private String xColumn;
+  private String yColumn;
   
-  public VectorCorrelation setXDataContainerID(String dataContainerID) {
-    this.xDataContainerID = dataContainerID;
+  public VectorCorrelation setDataContainerID(String dataContainerID) {
+    this.dataContainerID = dataContainerID;
     return this;
   }
   
-  public VectorCorrelation setYDataContainerID(String dataContainerID) {
-    this.yDataContainerID = dataContainerID;
+  public VectorCorrelation setXColumn(String xColumn) {
+    this.xColumn = xColumn;
+    return this;
+  }
+  
+  public VectorCorrelation setYColumn(String yColumn) {
+    this.yColumn = yColumn;
     return this;
   }
 
   public static Logger LOG = LoggerFactory.getLogger(VectorCorrelation.class);
   static public class VectorCorrelationResult extends SuccessResult {
-    Double correlation;
+    public double correlation;
     public VectorCorrelationResult(double correlation) {
       this.correlation = correlation;
     }
-    public Double getCorrelation() {
+    public double getCorrelation() {
       return correlation;
     }
   }
 
 
   @Override
-  public ExecutorResult run(SparkThread sparkThread) {
+  public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     
     DDFManager ddfManager = sparkThread.getDDFManager();
-    String ddfId = Utils.dcID2DDFID(xDataContainerID);
-    String otherddfId = Utils.dcID2DDFID(yDataContainerID);
+//    String ddfId = Utils.dcID2DDFID(dataContainerID);
+//    String otherddfId = Utils.dcID2DDFID(yDataContainerID);
     
-    DDF ddf = ddfManager.getDDF(ddfId);
-    DDF otherddf = ddfManager.getDDF(otherddfId);
+    DDF ddf = ddfManager.getDDF(dataContainerID);
     
-    String xColumn = ddf.getSchema().getColumn(0).getName();
-    String yColumn = otherddf.getSchema().getColumn(0).getName();
+//    String xColumn = ddf.getSchema().getColumn(0).getName();
+//    String yColumn = otherddf.getSchema().getColumn(0).getName();
     
-    Double result;
+    double result;
     try {
       result = ddf.getVectorCor(xColumn, yColumn);
       return new VectorCorrelationResult(result);
     } catch (DDFException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 }

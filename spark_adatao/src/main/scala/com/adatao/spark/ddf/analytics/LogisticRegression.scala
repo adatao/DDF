@@ -21,10 +21,11 @@ import java.util.Arrays
 import org.jblas.DoubleMatrix
 import scala.util.Random
 import org.jblas.MatrixFunctions
-import io.ddf.types.{Matrix, Vector}
+import io.ddf.types.{Vector, TupleMatrixVector, Matrix}
 import java.util.HashMap
 import io.ddf.ml.IModel
 import org.apache.spark.rdd.RDD
+import scala.collection.mutable.ListBuffer
 
 /**
  * Companion object to provide friendly-name access to clients.
@@ -41,9 +42,10 @@ object LogisticRegression {
 		numIters: Int,
 		learningRate: Double,
 		ridgeLambda: Double,
-		initialWeights: Vector,
-		numFeatures: Int): LogisticRegressionModel = {
+		initialWeights: Vector
+		): LogisticRegressionModel = {
 
+	  val numFeatures: Int = XYData._1.getColumns()
 		this.train(new LogisticRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
 	}
 
@@ -85,15 +87,28 @@ object LogisticRegression {
 class LogisticRegressionModel(weights: Vector, trainingLosses: Vector, numSamples: Long) extends AContinuousIterativeLinearModel(weights, trainingLosses, numSamples) {
 
   override def predict(features: Vector): Double = {
-    ALossFunction.sigmoid(this.linearPredictor(Vector(Array[Double](1) ++ features.data)))
+    ALossFunction.sigmoid(this.linearPredictor(Vector(features.data)))
   }
 
   override def predict(features: Array[Double]): Double = {
     this.predict(Vector(features))
   }
 
-  def setMapping(_mapping: HashMap[Integer, HashMap[String, java.lang.Double]]) {
-    dummyColumnMapping = _mapping
+  override def yTrueYPred(xyRDD: RDD[TupleMatrixVector]): RDD[Array[Double]] = {
+    val weights = this.weights
+    xyRDD.flatMap {
+      xy => {
+        val x = xy.x
+        val y = xy.y
+        val iterator = new ListBuffer[Array[Double]]
+        var i = 0
+        while (i < y.length) {
+          iterator += Array(y(i), ALinearModel.logisticPredictor(weights)(Vector(x.getRow(i))))
+          i += 1
+        }
+        iterator
+      }
+    }
   }
 }
 
