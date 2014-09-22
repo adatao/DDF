@@ -1,13 +1,14 @@
 package com.adatao.pa.thrift
 
 import java.util.UUID
+
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.SynchronizedMap
+
 import com.adatao.ML.TCanLog
 import com.adatao.pa.thrift.types.ASessionThread
-import com.adatao.pa.spark.SparkThread
 
-class Session(val sessionThread: SparkThread, val sessionID: String, val clientID: String, val thriftPort: Int, 
+class Session(val sessionThread: ASessionThread, val sessionID: String, val clientID: String, val thriftPort: Int, 
 		val uiPort: Int, val driverPort: Int) {
 	def sessionID_ = sessionID
 	def clientID_ = clientID
@@ -44,7 +45,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	 * @param clientID
 	 * @return
 	 */
-	def addSession(sessionThread: SparkThread, clientID: String): Session = {
+	def addSession(sessionThread: ASessionThread, clientID: String): Session = {
 		val sessionID = UUID.randomUUID().toString();
 		val myClientID = if (clientID == null) SessionManager.ANONYMOUS else clientID
 		
@@ -52,12 +53,12 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 		return addSession(session)
 	}
 	
-	def addSession(sessionThread: SparkThread, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
+	def addSession(sessionThread: ASessionThread, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
 		val sessionID = UUID.randomUUID().toString();
 		return addSession(sessionThread, sessionID, clientID, thriftPort, uiPort, driverPort)
 	}
 	
-	def addSession(sessionThread: SparkThread, sessionID: String, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
+	def addSession(sessionThread: ASessionThread, sessionID: String, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
 		val myClientID = if (clientID == null) SessionManager.ANONYMOUS else clientID
 		val session = new Session(sessionThread, sessionID, myClientID, thriftPort, uiPort, driverPort)
 		return addSession(session)
@@ -76,7 +77,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 		}
 	}
 	
-	def getSessionThread(sessionID: String): SparkThread = {
+	def getSessionThread(sessionID: String): ASessionThread = {
 		sidThreadMap.get(sessionID) match {
 			case Some(s) => s.sessionThread
 			case None => null
@@ -113,7 +114,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	}
 
 	def hasClient(clientID: String): Boolean = {
-		if (clientID == null) false else cidThreadMap.contains(clientID)
+		if (clientID == null) cidThreadMap.contains(SessionManager.ANONYMOUS) else cidThreadMap.contains(clientID)
 	}
 	
 	def hasSession(sessionID: String): Boolean = {
@@ -122,11 +123,7 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 		}
 		sidThreadMap.contains(sessionID);
 	}
-	
-	def getClientID(sessionID: String): String = {
-	    val session = getSession(sessionID)
-	    if (session == null) SessionManager.ANONYMOUS else session.clientID
-	}
+
 }
 
 object SessionManager {
