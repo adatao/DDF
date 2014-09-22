@@ -25,7 +25,6 @@ import org.apache.spark.rdd.RDD
 import java.util.HashMap
 
 /**
- * Entry point for SparkThread executor
  */
 object LinearRegressionGD {
     def train(dataPartition: RDD[TupleMatrixVector],
@@ -34,13 +33,13 @@ object LinearRegressionGD {
         ridgeLambda: Double,
         initialWeights: Array[Double]
         ): LinearRegressionModel = {
-      
+        dataPartition.cache()
         val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
         val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
         var model = LinearRegression.train(
             new LinearRegressionGD.LossFunction(dataPartition.map {row => (row.x, row.y)}, ridgeLambda), numIters, learningRate, weights, numFeatures
         )
-
+        dataPartition.unpersist()
         model
     }
     /**

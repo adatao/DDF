@@ -50,7 +50,9 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=/root/secured-hadoop2/conf/ #/root/hadoop-2.2.0.2.0.6.0-101/conf
+#export HADOOP_CONF_DIR=/root/secured-hadoop2/conf/ #/root/hadoop-2.2.0.2.0.6.0-101/conf
+export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
+
 export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
