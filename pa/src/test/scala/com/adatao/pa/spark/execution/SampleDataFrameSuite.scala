@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.SampleDataFrame._
 import com.adatao.pa.spark.execution.FetchRows._
-
+import scala.collection.JavaConversions._
 class SampleDataFrameSuite extends ABigRClientTest {
 	test("test SampleDataFrame") {
 		
@@ -19,6 +19,9 @@ class SampleDataFrameSuite extends ABigRClientTest {
 		val cmd1 = new SampleDataFrame().setDataContainerID(dcID).setSize(2).setReplace(false).setGetPercent(false)
 		val res1 = bigRClient.execute[SampleDataFrameSizeResult](cmd1)
 		assert(res1.isSuccess == true)
+    res1.result.data.foreach {
+      row => println(">>> row " + row.mkString(", "))
+    }
 
 		assert(res1.result.data.get(0)(0).asInstanceOf[Double] === 13.3)
 		assert(res1.result.data.get(0)(1).asInstanceOf[Double] === 8)

@@ -49,8 +49,8 @@ class LogisticRegression(
       learningRate: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights)
 
     val rawModel = model.getRawModel.asInstanceOf[com.adatao.spark.ddf.analytics.LogisticRegressionModel]
-    if (ddf.getSchema().getDummyCoding() != null)
-      rawModel.setDummy(ddf.getSchema().getDummyCoding())
+    if (transformedDDF.getSchema().getDummyCoding() != null)
+      rawModel.setDummy(transformedDDF.getSchema().getDummyCoding())
     model
   }
 
