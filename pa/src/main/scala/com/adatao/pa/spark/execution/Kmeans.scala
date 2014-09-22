@@ -42,7 +42,8 @@ class Kmeans(
     val mllibKMeansModel = imodel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
     val wcss = mllibKMeansModel.computeCost(ddf.getRepresentationHandler().get(RDD_ARR_DOUBLE.getTypeSpecsString()).asInstanceOf[RDD[Array[Double]]])
     val km = new com.adatao.ML.spark.clustering.KMeansModel(mllibKMeansModel.clusterCenters, wcss)
-    val model = new Model(km)
+    var model = new Model(km)
+    model.setTrainedColumns(trainedColumns)
     ddfManager.addModel(model);
     return model;
   }
