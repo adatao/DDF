@@ -17,33 +17,15 @@
 package com.adatao.pa.spark.execution
 
 import java.lang.String
-
-import com.adatao.spark.ddf.analytics.Utils
-import com.adatao.spark.ddf.analytics.TModel
-import io.ddf.types.Matrix
-import io.ddf.types.Vector
-import org.apache.spark.rdd.RDD
-import com.adatao.spark.ddf.analytics.LogisticRegressionModel
-import com.adatao.spark.ddf.analytics.ALossFunction
-import com.adatao.spark.ddf.analytics.RDDImplicits._
 import java.util.HashMap
-import com.adatao.spark.ddf.analytics.ALinearModel
-import com.adatao.spark.ddf.analytics.ADiscreteIterativeLinearModel
-import com.adatao.spark.ddf.analytics.AContinuousIterativeLinearModel
-import org.jblas.DoubleMatrix
-import org.jblas.Solve
-import scala.collection.mutable.ArrayBuilder
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
-import scala.util.control.Breaks._
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import io.ddf.exception.DDFException
 import io.ddf.DDF
-import io.ddf.types.TupleMatrixVector
-import scala.util.Random
+import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.ml.IModel
 import com.adatao.spark.ddf.etl.TransformationHandler
+import io.ddf.types.TupleMatrixVector
 
 /**
  * NhanVLC
@@ -72,12 +54,11 @@ class LogisticRegressionIRLS (
       eps = 1e-8
 
     val ddfManager = ctx.sparkThread.getDDFManager();
-    val ddfId = Utils.dcID2DDFID(dataContainerID)
-    val ddf: DDF = ddfManager.getDDF(ddfId)
+    val ddf: DDF = ddfManager.getDDF(dataContainerID)
 
     val xColsName = xCols.map { idx => ddf.getColumnName(idx) }
     val yColName = ddf.getColumnName(yCol)
-    val transformedDDF = ddf.getTransformationHandler.asInstanceOf[TransformationHandler].dummyCoding(xColsName, yColName)
+    val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
 
     try {
       val regressionModel = transformedDDF.ML.train("logisticRegressionIRLS", numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)

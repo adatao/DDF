@@ -171,13 +171,14 @@ object LogisticRegressionIRLS {
     
     val numFeatures: Int = XYData.map(xy => xy._1.getColumns()).first()
     if (!nullModel) {
+      XYData.cache()
       val ret = doIRLS(XYData.map { row ⇒ (row._1, row._2) }, initialWeights, numFeatures, eps, ridgeLambda, numIters)
 
       val invXtWX = Solve.solvePositive(ret._2, DoubleMatrix.eye(numFeatures))
 
       // standard errors
       val stderrs = org.jblas.MatrixFunctions.sqrt(invXtWX.diag())
-
+      XYData.unpersist()
       return new IRLSLogisticRegressionModel(ret._1, ret._3(ret._4), 0, ret._5, numFeatures - 1, ret._4, Vector(stderrs))
     } else {
       // This is when user want the null deviance only
@@ -187,6 +188,7 @@ object LogisticRegressionIRLS {
       //println(p._1.getRows())
       //println(p._2.getRows())
       val retNull = doIRLS(nullPartition, null, 1, eps, ridgeLambda, numIters)
+      nullPartition.unpersist()
       return new IRLSLogisticRegressionModel(retNull._1, retNull._3(retNull._4), retNull._3(retNull._4), retNull._5, 1, retNull._4, null)
     }
   }
