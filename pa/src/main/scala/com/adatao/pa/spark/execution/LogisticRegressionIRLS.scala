@@ -61,10 +61,7 @@ class LogisticRegressionIRLS (
     val transformedDDF = ddf.getTransformationHandler.dummyCoding(xColsName, yColName)
 
     try {
-      val rdd = transformedDDF.getRDD(classOf[TupleMatrixVector])
-      rdd.cache()
       val regressionModel = transformedDDF.ML.train("logisticRegressionIRLS", numIters: java.lang.Integer, eps: java.lang.Double, ridgeLambda: java.lang.Double, initialWeights: scala.Array[Double], nullModel: java.lang.Boolean)
-      rdd.unpersist()
       val model: com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel = regressionModel.getRawModel().asInstanceOf[com.adatao.spark.ddf.analytics.IRLSLogisticRegressionModel]
 
       if (ddf.getSchema().getDummyCoding() != null)
