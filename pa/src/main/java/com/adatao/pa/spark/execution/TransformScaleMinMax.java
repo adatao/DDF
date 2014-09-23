@@ -32,8 +32,7 @@ public class TransformScaleMinMax extends CExecutor {
       return new Utils.DataFrameResult(newddf);
 
     } catch (Exception e) {
-      LOG.error("Cannot transform the DDF", e);
-      return null;
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
     }
   }
 

@@ -33,11 +33,11 @@ public class TransformHive extends CExecutor {
       if(newddf == null) {
           throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, "Error transform DDF", null);
       } else {
-          manager.addDDF(newddf);
-          return new Utils.DataFrameResult(newddf);
+        manager.addDDF(newddf);
+        return new Utils.DataFrameResult(newddf);
       }
     } catch (Exception e) {
-      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,"Cannot transform the DDF", e);
+      throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,"Error transform DDF", e);
     }
   }
 

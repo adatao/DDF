@@ -95,8 +95,7 @@ public class VectorMean  extends CExecutor { // implements IExecutor, Serializab
         return new VectorMeanResult().setDataContainerID(dataContainerID).setMean(mean);
       } catch (DDFException e) {
         // TODO Auto-generated catch block
-        e.printStackTrace();
-        return null;
+        throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL, e.getMessage(), e);
       }
       
   }

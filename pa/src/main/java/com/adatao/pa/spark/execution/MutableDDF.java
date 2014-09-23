@@ -28,7 +28,8 @@ public class MutableDDF extends CExecutor {
     ddf.setMutable(isMutable);
 
     if (ddf == null) {
-      LOG.error("Cannot find the DDF " + dataContainerID);
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT,
+              String.format("DDF %s not found", dataContainerID), null);
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }

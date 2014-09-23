@@ -48,12 +48,7 @@ public class Sql2DataFrame extends CExecutor {
 
 
   static public class Sql2DataFrameResult extends SuccessResult {
-    // public String dataContainerID;
-    // public MetaInfo[] metaInfo;
-    // public Sql2DataFrameResult(String dataContainerID, SharkDataFrame df) {
-    // this.dataContainerID = dataContainerID;
-    // this.metaInfo = df.getMetaInfo();
-    // }
+    
     public String dataContainerID;
     public MetaInfo[] metaInfo;
 
@@ -80,14 +75,8 @@ public class Sql2DataFrame extends CExecutor {
       return new FailResult().setMessage("Sql command string is empty");
     }
 
-    // SharkDataFrame df = new SharkDataFrame();
-
     try {
-      // JavaSharkContext sc = (JavaSharkContext) sparkThread.getSparkContext();
-      // df.loadTableFromQuery(sc, sqlCmd, cache);
 
-      // DataManager dm = sparkThread.getDataManager();
-      // String dataContainerID = dm.add(df);
       DDFManager ddfManager = sparkThread.getDDFManager();
       DDF ddf = ddfManager.sql2ddf(sqlCmd);
       String ddfName = ddfManager.addDDF(ddf);

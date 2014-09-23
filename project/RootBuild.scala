@@ -18,13 +18,7 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-//  lazy val MAIN_SHARK_VERSION = "0.9.2"
-//  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-//  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
-//
-//  lazy val MAIN_SPARK_VERSION = "0.9.2"
-//  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-//  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)
+
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -108,10 +102,23 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
+<<<<<<< HEAD
     "io.ddf" % "ddf_core_2.10" %  rootVersion exclude("org.apache.hadoop", "hadoop-core"),
     "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.hadoop", "hadoop-core"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0"
+=======
+    "io.ddf" % "ddf_core_2.10" %  rootVersion,
+    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10")
+      exclude("edu.berkeley.cs.shark", "shark_2.10") exclude("org.apache.spark", "spark-mllib_2.10") exclude("org.apache.spark", "spark-yarn_2.10"),
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
+    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
+    "com.novocode" % "junit-interface" % "0.10" % "test",
+    "uk.com.robust-it" % "cloning" % "1.9.0"
+>>>>>>> master
   )
 
   val pa_dependencies = Seq(
@@ -230,6 +237,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
+
     pomExtra := (
       <!--
       **************************************************************************************************

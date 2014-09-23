@@ -73,42 +73,42 @@ class RegressionSuite extends ATimedAlgorithmTest {
 
 	ignore("Single-variable linear regression 1") {
 		val numIters = 1
-		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable linear regression 100") {
 		val numIters = 100
-		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable linear regression 1000") {
 		val numIters = 1000
-		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable linear regression 10000") {
 		val numIters = 10000
-		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LinearRegression.train(XYData, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable logistic regression 1") {
 		val numIters = 1
-		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable logistic regression 100") {
 		val numIters = 100
-		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable logistic regression 1000") {
 		val numIters = 1000
-		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 	ignore("Single-variable logistic regression 10000") {
 		val numIters = 10000
-		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0)), 0))
+		(1 to numReps).foreach(x ⇒ LogisticRegression.train(XY2Data, numIters, 0.05, lambda, Vector(Array(0.0, 0.0))))
 	}
 
 }

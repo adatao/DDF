@@ -37,7 +37,7 @@ public class GroupBy implements IExecutor {
     // we only accept selectFunction with the following format
     // wildcast is not supported at the moment because of
     // https://app.asana.com/0/5660773543914/11254907079946
-    Pattern colNameRegex = Pattern.compile("^'*\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*'*$");
+/*    Pattern colNameRegex = Pattern.compile("^'*\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*'*$");
     Pattern funcRegex = Pattern.compile("^'*\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*\\(\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*\\)\\s*'*$");
     Pattern funcWithColNameRegex = Pattern.compile("^'*\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*=\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*\\(\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*\\)\\s*'*$");
     
@@ -46,7 +46,7 @@ public class GroupBy implements IExecutor {
         throw new AdataoException(AdataoExceptionCode.ERR_UNSUPPORTED_GROUP_SYNTAX,
             String.format("Unsupported column name or function: %s", s), null);
       }
-    }
+    }*/
   }
 
   @Override
