@@ -10,7 +10,7 @@ import com.adatao.pa.thrift.Server
 import com.adatao.pa.thrift.generated.JsonCommand
 import com.adatao.pa.thrift.generated.RCommands
 import com.adatao.pa.thrift.generated.JsonResult
-import com.adatao.pa.spark.MultiContextConnectResult
+//import com.adatao.pa.spark.MultiContextConnectResult
 import com.adatao.pa.spark.execution.LoadTable
 import com.adatao.pa.spark.execution.Sql2DataFrame
 import com.adatao.pa.spark.execution.Sql2ListString
@@ -68,14 +68,14 @@ class ManagerClient(serverHost: String, serverPort: Int) {
    */
   def connect(params: String = null) = {
     if (System.getProperty("bigr.multiuser", Server.MULTIUSER_DEFAULT.toString).toBoolean) {
-      val res = this.execute[MultiContextConnectResult](thriftClienttoServer, "connect", params)
+  /*    val res = this.execute[MultiContextConnectResult](thriftClienttoServer, "connect", params)
       sid = res.result.sessionID
       workerPort = res.result.thriftPort
       workerHost = res.result.host
       //LOG.info("connect: SID=%s host=%s thriftPort=%d".format(sid, workerHost, workerPort))
       // connect to worker now
       //			Thread.sleep(5000)
-      updateThriftClientWorker()
+      updateThriftClientWorker()*/
     }
     else {
       sid = this.executeImpl(thriftClienttoServer, "connect", params).sid
