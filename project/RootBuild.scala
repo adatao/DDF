@@ -105,7 +105,8 @@ object RootBuild extends Build {
     "io.ddf" % "ddf_core_2.10" %  rootVersion exclude("org.apache.hadoop", "hadoop-core"),
     "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.hadoop", "hadoop-core"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
-    "org.apache.hadoop" % "hadoop-auth" % "2.2.0"
+    "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
+    "uk.com.robust-it" % "cloning" % "1.9.0"
   )
 
   val pa_dependencies = Seq(
