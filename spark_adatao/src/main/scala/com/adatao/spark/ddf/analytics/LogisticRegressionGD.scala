@@ -40,13 +40,12 @@ object LogisticRegressionGD {
     initialWeights: Array[Double]): LogisticRegressionModel = {
     //    val numFeatures = xCols.length + 1
     //depend on length of weights
-    dataPartition.cache()
     val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
     val weights = if (initialWeights == null || initialWeights.length != numFeatures) Utils.randWeights(numFeatures) else Vector(initialWeights)
-
+    val rddMatrixVector = dataPartition.map{row => (row.x, row.y)}.cache()
     var model = LogisticRegression.train(
-      new LogisticRegressionGD.LossFunction(dataPartition.map { row => (row._1, row._2) }, ridgeLambda), numIters, learningRate, weights, numFeatures)
-    dataPartition.unpersist()
+      new LogisticRegressionGD.LossFunction(rddMatrixVector, ridgeLambda), numIters, learningRate, weights, numFeatures)
+    rddMatrixVector.unpersist()
     model
   }
 

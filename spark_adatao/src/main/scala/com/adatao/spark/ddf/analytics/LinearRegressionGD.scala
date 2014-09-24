@@ -25,33 +25,37 @@ import org.apache.spark.rdd.RDD
 import java.util.HashMap
 
 /**
- */
+  */
 object LinearRegressionGD {
-    def train(dataPartition: RDD[TupleMatrixVector],
-        numIters: Int,
-        learningRate: Double,
-        ridgeLambda: Double,
-        initialWeights: Array[Double]
-        ): LinearRegressionModel = {
-        dataPartition.cache()
-        val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
-        val weights = if (initialWeights == null || initialWeights.length != numFeatures)  Utils.randWeights(numFeatures) else Vector(initialWeights)
-        var model = LinearRegression.train(
-            new LinearRegressionGD.LossFunction(dataPartition.map {row => (row.x, row.y)}, ridgeLambda), numIters, learningRate, weights, numFeatures
-        )
-        dataPartition.unpersist()
-        model
+  def train(dataPartition: RDD[TupleMatrixVector],
+            numIters: Int,
+            learningRate: Double,
+            ridgeLambda: Double,
+            initialWeights: Array[Double]
+             ): LinearRegressionModel = {
+    val numFeatures: Int = dataPartition.map(x => x._1.getColumns()).first()
+    val weights = if (initialWeights == null || initialWeights.length != numFeatures) Utils.randWeights(numFeatures) else Vector(initialWeights)
+    val rddMatrixVector = dataPartition.map{row => (row.x, row.y)}.cache()
+    var model = LinearRegression.train(
+      new LinearRegressionGD.LossFunction(rddMatrixVector, ridgeLambda), numIters, learningRate, weights, numFeatures
+    )
+    rddMatrixVector.unpersist()
+    model
+  }
+
+  /**
+   * As a client with our own data representation [[RDD( M a t r i x, V e c t o r]], we need to supply our own LossFunction that
+   * knows how to handle that data.
+   *
+   * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
+   * objects, if we were to place this class within [[class L i n e a r R e g r e s s i o n]].
+   */
+  class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
+    def compute: Vector => ALossFunction = {
+      (weights: Vector) => XYData.map {
+        case (x, y) => this.compute(x, y, weights)
+      }.safeReduce(_.aggregate(_))
     }
-    /**
-     * As a client with our own data representation [[RDD(Matrix, Vector]], we need to supply our own LossFunction that
-     * knows how to handle that data.
-     *
-     * NB: We separate this class into a static (companion) object to avoid having Spark serialize too many unnecessary
-     * objects, if we were to place this class within [[class LinearRegression]].
-     */
-    class LossFunction(@transient XYData: RDD[(Matrix, Vector)], ridgeLambda: Double) extends ALinearGradientLossFunction(XYData, ridgeLambda) {
-        def compute: Vector => ALossFunction = {
-            (weights: Vector) => XYData.map { case (x,y) => this.compute(x, y, weights) }.safeReduce(_.aggregate(_))
-        }
-    }
+  }
+
 }
