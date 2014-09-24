@@ -40,7 +40,7 @@ class Kmeans(
 
     val imodel = projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
     val mllibKMeansModel = imodel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
-    val wcss = mllibKMeansModel.computeCost(ddf.getRepresentationHandler().get(RDD_ARR_DOUBLE.getTypeSpecsString()).asInstanceOf[RDD[Array[Double]]])
+    val wcss = mllibKMeansModel.computeCost(projectedDDF.getRepresentationHandler().get(RDD_ARR_DOUBLE.getTypeSpecsString()).asInstanceOf[RDD[Array[Double]]])
     val km = new com.adatao.ML.spark.clustering.KMeansModel(mllibKMeansModel.clusterCenters, wcss)
     var model = new Model(km)
     model.setTrainedColumns(trainedColumns)
