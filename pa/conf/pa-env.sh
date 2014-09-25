@@ -50,7 +50,7 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
+export HADOOP_CONF_DIR=/mnt/hadoop-2.2.0.2.0.6.0-101/conf
 
 export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
@@ -91,7 +91,7 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=20
+        export SPARK_WORKER_INSTANCES=8
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
