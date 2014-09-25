@@ -9,7 +9,7 @@ echo "building ddf-opensource"
 cd $DDF_OPENSOURCE_HOME
 bin/get-sbt.sh
 spark/lib/mvn-install-jars.sh
-bin/sbt clean compile package; bin/make-pom.sh; mvn install -DskipTests
+bin/sbt clean compile package; bin/make-poms.sh; mvn install -DskipTests
 
 cd $DDF_ENTERPRISE_HOME
 bin/get-sbt.sh
