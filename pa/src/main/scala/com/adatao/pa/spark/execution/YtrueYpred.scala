@@ -43,8 +43,6 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
-        
-        
         projectedDDF.getMLSupporter().applyModel(model, true, false)
       }
     }
