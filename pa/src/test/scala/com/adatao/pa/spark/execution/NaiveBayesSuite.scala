@@ -1,7 +1,8 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.pa.spark.types.ABigRClientTest
-import io.ddf.ml.IModel
+import io.ddf.ml.{RocMetric, IModel}
+import com.adatao.pa.spark.Utils.DataFrameResult
 
 //import com.adatao.pa.spark.execution.NaiveBayes.NaiveBayesResult
 import com.adatao.pa.spark.types.ATestBase
@@ -32,5 +33,12 @@ class NaiveBayesSuite extends ABigRClientTest {
     assert(cm.falsePos == 0)
     assert(cm.falseNeg == 127)
     assert(cm.trueNeg == 273)
+
+    //Test ROC
+    val yTrueYPred = new YtrueYpred(dcIDtrain, model.getName)
+    val prediction = bigRClient.execute[DataFrameResult](yTrueYPred).result.getDataContainerID
+    val roc = new ROC(prediction, 10)
+    val rocResult = bigRClient.execute[RocMetric](roc).result
+    assert(rocResult.auc === 0.5)
   }
 }
