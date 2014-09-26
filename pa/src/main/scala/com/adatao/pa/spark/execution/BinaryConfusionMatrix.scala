@@ -30,7 +30,8 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
         val yTrueYPred = new YtrueYpred(dataContainerID, modelID).runImpl(context)
         val predictionDDF = ddfManager.getDDF(yTrueYPred.getDataContainerID)
         val predictionRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
-        MLSupporter.binaryConfusionMatrix(predictionRDD, threshold)
+        val result = MLSupporter.binaryConfusionMatrix(predictionRDD, threshold)
+        Array(Array(result(3), result(2)), Array(result(1), result(0)))
       }
     }
 
