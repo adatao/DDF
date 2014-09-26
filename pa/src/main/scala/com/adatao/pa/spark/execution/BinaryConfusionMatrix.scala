@@ -7,6 +7,9 @@ import com.adatao.pa.spark.DataManager.DataContainer.ContainerType
 import io.ddf.DDF
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
+import org.apache.spark.mllib.classification.NaiveBayesModel
+import io.spark.ddf.SparkDDF
+import com.adatao.spark.ddf.ml.MLSupporter
 
 /**
  * Compute the confusion matrix for a binary classification model, given a threshold.
@@ -23,8 +26,12 @@ class BinaryConfusionMatrix(dataContainerID: String, val modelID: String, val th
         val ddf = ddfManager.getDDF(dataContainerID)
         ddf.getMLSupporter.getConfusionMatrix(model, threshold)
       }
-      case _ => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
-        s"Don't know how to get confusion matrix for ${model.getRawModel.getClass.toString}}", null)
+      case otherwise => {
+        val yTrueYPred = new YtrueYpred(dataContainerID, modelID).runImpl(context)
+        val predictionDDF = ddfManager.getDDF(yTrueYPred.getDataContainerID)
+        val predictionRDD = predictionDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[Double]])
+        MLSupporter.binaryConfusionMatrix(predictionRDD, threshold)
+      }
     }
 
     new BinaryConfusionMatrixResult(cm(0)(0), cm(1)(0), cm(0)(1), cm(1)(1))
