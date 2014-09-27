@@ -9,11 +9,11 @@ import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import io.ddf.etl.Types.JoinType
 import com.adatao.pa.spark.DataManager.MetaInfo
 import com.adatao.pa.spark.execution.NRow.NRowResult
+import org.scalatest.BeforeAndAfterAll
 
-class JoinSuite extends ABigRClientTest {
+class JoinSuite extends ABigRClientTest with BeforeAndAfterAll {
 
   override def beforeAll = {
-    super.beforeAll
     createTableMtcars
     createTableCarowner
   }

@@ -387,7 +387,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(0), 4) === 40.9919)
     assert(truncate(model.trainingLosses(1), 4) === 9.9192)
   }
-  //
+
   test("Single-variable linear regression on Shark, binned var") {
     createTableAirline
 
@@ -577,9 +577,7 @@ class RegressionSuite extends ABigRClientTest {
 
   }
 
-
   test("Multiple-variable logistic regression IRLS - ddf") {
-
     //load data
     createTableAdmission
     val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
@@ -605,7 +603,7 @@ class RegressionSuite extends ABigRClientTest {
     val r = bigRClient.execute[LogisticRegressionModel](executor)
     assert(r.isSuccess)
   }
-
+//
   test("test YtrueYPred") {
     createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)

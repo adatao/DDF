@@ -5,11 +5,11 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.NRow.NRowResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
+import org.scalatest.BeforeAndAfterAll
 
-class BinningSuite extends ABigRClientTest {
+class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
 
   override def beforeAll = {
-    super.beforeAll
     createTableMtcars
     createTableAirline
   }

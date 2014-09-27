@@ -39,11 +39,12 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
-        new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
+        val sparkDDF = new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
+        sparkDDF.getName()
+        sparkDDF
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
-        
         
         projectedDDF.getMLSupporter().applyModel(model, true, false)
       }

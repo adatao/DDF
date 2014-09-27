@@ -4,15 +4,15 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import scala.collection.JavaConversions._
 import com.adatao.pa.spark.Utils.DataFrameResult
+import org.scalatest.BeforeAndAfterAll
 
 // @formatter:off
 
 /**
  * @author aht
  */
-class MapReduceNativeSuite extends ABigRClientTest {
+class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	override def beforeAll = {
-		super.beforeAll
 		createTableMtcars
 		createTableAirline
 		createTableAirQuality
