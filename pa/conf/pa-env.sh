@@ -80,6 +80,7 @@ SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEMORY}"
 SPARK_JAVA_OPTS+=" -Dspark.driver.memory=${SPARK_MEMORY}"
+SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
 #export SPARK_JAVA_OPTS

@@ -344,49 +344,49 @@ class RegressionSuite extends ABigRClientTest {
     assertEquals(-0.9493, model.weights(2), 0.0001);
   }
 
-//  test("Test Infinity bug on airline data") {
-//    createTableAirline
-//
-//    val loader = new Sql2DataFrame("select * from airline", true)
-//    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//    assert(r0.isSuccess)
-//
-//    val dataContainerId = r0.dataContainerID
-//
-//    val lambda = 0.0
-//    val executor = new LogisticRegression(dataContainerId, Array(0, 6, 7), 12, 50, 0.1, lambda, Array(0.00000000001, 0.00000000001, 0.00000000001, 0.00000000001))
-//    val r = bigRClient.execute[IModel](executor)
-//
-//    assert(r.isSuccess)
-//
-//    val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
-//
-//    assertEquals(true, r.isSuccess);
-//    println(">>>>>>>>> " + model.trainingLosses)
-//
-//  }
-  //
-//  test("Single variable linear regression on Shark") {
-//    createTableMtcars
-//
-//    val loader = new Sql2DataFrame("select * from mtcars", true)
-//    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//    assert(r0.isSuccess)
-//
-//    val dataContainerId = r0.dataContainerID
-//
-//    val lambda = 0.0
-//    val executor = new LinearRegression(dataContainerId, Array(5), 0, 40, 0.05, lambda, Array(38, -3))
-//    val r = bigRClient.execute[IModel](executor)
-//
-//    assert(r.isSuccess)
-//
-//    val model = r.result.getRawModel.asInstanceOf[LinearRegressionModel]
-//    assert(truncate(model.weights(0), 4) === 37.3180)
-//    assert(truncate(model.weights(1), 4) === -5.3539)
-//    assert(truncate(model.trainingLosses(0), 4) === 40.9919)
-//    assert(truncate(model.trainingLosses(1), 4) === 9.9192)
-//  }
+  test("Test Infinity bug on airline data") {
+    createTableAirline
+
+    val loader = new Sql2DataFrame("select * from airline", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+
+    val dataContainerId = r0.dataContainerID
+
+    val lambda = 0.0
+    val executor = new LogisticRegression(dataContainerId, Array(0, 6, 7), 12, 50, 0.1, lambda, Array(0.00000000001, 0.00000000001, 0.00000000001, 0.00000000001))
+    val r = bigRClient.execute[IModel](executor)
+
+    assert(r.isSuccess)
+
+    val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
+
+    assertEquals(true, r.isSuccess);
+    println(">>>>>>>>> " + model.trainingLosses)
+
+  }
+
+  test("Single variable linear regression on Shark") {
+    createTableMtcars
+
+    val loader = new Sql2DataFrame("select * from mtcars", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+
+    val dataContainerId = r0.dataContainerID
+
+    val lambda = 0.0
+    val executor = new LinearRegression(dataContainerId, Array(5), 0, 40, 0.05, lambda, Array(38, -3))
+    val r = bigRClient.execute[IModel](executor)
+
+    assert(r.isSuccess)
+
+    val model = r.result.getRawModel.asInstanceOf[LinearRegressionModel]
+    assert(truncate(model.weights(0), 4) === 37.3180)
+    assert(truncate(model.weights(1), 4) === -5.3539)
+    assert(truncate(model.trainingLosses(0), 4) === 40.9919)
+    assert(truncate(model.trainingLosses(1), 4) === 9.9192)
+  }
 
   test("Single-variable linear regression on Shark, binned var") {
     createTableAirline
@@ -416,214 +416,214 @@ class RegressionSuite extends ABigRClientTest {
     println(">>>>model=" + model)
   }
   //
-//  test("test MaxFeatures") {
-//    createTableMtcars
-//    val df = this.runSQL2RDDCmd("select * from mtcars", true)
-//    assert(df.isSuccess)
-//
-//    val dcID = df.dataContainerID
-//    LOG.info("Get dataContainerID= " + dcID)
-//    val cmd = new GetMultiFactor(dcID, Array(7, 8, 9, 10))
-//    val result = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd).result
-//
-//    val lambda = 0.1
-//    //		val projDataContainerId = this.projectDDF(dcID, Array(6, 7, 8, 9, 10), 0)
-//    val executor = new LinearRegressionNormalEquation(dcID, Array(6, 7, 8, 9, 10), 0, lambda)
-//    System.setProperty("bigr.lm.maxNumFeatures", "10")
-//    try {
-//      val r = bigRClient.execute[IModel](executor)
-//      assert(false)
-//      assert(!r.isSuccess)
-//    }
-//    catch {
-//      case e ⇒ {
-//        assert(e.isInstanceOf[java.lang.Exception])
-//      }
-//    }
-//
-//    System.setProperty("bigr.lm.maxNumFeatures", "20")
-//    val r1 = bigRClient.execute[IModel](executor)
-//    assert(r1.isSuccess)
-//  }
-//
-//  //	GOOD, result are identical with glm.gd
-//  test("Multiple-variable logistic regression on sparse matrix, no sparse column") {
-//
-//    //load data
-//    createTableAdmission
-//    val df = this.runSQL2RDDCmd("select v2, v4, v1 from admission", true)
-//    val dataContainerId = df.dataContainerID
-//    val lambda = 0.0
-//
-//    //minimum threshold range for sparse columns
-//    System.setProperty("sparse.max.range", "10000")
-//    var cmd2 = new FiveNumSummary(dataContainerId)
-//    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-//    assert(summary.size > 0)
-//
-//    //construct columnSummary parameter
-//    var columnsSummary = new HashMap[String, Array[Double]]
-//    var hmin = new Array[Double](summary.size)
-//    var hmax = new Array[Double](summary.size)
-//    //convert columnsSummary to HashMap
-//    var i = 0
-//    while (i < summary.size) {
-//      hmin(i) = summary(i).min
-//      hmax(i) = summary(i).max
-//      i += 1
-//    }
-//    columnsSummary.put("min", hmin)
-//    columnsSummary.put("max", hmax)
-//
-//    val executor = new LogisticRegressionCRS(dataContainerId, Array(1, 2), 0, columnsSummary, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
-//    val r = bigRClient.execute[IModel](executor)
-//    assert(r.isSuccess)
-//
-//    val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
-//
-//    //assertion, expect to produce similarly identical result with glm.gd non-sparse
-//    println("model=" + model)
-//    println(">>>>>r=" + r)
-//
-//    assertEquals(-3.0251, model.weights(0), 0.0001);
-//    assertEquals(1.4117, model.weights(1), 0.0001);
-//    assertEquals(-0.9493, model.weights(2), 0.0001);
-//  }
-//
-//  ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
-//
-//    //load data
-//    createTableAdmission
-//    val df = this.runSQL2RDDCmd("select v2, v3, v1 from admission", true)
-//    val dataContainerId = df.dataContainerID
-//    val lambda = 0.0
-//    System.setProperty("sparse.max.range", "10000")
-//    val iterations = 1
-//
-//    //get summary
-//    var cmd2 = new FiveNumSummary(dataContainerId)
-//    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-//    assert(summary.size > 0)
-//
-//    //construct columnSummary parameter
-//    var columnsSummary = new HashMap[String, Array[Double]]
-//    var hmin = new Array[Double](summary.size)
-//    var hmax = new Array[Double](summary.size)
-//    //convert columnsSummary to HashMap
-//    var i = 0
-//    while (i < summary.size) {
-//      hmin(i) = summary(i).min
-//      hmax(i) = summary(i).max
-//      i += 1
-//    }
-//    columnsSummary.put("min", hmin)
-//    columnsSummary.put("max", hmax)
-//
-//    val startTime = System.currentTimeMillis()
-//    //		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
-//    val executor = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, iterations, 0.1, lambda, Array(-3.0, 1.5))
-//    val r = bigRClient.execute[LogisticRegressionModel](executor)
-//    assert(r.isSuccess)
-//
-//    val model = r.result
-//    assertEquals(true, r.isSuccess);
-//    val endTime = System.currentTimeMillis()
-//    println(">>>>>>>>>>>>>>>>>> finish: " + (endTime - startTime))
-//    //		println("model=" + model)
-//
-//  }
-//
-//  ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column on adwo data") {
-//    val lambda = 0.0
-//
-//    val MAX_ROWS = Integer.parseInt(System.getProperty("training.max.record", "10000000"))
-//
-//    val loader = new Sql2DataFrame("select if(prob>=0.5, 1, 0) as clicked, advertise_id from (select rand() as prob, advertise_id from adwo_week_show limit " + MAX_ROWS + ") t", true)
-//    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//    assert(r0.isSuccess)
-//    System.getProperty("sparse.max.range", "50")
-//    println(">>>>>>>>>> finish loading shark data")
-//    val dataContainerId = r0.dataContainerID
-//
-//    //max advertise_id
-//    var cmd2 = new FiveNumSummary(dataContainerId)
-//    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-//
-//    //construct columnSummary parameter
-//    var columnsSummary = new HashMap[String, Array[Double]]
-//    var hmin = new Array[Double](summary.size)
-//    var hmax = new Array[Double](summary.size)
-//    //convert columnsSummary to HashMap
-//    var i = 0
-//    while (i < summary.size) {
-//      hmin(i) = summary(i).min
-//      hmax(i) = summary(i).max
-//      i += 1
-//    }
-//    columnsSummary.put("min", hmin)
-//    columnsSummary.put("max", hmax)
-//
-//    //		val projDataContainerId = this.projectDDF(dataContainerId, Array(1), 0)
-//    val executor = new LogisticRegressionCRS(dataContainerId, Array(1), 0, columnsSummary, 10, 0.1, lambda, Array(-3.0, 1.5))
-//    val r = bigRClient.execute[LogisticRegressionModel](executor)
-//
-//    assert(r.isSuccess)
-//
-//    val model = r.result
-//
-//    assertEquals(true, r.isSuccess);
-//
-//    //		println("model=" + model)
-//
-//  }
-//
-//  test("Multiple-variable logistic regression IRLS - ddf") {
-//    //load data
-//    createTableAdmission
-//    val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
-//    val dataContainerId = df.dataContainerID
-//    val lambda = 0.0
-//
-//    val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1, 2), 3, 25, 1e-8, lambda, Array(0, 0))
-//    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
-//    assert(r.isSuccess)
-//  }
+  test("test MaxFeatures") {
+    createTableMtcars
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
+    assert(df.isSuccess)
+
+    val dcID = df.dataContainerID
+    LOG.info("Get dataContainerID= " + dcID)
+    val cmd = new GetMultiFactor(dcID, Array(7, 8, 9, 10))
+    val result = bigRClient.execute[Array[(Int, java.util.Map[String, java.lang.Integer])]](cmd).result
+
+    val lambda = 0.1
+    //		val projDataContainerId = this.projectDDF(dcID, Array(6, 7, 8, 9, 10), 0)
+    val executor = new LinearRegressionNormalEquation(dcID, Array(6, 7, 8, 9, 10), 0, lambda)
+    System.setProperty("bigr.lm.maxNumFeatures", "10")
+    try {
+      val r = bigRClient.execute[IModel](executor)
+      assert(false)
+      assert(!r.isSuccess)
+    }
+    catch {
+      case e ⇒ {
+        assert(e.isInstanceOf[java.lang.Exception])
+      }
+    }
+
+    System.setProperty("bigr.lm.maxNumFeatures", "20")
+    val r1 = bigRClient.execute[IModel](executor)
+    assert(r1.isSuccess)
+  }
+
+  //	GOOD, result are identical with glm.gd
+  test("Multiple-variable logistic regression on sparse matrix, no sparse column") {
+
+    //load data
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v2, v4, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
+    val lambda = 0.0
+
+    //minimum threshold range for sparse columns
+    System.setProperty("sparse.max.range", "10000")
+    var cmd2 = new FiveNumSummary(dataContainerId)
+    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+    assert(summary.size > 0)
+
+    //construct columnSummary parameter
+    var columnsSummary = new HashMap[String, Array[Double]]
+    var hmin = new Array[Double](summary.size)
+    var hmax = new Array[Double](summary.size)
+    //convert columnsSummary to HashMap
+    var i = 0
+    while (i < summary.size) {
+      hmin(i) = summary(i).min
+      hmax(i) = summary(i).max
+      i += 1
+    }
+    columnsSummary.put("min", hmin)
+    columnsSummary.put("max", hmax)
+
+    val executor = new LogisticRegressionCRS(dataContainerId, Array(1, 2), 0, columnsSummary, 1, 0.1, lambda, Array(-3.0, 1.5, -0.9))
+    val r = bigRClient.execute[IModel](executor)
+    assert(r.isSuccess)
+
+    val model = r.result.getRawModel.asInstanceOf[LogisticRegressionModel]
+
+    //assertion, expect to produce similarly identical result with glm.gd non-sparse
+    println("model=" + model)
+    println(">>>>>r=" + r)
+
+    assertEquals(-3.0251, model.weights(0), 0.0001);
+    assertEquals(1.4117, model.weights(1), 0.0001);
+    assertEquals(-0.9493, model.weights(2), 0.0001);
+  }
+
+  ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column") {
+
+    //load data
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v2, v3, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
+    val lambda = 0.0
+    System.setProperty("sparse.max.range", "10000")
+    val iterations = 1
+
+    //get summary
+    var cmd2 = new FiveNumSummary(dataContainerId)
+    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+    assert(summary.size > 0)
+
+    //construct columnSummary parameter
+    var columnsSummary = new HashMap[String, Array[Double]]
+    var hmin = new Array[Double](summary.size)
+    var hmax = new Array[Double](summary.size)
+    //convert columnsSummary to HashMap
+    var i = 0
+    while (i < summary.size) {
+      hmin(i) = summary(i).min
+      hmax(i) = summary(i).max
+      i += 1
+    }
+    columnsSummary.put("min", hmin)
+    columnsSummary.put("max", hmax)
+
+    val startTime = System.currentTimeMillis()
+    //		val projDataContainerId = this.projectDDF(dataContainerId, Array(0, 1), 2)
+    val executor = new LogisticRegressionCRS(dataContainerId, Array(0, 1), 2, columnsSummary, iterations, 0.1, lambda, Array(-3.0, 1.5))
+    val r = bigRClient.execute[LogisticRegressionModel](executor)
+    assert(r.isSuccess)
+
+    val model = r.result
+    assertEquals(true, r.isSuccess);
+    val endTime = System.currentTimeMillis()
+    println(">>>>>>>>>>>>>>>>>> finish: " + (endTime - startTime))
+    //		println("model=" + model)
+
+  }
+
+  ignore("Multiple-variable logistic regression on sparse matrix, case one with sparse column on adwo data") {
+    val lambda = 0.0
+
+    val MAX_ROWS = Integer.parseInt(System.getProperty("training.max.record", "10000000"))
+
+    val loader = new Sql2DataFrame("select if(prob>=0.5, 1, 0) as clicked, advertise_id from (select rand() as prob, advertise_id from adwo_week_show limit " + MAX_ROWS + ") t", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+    System.getProperty("sparse.max.range", "50")
+    println(">>>>>>>>>> finish loading shark data")
+    val dataContainerId = r0.dataContainerID
+
+    //max advertise_id
+    var cmd2 = new FiveNumSummary(dataContainerId)
+    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
+
+    //construct columnSummary parameter
+    var columnsSummary = new HashMap[String, Array[Double]]
+    var hmin = new Array[Double](summary.size)
+    var hmax = new Array[Double](summary.size)
+    //convert columnsSummary to HashMap
+    var i = 0
+    while (i < summary.size) {
+      hmin(i) = summary(i).min
+      hmax(i) = summary(i).max
+      i += 1
+    }
+    columnsSummary.put("min", hmin)
+    columnsSummary.put("max", hmax)
+
+    //		val projDataContainerId = this.projectDDF(dataContainerId, Array(1), 0)
+    val executor = new LogisticRegressionCRS(dataContainerId, Array(1), 0, columnsSummary, 10, 0.1, lambda, Array(-3.0, 1.5))
+    val r = bigRClient.execute[LogisticRegressionModel](executor)
+
+    assert(r.isSuccess)
+
+    val model = r.result
+
+    assertEquals(true, r.isSuccess);
+
+    //		println("model=" + model)
+
+  }
+
+  test("Multiple-variable logistic regression IRLS - ddf") {
+    //load data
+    createTableAdmission
+    val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
+    val dataContainerId = df.dataContainerID
+    val lambda = 0.0
+
+    val executor = new LogisticRegressionIRLS(dataContainerId, Array(0, 1, 2), 3, 25, 1e-8, lambda, Array(0, 0))
+    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+    assert(r.isSuccess)
+  }
 
 
-//  test("test dummy coding") {
+  test("test dummy coding") {
+
+    //load data
+    createTableAirline
+    //		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
+    val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
+
+    val dataContainerId = df.dataContainerID
+    val lambda = 1.0
+    val executor = new LogisticRegression(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
+    val r = bigRClient.execute[LogisticRegressionModel](executor)
+    assert(r.isSuccess)
+  }
 //
-//    //load data
-//    createTableAirline
-//    //		val df = this.runSQL2RDDCmd("select v8, v9, v10, v17, v12 from airline", true)
-//    val df = this.runSQL2RDDCmd("select v8, v17, v12 from airline", true)
-//
-//    val dataContainerId = df.dataContainerID
-//    val lambda = 1.0
-//    val executor = new LogisticRegression(dataContainerId, Array(0, 1), 2, 25, 1e-8, lambda, Array(0, 0, 0))
-//    val r = bigRClient.execute[LogisticRegressionModel](executor)
-//    assert(r.isSuccess)
-//  }
-////
-//  test("test YtrueYPred") {
-//    createTableAirline
-//    val loader = new Sql2DataFrame("select * from airline", true)
-//    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-//    assert(r0.isSuccess)
-//    val dataContainerId = r0.dataContainerID
-//    val lambda = 1.0
-//    //this will cause Infinity, fail
-//    val executor = new LinearRegressionNormalEquation(dataContainerId, Array(5, 10), 0, lambda)
-//    val r = bigRClient.execute[IModel](executor)
-//    val model = r.result
-//    val yTrueYPred = new YtrueYpred(dataContainerId, model.getName)
-//    val r2 = bigRClient.execute[DataFrameResult](yTrueYPred)
-//
-//    val fetchRows = new FetchRows().setDataContainerID(r2.result.dataContainerID).setLimit(50)
-//    val r3 = bigRClient.execute[FetchRows.FetchRowsResult](fetchRows)
-//
-//    val nrow = new NRow().setDataContainerID(r2.result.dataContainerID)
-//    val r4 = bigRClient.execute[NRow.NRowResult](nrow)
-//    assert(r3.result.data != null)
-//    assert(r4.result.nrow == 31)
-//  }
+  test("test YtrueYPred") {
+    createTableAirline
+    val loader = new Sql2DataFrame("select * from airline", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+    val dataContainerId = r0.dataContainerID
+    val lambda = 1.0
+    //this will cause Infinity, fail
+    val executor = new LinearRegressionNormalEquation(dataContainerId, Array(5, 10), 0, lambda)
+    val r = bigRClient.execute[IModel](executor)
+    val model = r.result
+    val yTrueYPred = new YtrueYpred(dataContainerId, model.getName)
+    val r2 = bigRClient.execute[DataFrameResult](yTrueYPred)
+
+    val fetchRows = new FetchRows().setDataContainerID(r2.result.dataContainerID).setLimit(50)
+    val r3 = bigRClient.execute[FetchRows.FetchRowsResult](fetchRows)
+
+    val nrow = new NRow().setDataContainerID(r2.result.dataContainerID)
+    val r4 = bigRClient.execute[NRow.NRowResult](nrow)
+    assert(r3.result.data != null)
+    assert(r4.result.nrow == 31)
+  }
 }
