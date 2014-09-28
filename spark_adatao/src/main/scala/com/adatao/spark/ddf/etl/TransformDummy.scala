@@ -56,7 +56,7 @@ object TransformDummy {
 
   def buildNullBitmap(numRows: Int, usedColumnIterators: Array[ByteBuffer]): BitSet = {
     val nullBitmap: BitSet = new BitSet(numRows)
-    println(">>>>> numRows = " + numRows)
+    LOG.info(">>>>> numRows = " + numRows)
 
     usedColumnIterators.foreach {
       buffer => {
@@ -65,10 +65,9 @@ object TransformDummy {
         bytebuffer.rewind()
         bytebuffer.getInt()
         val nullCount = bytebuffer.getInt()
-        println(">>>>> nullCount = " + nullCount)
+        LOG.info(">>>>> nullCount = " + nullCount)
         for (i <- 0 until nullCount) {
           val idx = bytebuffer.getInt
-          println(">>> idx = " + idx)
           nullBitmap.set(idx)
         }
       }
@@ -197,7 +196,7 @@ object TransformDummy {
 
             if (categoricalMap != null && categoricalMap.containsKey(xColId)) {
               val columnMap = categoricalMap.get(xColId)
-              println(">>>> columnMap = null??? " + columnMap == null)
+              LOG.info(s">>>> columnMap = null??? ${columnMap == null}")
               LOG.info("extracting categorical column id {} using mapping {}", xColId, columnMap)
 
               fillColumnWithConversion(X, i, columnIterator, numRows, nullBitmap, (current: Object) => {
@@ -233,10 +232,6 @@ object TransformDummy {
 
         i += 1
       }
-
-      //			println("X = " + util.Arrays.deepToString(X.toArray2.asInstanceOf[Array[Object]]))
-      //			println("Y = " + util.Arrays.deepToString(Y.toArray2.asInstanceOf[Array[Object]]))
-
       new TupleMatrixVector(X, Y)
     }
   }
