@@ -12,15 +12,10 @@ import java.util
 import com.adatao.pa.spark.execution.QuickSummary.DataframeStatsResult
 import com.adatao.pa.spark.execution.NRow.NRowResult
 
-class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll {
-
-	override def beforeAll = {
-		createTableMtcars
-		createTableAirQuality
-	}
-
+class TransformNativeRserveSuite extends ABigRClientTest {
 
 	test("can add column") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -51,6 +46,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 	}
 
 	test("can add multiple columns on data w some empty partitions") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars where mpg > 30", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -71,6 +67,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 
 	//TODO stack overflow
 	ignore("can add multiple columns using back-to-back transform") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
 		assert(r0.isSuccess)
@@ -114,6 +111,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 	}
 
 	test("can serialize Java null as R NA, and back to null") {
+    createTableAirQuality
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -145,6 +143,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 	}
 
 	test("can update column values") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -169,6 +168,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 
 	//because Shark return \t delimited string in result so BigRclient need to handle that as well
 	test("can update column as.integer, as.character") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -204,6 +204,7 @@ class TransformNativeRserveSuite extends ABigRClientTest with BeforeAndAfterAll 
 	}
 
 	test("can transform Object[] DataFrame") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
     assert(r0.isSuccess)

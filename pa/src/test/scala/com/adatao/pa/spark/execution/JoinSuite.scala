@@ -13,12 +13,14 @@ import org.scalatest.BeforeAndAfterAll
 
 class JoinSuite extends ABigRClientTest with BeforeAndAfterAll {
 
-  override def beforeAll = {
-    createTableMtcars
-    createTableCarowner
-  }
+//  override def beforeAll = {
+//    createTableMtcars
+//    createTableCarowner
+//  }
 
   test("test inner join") {
+    createTableMtcars
+    createTableCarowner
     val leftdf = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(leftdf.isSuccess)
     val leftdcID = leftdf.dataContainerID
@@ -47,6 +49,8 @@ class JoinSuite extends ABigRClientTest with BeforeAndAfterAll {
   }
 
   test("test left join") {
+    createTableMtcars
+    createTableCarowner
     val leftdf = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(leftdf.isSuccess)
     val leftdcID = leftdf.dataContainerID
@@ -69,6 +73,8 @@ class JoinSuite extends ABigRClientTest with BeforeAndAfterAll {
   }
 
   test("test right join") {
+    createTableMtcars
+    createTableCarowner
     val leftdf = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(leftdf.isSuccess)
     val leftdcID = leftdf.dataContainerID

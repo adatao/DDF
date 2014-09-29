@@ -11,15 +11,16 @@ import org.scalatest.BeforeAndAfterAll
 /**
  * @author aht
  */
-class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
-	override def beforeAll = {
-		createTableMtcars
-		createTableAirline
-		createTableAirQuality
-	}
+class MapReduceNativeSuite extends ABigRClientTest {
+//	override def beforeAll = {
+//		createTableMtcars
+//		createTableAirline
+//		createTableAirQuality
+//	}
 
 
 	test("aggregate(hp ~ gear, mtcars, FUN=sum), several unique keys reduce, vector map key, vector map value") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -47,6 +48,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("aggregate(hp ~ gear, mtcars, FUN=sum), several unique keys reduce, vector map key, vector map value, mapside.combine = false") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -76,6 +78,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -102,6 +105,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value, false") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -131,6 +135,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using R mean(), false") {
+    createTableAirQuality
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -160,6 +165,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using sum & count, false") {
+    createTableAirQuality
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -190,6 +196,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 
 
 	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing  using sum & count, true") {
+    createTableAirQuality
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -219,6 +226,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("heterogenous map values") {
+    createTableAirline
 		val loader = new Sql2DataFrame("select * from airline", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -244,6 +252,7 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 	}
 
 	test("multiple reduce output per key") {
+    createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)
@@ -259,9 +268,9 @@ class MapReduceNativeSuite extends ABigRClientTest with BeforeAndAfterAll {
 
 		assert(r1.result.metaInfo.map(_.getHeader).length === 13)
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 	}
 	/*
 	test("can mapreduce a Object[] DataFrame") {

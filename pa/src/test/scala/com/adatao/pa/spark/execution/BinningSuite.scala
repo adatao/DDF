@@ -9,12 +9,13 @@ import org.scalatest.BeforeAndAfterAll
 
 class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
 
-  override def beforeAll = {
-    createTableMtcars
-    createTableAirline
-  }
+//  override def beforeAll = {
+//    createTableMtcars
+//    createTableAirline
+//  }
 
   test("test empty bins") {
+    createTableMtcars
     val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
@@ -43,6 +44,7 @@ class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
   }
 
   test("test right & includeLowest") {
+    createTableMtcars
     val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
@@ -97,6 +99,7 @@ class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
   }
 
   test("test Binning with airline dataset for NAN handling") {
+    createTableAirline
     val df = this.runSQL2RDDCmd("SELECT * FROM airline", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
@@ -112,6 +115,7 @@ class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
   }
 
   test("test Binning with equal intervals") {
+    createTableMtcars
     val df = this.runSQL2RDDCmd("SELECT * FROM mtcars", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
@@ -139,6 +143,7 @@ class BinningSuite extends ABigRClientTest with BeforeAndAfterAll {
 //  }
 
   test("test mutable Binning with equal intervals") {
+    createTableAirline
     val df = this.runSQL2RDDCmd("SELECT * FROM airline", true)
     assert(df.isSuccess)
     val dcID = df.dataContainerID
