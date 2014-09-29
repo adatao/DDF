@@ -83,7 +83,11 @@ SPARK_JAVA_OPTS+=" -Dspark.driver.memory=${SPARK_MEMORY}"
 SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
-#export SPARK_JAVA_OPTS
+#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytab"
+#SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
+#SPARK_JAVA_OPTS+=" -Dpa.user=pa"
+#SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
+export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
