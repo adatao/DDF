@@ -44,14 +44,17 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
     //return Matrix Vector
     //TODO: migrate to SPARKSQL
     val hiveContext = mDDF.getManager.asInstanceOf[SparkDDFManager].getHiveContext
-    //mDDF.asInstanceOf[SparkDDF].cacheTable()
+    val isCached = mDDF.asInstanceOf[SparkDDF].isCached
+    mDDF.asInstanceOf[SparkDDF].cacheTable()
     val inMemoryRelation = hiveContext.table(mDDF.getTableName).queryExecution.analyzed match {
       case inMemory: InMemoryRelation => inMemory
       case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
     }
     //mDDF.asInstanceOf[SparkDDF].unCacheTable()
     val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(inMemoryRelation, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
-    //hiveContext.uncacheTable(mDDF.getTableName)
+    if(!isCached) {
+      mDDF.asInstanceOf[SparkDDF].unCacheTable()
+    }
     //check if contains dummy coding
     var hasDummyCoding = false
     var i = 0
