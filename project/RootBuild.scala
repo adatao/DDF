@@ -118,7 +118,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
-    "uk.com.robust-it" % "cloning" % "1.9.0"
+    "uk.com.robust-it" % "cloning" % "1.9.0",
+    "org.scalanlp" % "breeze_2.10" % "0.9" exclude("junit", "junit") exclude("org.apache.commons", "commons-math3")
   )
 
   val pa_dependencies = Seq(
@@ -155,6 +156,7 @@ object RootBuild extends Build {
     
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+      "Local ivy Repository" at "file://"+Path.userHome.absolutePath+"/.ivy2/repository",
       "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
       "Adatao Mvnrepos Snapshots" at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
       "Adatao Mvnrepos Releases" at "https://raw.github.com/adatao/mvnrepos/master/releases",
@@ -235,6 +237,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
+    dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0-M8",
 //    dependencyOverrides += "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
 //    dependencyOverrides += "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
 //    dependencyOverrides += "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
