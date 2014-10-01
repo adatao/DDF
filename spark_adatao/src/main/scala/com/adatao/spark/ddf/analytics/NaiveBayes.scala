@@ -4,12 +4,10 @@ package com.adatao.spark.ddf.analytics
 import breeze.linalg.{DenseMatrix => BDM, DenseVector => BDV, argmax => brzArgmax, sum => brzSum}
 
 import org.apache.spark.{SparkException, Logging}
-import org.apache.spark.SparkContext._
 
 import com.adatao.spark.ddf.analytics.util.{DenseVector, SparseVector, Vector}
 import com.adatao.spark.ddf.analytics.util.LabeledPoint
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.classification.ClassificationModel
 import org.apache.spark.SparkContext._
 
 /**
@@ -20,10 +18,10 @@ import org.apache.spark.SparkContext._
  * @param theta log of class conditional probabilities, whose dimension is C-by-D,
  *              where D is number of features
  */
-class NaiveBayesModel (
-                                       val labels: Array[Double],
-                                       val pi: Array[Double],
-                                       val theta: Array[Array[Double]]) extends Serializable {
+class NaiveBayesModel(
+                       val labels: Array[Double],
+                       val pi: Array[Double],
+                       val theta: Array[Array[Double]]) extends Serializable {
 
   private val brzPi = new BDV[Double](pi)
   private val brzTheta = new BDM[Double](theta.length, theta(0).length)
@@ -43,9 +41,10 @@ class NaiveBayesModel (
 
   def predict(testData: RDD[Vector]): RDD[Double] = {
     val bcModel = testData.context.broadcast(this)
-    testData.mapPartitions { iter =>
-      val model = bcModel.value
-      iter.map(model.predict)
+    testData.mapPartitions {
+      iter =>
+        val model = bcModel.value
+        iter.map(model.predict)
     }
   }
 
@@ -62,7 +61,7 @@ class NaiveBayesModel (
  * document classification.  By making every vector a 0-1 vector, it can also be used as
  * Bernoulli NB ([[http://tinyurl.com/p7c96j6]]). The input feature values must be nonnegative.
  */
-class NaiveBayes private (private var lambda: Double) extends Serializable with Logging {
+class NaiveBayes private(private var lambda: Double) extends Serializable with Logging {
 
   def this() = this(1.0)
 
@@ -109,25 +108,29 @@ class NaiveBayes private (private var lambda: Double) extends Serializable with 
     //pairRDD.com
     val numLabels = aggregated.length
     var numDocuments = 0L
-    aggregated.foreach { case (_, (n, _)) =>
-      numDocuments += n
+    aggregated.foreach {
+      case (_, (n, _)) =>
+        numDocuments += n
     }
-    val numFeatures = aggregated.head match { case (_, (_, v)) => v.size }
+    val numFeatures = aggregated.head match {
+      case (_, (_, v)) => v.size
+    }
     val labels = new Array[Double](numLabels)
     val pi = new Array[Double](numLabels)
     val theta = Array.fill(numLabels)(new Array[Double](numFeatures))
     val piLogDenom = math.log(numDocuments + numLabels * lambda)
     var i = 0
-    aggregated.foreach { case (label, (n, sumTermFreqs)) =>
-      labels(i) = label
-      val thetaLogDenom = math.log(brzSum(sumTermFreqs) + numFeatures * lambda)
-      pi(i) = math.log(n + lambda) - piLogDenom
-      var j = 0
-      while (j < numFeatures) {
-        theta(i)(j) = math.log(sumTermFreqs(j) + lambda) - thetaLogDenom
-        j += 1
-      }
-      i += 1
+    aggregated.foreach {
+      case (label, (n, sumTermFreqs)) =>
+        labels(i) = label
+        val thetaLogDenom = math.log(brzSum(sumTermFreqs) + numFeatures * lambda)
+        pi(i) = math.log(n + lambda) - piLogDenom
+        var j = 0
+        while (j < numFeatures) {
+          theta(i)(j) = math.log(sumTermFreqs(j) + lambda) - thetaLogDenom
+          j += 1
+        }
+        i += 1
     }
 
     new NaiveBayesModel(labels, pi, theta)
