@@ -14,7 +14,6 @@ import io.ddf.types.Vector
 
 class TransformSuite extends ATestSuite {
 
-
   createTableAirlineSmall()
   test("dummy coding") {
     val ddf: DDF = manager.sql2ddf("select * from airline")
@@ -66,5 +65,13 @@ class TransformSuite extends ATestSuite {
     assert(rddMatrixVector.count() > 0)
     val rdd = model.yTrueYPred(rddMatrixVector)
     assert(rdd.count() == 31)
+  }
+
+  test("test DummyCoding handling NA") {
+    createTableAirlineWithNA()
+    val ddf = manager.sql2ddf("select * from airlineWithNA")
+    val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("year"), "arrdelay")
+    val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
+    rdd.count
   }
 }
