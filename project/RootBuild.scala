@@ -13,20 +13,22 @@ object RootBuild extends Build {
   //////// Project definitions/configs ///////
   //////// Project definitions/configs ///////
   val OBSELETE_HADOOP_VERSION = "1.0.4"
-  val DEFAULT_HADOOP_VERSION = "2.2.0"
+  val DEFAULT_HADOOP_VERSION = "2.3.0-cdh5.1.3"
 
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
   //Use adatao spark + shark version
-  lazy val MAIN_SHARK_VERSION = "0.9.2"
-  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  //lazy val MAIN_SHARK_VERSION = "0.9.2"
+  //lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
+  //else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
 
-  lazy val MAIN_SPARK_VERSION = "0.9.2"
-  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  //lazy val MAIN_SPARK_VERSION = "0.9.2"
+  //lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
+  //else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
 
+  val SPARK_VERSION = "0.9.2-hadoop2.3.0-cdh5.1.3-adatao"
+  val SHARK_VERSION = "0.9.2-hadoop2.3.0-cdh5.1.3-adatao"
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
