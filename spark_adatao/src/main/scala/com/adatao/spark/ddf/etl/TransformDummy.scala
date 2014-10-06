@@ -51,7 +51,7 @@ object TransformDummy {
       var terminated = false
       while (columnAccessor.hasNext && !terminated) {
         try {
-          val value = columnAccessor.extractSingle(buffer)
+          columnAccessor.extractSingle(buffer)
           count += 1
         } catch {
           case e: java.nio.BufferUnderflowException => terminated = true
@@ -170,11 +170,12 @@ object TransformDummy {
 
       var numDummyCols = 0
       if (categoricalMap != null) {
-        val iterator2 = categoricalMap.keySet().iterator()
-        while (iterator2.hasNext) {
-          numDummyCols += categoricalMap.get(iterator2.next).size() - 2
+        xCols.foreach{xCol => {
+            if(categoricalMap.containsKey(xCol)) {
+              numDummyCols += categoricalMap.get(xCol).keySet().size - 2
+            }
+          }
         }
-
       }
 
       val Y = new Vector(numRows)
@@ -226,8 +227,7 @@ object TransformDummy {
               fillColumnWithConversion(X, i, columnIterator, numRows, nullBitmap, (current: Object) => {
                 // invariant: columnMap.contains(x)
                 val k = current.toString
-                val value = columnMap.get(k)
-                value
+                columnMap.get(k)
               })
 
             } else {
