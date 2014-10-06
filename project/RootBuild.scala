@@ -111,10 +111,10 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "ddf_core_2.10" %  rootVersion,
-    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10")
+    "io.ddf" % "ddf_core_2.10" %  rootVersion exclude("org.apache.hadoop", "hadoop-common"),
+    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.hadoop", "hadoop-common")
       exclude("edu.berkeley.cs.shark", "shark_2.10") exclude("org.apache.spark", "spark-mllib_2.10") exclude("org.apache.spark", "spark-yarn_2.10"),
-    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"), 
     //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
     "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
@@ -237,6 +237,9 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
+    dependencyOverrides += "org.apache.hadoop" % "hadoop-common" % "2.3.0-cdh5.1.3",
+    dependencyOverrides += "org.apache.commons" % "commons-math3" % "3.2",
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
 //    dependencyOverrides += "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
 //    dependencyOverrides += "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
 //    dependencyOverrides += "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
