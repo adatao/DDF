@@ -52,14 +52,11 @@ object TransformDummy {
       while (columnAccessor.hasNext && !terminated) {
         try {
           val value = columnAccessor.extractSingle(buffer)
-          println(">>> value = " + value)
-          println(">>> count = " + count)
           count += 1
         } catch {
           case e: java.nio.BufferUnderflowException => terminated = true
         }
       }
-      println(">>> final count = " + count)
       count
     }
     counts.min
@@ -120,7 +117,6 @@ object TransformDummy {
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         val value = columnAccessor.extractSingle(bytebuffer)
-        println(">>>> fillNumericColumn: value = " + value)
         matrix.put(i, col, toDouble(value.asInstanceOf[Object]))
         i += 1
       }
