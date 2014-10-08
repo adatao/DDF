@@ -60,9 +60,6 @@ mkdir -p ${LOG_DIR}
 
 ${DIR}/exe/stop-pa-server.sh
 
-hdfs dfs -mkdir /user
-hdfs dfs -mkdir /user/root/
-hdfs dfs -put ${DIR}/libs/jars/ddf_pa-assembly-0.9.jar ${SPARK_YARN_APP_JAR#hdfs://}
 
 [ "X$start_spark" == "X1" ] && ${DIR}/exe/start-spark-cluster.sh $@
 
