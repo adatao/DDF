@@ -17,6 +17,7 @@
 package com.adatao.pa.spark.execution;
 
 
+import io.ddf.exception.DDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.ddf.DDF;
@@ -53,7 +54,11 @@ public class NRow extends CExecutor {
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }
-    return new NRowResult(ddf.getNumRows());
+    try {
+      return new NRowResult(ddf.getNumRows());
+    } catch(Exception e) {
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL,"Error getting NumRows", null);
+    }
   }
 
   public NRow setDataContainerID(String dataContainerID) {
