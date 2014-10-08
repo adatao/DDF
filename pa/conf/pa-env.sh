@@ -91,11 +91,10 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=20
+        export SPARK_WORKER_INSTANCES=`nl -ba /root/cluster/slaves | tail -1 | awk '{ print $1 }'`
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
-        export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
         export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
