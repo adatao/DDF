@@ -22,9 +22,9 @@ import scala.collection.JavaConversions._
 import com.rits.cloning.Cloner
 import io.ddf.etl.IHandleTransformations
 import io.ddf.exception.DDFException
-import org.apache.spark.sql.SchemaRDD
+//import org.apache.spark.sql.SchemaRDD
 import io.spark.ddf.content.RepresentationHandler
-import org.apache.spark.sql.columnar.InMemoryRelation
+//import org.apache.spark.sql.columnar.InMemoryRelation
 
 /**
  */
@@ -43,18 +43,18 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
     //return Matrix Vector
     //TODO: migrate to SPARKSQL
-    val hiveContext = mDDF.getManager.asInstanceOf[SparkDDFManager].getHiveContext
     val isCached = mDDF.asInstanceOf[SparkDDF].isCached
     mDDF.asInstanceOf[SparkDDF].cacheTable()
-    val inMemoryRelation = hiveContext.table(mDDF.getTableName).queryExecution.analyzed match {
-      case inMemory: InMemoryRelation => inMemory
-      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
-    }
+//    val inMemoryRelation = hiveContext.table(mDDF.getTableName).queryExecution.analyzed match {
+//      case inMemory: InMemoryRelation => inMemory
+//      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
+//    }
     //mDDF.asInstanceOf[SparkDDF].unCacheTable()
-    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(inMemoryRelation, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
-    if(!isCached) {
-      mDDF.asInstanceOf[SparkDDF].unCacheTable()
-    }
+//    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(inMemoryRelation, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+//    if(!isCached) {
+//      mDDF.asInstanceOf[SparkDDF].unCacheTable()
+//    }
+    val rddMatrixVector: RDD[TupleMatrixVector] = null
     //check if contains dummy coding
     var hasDummyCoding = false
     var i = 0

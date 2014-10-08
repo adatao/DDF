@@ -105,13 +105,15 @@ object RootBuild extends Build {
     "io.ddf" % "ddf_core_2.10" %  rootVersion,
     "io.ddf" % "ddf_spark_2.10" % rootVersion,
     "com.novocode" % "junit-interface" % "0.10" % "test",
-    "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
+    "org.apache.hadoop" % "hadoop-auth" % "2.3.0-cdh5.1.3",
     "uk.com.robust-it" % "cloning" % "1.9.0"
   )
 
   val pa_dependencies = Seq(
     "com.googlecode.matrix-toolkits-java" % "mtj" % "0.9.14",
-    "com.novocode" % "junit-interface" % "0.10" % "test"
+    "com.novocode" % "junit-interface" % "0.10" % "test",
+    "org.apache.thrift" % "libthrift" % "0.9.0",
+    "org.json" % "json" % "20140107"
     //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
 
@@ -221,10 +223,12 @@ object RootBuild extends Build {
     dependencyOverrides += "com.sun.jersey" % "jersey-core" % "1.9",
     dependencyOverrides += "javax.xml.bind" % "jaxb-api" % "2.2.2",
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
-    dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
+    //dependencyOverrides += "org.mockito" % "mockito-all" % "1-org.mockito.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
+    dependencyOverrides += "org.apache.commons" % "commons-math3" % "3.2",
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
 
     pomExtra := (
       <!--
