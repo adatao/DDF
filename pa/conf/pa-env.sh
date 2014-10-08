@@ -91,7 +91,8 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=`nl -ba /root/cluster/slaves | tail -1 | awk '{ print $1 }'`
+        export SPARK_WORKER_INSTANCES=`nl -ba /root/spark-ec2/slaves | tail -1 | awk '{ print $1 }'`
+        export SPARK_WORKER_INSTANCES=`nl -ba /root/cluster/slaves | tail -1 | awk '{ print $1 }'` 
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
