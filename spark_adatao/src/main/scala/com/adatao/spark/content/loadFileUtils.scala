@@ -46,9 +46,10 @@ import org.apache.commons.lang.math.NumberUtils
         }
         arrObj.toArray
       }
-    }
-
-    val ddf = new SparkDDF(manager, rddArrObj, classOf[Array[Object]], manager.getNamespace, null, schema)
+    }.map{row => Array(row(22), row(4), row(19), row(18))}
+    val newColumns = Array(22, 4, 19, 18).map{idx => schema.getColumn(idx)}
+    val newSchema = new Schema(null, newColumns)
+    val ddf = new SparkDDF(manager, rddArrObj, classOf[Array[Object]], manager.getNamespace, null, newSchema)
     val tableName = ddf.getSchemaHandler.newTableName()
     schema.setTableName(tableName)
     ddf.setName(tableName)
