@@ -47,7 +47,7 @@ import org.apache.commons.lang.math.NumberUtils
       }
     }
 
-    val ddf = new SparkDDF(manager, rddArrObj, classOf[Array[Object]], manager.getNamespace, null,schema)
+    val ddf = new SparkDDF(manager, rddArrObj, classOf[Array[Object]], manager.getNamespace, null, schema)
     val tableName = ddf.getSchemaHandler.newTableName()
     schema.setTableName(tableName)
     ddf.setName(tableName)

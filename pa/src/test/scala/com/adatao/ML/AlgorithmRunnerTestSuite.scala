@@ -4,11 +4,7 @@ import scala.collection.JavaConversions._
 
 import org.scalatest.FunSuite
 
-import org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_NAME
-import org.apache.hadoop.hive.ql.metadata.Hive
-import org.apache.spark.rdd.RDD
-import org.apache.spark.rdd.UnionRDD
-import org.apache.spark.storage.StorageLevel
+
 
 
 class AlgorithmRunnerTestSuite extends FunSuite {

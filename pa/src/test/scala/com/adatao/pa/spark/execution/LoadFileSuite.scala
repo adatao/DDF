@@ -1,8 +1,8 @@
 package com.adatao.pa.spark.execution
 
-import com.adatao.spark.ddf.ATestSuite
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.Utils.DataFrameResult
+import com.adatao.pa.spark.execution.NRow.NRowResult
 
 /**
  * author: daoduchuan
@@ -19,6 +19,10 @@ class LoadFileSuite extends ABigRClientTest {
       "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int"
     val cmd = new LoadFile("../resources/test/airline.csv", schema, ",")
     val result = bigRClient.execute[DataFrameResult](cmd)
-
+    assert(result.isSuccess)
+    val cmd2 = new NRow().setDataContainerID(result.result.getDataContainerID)
+    val result2 = bigRClient.execute[NRowResult](cmd2)
+    assert(result2.isSuccess)
+    println(">>>> nrow = " + result2.result.nrow)
   }
 }
