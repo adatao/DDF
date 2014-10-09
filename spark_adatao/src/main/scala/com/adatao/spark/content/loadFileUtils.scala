@@ -18,7 +18,7 @@ import org.apache.commons.lang.math.NumberUtils
   def loadFile(manager: SparkDDFManager, fileURL: String, schema: Schema, separator: String): DDF = {
     val rdd: RDD[String] = manager.getSparkContext.textFile(fileURL)
 
-    val rddArrObj: RDD[Array[Object]] = rdd.map{
+    val rddArrObj: RDD[Array[Object]] = rdd.map {
       row => {
         val arrStr = row.split(separator)
         val cols = schema.getColumns
@@ -46,8 +46,8 @@ import org.apache.commons.lang.math.NumberUtils
         }
         arrObj.toArray
       }
-    }.map{row => Array(row(22), row(4), row(19), row(18))}
-    val newColumns = Array(22, 4, 19, 18).map{idx => schema.getColumn(idx)}
+    }.map{row => Array(row(4), row(19), row(18))}.cache()
+    val newColumns = Array(4, 19, 18).map{idx => schema.getColumn(idx)}
     val newSchema = new Schema(null, newColumns)
     val ddf = new SparkDDF(manager, rddArrObj, classOf[Array[Object]], manager.getNamespace, null, newSchema)
     val tableName = ddf.getSchemaHandler.newTableName()
