@@ -17,7 +17,7 @@ class LoadFileSuite extends ABigRClientTest {
       "Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, " +
       "CancellationCode string, Diverted string, CarrierDelay int, " +
       "WeatherDelay int, NASDelay int, SecurityDelay int, LateAircraftDelay int"
-    val cmd = new LoadFile("../resources/test/airline.csv", schema, ",")
+    val cmd = new LoadFile("../resources/test/airlineBig.csv", schema, ",")
     val result = bigRClient.execute[DataFrameResult](cmd)
     assert(result.isSuccess)
     val cmd2 = new NRow().setDataContainerID(result.result.getDataContainerID)
