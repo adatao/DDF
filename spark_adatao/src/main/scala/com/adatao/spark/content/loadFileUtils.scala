@@ -5,6 +5,7 @@ import io.ddf.DDF
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConversions._
 
+import org.apache.spark.rdd.RDD
 import io.ddf.content.Schema.ColumnType
 import io.spark.ddf.{SparkDDF, SparkDDFManager}
 import org.apache.commons.lang.math.NumberUtils
