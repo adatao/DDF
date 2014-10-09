@@ -3,6 +3,7 @@ package com.adatao.pa.spark.execution
 import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.NRow.NRowResult
+import io.ddf.ml.IModel
 
 /**
  * author: daoduchuan
@@ -24,5 +25,15 @@ class LoadFileSuite extends ABigRClientTest {
     val result2 = bigRClient.execute[NRowResult](cmd2)
     assert(result2.isSuccess)
     println(">>>> nrow = " + result2.result.nrow)
+  }
+
+  test("test SparkLinearRegressionGD") {
+    val schema = "v1 double, v2 double"
+    val cmd = new LoadFile("resources/KmeansData_small", schema, " ")
+    val result = bigRClient.execute[DataFrameResult](cmd)
+    assert(result.isSuccess)
+    val cmd2 = new SparkLinearRegressionGD(result.result.getDataContainerID, 10, 0.1)
+    val resul2 = bigRClient.execute[IModel](cmd2)
+    assert(resul2.isSuccess)
   }
 }
