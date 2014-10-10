@@ -50,7 +50,7 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
+export HADOOP_CONF_DIR=/root/hadoop-2.4.1/conf
 
 export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
@@ -94,9 +94,10 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_INSTANCES=20
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
-        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
+        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-0.9.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
+        #export SPARK_YARN_APP_JAR=hdfs://ec2-54-197-232-5.compute-1.amazonaws.com:9000/user/root/ddf_pa_2.10-0.9.jar
+        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
