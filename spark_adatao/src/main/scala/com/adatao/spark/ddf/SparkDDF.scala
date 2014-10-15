@@ -24,6 +24,7 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
     }
     val cachedColumnBuffers= inMemoryRelation.cachedColumnBuffers
     //force the table to materialzie
+    mLog.info(">>>>> force the table to materialize")
     cachedColumnBuffers.count()
     this.getRepresentationHandler.add(cachedColumnBuffers, classOf[RDD[_]], classOf[Array[ByteBuffer]])
   }
