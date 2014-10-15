@@ -15,6 +15,7 @@ import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.content.Schema
 import io.spark.ddf.SparkDDF
 import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.rdd.RDD
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -41,7 +42,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
         //val sparkDDF = new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
-        val sparkDDF: DDF = ddfManager.newDDF(ddf.getManager, ytrueYpredRDD, Array[Class[_]](classOf[SchemaRDD]), ddf.getNamespace, null, schema)
+        val sparkDDF: DDF = ddfManager.newDDF(ddf.getManager, ytrueYpredRDD, Array[Class[_]](classOf[RDD[_]], classOf[Array[Double]]), ddf.getNamespace, null, schema)
         sparkDDF.getName()
         sparkDDF
       }
