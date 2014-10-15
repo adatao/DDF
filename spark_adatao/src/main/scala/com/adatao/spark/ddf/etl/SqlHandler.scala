@@ -10,7 +10,7 @@ import com.adatao.spark.ddf.SparkDDF
 class SqlHandler(mDDF: DDF) extends IOSqlHandler(mDDF) {
 
   override def sql2ddf(command: String, schema: Schema, dataSource: String, dataFormat: Schema.DataFormat): DDF = {
-    val ddf = super.sql2ddf(command, schema, dataSource)
+    val ddf = super.sql2ddf(command, schema, dataSource, dataFormat)
     ddf.asInstanceOf[SparkDDF].cacheTable()
     ddf
   }
