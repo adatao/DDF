@@ -9,6 +9,7 @@ import io.ddf.types.TupleMatrixVector
 import org.apache.spark.rdd.RDD
 import io.ddf.etl.IHandleTransformations
 import io.ddf.exception.DDFException
+import io.spark.ddf.SparkDDF
 
 /**
  */
@@ -23,7 +24,7 @@ class MLSupporter(mDDF: DDF) extends IOMLSupporter(mDDF) {
       case linearModel: ALinearModel[Double] => {
         mLog.info(">>> ALinearModel, running dummyCoding transformation")
         val dummyCodingDDF = this.mDDF.getTransformationHandler.dummyCoding(xCols, yCol)
-        val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
+        val rddMatrixVector = dummyCodingDDF.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
         val yTrueYPred = linearModel.yTrueYPred(rddMatrixVector)
         val result = MLSupporter.binaryConfusionMatrix(yTrueYPred, iThreshold)
         Array(Array(result(3), result(2)), Array(result(1), result(0)))

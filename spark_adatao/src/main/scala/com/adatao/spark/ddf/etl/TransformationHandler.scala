@@ -30,7 +30,7 @@ import org.apache.spark.sql.columnar.InMemoryRelation
  */
 class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
-  def dummyCoding(xCols: Array[String], yCol: String): SparkDDF = {
+  def dummyCoding(xCols: Array[String], yCol: String): DDF = {
 
     mDDF.getSchemaHandler.setFactorLevelsForStringColumns(xCols)
     mDDF.getSchemaHandler.computeFactorLevelsAndLevelCounts()
@@ -79,11 +79,12 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 
       dummyCoding.setColNameMapping(colNameMapping)
       newSchema.setDummyCoding(dummyCoding)
-      new SparkDDF(mDDF.getManager(), rddMatrixVector2, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
+      mDDF.getManager.newDDF(mDDF.getManager, rddMatrixVector2, Array(classOf[RDD[_]],
+        classOf[TupleMatrixVector]), mDDF.getNamespace, null, newSchema)
     } else {
       //build schema for dummyCodingDDF
-
-      new SparkDDF(mDDF.getManager(), rddMatrixVector, classOf[TupleMatrixVector], mDDF.getNamespace(), null, newSchema)
+      mDDF.getManager.newDDF(mDDF.getManager, rddMatrixVector, Array(classOf[RDD[_]],
+        classOf[TupleMatrixVector]), mDDF.getNamespace, null, newSchema)
     }
   }
 }

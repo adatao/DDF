@@ -5,6 +5,9 @@ import io.ddf.content.Schema
 import scala.collection.JavaConversions._
 import org.junit.Assert._
 import com.adatao.spark.ddf.ATestSuite
+import io.ddf.DDF
+import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.rdd.RDD
 
 /**
   */
@@ -19,7 +22,7 @@ class CrossValidationSuite extends ATestSuite {
     val data = manager.getSparkContext.parallelize(arr, 2)
     val schema = new Schema("data", "v1 int");
 
-    val ddf = new SparkDDF(manager, data, classOf[Array[Object]], manager.getNamespace, "data", schema)
+    val ddf = manager.newDDF(manager, data, Array[Class[_]](classOf[RDD[_]], classOf[Array[Object]]), manager.getNamespace, "data", schema)
     for (seed <- 1 to 5) {
       for (split <- ddf.ML.CVRandom(5, 0.85, seed)) {
         val train = split(0).asInstanceOf[SparkDDF].getRDD(classOf[Array[Object]]).collect()
@@ -38,7 +41,7 @@ class CrossValidationSuite extends ATestSuite {
     val data = manager.getSparkContext.parallelize(arr, 2)
     val schema = new Schema("data", "v1 int");
 
-    val ddf = new SparkDDF(manager, data, classOf[Array[Object]], manager.getNamespace, "data", schema)
+    val ddf = manager.newDDF(manager, data, Array[Class[_]](classOf[RDD[_]], classOf[Array[Object]]), manager.getNamespace, "data", schema)
     for (seed <- 1 to 3) {
       val betweenFolds = scala.collection.mutable.ArrayBuffer.empty[Set[Array[Object]]]
       for (split <- ddf.ML.CVKFold(5, seed)) {

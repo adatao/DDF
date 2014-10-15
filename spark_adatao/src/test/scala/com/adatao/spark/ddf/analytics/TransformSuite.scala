@@ -61,7 +61,7 @@ class TransformSuite extends ATestSuite {
     val dummyCodingDDF = ddf.getTransformationHandler.dummyCoding(Array("year", "month", "dayofmonth"), "arrdelay")
 
     val model = new DummyModel(Vector(Array(0.5,0.1, 0.2, 0.3)), 100)
-    val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
+    val rddMatrixVector = dummyCodingDDF.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     assert(rddMatrixVector.count() > 0)
     val rdd = model.yTrueYPred(rddMatrixVector)
     assert(rdd.count() == 31)

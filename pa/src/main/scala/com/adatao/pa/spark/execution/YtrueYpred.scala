@@ -14,6 +14,7 @@ import com.adatao.pa.spark.Utils._
 import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.content.Schema
 import io.spark.ddf.SparkDDF
+import org.apache.spark.sql.SchemaRDD
 
 /**
  * Return predictions pair (ytrue, ypred) RDD in a DataFrame,
@@ -36,10 +37,11 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
       case linearModel: ALinearModel[Double] => {
         LOG.info(">>> ALinearModel, running dummyCoding transformation")
         val dummyCodingDDF = ddf.getTransformationHandler.dummyCoding(xs, y(0))
-        val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
+        val rddMatrixVector = dummyCodingDDF.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
         val ytrueYpredRDD = linearModel.yTrueYPred(rddMatrixVector)
         val schema = new Schema(null, "ytrue double, yPredict double")
-        val sparkDDF = new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
+        //val sparkDDF = new SparkDDF(ddf.getManager, ytrueYpredRDD, classOf[Array[Double]], ddf.getNamespace, null, schema)
+        val sparkDDF: DDF = ddfManager.newDDF(ddf.getManager, ytrueYpredRDD, Array[Class[_]](classOf[SchemaRDD]), ddf.getNamespace, null, schema)
         sparkDDF.getName()
         sparkDDF
       }

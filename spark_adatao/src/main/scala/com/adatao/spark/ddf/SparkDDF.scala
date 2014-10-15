@@ -10,7 +10,6 @@ import java.nio.ByteBuffer
 
 /**
  */
-//(manager : DDFManager, data : AnyRef, typeSpecs : Array[Class[_]], namespace : String, name : String, schema : Schema)
 class SparkDDF(manager: DDFManager, data: AnyRef,
                typeSpecs: Array[Class[_]], namespace: String,
                name: String, schema: Schema) extends IOSparkDDF(manager, data, typeSpecs, namespace, name, schema) {
@@ -27,5 +26,8 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
     //force the table to materialzie
     cachedColumnBuffers.count()
     this.getRepresentationHandler.add(cachedColumnBuffers, classOf[RDD[_]], classOf[Array[ByteBuffer]])
+  }
+  def this(manager: DDFManager) = {
+    this(manager, null, null, manager.getNamespace, null, null)
   }
 }
