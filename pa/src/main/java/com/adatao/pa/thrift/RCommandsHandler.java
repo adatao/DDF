@@ -59,6 +59,10 @@ public class RCommandsHandler implements RCommands.Iface {
 		this.sessionManager = sessionManager;
 	}
 
+	boolean isAdminUser(String clientID){
+		return clientID.equals(SessionManager.ADMINUSER());
+	}
+	
 	public JsonResult sendJsonCommand(final JsonCommand cmd) throws TException, JsonSyntaxException, ClassNotFoundException {
 		if (!sessionManager.hasSession(cmd.getSid())) {
 			return new JsonResult().setResult(new FailResult().setMessage("Session closed. Please reconnect!"));
@@ -70,13 +74,22 @@ public class RCommandsHandler implements RCommands.Iface {
 		
 		try {
 			if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
+				if(isAdminUser(clientID)){
+					LOG.error("Admin user is prohibited to run command here. She can only run the first connect command");
+					return new JsonResult().setResult(new FailResult().setMessage("This user is prohibited to run this command"));
+				}
+				
 				Configuration conf = SparkHadoopUtil.get().newConfiguration();				
 				UserGroupInformation.setConfiguration(conf);
 				
 				//run as clientID 
 				LOG.info("Execute command as: "+clientID);
-				UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(clientID, 
+				UserGroupInformation adminUgi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(SessionManager.ADMINUSER(), 
 						System.getProperty("pa.keytab.file"));
+				
+				UserGroupInformation ugi = 
+	                     UserGroupInformation.createProxyUser(clientID, adminUgi);
+				
 				resultStr = ugi.doAs(new PrivilegedExceptionAction<String>() {
 					public String run() throws Exception {
 						return sparkThread.processJsonCommand1(cmd).toJson();
@@ -102,7 +115,7 @@ public class RCommandsHandler implements RCommands.Iface {
 
 	@Override
 	public JsonResult execJsonCommand(JsonCommand cmd) throws TException {
-		LOG.info("execJsonCommand: " + cmd);
+		LOG.info("Execute command: " + cmd);
 		if (cmd.getCmdName().toLowerCase().equals("connect")) {
 			// this is a newer way to do connect
 			try {
@@ -124,11 +137,9 @@ public class RCommandsHandler implements RCommands.Iface {
 					Configuration conf = SparkHadoopUtil.get().newConfiguration();				
 					UserGroupInformation.setConfiguration(conf);
 					
-					//since connect will start the containers on slaves and does not access any data,
-					//we run it as pa.user
-					UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.user"), 
+					UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(connect.getClientID(), 
 							System.getProperty("pa.keytab.file"));
-						
+					
 					res = ugi.doAs(new PrivilegedExceptionAction<JsonResult>() {
 						public JsonResult run() throws Exception {
 							return connect.run();
@@ -137,11 +148,12 @@ public class RCommandsHandler implements RCommands.Iface {
 				} else {
 					res = connect.run();
 				}
-				connectLock.unlock();				
 				LOG.info(res.toString());
+				connectLock.unlock();
 				return res;
 			} catch (Exception e) {
 				LOG.info("Exception: ", e);
+				connectLock.unlock();
 				return new JsonResult().setResult(new FailResult().setMessage(e.getMessage()));
 			}
 		} else if (cmd.getCmdName().toLowerCase().equals("disconnect")) {
