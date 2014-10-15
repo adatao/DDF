@@ -51,7 +51,7 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 //      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
 //    }
 
-    val cachedColumnBuffers = this.mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[Array[ByteBuffer]])
+    val cachedColumnBuffers = this.mDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[ByteBuffer]])
     val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(cachedColumnBuffers, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
     if(!isCached) {
       mDDF.asInstanceOf[SparkDDF].unCacheTable()
