@@ -73,8 +73,8 @@ public class RCommandsHandler implements RCommands.Iface {
 		String resultStr;
 		
 		try {
-			if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
-				if(isAdminUser(clientID)){
+			if(Boolean.parseBoolean(System.getProperty("pa.authentication"))){
+				if(isAdminUser(clientID) && !Boolean.parseBoolean(System.getProperty("run.as.admin"))){
 					LOG.error("Admin user is prohibited to run command here. She can only run the first connect command");
 					return new JsonResult().setResult(new FailResult().setMessage("This user is prohibited to run this command"));
 				}
@@ -82,13 +82,19 @@ public class RCommandsHandler implements RCommands.Iface {
 				Configuration conf = SparkHadoopUtil.get().newConfiguration();				
 				UserGroupInformation.setConfiguration(conf);
 				
-				//run as clientID 
-				LOG.info("Execute command as: "+clientID);
-				UserGroupInformation adminUgi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(SessionManager.ADMINUSER(), 
-						System.getProperty("pa.keytab.file"));
+				UserGroupInformation ugi;
+				if (Boolean.parseBoolean(System.getProperty("run.as.admin"))){
+					LOG.info("Execute command as admin");
+					ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(SessionManager.ADMINUSER(), 
+							System.getProperty("pa.keytab.file"));
+				} else {
+					LOG.info("Execute command as: "+clientID);
+					ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(clientID, 
+							System.getProperty("pa.keytab.file"));
+				}
 				
-				UserGroupInformation ugi = 
-	                     UserGroupInformation.createProxyUser(clientID, adminUgi);
+//				UserGroupInformation ugi = 
+//	                     UserGroupInformation.createProxyUser(clientID, adminUgi);
 				
 				resultStr = ugi.doAs(new PrivilegedExceptionAction<String>() {
 					public String run() throws Exception {
@@ -137,8 +143,17 @@ public class RCommandsHandler implements RCommands.Iface {
 					Configuration conf = SparkHadoopUtil.get().newConfiguration();				
 					UserGroupInformation.setConfiguration(conf);
 					
-					UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(connect.getClientID(), 
-							System.getProperty("pa.keytab.file"));
+					UserGroupInformation ugi;
+					if (Boolean.parseBoolean(System.getProperty("run.as.admin"))){
+						LOG.info("Execute command as admin");
+						ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(SessionManager.ADMINUSER(), 
+								System.getProperty("pa.keytab.file"));
+					} else {
+						String clientID = connect.getClientID();
+						LOG.info("Execute command as: "+clientID);
+						ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(clientID, 
+								System.getProperty("pa.keytab.file"));
+					}
 					
 					res = ugi.doAs(new PrivilegedExceptionAction<JsonResult>() {
 						public JsonResult run() throws Exception {
