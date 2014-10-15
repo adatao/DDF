@@ -83,20 +83,19 @@ SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
-#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytab"
-#SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
-#SPARK_JAVA_OPTS+=" -Dpa.user=pa"
+SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
+SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
+SPARK_JAVA_OPTS+=" -Dpa.user=pa"
 #SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
 export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=20
+        export SPARK_WORKER_INSTANCES=`nl -ba /root/spark-ec2/slaves | tail -1 | awk '{ print $1 }'`
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-0.9.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        #export SPARK_YARN_APP_JAR=hdfs://ec2-54-197-232-5.compute-1.amazonaws.com:9000/user/root/ddf_pa_2.10-0.9.jar
         export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
