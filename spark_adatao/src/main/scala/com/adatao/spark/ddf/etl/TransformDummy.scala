@@ -21,10 +21,10 @@ import io.spark.ddf.ml.TransformRow
 object TransformDummy {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  def schemaRDD2MatrixVector(inMemoryRelation: InMemoryRelation, xCols: Array[Int], yCol: Int,
+  def schemaRDD2MatrixVector(cachedColumnBuffers: RDD[Array[ByteBuffer]], xCols: Array[Int], yCol: Int,
                              categoricalMap: HashMap[Integer,
                                HashMap[String, java.lang.Double]] = null): RDD[TupleMatrixVector] = {
-    inMemoryRelation.cachedColumnBuffers.map {
+    cachedColumnBuffers.map {
       arrayByteBuffer => {
         tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap)(arrayByteBuffer)
       }
@@ -32,18 +32,7 @@ object TransformDummy {
   }
 
   def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
-//    columnAccessor match {
-//      case nci: NativeColumnAccessor[_] => {
-//        val byteBuffer = nci.underlyingBuffer.duplicate().order(ByteOrder.nativeOrder())
-//        byteBuffer.rewind()
-//        val newColumnAccessor = ColumnAccessor(byteBuffer).asInstanceOf[NativeColumnAccessor[_]]
-//        var count = 0
-//        while (newColumnAccessor.hasNext) {
-//          newColumnAccessor.extractSingle(byteBuffer)
-//          count += 1
-//        }
-//        count
-//      }
+
     val counts = columnIterators.map {
       bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
       val buffer = columnAccessor.buffer

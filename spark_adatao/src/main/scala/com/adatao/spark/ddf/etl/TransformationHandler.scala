@@ -13,7 +13,7 @@ import java.util.BitSet
 import org.jblas.DoubleMatrix
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io._
-import java.nio.ByteOrder
+import java.nio.{ByteBuffer, ByteOrder}
 import java.util.HashMap
 import io.spark.ddf.ml.TransformRow
 import io.ddf.content.Schema
@@ -46,12 +46,13 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
     val hiveContext = mDDF.getManager.asInstanceOf[SparkDDFManager].getHiveContext
     val isCached = mDDF.asInstanceOf[SparkDDF].isCached
     mDDF.asInstanceOf[SparkDDF].cacheTable()
-    val inMemoryRelation = hiveContext.table(mDDF.getTableName).queryExecution.analyzed match {
-      case inMemory: InMemoryRelation => inMemory
-      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
-    }
-    //mDDF.asInstanceOf[SparkDDF].unCacheTable()
-    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(inMemoryRelation, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+//    val inMemoryRelation = hiveContext.table(mDDF.getTableName).queryExecution.analyzed match {
+//      case inMemory: InMemoryRelation => inMemory
+//      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
+//    }
+
+    val cachedColumnBuffers = this.mDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[Array[ByteBuffer]])
+    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(cachedColumnBuffers, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
     if(!isCached) {
       mDDF.asInstanceOf[SparkDDF].unCacheTable()
     }
