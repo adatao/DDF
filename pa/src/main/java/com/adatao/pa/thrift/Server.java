@@ -25,20 +25,26 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.RCommands;
+import com.adatao.pa.thrift.generated.RCommands.Client;
 
 import org.apache.spark.deploy.SparkHadoopUtil;
 
 public class Server {
 	int port;
-	String host = "localhost";
+	static String host = "localhost";
 	TServer server;
 	RCommands.Iface handler;
 	public static Boolean MULTIUSER_DEFAULT = false;
@@ -61,22 +67,27 @@ public class Server {
 	}
 
 	public void start() {
-		try {
-			// Set port
-			serverLock.lock();
-			TServerSocket serverTransport = new TServerSocket(port);
-			handler = new RCommandsHandler(sessionManager);
-			RCommands.Processor<RCommands.Iface> processor = new RCommands.Processor<RCommands.Iface>(handler);
-
-			server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
-			serverLock.unlock();
-			
-			LOG.info("Starting thrift server on port " + port);
-			server.serve();
-		} catch (TTransportException e) {
-			e.printStackTrace();
-			LOG.error("Cannot start server", e);
+		class ServerThread extends Thread {
+			public void run(){
+				try {
+					// Set port
+					serverLock.lock();
+					TServerSocket serverTransport = new TServerSocket(port);
+					handler = new RCommandsHandler(sessionManager);
+					RCommands.Processor<RCommands.Iface> processor = new RCommands.Processor<RCommands.Iface>(handler);
+	
+					server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
+					serverLock.unlock();
+					
+					LOG.info("Starting thrift server on port " + port);
+					server.serve();
+				} catch (TTransportException e) {
+					e.printStackTrace();
+					LOG.error("Cannot start server", e);
+				}
+			}
 		}
+		new ServerThread().start();
 	}
 
 	public void stop() {
@@ -87,8 +98,20 @@ public class Server {
 		serverLock.unlock();
 		LOG.info("Stopped thrift server on port " + port);
 	}
-
-	public static void main(String args[]) throws IOException, InterruptedException {
+	
+	/**
+	 * Make the first connection to start workers on slave nodes   
+	 */
+	public static void makeFirstConnection(String host, int port) throws TTransportException, TException{
+		TTransport socket = new TSocket(host, port);
+		socket.open();
+		TBinaryProtocol protocol = new TBinaryProtocol(socket);
+		Client client = new RCommands.Client(protocol);
+		//connect first as ADMINUSER
+		client.execJsonCommand(new JsonCommand().setCmdName("connect").setParams(String.format("{clientID: %s}", SessionManager.ADMINUSER())));
+	}
+	
+	public static void main(String args[]) throws IOException, InterruptedException, TTransportException, TException {
 		int port = Integer.parseInt(System.getProperty("bigr.server.thriftPort", "7911"));
 		if (args.length > 0) {
 			port = Integer.parseInt(args[0]);
@@ -98,17 +121,31 @@ public class Server {
 		if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
 			Configuration conf = SparkHadoopUtil.get().newConfiguration();				
 			UserGroupInformation.setConfiguration(conf);
-			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.user"), 
+			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.admin.user"), 
 					System.getProperty("pa.keytab.file"));
 			
-			ugi.doAs(new PrivilegedExceptionAction<Void>() {
+			class ServerPrivilegedAction implements PrivilegedExceptionAction<Void> {
+				String host;
+				int port;
+				
+				public ServerPrivilegedAction(String host, int port){
+					this.host = host;
+					this.port = port;
+				}
+				
+				@Override
 				public Void run() throws Exception {
 					server.start();
+					makeFirstConnection(host, port);
 					return (null);
 				}
-			});
+				
+			}
+			ugi.doAs(new ServerPrivilegedAction(host, port));
+			
 		} else {
 			server.start();
+			makeFirstConnection(host, port);
 		}
 		
 		
