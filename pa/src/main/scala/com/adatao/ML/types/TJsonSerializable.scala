@@ -322,7 +322,7 @@ private object SpecialSerDes {
 
   class SparkModelDeserializer extends JsonDeserializer[SparkModel] {
 
-    def deserializer(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): SparkModel = {
+    def deserialize(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): SparkModel = {
       jElem match {
         case jObj: JsonObject => {
           val clazz = Class.forName(jObj.get("modelType").getAsString)
