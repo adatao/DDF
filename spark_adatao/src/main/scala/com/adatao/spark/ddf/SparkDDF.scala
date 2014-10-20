@@ -13,7 +13,8 @@ import java.nio.ByteBuffer
 class SparkDDF(manager: DDFManager, data: AnyRef,
                typeSpecs: Array[Class[_]], namespace: String,
                name: String, schema: Schema) extends IOSparkDDF(manager, data, typeSpecs, namespace, name, schema) {
-
+  //Cache table force the materializing of RDD[Array[ByteBuffer]]
+  // also add RDd[Array[ByteBuffer]] into RepHandler
   override def cacheTable(): Unit = {
     this.saveAsTable()
     val hiveContext = this.getManager.asInstanceOf[SparkDDFManager].getHiveContext

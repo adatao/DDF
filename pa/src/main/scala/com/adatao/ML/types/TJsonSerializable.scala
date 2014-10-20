@@ -19,6 +19,8 @@ package com.adatao.ML.types
 import java.lang.reflect.Type
 import com.google.gson._
 import io.ddf.ml.{IModel, Model}
+import io.spark.ddf.ml.{Model => SparkModel}
+
 import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.linalg.{DenseVector, Vectors, Vector}
 import scala.Tuple9
@@ -33,6 +35,7 @@ import scala.Tuple8
 import scala.Tuple2
 import scala.Tuple4
 import org.apache.spark.mllib.linalg.DenseVector
+import com.adatao.ML.types.SpecialSerDes.SparkModelDeserializer
 
 /**
  * Every [[TJsonSerializable]] can provide its own (override) fromJson() and toJson().
@@ -120,6 +123,7 @@ object TJsonSerializable {
 		.registerTypeHierarchyAdapter(classOf[java.lang.Double], new SpecialSerDes.DoubleDeserializer)
 		.registerTypeHierarchyAdapter(classOf[Product], new SpecialSerDes.ProductDeserializer)
     .registerTypeAdapter(classOf[Model], new SpecialSerDes.ModelDeserializer)
+    .registerTypeAdapter(classOf[SparkModel], new SparkModelDeserializer)
 }
 
 /**
@@ -315,6 +319,23 @@ private object SpecialSerDes {
       }
     }
   }
+
+  class SparkModelDeserializer extends JsonDeserializer[SparkModel] {
+
+    def deserializer(jElem: JsonElement, theType: Type, context: JsonDeserializationContext): SparkModel = {
+      jElem match {
+        case jObj: JsonObject => {
+          val clazz = Class.forName(jObj.get("modelType").getAsString)
+          val rawModel = standardGson.fromJson(jObj.get("mRawModel"), clazz)
+          jObj.remove("mRawModel")
+          val deserializedModel: SparkModel = standardGson.fromJson(jObj, classOf[SparkModel])
+          deserializedModel.setRawModel(rawModel)
+          return deserializedModel
+        }
+      }
+    }
+  }
+
   class DenseVectorInstanceCreator extends InstanceCreator[DenseVector] {
     def createInstance(typ: Type): DenseVector = {
       return new DenseVector(Array(1.0))
