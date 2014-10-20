@@ -291,6 +291,7 @@ object RootBuild extends Build {
                 <descriptors>
                   <descriptor>assembly.xml</descriptor>
                 </descriptors>
+                <finalName>pa-${pom.version}</finalName>
               </configuration>
             </plugin>
             <plugin>
