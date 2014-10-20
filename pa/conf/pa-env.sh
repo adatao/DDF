@@ -20,8 +20,8 @@ function define {
 usage() {
         echo "
         Usage: pa-env.sh
-            [--cluster (default: mesos; other options is:
-            yarn (for yarn cluster),
+            [--cluster (default: yarn; other options is:
+            mesos (for mesos cluster),
             spark (for distributed standalone spark),
             localspark (for local single-node standalone spark)]
         "
@@ -29,7 +29,7 @@ usage() {
 }
 [[ "$1" == -h || "$1" == --help ]] && usage
 
-cluster=mesos
+cluster=yarn
 do_parse_args() {
         while [[ -n "$1" ]] ; do
                 case $1 in
@@ -50,13 +50,13 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.4.1/conf}
+export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.2.0.2.0.6.0-101/conf}
 
-export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
+export HIVE_CONF_DIR=${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
 export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
-export DDFSPARK_JAR=`find ${PA_HOME}/../spark_adatao/ -name ddf_spark_adatao-assembly*.jar | grep -v '\-tests.jar'`
+export DDFSPARK_JAR=`find ${PA_HOME}/libs/jars/ -name ddf_spark_adatao-assembly*.jar | grep -v '\-tests.jar'`
 echo RSERVER_JAR=$RSERVER_JAR
 echo DDFSPARK_JAR=$DDFSPARK_JAR
 SPARK_CLASSPATH=$RSERVER_JAR
@@ -94,8 +94,8 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=`nl -ba /root/spark-ec2/slaves | tail -1 | awk '{ print $1 }'`
-        export SPARK_WORKER_CORES=8
+        export SPARK_WORKER_INSTANCES=${SPARK_WORKER_INSTANCES:-3}
+        export SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-8}
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-0.9.jar`
         export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`

@@ -69,7 +69,7 @@ public class Connect {
     String adminuser = SessionManager.ADMINUSER();
     String adminSessionID = sessionManager.getSessionID(adminuser);
     
-    if (clientID.equals(adminuser) && adminSessionID!=null){
+    if (clientID.equals(adminuser) && adminSessionID!=null && !Boolean.parseBoolean(System.getProperty("run.as.admin"))){
     	LOG.error("Someone try to connect as an adminuser");
     	return new JsonResult().setResult(new FailResult().setMessage("You cannnot connect using admin user"));
     }
@@ -93,11 +93,6 @@ public class Connect {
     }
     
     // clientID cannot be admin user now
-    
-    //if everyone run as admin, return sessionID of adminuser
-    if (Boolean.parseBoolean(System.getProperty("run.as.admin")) == true){
-    	return new JsonResult().setSid(sessionManager.getSessionID(adminuser));
-    }
     
     // if user already connected
     else if (sessionManager.hasClient(clientID)) {
