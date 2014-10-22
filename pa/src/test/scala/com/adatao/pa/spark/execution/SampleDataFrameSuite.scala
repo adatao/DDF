@@ -23,9 +23,9 @@ class SampleDataFrameSuite extends ABigRClientTest {
       row => println(">>> row " + row.mkString(", "))
     }
 
-    assert(res1.result.data.get(0)(0).asInstanceOf[Double] === 13.3)
-    assert(res1.result.data.get(0)(1).asInstanceOf[Double] === 8.0)
-    assert(res1.result.data.get(0)(3).asInstanceOf[Double] === 245.0)
+    assert(res1.result.data.get(0)(0).asInstanceOf[Double] === 21.0)
+    assert(res1.result.data.get(0)(1).asInstanceOf[Double] === 6.0)
+    assert(res1.result.data.get(0)(3).asInstanceOf[Double] === 110.0)
 
     val cmd2 = new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
     val res2 = bigRClient.execute[SampleDataFramePercentResult](cmd2)

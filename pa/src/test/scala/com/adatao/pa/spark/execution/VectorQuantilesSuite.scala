@@ -56,7 +56,7 @@ class VectorQuantilesSuite extends ABigRClientTest {
 		val result: Array[Double] = bigRClient.execute[Array[Double]](executor2).result
 		assertEquals(result(0), 10.4, 0.01)
 		assertEquals(result(1), 15.2, 0.01)
-		assertEquals(result(2), 19.2, 0.01)
+		assertEquals(result(2), 18.95, 0.01)
 		assertEquals(result(3), 22.15, 0.01)
 		assertEquals(result(4), 33.9, 0.01)
 
@@ -108,7 +108,7 @@ class VectorQuantilesSuite extends ABigRClientTest {
 		val result: Array[Double] = bigRClient.execute[Array[Double]](executor2).result
 		assertEquals(result(0), 10.4, 0.01)
 		assertEquals(result(1), 15.2, 0.01)
-		assertEquals(result(2), 19.2, 0.01)
+		assertEquals(result(2), 18.95, 0.01)
 		assertEquals(result(3), 22.15, 0.01)
 		assertEquals(result(4), 33.9, 0.01)
 
