@@ -33,7 +33,7 @@ object RootBuild extends Build {
 
   val YARN_ENABLED = env("SPARK_YARN").getOrElse("true").toBoolean
 
-  val rootVersion = "1.0"
+  val rootVersion = "1.2.0"
 //  val rootVersion = if(YARN_ENABLED) {
 //    "0.9"
 //  } else {
