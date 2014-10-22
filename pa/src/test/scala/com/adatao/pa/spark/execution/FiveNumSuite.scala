@@ -55,12 +55,12 @@ class FiveNumSuite extends ABigRClientTest {
 		LOG.info("result for string col = " + res(6).min +", " + res(6).max)
 		assert(res(0).first_quartile === 15.2)
 		assert(res(0).third_quartile === 22.15)
-		assert(res(0).median === 19.20)
+		assert(res(0).median === 18.95)
 		assert(res(0).min === 10.40)
 		assert(res(0).max === 33.90)
 
 
-		expectResult(res(4).first_quartile)(3.080)
+		expectResult(res(4).first_quartile)(3.075)
 		expectResult(res(4).third_quartile)(3.913333333333333)
 		expectResult(res(4).median)(3.69)
 
