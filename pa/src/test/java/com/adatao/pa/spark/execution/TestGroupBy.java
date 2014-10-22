@@ -60,7 +60,7 @@ public class TestGroupBy extends BaseTest {
     metaInfo = groupbyResult.getMetaInfo();
     LOG.info("GroupBy result: " + Arrays.toString(metaInfo));
 
-    Assert.assertTrue(metaInfo[0].getHeader().equals("_c0"));
+    Assert.assertTrue(metaInfo[0].getHeader().equals("c_0"));
 
     res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
         .setParams(String.format("{dataContainerID: %s}", groupbyResult.getDataContainerID())));
