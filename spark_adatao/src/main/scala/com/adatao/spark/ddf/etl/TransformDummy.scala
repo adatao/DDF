@@ -52,8 +52,6 @@ object TransformDummy {
       while (columnAccessor.hasNext && !terminated) {
         try {
           columnAccessor.extractSingle(mutableRow, 0)
-          val value = mutableRow.apply(0)
-          LOG.info(">>>> value = " + value.toString)
           count += 1
         } catch {
           case e: java.nio.BufferUnderflowException => terminated = true
