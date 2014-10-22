@@ -14,6 +14,9 @@ import java.util
 import io.ddf.exception.DDFException
 import org.slf4j.LoggerFactory
 import io.spark.ddf.ml.TransformRow
+import org.apache.spark.sql.catalyst.expressions.GenericMutableRow
+import scala.collection.JavaConversions._
+
 
 /**
  * author: daoduchuan
@@ -21,9 +24,17 @@ import io.spark.ddf.ml.TransformRow
 object TransformDummy {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  def schemaRDD2MatrixVector(cachedColumnBuffers: RDD[Array[ByteBuffer]], xCols: Array[Int], yCol: Int,
+  def schemaRDD2MatrixVector(rddCachedBatch: RDD[CachedBatch], xCols: Array[Int], yCol: Int,
                              categoricalMap: HashMap[Integer,
                                HashMap[String, java.lang.Double]] = null): RDD[TupleMatrixVector] = {
+    val cachedColumnBuffers = rddCachedBatch.map {
+      cachedBatch =>  {
+        val buffers = cachedBatch.buffers
+        buffers.map(arrByte => {
+          ByteBuffer.wrap(arrByte)
+        })
+      }
+    }
     cachedColumnBuffers.map {
       arrayByteBuffer => {
         tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap)(arrayByteBuffer)
@@ -35,12 +46,14 @@ object TransformDummy {
 
     val counts = columnIterators.map {
       bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
-      val buffer = columnAccessor.buffer
       var count = 0
       var terminated = false
+      val mutableRow = new GenericMutableRow(1)
       while (columnAccessor.hasNext && !terminated) {
         try {
-          columnAccessor.extractSingle(buffer)
+          columnAccessor.extractSingle(mutableRow, 0)
+          val value = mutableRow.apply(0)
+          LOG.info(">>>> value = " + value.toString)
           count += 1
         } catch {
           case e: java.nio.BufferUnderflowException => terminated = true
@@ -48,6 +61,7 @@ object TransformDummy {
       }
       count
     }
+    LOG.info(">>>>> numRows = " + counts.min)
     counts.min
   }
 
@@ -86,7 +100,8 @@ object TransformDummy {
                                            numRows: Int,
                                            nullBitmap: BitSet) = {
     val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
-    val bytebuffer = columnAccessor.underlyingBuffer
+    //temporary Row to hold the value from ColumnAccessor.extractSingle
+    val mutableRow = new GenericMutableRow(1)
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     // For performance, branching outside the tight loop
@@ -105,8 +120,11 @@ object TransformDummy {
     while (i < numRows) {
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
-        val value = columnAccessor.extractSingle(bytebuffer)
-        matrix.put(i, col, toDouble(value.asInstanceOf[Object]))
+        //val columnType = columnAccessor.columnType
+        //val value = columnType.extract(bytebuffer)
+        columnAccessor.extractSingle(mutableRow, 0)
+
+        matrix.put(i, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }
       j += 1
@@ -123,14 +141,18 @@ object TransformDummy {
                                                    convert: (Object) => Double) = {
     //val byteBuffer = columnAccessor.buffer
     val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
-    val bytebuffer = columnAccessor.underlyingBuffer
+    //val columnType =
+
+    //val bytebuffer = columnAccessor.underlyingBuffer
+    val mutableRow = new GenericMutableRow(1)
+    LOG.info(">>>> columnType = " + columnAccessor.columnType.toString())
     LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.columnType.toString())
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     while (i < numRows) {
-
       if (!nullBitmap.get(j)) {
-        matrix.put(i, col, convert(columnAccessor.extractSingle(bytebuffer).asInstanceOf[Object]))
+        columnAccessor.extractSingle(mutableRow, 0)
+        matrix.put(i, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }
       j += 1

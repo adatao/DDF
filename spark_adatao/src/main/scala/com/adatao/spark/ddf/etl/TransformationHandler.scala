@@ -24,7 +24,7 @@ import io.ddf.etl.IHandleTransformations
 import io.ddf.exception.DDFException
 import org.apache.spark.sql.SchemaRDD
 import io.spark.ddf.content.RepresentationHandler
-import org.apache.spark.sql.columnar.InMemoryRelation
+import org.apache.spark.sql.columnar.{CachedBatch, InMemoryRelation}
 
 /**
  */
@@ -51,11 +51,11 @@ class TransformationHandler(mDDF: DDF) extends THandler(mDDF) {
 //      case something => throw new DDFException("Not InMemoryRelation, class = " + something.getClass.toString)
 //    }
 
-    val cachedColumnBuffers = this.mDDF.asInstanceOf[SparkDDF].getRDD(classOf[Array[ByteBuffer]])
-    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(cachedColumnBuffers, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
-    if(!isCached) {
-      mDDF.asInstanceOf[SparkDDF].unCacheTable()
-    }
+    val rddCachedBatch = this.mDDF.asInstanceOf[SparkDDF].getRDD(classOf[CachedBatch])
+    val rddMatrixVector: RDD[TupleMatrixVector] = TransformDummy.schemaRDD2MatrixVector(rddCachedBatch, xColsIndex, yColIndex, categoricalMap) //TransformDummy.getDataTable(tp, xColsIndex, yColIndex, categoricalMap)
+//    if(!isCached) {
+//      mDDF.asInstanceOf[SparkDDF].unCacheTable()
+//    }
     //check if contains dummy coding
     var hasDummyCoding = false
     var i = 0

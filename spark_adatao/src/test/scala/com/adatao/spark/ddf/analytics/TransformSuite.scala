@@ -11,6 +11,9 @@ import com.adatao.spark.ddf.etl.TransformationHandler
 import io.ddf.types.TupleMatrixVector
 import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.types.Vector
+import org.apache.spark.sql.columnar.{NativeColumnAccessor, ColumnAccessor, CachedBatch}
+import java.nio.ByteBuffer
+import org.apache.spark.sql.catalyst.expressions.{GenericMutableRow, GenericRow}
 
 class TransformSuite extends ATestSuite {
 
@@ -22,6 +25,29 @@ class TransformSuite extends ATestSuite {
 
     val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     val a = rdd.collect()
+    val rdd2 = ddf.asInstanceOf[SparkDDF].getRDD(classOf[CachedBatch])
+
+    val collection = rdd2.collect()
+    collection.map{
+      case CachedBatch(buffers, row) => {
+        println("buffer.count = " + buffers.size)
+        println("buffers(0). count = " + buffers(0).size)
+        println("row = " + row.mkString(", "))
+        val columnAccessors = buffers.map{buffer => ColumnAccessor(ByteBuffer.wrap(buffer))}
+
+        val colAccessor = columnAccessors(3).asInstanceOf[NativeColumnAccessor[_]]
+        val colType = colAccessor.columnType
+        val buffer = colAccessor.buffer
+        println(">>>> colType = " + colType.toString())
+        val mutableRow = new GenericMutableRow(1)
+        while(colAccessor.hasNext) {
+           colAccessor.extractSingle(mutableRow, 0)
+           val value = mutableRow.get(0)
+           println(">>>> value = " + value)
+        }
+      }
+    }
+
     var m = a(0)._1
 
     assertEquals(m.getRows(), 16, 0.0)
