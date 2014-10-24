@@ -32,8 +32,7 @@ class Binning(val dataContainerID: String,
 
   protected override def runImpl(context: ExecutionContext): BinningResult = {
 
-    val ddfId = com.adatao.spark.ddf.analytics.Utils.dcID2DDFID(dataContainerID)
-    val ddf = context.sparkThread.getDDFManager().getDDF(ddfId);
+    val ddf = context.sparkThread.getDDFManager().getDDF(dataContainerID)
     val newddf = ddf.binning(col, binningType, numBins, breaks, includeLowest, right)
     // binned var are now factors
     new BinningResult(Utils.getDataContainerID(newddf), Utils.generateMetaInfo(newddf.getSchema()))
