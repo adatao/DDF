@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Classpaths.publishTask
-import Keys._
+import sbt.ExclusionRule
+import sbt.Keys._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 import scala.sys.process._
@@ -52,10 +53,15 @@ object RootBuild extends Build {
   val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, pa)
+  val SQProjectName = projectName + "_smartQuery"
+  val SQVersion = rootVersion
+  val SQJarName = SQProjectName + "_" + theScalaVersion + "-" + "-" + sparkVersion
+
+  val SQTestJarName = SQProjectName + "_" + theScalaVersion + "-" + "-" + sparkVersion
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, pa, smartQuery)
   lazy val spark_adatao = Project("spark_adatao", file("spark_adatao"), settings = spark_adatao_Settings)
   lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark_adatao)
-
+  lazy val smartQuery = Project("smartQuery", file("smartQuery"), settings = smartQuerySettings) dependsOn(pa)
   // A configuration to set an alternative publishLocalConfiguration
   lazy val MavenCompile = config("m2r") extend(Compile)
   lazy val publishLocalBoth = TaskKey[Unit]("publish-local", "publish local for m2 and ivy")
@@ -436,8 +442,6 @@ object RootBuild extends Build {
   def rootSettings = commonSettings ++ Seq(publish := {})
 
 
-
-
   def spark_adatao_Settings = commonSettings ++ Seq(
     name := sparkProjectName,
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
@@ -464,6 +468,12 @@ object RootBuild extends Build {
     libraryDependencies ++= pa_dependencies,
     //libraryDependencies ++= scalaDependencies,
     initialCommands in console := "import com.adatao.pa.ddf.spark.DDFManager"
+  ) ++ assemblySettings ++ extraAssemblySettings
+
+  def smartQuerySettings = commonSettings ++ Seq(
+    name := SQProjectName,
+    javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch smartQuery/" + targetDir + "/*timestamp") }
   ) ++ assemblySettings ++ extraAssemblySettings
 
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(
