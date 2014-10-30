@@ -68,7 +68,11 @@ case class ShowTables(database: String) extends Task[String] {
 case class LoadDataFromTable(columns: List[String], tableName: String, datasetName: String, filter: Option[Filtering] = None) extends Task[Unit] {
 
   def execute(): Unit = {
-    val cmd = s"select ${columns.mkString(", ")} from ${tableName}"
+    val cmd = filter match {
+      case Some(filtering) => s"select ${columns.mkString(", ")} from ${tableName} where" +
+        s" ${filtering.left} ${filtering.comparison} ${filtering.right}"
+      case None   => s"select ${columns.mkString(", ")} from ${tableName}"
+    }
     val ddf = Command.manager.sql2ddf(cmd)
     ddf.setName(datasetName)
     println("Successful load dataset: " + datasetName)
@@ -89,7 +93,13 @@ case class RelationShipTask(columns: (String, String), filter: Option[Filtering]
     if(!isValid) {
       throw new Exception(s"Column ${columns._1} and ${columns._2} don't exist in current DDF, use command 'use DDF' to switch")
     }
-    val ddf = Environment.currentDDF
+    val ddf = filter match {
+      case Some(filter) => {
+        val expr = s"${filter.left} ${filter.comparison} ${filter.right}"
+        Environment.currentDDF.filter(expr)
+      }
+      case None => Environment.currentDDF
+    }
     val result: AggregationResult = ddf.aggregate(Array(columns._1), Array(columns._2), "mean")
     println(s"${columns._2}   ${columns._1}")
     result.foreach {
@@ -119,7 +129,7 @@ case class GetVariable(variableName: String) extends Task[AnyRef] {
     try {
       Environment.environment(variableName)
     } catch {
-      case e: Exception => throw new Exception("Error getting variable")
+      case e: Exception => throw new Exception(s"Variable name ${variableName} does not exist")
     }
   }
 }
@@ -138,7 +148,6 @@ case class UsePredict(getVariable: GetVariable, predict: Predict) extends Task[U
     data.foreach{
       row => println(row.mkString(", "))
     }
-
   }
 }
 
@@ -146,6 +155,7 @@ case class UsePredict(getVariable: GetVariable, predict: Predict) extends Task[U
  * Query:
  * "train to predict arrdelay from/with myddf"
  * "train how to predict arrdelay from/with ddf"
+ * "learn to predict arrdelay from/with ddf"
  */
 case class Train(trainColumn: String, dataset: String) extends Task[IModel] {
 

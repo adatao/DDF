@@ -39,7 +39,7 @@ class Parser extends JavaTokenParsers {
   def comparison: Parser[String] = "=" | ">" | "<" | "<=" | ">="
 
   //match a filter expression
-  def filter: Parser[Filtering] = "with" ~>
+  def filter: Parser[Filtering] =
     (column ~ comparison ~ column) ^^ {
     case left ~ compare ~ right => Filtering(left, right, compare)
   }
@@ -63,24 +63,24 @@ class Parser extends JavaTokenParsers {
   def loadTable: Parser[Task[_]] = {
     ("load" ~> repsep(column, ",")) ~
     ("from" ~> aSingleWord) ~
-    (("into" | "to") ~> aSingleWord) ^^ {
-      case columns ~ table ~ dataset  => LoadDataFromTable(columns, table, dataset)
+    (("into" | "to") ~> aSingleWord) ~ ("with" | "where").? ~ filter.? ^^ {
+      case columns ~ table ~ dataset ~ w ~ filtering =>  LoadDataFromTable(columns, table, dataset, filtering)
     }
   }
 
   def relationship: Parser[Task[Unit]] = {
     "show relationship" ~>
-    ("between".? ~> (column ~ ("and" | "&") ~ column)) ~
+    ("between".? ~> (column ~ ("and" | "&") ~ column)) ~ ("with" | "where" ).? ~
     filter.? ^^ {
-      case a ~ someWord ~ b ~ filter => {
+      case a ~ and ~ b ~ w ~ filter => {
         RelationShipTask((a, b), filter)
       }
     }
   }
 
   def train: Parser[Train] = {
-    "train to predict" ~> (aSingleWord ~ "from" ~ aSingleWord) ^^ {
-      case trainColumn ~ "from" ~ dataset => Train(trainColumn, dataset)
+    (("train"| "learn") ~ "to predict") ~> (aSingleWord ~ ("from" | "with" | "on") ~ aSingleWord) ^^ {
+      case trainColumn ~ from ~ dataset => Train(trainColumn, dataset)
     }
   }
 
@@ -126,6 +126,7 @@ class Parser extends JavaTokenParsers {
     showTables |
     loadTable  |
     relationship |
+    train |
     letTrain
 
   def parse(input: String): Task[_] = parseAll(operations, input.toLowerCase) match {
