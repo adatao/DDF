@@ -120,7 +120,9 @@ object RootBuild extends Build {
     "com.novocode" % "junit-interface" % "0.10" % "test"
     //"org.renjin" % "renjin-script-engine" % "0.7.0-RC6" excludeAll(ExclusionRule(organization="org.renjin", name="gcc-bridge-plugin"))
   )
-
+  val smartQuery_dependencies = Seq (
+    "org.scalanlp" % "breeze-viz_2.10" % "0.9"
+  )
   /////// Common/Shared project settings ///////
 
   def commonSettings = Defaults.defaultSettings ++ Seq(
@@ -231,6 +233,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
 
     pomExtra := (
       <!--
@@ -473,7 +476,10 @@ object RootBuild extends Build {
   def smartQuerySettings = commonSettings ++ Seq(
     name := SQProjectName,
     javaOptions in Test <+= baseDirectory map {dir => "-Dspark.classpath=" + dir + "/../lib_managed/jars/*"},
-    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch smartQuery/" + targetDir + "/*timestamp") }
+    compile in Compile <<= compile in Compile andFinally { List("sh", "-c", "touch smartQuery/" + targetDir + "/*timestamp") },
+    libraryDependencies ++= smartQuery_dependencies,
+    dependencyOverrides += "org.scalanlp" % "breeze_2.10" % "0.9",
+    initialCommands in console := "import com.adatao.SmartQuery.SQParser._"
   ) ++ assemblySettings ++ extraAssemblySettings
 
   def extraAssemblySettings() = Seq(test in assembly := {}) ++ Seq(

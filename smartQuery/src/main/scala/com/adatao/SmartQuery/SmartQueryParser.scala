@@ -1,15 +1,34 @@
 package com.adatao.SmartQuery
 
-import scala.util.parsing.combinator.JavaTokenParsers
+import scala.util.parsing.combinator.{PackratParsers, JavaTokenParsers}
 import io.ddf.ml.IModel
 
 /**
  */
 
-class SmartQueryParser extends JavaTokenParsers {
+class Parser extends JavaTokenParsers {
 
   // match a single word
   def aSingleWord: Parser[String] = """(\w+)""".r
+
+  def integer: Parser[String] = """^\d+$""".r
+  def hostName_delimiter: Parser[String] = "-" | "."
+
+  def host: Parser[String] = {
+    (rep(aSingleWord ~ hostName_delimiter).? ~ aSingleWord) ^^ {
+      case list ~ aWord =>  {
+        list match {
+          case Some(ls) =>
+            var lsString = ""
+            ls.foreach{
+              case a ~ b =>  lsString += a + b
+            }
+            lsString + aWord
+          case None => aWord
+        }
+      }
+    }
+  }
 
   def column: Parser[String] = aSingleWord
 
@@ -17,11 +36,11 @@ class SmartQueryParser extends JavaTokenParsers {
     case parent ~ ls ~ opt => parent + ls.mkString("/") + opt.getOrElse("")
   }
 
-  def comparision: Parser[String] = "=" | ">" | "<" | "<=" | ">="
+  def comparison: Parser[String] = "=" | ">" | "<" | "<=" | ">="
 
   //match a filter expression
   def filter: Parser[Filtering] = "with" ~>
-    (column ~ comparision ~ column) ^^ {
+    (column ~ comparison ~ column) ^^ {
     case left ~ compare ~ right => Filtering(left, right, compare)
   }
 
@@ -29,7 +48,7 @@ class SmartQueryParser extends JavaTokenParsers {
     case variable => Assignment(variable)
   }
 
-  def useDataset: Parser[Task[Unit]] = "use" ~> aSingleWord ^^ {
+  def useDataset: Parser[Task[String]] = "use" ~> aSingleWord ^^ {
     case dataset => UseDataset(dataset)
   }
 
@@ -40,7 +59,7 @@ class SmartQueryParser extends JavaTokenParsers {
   }
 
   def showTables: Parser[Task[String]] = {
-    "show table in" ~> ("hive" | "parquet" | "hbase" | "cassandra") ^^ {
+    ("show" ~ ("tables" | "table") ~ "in") ~> ("hive" | "parquet" | "hbase" | "cassandra") ^^ {
       case database => ShowTables(database)
     }
   }
@@ -63,46 +82,69 @@ class SmartQueryParser extends JavaTokenParsers {
     }
   }
 
-  def train: Parser[Task[IModel]] = {
+  def train: Parser[Train] = {
     "train to predict" ~> (aSingleWord ~ "from" ~ aSingleWord) ^^ {
       case trainColumn ~ "from" ~ dataset => Train(trainColumn, dataset)
     }
   }
 
-  def letTrain: Parser[Unit] = {
+  def letTrain: Parser[Task[Unit]] = {
     letStatement ~ train ^^ {
-      case let ~ trainStatement => {
-        val model = trainStatement.execute()
-        let.assign(model)
+      case let ~ trainStatement => LetTrain(let, trainStatement)
+    }
+  }
+
+  def useVariable: Parser[GetVariable] = "use" ~> aSingleWord ^^ {
+    case variable => GetVariable(variable)
+  }
+
+  def predict: Parser[Predict] = {
+    ("predict on" | "predict") ~> aSingleWord ^^ {
+      case dataset => new Predict(null, dataset)
+    }
+  }
+
+  def usePredict: Parser[Task[Unit]]  = {
+    useVariable ~ "to".? ~ predict ^^ {
+      case use ~ to ~ prediction => {
+        UsePredict(use, prediction)
       }
     }
   }
 
-  def useVariable: Parser[AnyRef] = "use" ~> aSingleWord ^^ {
-    case variable => GetVariable
-  }
-
-  def predict: Parser[Task[Unit]] = {
-    "use" ~
+  def connect(): Parser[Connect] = {
+    ("connect" ~ "to".?) ~> host ^^ {
+      case hostName => new Connect(hostName)
+    }
   }
 
   def operations: Parser[Task[_]] =
+    connect |
+    usePredict |
     useDataset |
     listDataset |
     showTables |
     loadTable  |
-    relationship
+    relationship |
+    letTrain
 
-  def eval(input: String): Task[_] = parseAll(operations, input.toLowerCase) match {
+  def parse(input: String): Task[_] = parseAll(operations, input.toLowerCase) match {
     case Success(result, _) => result
-    case Failure(msg, _) => throw new Exception("Failed to parse " + input)
+    case Failure(msg, _) => throw new Exception("Failed to parse " + input + ", messsage = " + msg)
   }
 
   def driverLoop(): Unit = {
     while(true) {
       val input = scala.Console.readLine()
       println(input)
-      val output = this.eval(input)
+      val output = this.parse(input)
     }
+  }
+}
+
+object SQParser extends Parser {
+
+  def eval(input: String): Any = {
+    this.parse(input).execute()
   }
 }

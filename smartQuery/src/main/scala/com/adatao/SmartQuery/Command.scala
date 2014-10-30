@@ -2,6 +2,10 @@ package com.adatao.SmartQuery
 
 import com.adatao.pa.spark.DDF.content.Schema
 import io.ddf.ml.IModel
+import com.adatao.pa.ddf.spark.DDFManager
+import com.adatao.pa.ddf.spark.DDF
+import scala.collection.JavaConversions._
+import io.ddf.types.AggregateTypes.AggregationResult
 
 /**
  * author: daoduchuan
@@ -15,23 +19,28 @@ sealed abstract class Task[T] {
  * Query: use airline
  * @param ddfName
  */
-case class UseDataset(ddfName: String) extends Task[Unit] {
+case class UseDataset(ddfName: String) extends Task[String] {
 
-  def execute(): Unit = {
-    println("Running use dataset")
+  def execute(): String = {
+    val ddf = Command.manager.getDDF(ddfName)
+    Environment.currentDDF= ddf
+    "Successful load ddf: " + ddfName + "\n" +
+    "Columns: " + ddf.getColumnNames().mkString(", ") + "\n" +
+    "Number of rows = " + ddf.nrow()
   }
 }
 
 /**
- * Query: List dataset in directory /user/adatao
- * List dataset
+ * Query:
+ * "List/show dataset in {directory} ddf://adatao"
+ * "List/show dataset"
+ * ""
  * @param directory
  */
 case class ListDataset(directory: Option[String]) extends Task[String] {
 
   def execute(): String = {
-    println("Running list dataset")
-    "list dataset"
+    Command.manager.listDDFs()
   }
 }
 
@@ -41,22 +50,28 @@ case class ListDataset(directory: Option[String]) extends Task[String] {
 case class ShowTables(database: String) extends Task[String] {
 
   def execute(): String = {
-    println("Running show tables")
-    "show tables"
+    if(database.equalsIgnoreCase("hive")) {
+      Command.manager.sql("show tables").filter(table => !table.contains("sparkddf_spark_")).mkString("\n")
+    } else {
+      ""
+    }
   }
 }
 
 /**
  * Query: Load month, day, year from table into/to myddf
+ * Query: Load * from table into/to ddf
  * @param columns
  * @param tableName
  * @param datasetName
  */
-case class LoadDataFromTable(columns: List[String], tableName: String, datasetName: String) extends Task[Unit] {
+case class LoadDataFromTable(columns: List[String], tableName: String, datasetName: String, filter: Option[Filtering] = None) extends Task[Unit] {
 
   def execute(): Unit = {
-
-    println("Running load data from table")
+    val cmd = s"select ${columns.mkString(", ")} from ${tableName}"
+    val ddf = Command.manager.sql2ddf(cmd)
+    ddf.setName(datasetName)
+    println("Successful load dataset: " + datasetName)
   }
 }
 
@@ -70,7 +85,17 @@ case class LoadDataFromTable(columns: List[String], tableName: String, datasetNa
 case class RelationShipTask(columns: (String, String), filter: Option[Filtering]) extends Task[Unit] {
 
   def execute(): Unit = {
-    println("Running relationship task")
+    val isValid = Environment.checkValidColumns(List(columns._1, columns._2))
+    if(!isValid) {
+      throw new Exception(s"Column ${columns._1} and ${columns._2} don't exist in current DDF, use command 'use DDF' to switch")
+    }
+    val ddf = Environment.currentDDF
+    val result: AggregationResult = ddf.aggregate(Array(columns._1), Array(columns._2), "mean")
+    println(s"${columns._2}   ${columns._1}")
+
+    result.foreach {
+      case (str, Array(d))  => println(s"${str}      ${d}")
+    }
   }
 }
 
@@ -89,15 +114,57 @@ case class ComparisonTask(col1: String, col2: String, schema: Schema) extends Ta
   }
 }
 
+case class GetVariable(variableName: String) extends Task[AnyRef] {
+
+  def execute: AnyRef = {
+    try {
+      Environment.environment(variableName)
+    } catch {
+      case e: Exception => throw new Exception("Error getting variable")
+    }
+  }
+}
+
 /**
  * Query:
- * train to predict arrdelay from myddf"
+ * Use model to predict on ddf
+ * @param getVariable
+ * @param predict
+ */
+case class UsePredict(getVariable: GetVariable, predict: Predict) extends Task[Unit] {
+  def execute(): Unit = {
+    predict.model = getVariable.execute.asInstanceOf[IModel]
+    val ddf = predict.execute()
+    val data = ddf.sample(100, false, 17)
+    Utils.plotData(data)
+  }
+}
+
+/**
+ * Query:
+ * "train to predict arrdelay from/with myddf"
+ * "train how to predict arrdelay from/with ddf"
  */
 case class Train(trainColumn: String, dataset: String) extends Task[IModel] {
 
   def execute(): IModel = {
-    println("Running Train")
-    null
+    val ddf = Command.manager.getDDF(dataset)
+    val xCols = ddf.getColumnNames().filter(colName => colName != trainColumn)
+    ddf.ML.LinearRegressionNormalEquation(xCols, trainColumn)
+  }
+}
+
+/**
+ * Query:
+ * let model = train to predict arrdelay from/with ddf
+ * @param assignment
+ * @param train
+ */
+case class LetTrain(assignment: Assignment, train: Train) extends Task[Unit] {
+
+  def execute(): Unit = {
+    val model = train.execute()
+    assignment.assign(model)
   }
 }
 
@@ -107,10 +174,40 @@ case class Train(trainColumn: String, dataset: String) extends Task[IModel] {
  * do prediction then plot the result
  */
 
-case class Predict(model: IModel, dataset: String) extends Task[Unit] {
+class Predict(var model: IModel, dataset: String) extends Task[DDF] {
+
+  def execute(): DDF = {
+    val ddf = Command.manager.getDDF(dataset)
+    ddf.applyModel(model)
+  }
+}
+
+/**
+ * Query:
+ * "connect to localhost"
+ * "connect to 192.186.1.1"
+ * "connect to pa3.adatao.com"
+ * @param serverHost
+ */
+class Connect(serverHost: String) extends Task[Unit] {
 
   def execute(): Unit = {
-
-    println("Running predict")
+    Command.manager = new DDFManager
+    Command.manager.connect(serverHost)
+    println("Successully connect to " + serverHost)
   }
+}
+
+object Command {
+  private var _manager: DDFManager = null
+
+  def manager = {
+    if(_manager == null) {
+      throw new Exception("No live session, issue connect command first")
+    } else {
+      _manager
+    }
+  }
+
+  def manager_= (manager: DDFManager): Unit = _manager = manager
 }

@@ -22,6 +22,9 @@ import com.adatao.pa.spark.execution.FiveNumSummary.ASummary
 import io.ddf.content.ViewHandler._
 import io.ddf.content.ViewHandler
 import com.adatao.pa.spark.Utils._
+import com.adatao.pa.spark.execution.SampleDataFrame.SampleDataFrameSizeResult
+import io.ddf.types.AggregateTypes.AggregationResult
+import com.adatao.pa.spark.execution.Aggregate.AggregateResult
 
 /**
  * author: daoduchuan
@@ -199,6 +202,11 @@ class DDF(var name: String, var columns: Array[Column]) {
     new DDF(result.getDataContainerID, result.getMetaInfo)
   }
 
+  def aggregate(colNames: Array[String], groupBy: Array[String], func: String): AggregationResult = {
+    val cmd = new Aggregate(this.name, colNames, groupBy, func)
+    client.execute[AggregateResult](cmd).result.getResults
+  }
+
   def binning(column: String, binningType: String, numBins: Int = 0, breaks: Array[Double] = null,
     includeLowest: Boolean = false, right: Boolean = true, decimalPlaces: Int = 2): DDF = {
     val cmd = new Binning(this.name, column, binningType, numBins, breaks, includeLowest, right, decimalPlaces)
@@ -297,6 +305,17 @@ class DDF(var name: String, var columns: Array[Column]) {
     } else {
       new DDF(result.getDataContainerID, result.getMetaInfo)
     }
+  }
+
+  def sample(size: Int, replace: Boolean, seed: Int): JList[Array[Object]] ={
+    val cmd = new SampleDataFrame
+    cmd.setDataContainerID(this.name)
+    cmd.setSize(size)
+    cmd.setReplace(replace)
+    cmd.setSeed(seed)
+    cmd.setGetPercent(false)
+    val result = client.execute[SampleDataFrameSizeResult](cmd).result
+    result.getData
   }
 }
 

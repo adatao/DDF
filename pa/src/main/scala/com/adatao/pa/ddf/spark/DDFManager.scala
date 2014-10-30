@@ -1,13 +1,16 @@
 package com.adatao.pa.ddf.spark
 
-import com.adatao.pa.spark.execution.{ListDDF, GetDDF, LoadModel, Sql2DataFrame}
+import com.adatao.pa.spark.execution._
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import io.ddf.ml.IModel
 import com.adatao.pa.spark.Utils.MutableDataFrameResult
 import io.ddf.DDF.DDFInformation
 import com.adatao.pa.spark.DDF.ManagerClient
 import com.adatao.pa.ddf.spark.DDFManager.client
-
+import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import com.adatao.pa.spark.execution.SetDDFName.SetDDFNameResult
 
 class DDFManager() {
 
@@ -31,10 +34,25 @@ class DDFManager() {
     new DDF(result.result.dataContainerID, result.result.metaInfo)
   }
 
+  def sql(command: String): List[java.lang.String] = {
+    val cmd = new Sql2ListString
+    cmd.setSqlCmd(command)
+    val result = client.execute[Sql2ListStringResult](cmd)
+    val listString: java.util.List[java.lang.String] = result.result.getResults
+    listString.map {
+      string => string
+    }.toList
+  }
+
   def getDDF(ddfName: String): DDF = {
     val cmd = new GetDDF(ddfName)
     val result = client.execute[MutableDataFrameResult](cmd).result
     new DDF(result.getDataContainerID, result.metaInfo)
+  }
+
+  def setDDFName(dataContainerID: String, ddfName: String): Unit = {
+    val cmd = new SetDDFName(dataContainerID, ddfName)
+    val result = client.execute[SetDDFNameResult](cmd)
   }
 
   def listDDFs(): String =  {
