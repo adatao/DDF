@@ -92,7 +92,6 @@ case class RelationShipTask(columns: (String, String), filter: Option[Filtering]
     val ddf = Environment.currentDDF
     val result: AggregationResult = ddf.aggregate(Array(columns._1), Array(columns._2), "mean")
     println(s"${columns._2}   ${columns._1}")
-
     result.foreach {
       case (str, Array(d))  => println(s"${str}      ${d}")
     }
@@ -135,8 +134,11 @@ case class UsePredict(getVariable: GetVariable, predict: Predict) extends Task[U
   def execute(): Unit = {
     predict.model = getVariable.execute.asInstanceOf[IModel]
     val ddf = predict.execute()
-    val data = ddf.sample(100, false, 17)
-    Utils.plotData(data)
+    val data = ddf.sample(10, false, 17)
+    data.foreach{
+      row => println(row.mkString(", "))
+    }
+
   }
 }
 
@@ -174,7 +176,7 @@ case class LetTrain(assignment: Assignment, train: Train) extends Task[Unit] {
  * do prediction then plot the result
  */
 
-class Predict(var model: IModel, dataset: String) extends Task[DDF] {
+case class Predict(var model: IModel, dataset: String) extends Task[DDF] {
 
   def execute(): DDF = {
     val ddf = Command.manager.getDDF(dataset)
@@ -189,7 +191,7 @@ class Predict(var model: IModel, dataset: String) extends Task[DDF] {
  * "connect to pa3.adatao.com"
  * @param serverHost
  */
-class Connect(serverHost: String) extends Task[Unit] {
+case class Connect(serverHost: String) extends Task[Unit] {
 
   def execute(): Unit = {
     Command.manager = new DDFManager

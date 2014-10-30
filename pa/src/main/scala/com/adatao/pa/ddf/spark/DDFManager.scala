@@ -58,7 +58,10 @@ class DDFManager() {
   def listDDFs(): String =  {
     val cmd = new ListDDF
     val result = client.execute[Array[DDFInformation]](cmd).result
-    result.map(ddfInfo => ddfInfo.getUri).mkString("\n")
+    //hack to filter out duplicate
+
+    val list = result.map(ddfInfo => ddfInfo.getUri).toSet
+    list.mkString("\n")
   }
 
   def loadModel(uri: String): IModel = {

@@ -44,10 +44,6 @@ class Parser extends JavaTokenParsers {
     case left ~ compare ~ right => Filtering(left, right, compare)
   }
 
-  def letStatement: Parser[Assignment] = "let" ~> (aSingleWord <~ "=".?)  ^^ {
-    case variable => Assignment(variable)
-  }
-
   def useDataset: Parser[Task[String]] = "use" ~> aSingleWord ^^ {
     case dataset => UseDataset(dataset)
   }
@@ -68,7 +64,7 @@ class Parser extends JavaTokenParsers {
     ("load" ~> repsep(column, ",")) ~
     ("from" ~> aSingleWord) ~
     (("into" | "to") ~> aSingleWord) ^^ {
-      case columns ~ table ~ dataset => LoadDataFromTable(columns, table, dataset)
+      case columns ~ table ~ dataset  => LoadDataFromTable(columns, table, dataset)
     }
   }
 
@@ -86,6 +82,10 @@ class Parser extends JavaTokenParsers {
     "train to predict" ~> (aSingleWord ~ "from" ~ aSingleWord) ^^ {
       case trainColumn ~ "from" ~ dataset => Train(trainColumn, dataset)
     }
+  }
+
+  def letStatement: Parser[Assignment] = "let" ~> (aSingleWord <~ "=".?)  ^^ {
+    case variable => Assignment(variable)
   }
 
   def letTrain: Parser[Task[Unit]] = {
