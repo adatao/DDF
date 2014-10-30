@@ -36,7 +36,7 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
     val cachedBatch: RDD[CachedBatch] = cachedData.cachedRepresentation.cachedColumnBuffers
     //force the table to materialzie
     mLog.info(">>>>> force the table to materialize")
-    //cachedBatch.count()
+    cachedBatch.count()
     this.getRepresentationHandler.add(cachedBatch, classOf[RDD[_]], classOf[CachedBatch])
   }
   def this(manager: DDFManager) = {
