@@ -95,8 +95,7 @@ public class VectorVariance extends CExecutor { // implements IExecutor, Seriali
 
   public ExecutorResult run(SparkThread sparkThread) throws AdataoException {
     DDFManager ddfManager = sparkThread.getDDFManager();
-    String ddfId = Utils.dcID2DDFID(dataContainerID);
-    DDF ddf = ddfManager.getDDF(ddfId);
+    DDF ddf = ddfManager.getDDF(dataContainerID);
     Double[] result;
     try {
       if(this.getColumnName() == null) this.setColumnName(ddf.getSchema().getColumn(0).getName());

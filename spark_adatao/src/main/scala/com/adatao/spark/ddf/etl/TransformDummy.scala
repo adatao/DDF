@@ -39,7 +39,7 @@ object TransformDummy {
       arrayByteBuffer => {
         tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap)(arrayByteBuffer)
       }
-    }
+    }.filter(xy ⇒ (xy._1.columns > 0) && (xy._2.rows > 0))
   }
 
   def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {

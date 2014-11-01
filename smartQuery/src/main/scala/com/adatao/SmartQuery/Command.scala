@@ -153,7 +153,7 @@ case class UsePredict(getVariable: GetVariable, predict: Predict) extends Task[U
 
 /**
  * Query:
- * "train to predict arrdelay from/with myddf"
+ * "``train to predict arrdelay from/with myddf"
  * "train how to predict arrdelay from/with ddf"
  * "learn to predict arrdelay from/with ddf"
  */
