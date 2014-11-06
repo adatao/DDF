@@ -18,7 +18,7 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-
+  val SPARK_VERSION = "1.2.0-SNAPSHOT-adatao"
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -103,10 +103,18 @@ object RootBuild extends Build {
 
   val spark_adatao_dependencies = Seq(
     "io.ddf" % "ddf_core_2.10" %  rootVersion,
-    "io.ddf" % "ddf_spark_2.10" % rootVersion,
+    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
+      "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
-    "uk.com.robust-it" % "cloning" % "1.9.0"
+    "uk.com.robust-it" % "cloning" % "1.9.0",
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all"),
+    "org.apache.spark" % "spark-sql_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
+    "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api")
   )
 
   val pa_dependencies = Seq(
