@@ -18,7 +18,7 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  val SPARK_VERSION = "1.2.0-SNAPSHOT-adatao"
+  val SPARK_VERSION = "1.2.0-adatao"
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -210,6 +210,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.avro" % "avro" % "1.7.4",
     dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.5",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
+    dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
 //     dependencyOverrides += "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
