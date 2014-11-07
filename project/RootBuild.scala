@@ -110,11 +110,13 @@ object RootBuild extends Build {
     "uk.com.robust-it" % "cloning" % "1.9.0",
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION exclude("io.netty", "netty-all"),
     "org.apache.spark" % "spark-sql_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
     "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
-      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
+    "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION
   )
 
   val pa_dependencies = Seq(
