@@ -50,8 +50,6 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-
-export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
 export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
@@ -81,8 +79,12 @@ SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEMORY}"
 SPARK_JAVA_OPTS+=" -Dspark.driver.memory=${SPARK_MEMORY}"
 SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
+SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000000"
+SPARK_JAVA_OPTS+=" -Dspark.akka.heartbeat.interval=3"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
+SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=SORT"
+SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
 #SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytab"
 #SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
 #SPARK_JAVA_OPTS+=" -Dpa.user=pa"
@@ -91,14 +93,12 @@ export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export HADOOP_CONF_DIR=/mnt/hadoop-2.2.0.2.0.6.0-101/conf        
-        export SPARK_WORKER_INSTANCES=8
+        export SPARK_WORKER_INSTANCES=12
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEMORY
         #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         echo $SPARK_JAR
-        export HADOOP_NAMENODE=`cat /root/spark-ec2/masters`
-        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-1.0.jar
+        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-1.2.0.jar
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
         [ "X$SPARK_WORKER_CORES" == "X" ] && echo "Notice! SPARK_WORKER_CORES is not defined, the default value will be used instead"
