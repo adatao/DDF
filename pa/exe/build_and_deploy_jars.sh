@@ -19,11 +19,11 @@ bin/sbt 'project pa' assembly
 
 echo "# copy jars to slaves, and put assembly fat jar to hdfs #"
 
-/root/spark-ec2/copy-dir.sh $DDF_HOME &
-${HADOOP_HOME}/bin/hdfs dfs -rmr /user/root/ddf_pa-assembly-1.0.jar
+${DDF_HOME}/pa/exe/copy-dir.sh $DDF_HOME &
+${HADOOP_HOME}/bin/hdfs dfs -rmr /user/root/ddf_pa-assembly-1.2.0.jar
 
 echo "# put assembly fat jar to hdfs #"
-${HADOOP_HOME}/bin/hdfs dfs -put ${PA_HOME}/target/scala-2.10/ddf_pa-assembly-1.0.jar /user/root
+${HADOOP_HOME}/bin/hdfs dfs -put ${PA_HOME}/target/scala-2.10/ddf_pa-assembly-1.2.0.jar /user/root
 wait
 echo "# THANK YOU, DONE #"
 
