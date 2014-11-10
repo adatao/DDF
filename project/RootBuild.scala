@@ -116,8 +116,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
     "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
-    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
-    "org.apache.commons" % "commons-math3" % "3.2"
+    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION
+    //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
   val pa_dependencies = Seq(
@@ -191,7 +191,7 @@ object RootBuild extends Build {
     //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
     //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
-    // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
     dependencyOverrides += "log4j" % "log4j" % "1.2.17",
@@ -237,7 +237,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
-
+    dependencyOverrides += "commons-httpclient" % "commons-httpclient" % "3.1",
     pomExtra := (
       <!--
       **************************************************************************************************
