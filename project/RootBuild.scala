@@ -116,7 +116,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
     "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
-    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION
+    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
+    "org.apache.commons" % "commons-math3" % "3.2"
   )
 
   val pa_dependencies = Seq(
@@ -199,7 +200,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
-    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
+    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.2", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
     dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
