@@ -238,6 +238,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-net" % "commons-net" % "3.1",
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
     dependencyOverrides += "commons-httpclient" % "commons-httpclient" % "3.1",
+    dependencyOverrides += "org.apache.avro" % "avro-mapred" % "1.7.6",
     pomExtra := (
       <!--
       **************************************************************************************************
