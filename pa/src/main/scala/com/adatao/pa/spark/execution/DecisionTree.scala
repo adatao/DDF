@@ -61,7 +61,7 @@ class DecisionTree(dataContainerID: String,
   }
 }
 
-class DecisionTreeModel(modelID: String, description: String, tree: String) extends Serializable
+class DecisionTreeModel(val modelID: String, val description: String, val tree: String) extends Serializable
 
 object DecisionTree {
   def getNumClasses(dataContainerID: String, colIndex: Int, ctx: ExecutionContext): Int = {
