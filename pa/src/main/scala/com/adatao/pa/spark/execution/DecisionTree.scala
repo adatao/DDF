@@ -48,10 +48,14 @@ class DecisionTree(dataContainerID: String,
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
-    val model = new Model(SparkDT.train(rddLabelPoint, strategy))
-    model.setTrainedColumns(trainedColumns)
-    manager.addModel(model)
-    model
+    val model = SparkDT.train(rddLabelPoint, strategy)
+    println(">>>>> model " + model.toString())
+    println(">>>>> model.topNode = " +model.topNode.toString())
+    println(">>>>> model.topNode.subtreeToString() = " + model.topNode.subtreeToString())
+    val imodel = new Model(model)
+    imodel.setTrainedColumns(trainedColumns)
+    manager.addModel(imodel)
+    return null
   }
 }
 
