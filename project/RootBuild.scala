@@ -104,7 +104,8 @@ object RootBuild extends Build {
   val spark_adatao_dependencies = Seq(
     "io.ddf" % "ddf_core_2.10" %  DDF_VERSION,
     "io.ddf" % "ddf_spark_2.10" % DDF_VERSION exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
-      "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10"),
+      "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10")
+      exclude("org.apache.spark", "spark-yarn_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
     "uk.com.robust-it" % "cloning" % "1.9.0",
