@@ -1,12 +1,16 @@
 package com.adatao.pa.spark.execution
 
-import io.ddf.ml.IModel
-import io.ddf.DDF
+import io.ddf.ml.{IModel, Model}
+import io.ddf.{DDFManager, DDF}
 import org.apache.spark.mllib.tree.configuration.Strategy
 import org.apache.spark.mllib.tree.configuration.Algo._
 import org.apache.spark.mllib.tree.impurity.{Gini, Variance, Entropy}
+import org.apache.spark.mllib.tree.{DecisionTree => SparkDT}
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
+import io.spark.ddf.content.RepresentationHandler
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.rdd.RDD
 
 /**
  * author: daoduchuan
@@ -22,29 +26,32 @@ class DecisionTree(dataContainerID: String,
   override def runImpl(ctx: ExecutionContext): IModel = {
 
     val manager = ctx.sparkThread.getDDFManager
-    val projectedDDF = manager.getDDF(dataContainerID) match {
-      case ddf: DDF => {
-        val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
-        ddf.VIEWS.project(trainedColumns: _*)
-      }
+    val ddf = manager.getDDF(dataContainerID) match {
+      case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
+    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
+    val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
+    val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
 
     val imp = impurity.toLowerCase() match {
       case "gini" => Gini
       case "variance" => Variance
       case "entropy" => Entropy
     }
-    val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
-    val strategy = clazz.toLowerCase() match {
+
+    val strategy: Strategy = clazz.toLowerCase() match {
       case "classification" => new Strategy(algo = Classification, impurity = imp,
         maxDepth = 10, numClassesForClassification = numClasses)
       case "regression" => new Strategy(algo = Classification, impurity = imp,
         maxDepth =10, numClassesForClassification = numClasses)
     }
+    val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
-    //TODO, run as.factor to getNumClasses
-    projectedDDF.ML.train("decisionTree", strategy)
+    val model = new Model(SparkDT.train(rddLabelPoint, strategy))
+    model.setTrainedColumns(trainedColumns)
+    manager.addModel(model)
+    model
   }
 }
 
