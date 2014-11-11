@@ -108,7 +108,7 @@ object RootBuild extends Build {
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
     "uk.com.robust-it" % "cloning" % "1.9.0",
-    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all")
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
     "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION exclude("io.netty", "netty-all"),
     "org.apache.spark" % "spark-sql_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
