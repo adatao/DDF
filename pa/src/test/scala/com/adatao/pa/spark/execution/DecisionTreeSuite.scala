@@ -18,7 +18,7 @@ class DecisionTreeSuite extends ABigRClientTest {
     val dataContainerId = r1.dataContainerID
     val command = new DecisionTree(dataContainerId, Array(0,1,2,3,4,5), 7, "Classification",
       maxDepth = 10)
-    val model = bigRClient.execute[IModel](command).result
+    val model = bigRClient.execute[DecisionTreeModel](command).result
     assert(model != null)
   }
 

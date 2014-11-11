@@ -21,9 +21,9 @@ class DecisionTree(dataContainerID: String,
                    clazz: String = "Classification",
                    impurity: String = "Gini",
                    maxDepth: Int = 10
-                   ) extends AExecutor[IModel](true) {
+                   ) extends AExecutor[DecisionTreeModel](true) {
 
-  override def runImpl(ctx: ExecutionContext): IModel = {
+  override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
 
     val manager = ctx.sparkThread.getDDFManager
     val ddf = manager.getDDF(dataContainerID) match {
@@ -51,13 +51,17 @@ class DecisionTree(dataContainerID: String,
     val model = SparkDT.train(rddLabelPoint, strategy)
     println(">>>>> model " + model.toString())
     println(">>>>> model.topNode = " +model.topNode.toString())
-    println(">>>>> model.topNode.subtreeToString() = " + model.topNode.subtreeToString())
+    println(">>>>> model.topNode.subtreeToString() = \n" + model.topNode.subtreeToString())
     val imodel = new Model(model)
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
-    return null
+    val modelDescription = s"${model.toString} \n ${model.topNode.toString()}"
+    val modelTree= model.topNode.subtreeToString(1)
+    new DecisionTreeModel(imodel.getName, modelDescription, modelTree)
   }
 }
+
+class DecisionTreeModel(modelID: String, description: String, tree: String) extends Serializable
 
 object DecisionTree {
   def getNumClasses(dataContainerID: String, colIndex: Int, ctx: ExecutionContext): Int = {
