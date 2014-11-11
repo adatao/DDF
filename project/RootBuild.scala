@@ -19,7 +19,7 @@ object RootBuild extends Build {
     DEFAULT_HADOOP_VERSION
 
   val SPARK_VERSION = "1.2.0-adatao"
-
+  val DDF_VERSION= "1.0"
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
@@ -102,8 +102,8 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "ddf_core_2.10" %  rootVersion,
-    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
+    "io.ddf" % "ddf_core_2.10" %  DDF_VERSION,
+    "io.ddf" % "ddf_spark_2.10" % DDF_VERSION exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
       "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
     "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
