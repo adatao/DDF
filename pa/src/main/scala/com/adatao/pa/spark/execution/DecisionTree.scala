@@ -30,8 +30,8 @@ class DecisionTree(dataContainerID: String,
       case x: DDF => x
       case _ => throw new IllegalArgumentException("Only accept DDF")
     }
-    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
+    val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
     val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
 
     val imp = impurity.toLowerCase() match {
