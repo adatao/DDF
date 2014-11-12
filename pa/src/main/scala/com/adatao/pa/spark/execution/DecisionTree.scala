@@ -49,7 +49,7 @@ class DecisionTree(dataContainerID: String,
         maxDepth = maxDepth, numClassesForClassification = numClasses,
           minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
 
-      case "regression" => new Strategy(algo = Classification, impurity = imp,
+      case "regression" => new Strategy(algo = Regression, impurity = imp,
         maxDepth =maxDepth, numClassesForClassification = 10,
         minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
     }
