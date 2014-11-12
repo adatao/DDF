@@ -4,6 +4,11 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import io.ddf.ml.IModel
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.tree.configuration.Strategy
+import org.apache.spark.mllib.tree.configuration.Algo._
+import org.apache.spark.mllib.tree.impurity.Gini
+import org.apache.spark.mllib.tree.DecisionTree
+import org.scalatest.FunSuite
 
 /**
  * author: daoduchuan
