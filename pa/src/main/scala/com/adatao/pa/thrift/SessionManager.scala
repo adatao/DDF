@@ -45,20 +45,20 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	 */
 	def addSession(sessionThread: SparkThread, clientID: String): Session = {
 		val sessionID = UUID.randomUUID().toString();
-		if (clientID == null) return null;
-		val session = new Session(sessionThread, sessionID, clientID, getNewThriftPort, getNewUIPort, getNewDriverPort)
+		val myClientID = if (clientID == null) SessionManager.ANONYMOUS else clientID
+		
+		val session = new Session(sessionThread, sessionID, myClientID, getNewThriftPort, getNewUIPort, getNewDriverPort)
 		return addSession(session)
 	}
 	
 	def addSession(sessionThread: SparkThread, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
-		if (clientID == null) return null;
 		val sessionID = UUID.randomUUID().toString();
 		return addSession(sessionThread, sessionID, clientID, thriftPort, uiPort, driverPort)
 	}
 	
 	def addSession(sessionThread: SparkThread, sessionID: String, clientID: String, thriftPort: Int, uiPort: Int, driverPort: Int): Session = {
-		if (clientID == null) return null;
-		val session = new Session(sessionThread, sessionID, clientID, thriftPort, uiPort, driverPort)
+		val myClientID = if (clientID == null) SessionManager.ANONYMOUS else clientID
+		val session = new Session(sessionThread, sessionID, myClientID, thriftPort, uiPort, driverPort)
 		return addSession(session)
 	}
 	
@@ -124,10 +124,10 @@ class SessionManager(var currentThriftPort: Int) extends TCanLog {
 	
 	def getClientID(sessionID: String): String = {
 	    val session = getSession(sessionID)
-	    if (session != null) session.clientID else null
+	    if (session == null) SessionManager.ANONYMOUS else session.clientID
 	}
 }
 
 object SessionManager {
-	val ADMINUSER = System.getProperty("pa.admin.user", "pa")
+	val ANONYMOUS = System.getProperty("bigr.defaultuser", "anonymous")
 }
