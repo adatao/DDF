@@ -54,6 +54,7 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
         sparkDDF
       }
       case decisionTree: DCModel => {
+        LOG.info(">>>>> DecisionTreeModel, running prediction")
         val rddDouble = ddf.VIEWS.project(model.getTrainedColumns(): _*).getRepresentationHandler.
           get(RepresentationHandler.RDD_ARR_DOUBLE.getTypeSpecsString).asInstanceOf[RDD[Array[Double]]]
         val XsY = rddDouble.map{arr => (arr.take(arr.size - 1), arr(arr.size - 1))}
