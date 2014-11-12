@@ -56,7 +56,7 @@ class DecisionTree(dataContainerID: String,
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
     val modelDescription = s"${model.toString} \n ${model.topNode.toString()}"
-    val modelTree= "" //model.topNode.subtreeToString(1)
+    val modelTree= model.topNode.subtreeToString(1)
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree)
   }
 }
