@@ -32,7 +32,7 @@ class DecisionTree(dataContainerID: String,
     }
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
-    val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
+
 
     val imp = impurity.toLowerCase() match {
       case "gini" => Gini
@@ -41,10 +41,12 @@ class DecisionTree(dataContainerID: String,
     }
 
     val strategy: Strategy = clazz.toLowerCase() match {
-      case "classification" => new Strategy(algo = Classification, impurity = imp,
+      case "classification" =>
+        val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
+        new Strategy(algo = Classification, impurity = imp,
         maxDepth = maxDepth, numClassesForClassification = numClasses)
       case "regression" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth =maxDepth, numClassesForClassification = numClasses)
+        maxDepth =maxDepth, numClassesForClassification = 10)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
