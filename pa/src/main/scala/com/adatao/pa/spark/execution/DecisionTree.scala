@@ -42,9 +42,9 @@ class DecisionTree(dataContainerID: String,
 
     val strategy: Strategy = clazz.toLowerCase() match {
       case "classification" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth = 10, numClassesForClassification = numClasses)
+        maxDepth = maxDepth, numClassesForClassification = numClasses)
       case "regression" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth =10, numClassesForClassification = numClasses)
+        maxDepth =maxDepth, numClassesForClassification = numClasses)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
@@ -52,7 +52,6 @@ class DecisionTree(dataContainerID: String,
 
     LOG.info(">>>>> model " + model.toString())
     LOG.info(">>>>> model.topNode = " +model.topNode.toString())
-    LOG.info(">>>>> model.topNode.subtreeToString() = \n" + model.topNode.subtreeToString())
     val imodel = new Model(model)
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
