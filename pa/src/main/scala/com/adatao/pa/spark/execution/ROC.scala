@@ -68,7 +68,10 @@ class ROC(dataContainerID: String, alpha_length: Int) extends AExecutor[RocMetri
 		//    val df = ctx.sparkThread.getDataManager.get(dataContainerID)
 		val ddfManager = ctx.sparkThread.getDDFManager()
     LOG.info(">>> dataContainerID = " + dataContainerID)
-		val predictionDDF: DDF = ddfManager.getDDF(dataContainerID);
+		val predictionDDF: DDF = ddfManager.getDDF(dataContainerID)
+    if(predictionDDF == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "DDF does not exist", null)
+    }
 
 		predictionDDF.getMLMetricsSupporter().roc(predictionDDF, alpha_length)
 	}
