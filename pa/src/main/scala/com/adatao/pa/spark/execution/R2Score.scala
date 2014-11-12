@@ -27,6 +27,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.spark.ddf.analytics.Utils
 import io.ddf.ml.IModel
 import io.ddf.DDF
+import org.apache.spark.mllib.tree.model.{DecisionTreeModel => DCModel}
 
 /**
  *
@@ -46,6 +47,12 @@ class R2Score(var dataContainerID: String, var modelID: String) extends AExecuto
         val yTrueYPred = new YtrueYpred(dataContainerID, modelID).runImpl(ctx)
         val predictionDDF = ddfManager.getDDF(yTrueYPred.getDataContainerID)
         predictionDDF.getMLMetricsSupporter.r2score(yMean)
+      }
+      case dcModel: DCModel => {
+        val yTrueYPred = new YtrueYpred(dataContainerID, modelID).runImpl(ctx)
+        val predictionDDF = ddfManager.getDDF(yTrueYPred.getDataContainerID)
+        val mean = predictionDDF.getStatisticsSupporter.getSummary.apply(predictionDDF.getNumColumns - 1).mean()
+        predictionDDF.getMLMetricsSupporter.r2score(mean)
       }
       case _ => throw new AdataoException(AdataoExceptionCode.ERR_GENERAL,
         s"Don't know how to get R2Score for ${model.getRawModel.getClass.toString}}", null)
