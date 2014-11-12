@@ -20,7 +20,9 @@ class DecisionTree(dataContainerID: String,
                    yCol: Int,
                    clazz: String = "Classification",
                    impurity: String = "Gini",
-                   maxDepth: Int = 10
+                   maxDepth: Int = 10,
+                   minInstancePerNode: Int = 1,
+                   minInfomationGain: Double = 0.0
                    ) extends AExecutor[DecisionTreeModel](true) {
 
   override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
@@ -44,9 +46,12 @@ class DecisionTree(dataContainerID: String,
       case "classification" =>
         val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
         new Strategy(algo = Classification, impurity = imp,
-        maxDepth = maxDepth, numClassesForClassification = numClasses)
+        maxDepth = maxDepth, numClassesForClassification = numClasses,
+          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
+
       case "regression" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth =maxDepth, numClassesForClassification = 10)
+        maxDepth =maxDepth, numClassesForClassification = 10,
+        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
