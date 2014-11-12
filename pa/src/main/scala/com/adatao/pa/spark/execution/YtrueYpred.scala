@@ -68,7 +68,9 @@ class YtrueYpred(dataContainerID: String, val modelID: String) extends AExecutor
          * val resultDDF : DDF = this.getManager.newDDF(this.getManager, result.rdd, Array[Class[_]](classOf[Nothing],
          * classOf[Array[Double]]), this.getManager.getNamespace, null, schema)
          */
-        ddfManager.newDDF(ddfManager, rdd, Array(classOf[RDD[_]], classOf[Array[Double]]), ddfManager.getNamespace, null, schema)
+        val resultDDF = ddfManager.newDDF(ddfManager, rdd, Array(classOf[RDD[_]], classOf[Array[Double]]), ddfManager.getNamespace, null, schema)
+        ddfManager.addDDF(resultDDF)
+        resultDDF
       }
       case _ => {
         val projectedDDF = ddf.VIEWS.project(model.getTrainedColumns: _*)
