@@ -90,7 +90,7 @@ class DecisionTree(dataContainerID: String,
     //read tree and generate rules
     //serialized built tree into instances set
     var root = model.topNode
-    visitTree(root, "")
+    visitTree(root, "","",0.0)
     //print initial rule set
 
     println("\n")
@@ -101,26 +101,34 @@ class DecisionTree(dataContainerID: String,
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
   }
 
-  def visitTree(node: Node, precedent: String)  {
+  def visitTree(node: Node, precedent: String, previousRule: String, previousThreshold: Double)  {
     if(!node.isLeaf) {
       //first concat current node to ruleset[length -1]
       //first get split
       var split = node.split.get
       if(split.featureType.equals(FeatureType.Continuous)) {
         var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
-        visitTree(node.leftNode.get, precedent + leftstr)
+        visitTree(node.leftNode.get, precedent + leftstr ,leftstr, split.threshold)
 
 
         var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
         //adhoc optimization to remove non-sense rule
         //alter precedent if needed
-        visitTree(node.rightNode.get, precedent + rightstr)
+
+        if(previousRule.contains( "    feature " + split.feature) && previousThreshold < split.threshold) {
+          //ignore previousRule
+          var newprecedent = precedent.replace(previousRule, "")
+          visitTree(node.rightNode.get, newprecedent + rightstr, rightstr, split.threshold)
+        }
+        else {
+          visitTree(node.rightNode.get, precedent + rightstr, rightstr, split.threshold)
+        }
       }
       else {
         var leftstr = "    feature " + split.feature + " in " + split.categories.toString() + "\n"
         var rightstr = "    feature " + split.feature + " not in " + split.categories.toString()+ "\n"
-        visitTree(node.leftNode.get, precedent + leftstr)
-        visitTree(node.rightNode.get, precedent + rightstr)
+        visitTree(node.leftNode.get, precedent + leftstr, leftstr, split.threshold)
+        visitTree(node.rightNode.get, precedent + rightstr, rightstr, split.threshold)
       }
     }
     else {
