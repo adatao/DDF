@@ -1,10 +1,13 @@
 package com.adatao.pa.spark.execution
 
+import java.util
+
 import io.ddf.ml.{IModel, Model}
 import io.ddf.{DDFManager, DDF}
 import org.apache.spark.mllib.tree.configuration.Strategy
 import org.apache.spark.mllib.tree.configuration.Algo._
 import org.apache.spark.mllib.tree.impurity.{Gini, Variance, Entropy}
+import org.apache.spark.mllib.tree.model.Node
 import org.apache.spark.mllib.tree.{DecisionTree => SparkDT}
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
@@ -22,6 +25,11 @@ class DecisionTree(dataContainerID: String,
                    impurity: String = "Gini",
                    maxDepth: Int = 10
                    ) extends AExecutor[DecisionTreeModel](true) {
+
+  //List of tuple (feature, operator, value)
+
+  val rulesSet: java.util.List[String] = new util.ArrayList[String]()
+  var rules = ""
 
   override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
 
@@ -56,8 +64,41 @@ class DecisionTree(dataContainerID: String,
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
     val modelDescription = s"${model.toString} \n ${model.topNode.toString()}"
-    val modelTree= "" //model.topNode.subtreeToString(1)
+    val modelTree= ""//model.topNode.subtreeToString(1)
+
+
+    //read tree and generate rules
+    //serialized built tree into instances set
+    var root = model.topNode
+    visitTree(root, "")
+    //print initial rule set
+    println("rulesets ==")
+    println(rules.toString())
+    println("---------------------")
+
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree)
+  }
+
+  def visitTree(node: Node, precedent: String)  {
+    if(!node.isLeaf) {
+      //first concat current node to ruleset[length -1]
+      //first get split
+      var split = node.split.get
+      var leftstr = "feature " + split.feature + "<" + split.threshold + "\n"
+      var rightstr = "feature " + split.feature + ">=" + split.threshold + "\n"
+
+      visitTree(node.leftNode.get, precedent + leftstr)
+
+      visitTree(node.rightNode.get, precedent + rightstr)
+    }
+    else {
+      //
+      rules += precedent + node.predict.predict.toString + "\n\n----\n"
+    }
+    //rulesSet +=
+    //var a = node.split.map(a => Seq(a.feature.toString, a.featureType.toString, a.threshold.toString))
+    //rulesSet +: List(("1","2","3"))
+
   }
 }
 
