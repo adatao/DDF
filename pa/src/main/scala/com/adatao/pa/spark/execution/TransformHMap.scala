@@ -34,8 +34,8 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
         val arr = Array[Double](numCols)
         while(idx < numCols) {
           val value = row.get(idx)
-          if(keyValueMap.contains(idx)) {
-            arr(idx) = keyValueMap(idx).get(value.toString)
+          if(keyValueMap.keySet.contains(idx)) {
+            arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
             arr(idx) = if(colTypes(idx) == Schema.ColumnType.INT) {
               row.getInt(idx).toDouble
