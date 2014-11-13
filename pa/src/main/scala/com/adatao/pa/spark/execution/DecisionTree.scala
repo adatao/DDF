@@ -45,13 +45,19 @@ class DecisionTree(dataContainerID: String,
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
-    val colFactors = xCols.filter{colIx =>
-      val col = ddf.getColumn(ddf.getColumnName(colIx))
-      col.getOptionalFactor != null
+    val colFactors = xCols.map{colIx =>
+      ddf.getColumn(ddf.getColumnName(colIx))}.filter{
+      col => col.getOptionalFactor != null
     }
-
-    val factorMap = new GetMultiFactor(projectedDDF.getName, colFactors).run(ctx).result
+    val colFactorIdexes = colFactors.map{col => col.getName}.map{colName => projectedDDF.getColumnIndex(colName)}
+    val factorMap = new GetMultiFactor(projectedDDF.getName, colFactorIdexes).run(ctx).result
     val mapCategorical = factorMap.map{case (idx, hmap) => (idx.toInt, hmap.size())}.toMap
+    val maxBins = if(mapCategorical != null) {
+      val maxCategorical = mapCategorical.map{case (a,b)=> b}.max
+      if(maxCategorical > 32) maxCategorical else 32
+    } else {
+      32
+    }
 
     LOG.info(">>>> mapCategorical = " + mapCategorical.mkString(", "))
     val imp = impurity.toLowerCase() match {
@@ -64,12 +70,12 @@ class DecisionTree(dataContainerID: String,
       case "classification" =>
         val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
         new Strategy(algo = Classification, impurity = imp,
-        maxDepth = maxDepth, numClassesForClassification = numClasses,
-          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain, categoricalFeaturesInfo= mapCategorical)
+        maxDepth = maxDepth, numClassesForClassification = numClasses, maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
+          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
 
       case "regression" => new Strategy(algo = Regression, impurity = imp,
-        maxDepth =maxDepth, numClassesForClassification = 10,
-        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain, categoricalFeaturesInfo= mapCategorical)
+        maxDepth =maxDepth, numClassesForClassification = 10,  maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
+        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
     val model = SparkDT.train(rddLabelPoint, strategy)
