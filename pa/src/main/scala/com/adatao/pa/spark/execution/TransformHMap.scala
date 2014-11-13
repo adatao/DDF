@@ -24,8 +24,7 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
     val ddf = ctx.sparkThread.getDDFManager.getDDF(dataContainerID)
     val keyValueMap = keyValMap.toMap
 
-    val colFactorIndexes: List[Int] = keyValMap.map{case (idx, hmap) => idx.toInt}.toList
-
+    LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val numCols = ddf.getNumColumns
     val colTypes = ddf.getSchemaHandler.getColumns.map{col => col.getType}
@@ -35,7 +34,7 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
         val arr = Array[Double](numCols)
         while(idx < numCols) {
           val value = row.get(idx)
-          if(colFactorIndexes.contains(idx)) {
+          if(keyValueMap.contains(idx)) {
             arr(idx) = keyValueMap(idx).get(value.toString)
           } else {
             arr(idx) = if(colTypes(idx) == Schema.ColumnType.INT) {
