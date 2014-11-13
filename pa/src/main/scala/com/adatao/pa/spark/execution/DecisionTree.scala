@@ -52,7 +52,7 @@ class DecisionTree(dataContainerID: String,
     val colFactorIdexes = colFactors.map{col => col.getName}.map{colName => projectedDDF.getColumnIndex(colName)}
     val factorMap = new GetMultiFactor(projectedDDF.getName, colFactorIdexes).run(ctx).result
     val mapCategorical = factorMap.map{case (idx, hmap) => (idx.toInt, hmap.size())}.toMap
-    val maxBins = if(mapCategorical != null) {
+    val maxBins = if(mapCategorical.size > 0) {
       val maxCategorical = mapCategorical.map{case (a,b)=> b}.max
       if(maxCategorical > 32) maxCategorical else 32
     } else {
@@ -81,7 +81,7 @@ class DecisionTree(dataContainerID: String,
     val model = SparkDT.train(rddLabelPoint, strategy)
 
     LOG.info(">>>>> model " + model.toString())
-    LOG.info(">>>>> model.topNode = " +model.topNode.toString())
+    LOG.info(">>>>> model.topNode = " + model.topNode.toString())
     val imodel = new Model(model)
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
