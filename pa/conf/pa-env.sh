@@ -88,7 +88,7 @@ SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
 SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=sort"
 SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
-#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytab"
+#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
 #SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
 #SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
 #SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
@@ -101,9 +101,9 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEMORY
         export SPARK_DRIVER_MEMORY=$SPARK_MEMORY
-        #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
-        #echo $SPARK_JAR
-        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-1.2.0.jar
+        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
+        echo SPARK_JAR=$SPARK_JAR
+        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-1.2.0.jar
         
         #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         #export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
