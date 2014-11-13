@@ -105,6 +105,8 @@ if [ "X$cluster" == "Xyarn" ]; then
         echo SPARK_JAR=$SPARK_JAR
         export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-1.2.0.jar
         
+        SPARK_CLASSPATH+=:"${PA_HOME}/conf/distributed/"
+         
         #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         #export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
@@ -122,4 +124,8 @@ elif [ "X$cluster" == "Xlocalspark" ]; then
         export SPARK_MEM=$SPARK_MEMORY
        # export SPARK_WORKER_MEMORY=$SPARK_MEMORY
         export SPARK_MASTER=local
+        SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-local-log4j.properties" 
+        #SPARK_CLASSPATH+=:"pa-local-log4j.properties"
+        SPARK_CLASSPATH+=:"${PA_HOME}/conf/local/"
 fi
+export SPARK_CLASSPATH
