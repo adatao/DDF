@@ -4,7 +4,7 @@ import java.util
 
 import io.ddf.ml.{IModel, Model}
 import io.ddf.{DDFManager, DDF}
-import org.apache.spark.mllib.tree.configuration.Strategy
+import org.apache.spark.mllib.tree.configuration.{FeatureType, Strategy}
 import org.apache.spark.mllib.tree.configuration.Algo._
 import org.apache.spark.mllib.tree.impurity.{Gini, Variance, Entropy}
 import org.apache.spark.mllib.tree.model.Node
@@ -89,12 +89,18 @@ class DecisionTree(dataContainerID: String,
       //first concat current node to ruleset[length -1]
       //first get split
       var split = node.split.get
-      var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
-      var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
-
-      visitTree(node.leftNode.get, precedent + leftstr)
-
-      visitTree(node.rightNode.get, precedent + rightstr)
+      if(split.featureType.equals(FeatureType.Continuous)) {
+        var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
+        var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
+        visitTree(node.leftNode.get, precedent + leftstr)
+        visitTree(node.rightNode.get, precedent + rightstr)
+      }
+      else {
+        var leftstr = "    feature " + split.feature + "=" + split.threshold + "\n"
+        var rightstr = "    feature " + split.feature + "=" + split.threshold + "\n"
+        visitTree(node.leftNode.get, precedent + leftstr)
+        visitTree(node.rightNode.get, precedent + rightstr)
+      }
     }
     else {
       //
