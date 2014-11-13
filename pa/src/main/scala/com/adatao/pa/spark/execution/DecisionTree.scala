@@ -23,7 +23,9 @@ class DecisionTree(dataContainerID: String,
                    yCol: Int,
                    clazz: String = "Classification",
                    impurity: String = "Gini",
-                   maxDepth: Int = 10
+                   maxDepth: Int = 10,
+                   minInstancePerNode: Int = 1,
+                   minInfomationGain: Double = 0.0
                    ) extends AExecutor[DecisionTreeModel](true) {
 
   //List of tuple (feature, operator, value)
@@ -40,7 +42,7 @@ class DecisionTree(dataContainerID: String,
     }
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
-    val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
+
 
     val imp = impurity.toLowerCase() match {
       case "gini" => Gini
@@ -49,10 +51,15 @@ class DecisionTree(dataContainerID: String,
     }
 
     val strategy: Strategy = clazz.toLowerCase() match {
-      case "classification" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth = maxDepth, numClassesForClassification = numClasses)
-      case "regression" => new Strategy(algo = Classification, impurity = imp,
-        maxDepth =maxDepth, numClassesForClassification = numClasses)
+      case "classification" =>
+        val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
+        new Strategy(algo = Classification, impurity = imp,
+        maxDepth = maxDepth, numClassesForClassification = numClasses,
+          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
+
+      case "regression" => new Strategy(algo = Regression, impurity = imp,
+        maxDepth =maxDepth, numClassesForClassification = 10,
+        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
 
@@ -63,8 +70,6 @@ class DecisionTree(dataContainerID: String,
     val imodel = new Model(model)
     imodel.setTrainedColumns(trainedColumns)
     manager.addModel(imodel)
-    val modelDescription = s"${model.toString} \n ${model.topNode.toString()}"
-    val modelTree= ""//model.topNode.subtreeToString(1)
 
 
     //read tree and generate rules
@@ -72,11 +77,10 @@ class DecisionTree(dataContainerID: String,
     var root = model.topNode
     visitTree(root, "")
     //print initial rule set
-    println("rulesets ==")
-    println(rules.toString())
-    println("---------------------")
 
-    new DecisionTreeModel(imodel.getName, modelDescription, modelTree)
+    val modelDescription = s"${model.toString}"
+    val modelTree= model.topNode.subtreeToString(1)
+    new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
   }
 
   def visitTree(node: Node, precedent: String)  {
