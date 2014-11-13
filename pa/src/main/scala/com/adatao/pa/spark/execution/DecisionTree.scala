@@ -147,7 +147,7 @@ object DecisionTree {
     if (ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + dataContainerID, null)
     }
-    val exec = new GetMultiFactor(dataContainerID, colIndexes)
+    val exec = new GetMultiFactor(dataContainerID, Array(colIndex))
     val a = exec.run(ctx).result
     val b = a.filter {
       case (idx, hmap) => idx == colIndex
