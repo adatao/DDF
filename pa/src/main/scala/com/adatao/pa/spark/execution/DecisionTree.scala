@@ -31,7 +31,7 @@ class DecisionTree(dataContainerID: String,
   //List of tuple (feature, operator, value)
 
   val rulesSet: java.util.List[String] = new util.ArrayList[String]()
-  var rules = "Rule 1:\n"
+  var rules = ""
   var indexRule = 1
 
   override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
@@ -89,8 +89,8 @@ class DecisionTree(dataContainerID: String,
       //first concat current node to ruleset[length -1]
       //first get split
       var split = node.split.get
-      var leftstr = "feature " + split.feature + "<" + split.threshold + "\n"
-      var rightstr = "feature " + split.feature + ">=" + split.threshold + "\n"
+      var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
+      var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
 
       visitTree(node.leftNode.get, precedent + leftstr)
 
@@ -98,8 +98,8 @@ class DecisionTree(dataContainerID: String,
     }
     else {
       //
-      indexRule += 1
-      rules += precedent + "class no  [" + node.predict.predict.toString + "]\nRule " + indexRule +":\n"
+      rules = rules + "\nRule " + indexRule +":\n" + precedent + "class no  [" + node.predict.predict.toString + "]" + "\n"
+      indexRule = indexRule +  1
 
     }
     //rulesSet +=
