@@ -91,9 +91,24 @@ class DecisionTree(dataContainerID: String,
       var split = node.split.get
       if(split.featureType.equals(FeatureType.Continuous)) {
         var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
-        var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
         visitTree(node.leftNode.get, precedent + leftstr)
-        visitTree(node.rightNode.get, precedent + rightstr)
+
+
+        var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
+        //adhoc optimization to remove non-sense rule
+        //alter precedent if needed
+        if(precedent.contains("    feature " + split.feature + ">=")) {
+          var rulearray = precedent.split("\n")
+
+          if(rulearray.size > 1 && rulearray(rulearray.size-1).contains("    feature " + split.feature + ">=")) {
+            //change it
+            var pstring = precedent.replace(rulearray(rulearray.size-1),"")
+            visitTree(node.rightNode.get, pstring + rightstr)
+          }
+        }
+        else {
+          visitTree(node.rightNode.get, precedent + rightstr)
+        }
       }
       else {
         var leftstr = "    feature " + split.feature + "=" + split.threshold + "\n"
