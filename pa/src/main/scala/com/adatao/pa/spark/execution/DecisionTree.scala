@@ -118,7 +118,7 @@ class DecisionTree(dataContainerID: String,
       }
       else {
         var leftstr = "    feature " + split.feature + " in " + split.categories.toString() + "\n"
-        var rightstr = "    feature " + split.feature + " not in " + + split.categories.toString()+ "\n"
+        var rightstr = "    feature " + split.feature + " not in " + split.categories.toString()+ "\n"
         visitTree(node.leftNode.get, precedent + leftstr)
         visitTree(node.rightNode.get, precedent + rightstr)
       }
