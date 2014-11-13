@@ -89,6 +89,10 @@ class DecisionTree(dataContainerID: String,
     var root = model.topNode
     visitTree(root, "")
     //print initial rule set
+
+    println("\n")
+    println(rules)
+
     val modelDescription = s"${model.toString}"
     val modelTree= model.topNode.subtreeToString(1)
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
@@ -110,9 +114,9 @@ class DecisionTree(dataContainerID: String,
         if(precedent.contains("    feature " + split.feature + ">=")) {
           var rulearray = precedent.split("\n")
 
-          if(rulearray.size > 1 && rulearray(rulearray.size-1).contains("    feature " + split.feature + ">=")) {
+          if(rulearray.size > 1 && rulearray(0).contains("    feature " + split.feature + ">=")) {
             //change it
-            var pstring = precedent.replace(rulearray(rulearray.size-1),"")
+            var pstring = precedent.replace(rulearray(0),"")
             visitTree(node.rightNode.get, pstring + rightstr)
           }
         }
