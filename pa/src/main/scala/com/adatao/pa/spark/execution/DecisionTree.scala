@@ -108,18 +108,7 @@ class DecisionTree(dataContainerID: String,
         var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
         //adhoc optimization to remove non-sense rule
         //alter precedent if needed
-        if(precedent.contains("    feature " + split.feature + ">=")) {
-          var rulearray = precedent.split("\n")
-
-          if(rulearray.size > 1 && rulearray(0).contains("    feature " + split.feature + ">=")) {
-            //change it
-            var pstring = precedent.replace(rulearray(0),"")
-            visitTree(node.rightNode.get, pstring + rightstr)
-          }
-        }
-        else {
-          visitTree(node.rightNode.get, precedent + rightstr)
-        }
+        visitTree(node.rightNode.get, precedent + rightstr)
       }
       else {
         var leftstr = "    feature " + split.feature + "=" + split.threshold + "\n"
