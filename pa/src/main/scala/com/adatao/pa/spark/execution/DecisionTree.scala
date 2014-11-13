@@ -14,6 +14,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import io.spark.ddf.content.RepresentationHandler
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+import scala.collection.JavaConversions._
 
 /**
  * author: daoduchuan
@@ -44,7 +45,18 @@ class DecisionTree(dataContainerID: String,
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
-
+    val listCategoricalColumns = projectedDDF.getSchemaHandler.getColumns.map {
+      column => {
+        val factor = column.getOptionalFactor
+        if(factor != null) {
+          Some((projectedDDF.getColumnIndex(column.getName),factor.getLevelCounts.size()))
+        } else {
+          None
+        }
+      }
+    }.filter{hmap => hmap != None}.map{hmap => hmap.get}
+    val mapCategorical = listCategoricalColumns.toMap
+    LOG.info(">>>> mapCategorical = " + mapCategorical.mkString(", "))
     val imp = impurity.toLowerCase() match {
       case "gini" => Gini
       case "variance" => Variance
@@ -56,14 +68,13 @@ class DecisionTree(dataContainerID: String,
         val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
         new Strategy(algo = Classification, impurity = imp,
         maxDepth = maxDepth, numClassesForClassification = numClasses,
-          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
+          minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain, categoricalFeaturesInfo= mapCategorical)
 
       case "regression" => new Strategy(algo = Regression, impurity = imp,
         maxDepth =maxDepth, numClassesForClassification = 10,
-        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
+        minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain, categoricalFeaturesInfo= mapCategorical)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
-
     val model = SparkDT.train(rddLabelPoint, strategy)
 
     LOG.info(">>>>> model " + model.toString())
@@ -78,7 +89,6 @@ class DecisionTree(dataContainerID: String,
     var root = model.topNode
     visitTree(root, "")
     //print initial rule set
-
     val modelDescription = s"${model.toString}"
     val modelTree= model.topNode.subtreeToString(1)
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
@@ -126,7 +136,6 @@ class DecisionTree(dataContainerID: String,
     //rulesSet +=
     //var a = node.split.map(a => Seq(a.feature.toString, a.featureType.toString, a.threshold.toString))
     //rulesSet +: List(("1","2","3"))
-
   }
 }
 
@@ -138,11 +147,12 @@ object DecisionTree {
     if (ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find DDF dataContainerId= " + dataContainerID + "\t ddfId = " + dataContainerID, null)
     }
-    val exec = new GetMultiFactor(dataContainerID, Array(colIndex))
+    val exec = new GetMultiFactor(dataContainerID, colIndexes)
     val a = exec.run(ctx).result
     val b = a.filter {
       case (idx, hmap) => idx == colIndex
     }
     a(0)._2.size()
+    //factors.map{ case (idx, hmap) => Map(idx.toInt, hmap.size())}
   }
 }
