@@ -45,17 +45,14 @@ class DecisionTree(dataContainerID: String,
     val trainedColumns = xCols.map{idx => ddf.getColumnName(idx)} :+ ddf.getColumnName(yCol)
     val projectedDDF = ddf.VIEWS.project(trainedColumns: _*)
 
-    val listCategoricalColumns = projectedDDF.getSchemaHandler.getColumns.map {
-      column => {
-        val factor = column.getOptionalFactor
-        if(factor != null) {
-          Some((projectedDDF.getColumnIndex(column.getName),factor.getLevelCounts.size()))
-        } else {
-          None
-        }
-      }
-    }.filter{hmap => hmap != None}.map{hmap => hmap.get}
-    val mapCategorical = listCategoricalColumns.toMap
+    val colFactors = xCols.filter{colIx =>
+      val col = ddf.getColumn(ddf.getColumnName(colIx))
+      col.getOptionalFactor != null
+    }
+
+    val factorMap = new GetMultiFactor(projectedDDF.getName, colFactors).run(ctx).result
+    val mapCategorical = factorMap.map{case (idx, hmap) => (idx.toInt, hmap.size())}.toMap
+
     LOG.info(">>>> mapCategorical = " + mapCategorical.mkString(", "))
     val imp = impurity.toLowerCase() match {
       case "gini" => Gini
