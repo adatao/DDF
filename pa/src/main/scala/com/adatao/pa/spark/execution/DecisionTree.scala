@@ -107,14 +107,20 @@ class DecisionTree(dataContainerID: String,
       //first get split
       var split = node.split.get
       if(split.featureType.equals(FeatureType.Continuous)) {
-        var leftstr = "    feature " + split.feature + "<" + split.threshold + "\n"
-        visitTree(node.leftNode.get, precedent + leftstr ,leftstr, split.threshold)
+        var leftstr = "    feature " + split.feature + " <= " + split.threshold + "\n"
+
+        if(previousRule.contains( "    feature " + split.feature) && previousThreshold > split.threshold) {
+          //ignore previousRule
+          var newprecedent = precedent.replace(previousRule, "")
+          visitTree(node.leftNode.get, newprecedent + leftstr, leftstr, split.threshold)
+        }
+        else {
+          visitTree(node.leftNode.get, precedent + leftstr ,leftstr, split.threshold)
+        }
 
 
-        var rightstr = "    feature " + split.feature + ">=" + split.threshold + "\n"
+        var rightstr = "    feature " + split.feature + " > " + split.threshold + "\n"
         //adhoc optimization to remove non-sense rule
-        //alter precedent if needed
-
         if(previousRule.contains( "    feature " + split.feature) && previousThreshold < split.threshold) {
           //ignore previousRule
           var newprecedent = precedent.replace(previousRule, "")
