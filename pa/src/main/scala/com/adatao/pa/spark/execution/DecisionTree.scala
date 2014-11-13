@@ -31,7 +31,8 @@ class DecisionTree(dataContainerID: String,
   //List of tuple (feature, operator, value)
 
   val rulesSet: java.util.List[String] = new util.ArrayList[String]()
-  var rules = ""
+  var rules = "Rule 1:\n"
+  var indexRule = 1
 
   override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
 
@@ -97,7 +98,9 @@ class DecisionTree(dataContainerID: String,
     }
     else {
       //
-      rules += precedent + node.predict.predict.toString + "\n\n----\n"
+      indexRule += 1
+      rules += precedent + "class no  [" + node.predict.predict.toString + "]\nRule " + indexRule +":\n"
+
     }
     //rulesSet +=
     //var a = node.split.map(a => Seq(a.feature.toString, a.featureType.toString, a.threshold.toString))
