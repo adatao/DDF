@@ -42,8 +42,8 @@ class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResul
       }
     }
     val keyValueMap = keyValue.toMap
-
-    val colFactorIndexes: List[Int] = factors.map{case (idx, hmap) => idx.toInt}.toList
+    LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))
+    val colFactorIndexes: List[Int] = keyValue.map{case (idx, hmap) => idx.toInt}.toList
 
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val numCols = ddf.getNumColumns
