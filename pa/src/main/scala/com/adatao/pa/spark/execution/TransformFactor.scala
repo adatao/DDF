@@ -1,6 +1,5 @@
 package com.adatao.pa.spark.execution
 
-
 import java.lang.{ Integer => JInt }
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
