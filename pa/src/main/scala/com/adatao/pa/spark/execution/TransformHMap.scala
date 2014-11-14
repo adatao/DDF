@@ -33,28 +33,34 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
       row => {
         var idx = 0
         val arr = new Array[Double](numCols)
-        while(idx < numCols) {
+        var isNull = false
+        while(!isNull && idx < numCols) {
           val value = row.get(idx)
           if(keyValueMap.get(idx) != None) {
             arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
-            arr(idx) = if(colTypes(idx) == Schema.ColumnType.INT) {
-              row.getInt(idx).toDouble
-            } else if(colTypes(idx) == Schema.ColumnType.DOUBLE) {
-              row.getDouble(idx)
-            } else if(colTypes(idx) == Schema.ColumnType.FLOAT) {
-              row.getFloat(idx).toDouble
-            } else if(colTypes(idx) == Schema.ColumnType.LONG) {
-              row.getLong(idx).toDouble
-            } else {
-              0.0
-            }
+            arr(idx) =
+              if(row.isNullAt(idx)) {
+                isNull = true
+                0.0
+              } else if(colTypes(idx) == Schema.ColumnType.INT) {
+                row.getInt(idx).toDouble
+              } else if(colTypes(idx) == Schema.ColumnType.DOUBLE) {
+                row.getDouble(idx)
+              } else if(colTypes(idx) == Schema.ColumnType.FLOAT) {
+                row.getFloat(idx).toDouble
+              } else if(colTypes(idx) == Schema.ColumnType.LONG) {
+                row.getLong(idx).toDouble
+              } else {
+                0.0
+              }
           }
           idx += 1
         }
-        Row(arr: _*)
+        if(isNull) null else Row(arr: _*)
       }
-    }
+    }.filter(row => row != null)
+
     val manager = ctx.sparkThread.getDDFManager
 
     val columns = ddf.getSchemaHandler.getColumns
