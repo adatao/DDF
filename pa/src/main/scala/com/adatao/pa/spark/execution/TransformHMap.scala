@@ -36,6 +36,8 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
           val value = row.get(idx)
           if(keyValueMap.get(idx) != None) {
             LOG.info(">>>> idx2 = " + idx)
+            val hmap = keyValueMap.apply(idx)
+            LOG.info(">>>> hmap = " + hmap.mkString(", "))
             arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
             LOG.info(">>>> idx3 = " + idx)

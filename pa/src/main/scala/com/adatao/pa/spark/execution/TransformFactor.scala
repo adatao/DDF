@@ -44,6 +44,7 @@ class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResul
     }
     val keyValueMap = keyValue.toMap
     LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))
+    LOG.info(">>> keyValueMap  = " + keyValueMap.mkString(", "))
     val newDDF = new TransformHMap(dataContainerID, keyValue).runImpl(ctx)
     (newDDF, keyValue)
   }
