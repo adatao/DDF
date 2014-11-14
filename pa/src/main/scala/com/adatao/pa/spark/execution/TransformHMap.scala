@@ -34,7 +34,7 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
         val arr = Array[Double](numCols)
         while(idx < numCols) {
           val value = row.get(idx)
-          if(keyValueMap.get(idx) != null) {
+          if(keyValueMap.get(idx) != None) {
             LOG.info(">>>> idx2 = " + idx)
             arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
