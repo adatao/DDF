@@ -21,11 +21,11 @@ object RootBuild extends Build {
   //Use adatao spark + shark version
   lazy val MAIN_SHARK_VERSION = "0.9.2"
   lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion+"-adatao"
 
   lazy val MAIN_SPARK_VERSION = "0.9.2"
   lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion.split("\\.")(0)+"-adatao"
+  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion+"-adatao"
 
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -192,7 +192,7 @@ object RootBuild extends Build {
     //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
     //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
-    // dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
     dependencyOverrides += "log4j" % "log4j" % "1.2.17",
@@ -202,6 +202,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
+    dependencyOverrides += "org.apache.commons" % "commons-math3" % "3.1.1",
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
     dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
@@ -290,6 +291,7 @@ object RootBuild extends Build {
                 <descriptors>
                   <descriptor>assembly.xml</descriptor>
                 </descriptors>
+                <finalName>pa-${{pom.version}}</finalName>
               </configuration>
             </plugin>
             <plugin>

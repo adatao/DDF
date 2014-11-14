@@ -1,3 +1,4 @@
+set -e
 # This script assume ddf-opensource and ddf-enterprise is in a same folder
 # this is for local mode
 export DDF_ENTERPRISE_HOME="$(cd `dirname ${BASH_SOURCE[0]}`/../ >/dev/null 2>&1; echo $PWD)"
