@@ -27,17 +27,19 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
     LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val numCols = ddf.getNumColumns
+    LOG.info(">>>> numCols = " + numCols)
     val colTypes = ddf.getSchemaHandler.getColumns.map{col => col.getType}
     val newRDD = rddRow.map{
       row => {
         var idx = 0
-        val arr = Array[Double](numCols)
+        val arr = new Array[Double](numCols)
         while(idx < numCols) {
           val value = row.get(idx)
           if(keyValueMap.get(idx) != None) {
             LOG.info(">>>> idx2 = " + idx)
             val hmap = keyValueMap.apply(idx)
             LOG.info(">>>> hmap = " + hmap.mkString(", "))
+            LOG.info(">>>> value = " + value.toString)
             arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
             LOG.info(">>>> idx3 = " + idx)
