@@ -63,6 +63,7 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
     val manager = ctx.sparkThread.getDDFManager
 
     val columns = ddf.getSchemaHandler.getColumns
+    columns.map{col => col.setType(Schema.ColumnType.DOUBLE)}
     val schema = new Schema(columns)
     val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
     manager.addDDF(newDDF)
