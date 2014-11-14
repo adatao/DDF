@@ -36,13 +36,8 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
         while(idx < numCols) {
           val value = row.get(idx)
           if(keyValueMap.get(idx) != None) {
-            LOG.info(">>>> idx2 = " + idx)
-            val hmap = keyValueMap.apply(idx)
-            LOG.info(">>>> hmap = " + hmap.mkString(", "))
-            LOG.info(">>>> value = " + value.toString)
             arr(idx) = keyValueMap.get(idx).get.get(value.toString)
           } else {
-            LOG.info(">>>> idx3 = " + idx)
             arr(idx) = if(colTypes(idx) == Schema.ColumnType.INT) {
               row.getInt(idx).toDouble
             } else if(colTypes(idx) == Schema.ColumnType.DOUBLE) {
