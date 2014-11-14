@@ -33,12 +33,13 @@ class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResul
       case (colIdx, hmap) => {
         val keys = hmap.keySet()
         var value = 0.0
-        val keyValueMap: java.util.Map[String, JDouble] = new java.util.HashMap[String, JDouble]()
+        val keyValuemap: java.util.Map[String, JDouble] = new java.util.HashMap[String, JDouble]()
         for(key <- keys) {
-          keyValueMap.put(key, value)
+          keyValuemap.put(key, value)
           value += 1.0
         }
-        (colIdx, keyValueMap)
+        LOG.info(">>> colIdx = " + colIdx)
+        (colIdx, keyValuemap)
       }
     }
     val keyValueMap = keyValue.toMap
