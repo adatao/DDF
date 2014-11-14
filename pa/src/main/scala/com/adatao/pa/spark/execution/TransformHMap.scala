@@ -52,7 +52,7 @@ class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.M
           }
           idx += 1
         }
-        Row(arr)
+        Row(arr: _*)
       }
     }
     val manager = ctx.sparkThread.getDDFManager
