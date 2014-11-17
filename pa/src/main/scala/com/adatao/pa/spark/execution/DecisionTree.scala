@@ -7,7 +7,7 @@ import io.ddf.{DDFManager, DDF}
 import org.apache.spark.mllib.tree.configuration.{FeatureType, Strategy}
 import org.apache.spark.mllib.tree.configuration.Algo._
 import org.apache.spark.mllib.tree.impurity.{Gini, Variance, Entropy}
-import org.apache.spark.mllib.tree.model.Node
+import org.apache.spark.mllib.tree.model.{Split, Node}
 import org.apache.spark.mllib.tree.{DecisionTree => SparkDT}
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
@@ -97,8 +97,35 @@ class DecisionTree(dataContainerID: String,
     println(rules)
 
     val modelDescription = s"${model.toString}"
-    val modelTree= model.topNode.subtreeToString(1)
+    val modelTree= ""//serializedTree(model.topNode, 1)//.subtreeToString(1)
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
+  }
+
+  def splitToString(split: Split, left: Boolean): String = {
+    split.featureType match {
+      case FeatureType.Continuous => if (left) {
+        s"(feature ${split.feature} <= ${split.threshold})"
+      } else {
+        s"(feature ${split.feature} > ${split.threshold})"
+      }
+      case FeatureType.Categorical => if (left) {
+        s"(feature ${split.feature} in ${split.categories.mkString("{",",","}")})"
+      } else {
+        s"(feature ${split.feature} not in ${split.categories.mkString("{",",","}")})"
+      }
+    }
+  }
+
+  private def serializedTree(node: Node, indentFactor: Int = 0): String = {
+    val prefix: String = " " * indentFactor
+    if (node.isLeaf) {
+      prefix + s"Predict: ${node.predict.predict}\n"
+    } else {
+      prefix + s"If ${splitToString(node.split.get, left=true)}\n" +
+        serializedTree(node.leftNode.get, indentFactor + 1) +
+        prefix + s"Else ${splitToString(node.split.get, left=false)}\n" +
+        serializedTree(node.rightNode.get, indentFactor + 1)
+    }
   }
 
   def visitTree(node: Node, precedent: String, previousRule: String, previousThreshold: Double)  {
