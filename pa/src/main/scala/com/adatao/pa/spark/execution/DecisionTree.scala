@@ -97,7 +97,7 @@ class DecisionTree(dataContainerID: String,
     println(rules)
 
     val modelDescription = s"${model.toString}"
-    val modelTree= ""//serializedTree(model.topNode, 1)//.subtreeToString(1)
+    val modelTree= serializedTree(model.topNode, 1)//.subtreeToString(1)
     new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
   }
 
