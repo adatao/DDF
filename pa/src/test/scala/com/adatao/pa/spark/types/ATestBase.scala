@@ -27,6 +27,8 @@ import com.adatao.ML.ATimedAlgorithmTest
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
 
+import com.adatao.pa.thrift.Server
+
 @RunWith(classOf[JUnitRunner])
 abstract class ATestBase extends ATimedAlgorithmTest {
 	override def beforeEach {
@@ -55,7 +57,8 @@ abstract class ABigRClientTest extends ATimedAlgorithmTest {
 //	}
   override def beforeEach = {
     bigRClient = BigRThriftServerUtils.startServer
-    bigRClient.connect()
+    Server.makeFirstConnection(BigRThriftServerUtils.HOST, BigRThriftServerUtils.PORT);
+    bigRClient.connect("{clientID:testuser}")
   }
 
   override def afterEach = {
