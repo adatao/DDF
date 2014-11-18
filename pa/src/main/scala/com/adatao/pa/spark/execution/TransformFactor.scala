@@ -13,6 +13,7 @@ import scala.util
 import com.adatao.pa.spark.Utils.DataFrameResult
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
+import com.adatao.spark.ddf.{SparkDDFManager, SparkDDF}
 
 /**
  * author: daoduchuan
@@ -21,10 +22,11 @@ import org.apache.spark.sql.catalyst.expressions.Row
  * {A, B, C, D, A...} => {0, 1, 2, 3, 0, ...}
  * {1997, 2000, 1990, 1993, 2000} => {0, 1, 2, 3, 1, ...}
  */
-class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResult, Array[(JInt, java.util.Map[String, JDouble])])] {
+class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResult, KeyValueMap)] {
 
-  override def runImpl(ctx: ExecutionContext): (DataFrameResult, Array[(JInt, java.util.Map[String, JDouble])]) = {
-    val ddf = ctx.sparkThread.getDDFManager.getDDF(dataContainerID)
+  override def runImpl(ctx: ExecutionContext): (DataFrameResult, KeyValueMap) = {
+    val manager = ctx.sparkThread.getDDFManager
+    val ddf = manager.getDDF(dataContainerID)
     if(ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, "Cannot find ddf", null)
     }
@@ -45,10 +47,14 @@ class TransformFactor(dataContainerID: String) extends AExecutor[(DataFrameResul
     val keyValueMap = keyValue.toMap
     LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))
     LOG.info(">>> keyValueMap  = " + keyValueMap.mkString(", "))
-    val newDDF = new TransformHMap(dataContainerID, keyValue).runImpl(ctx)
-    (newDDF, keyValue)
+
+    val key = manager.asInstanceOf[SparkDDFManager].putMap(keyValue)
+    val keyvalMap = new KeyValueMap(key, keyValue)
+    val newDDF = new TransformHMap(dataContainerID, key).runImpl(ctx)
+    (newDDF, keyvalMap)
   }
 }
+class KeyValueMap(val id: String, val keyval: Array[(JInt, java.util.Map[String, JDouble])])
 
 object TransformFactor {
   def getColFactors(ddf: DDF): List[Column] = {
