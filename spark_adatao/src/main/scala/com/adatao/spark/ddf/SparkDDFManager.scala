@@ -17,6 +17,7 @@ class SparkDDFManager extends IOSparkManager {
 
   def putMap(value: Array[(JInt, java.util.Map[String, JDouble])]): String = {
     val key = UUID.randomUUID().toString
+    mLog.info(">>>> put hmap into SparkDDFManager " + key)
     hmap.put(key, value)
     key
   }
