@@ -49,9 +49,10 @@ class DecisionTree(dataContainerID: String,
       ddf.getColumn(ddf.getColumnName(colIx))}.filter{
       col => col.getOptionalFactor != null
     }
-    val colFactorIdexes = colFactors.map{col => col.getName}.map{colName => projectedDDF.getColumnIndex(colName)}
-    val factorMap = new GetMultiFactor(projectedDDF.getName, colFactorIdexes).run(ctx).result
-    val mapCategorical = factorMap.map{case (idx, hmap) => (idx.toInt, hmap.size())}.toMap
+
+    val listLevels = colFactors.map{col => (projectedDDF.getColumnIndex(col.getName), col.getOptionalFactor.getLevels)}
+
+    val mapCategorical = listLevels.map{case (idx, listLevels) => (idx.toInt, listLevels.size())}.toMap
     val maxBins = if(mapCategorical.size > 0) {
       val maxCategorical = mapCategorical.map{case (a,b)=> b}.max
       if(maxCategorical > 32) maxCategorical else 32
