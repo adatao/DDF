@@ -107,7 +107,7 @@ object RootBuild extends Build {
       "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10")
       exclude("org.apache.spark", "spark-yarn_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
-    "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
+    "org.apache.hadoop" % "hadoop-auth" % "2.0.5-alpha",
     "uk.com.robust-it" % "cloning" % "1.9.0",
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
@@ -116,9 +116,9 @@ object RootBuild extends Build {
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
     "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
-    "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
-    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
-    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION
+    //"org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
+    //"org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-yarn-alpha_2.10" % SPARK_VERSION
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
@@ -173,7 +173,7 @@ object RootBuild extends Build {
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "org.scalatest" % "scalatest_2.10" % "2.1.5" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test",
       "org.scalacheck"   %% "scalacheck" % "1.11.3" % "test",
       "com.novocode" % "junit-interface" % "0.10" % "test"
     ),
@@ -241,6 +241,9 @@ object RootBuild extends Build {
     dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
     dependencyOverrides += "commons-httpclient" % "commons-httpclient" % "3.1",
     dependencyOverrides += "org.apache.avro" % "avro-mapred" % "1.7.6",
+    dependencyOverrides += "xml-apis" % "xml-apis" % "1.4.01",
+    dependencyOverrides += "org.json" % "json" % "20090211",
+    dependencyOverrides += "cglib" % "cglib-nodep" % "2.2.2",
     pomExtra := (
       <!--
       **************************************************************************************************
