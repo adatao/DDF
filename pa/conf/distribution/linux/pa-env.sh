@@ -20,8 +20,8 @@ function define {
 usage() {
         echo "
         Usage: pa-env.sh
-            [--cluster (default: mesos; other options is:
-            yarn (for yarn cluster),
+            [--cluster (default: yarn; other options is:
+            mesos (for mesos cluster),
             spark (for distributed standalone spark),
             localspark (for local single-node standalone spark)]
         "
@@ -29,7 +29,7 @@ usage() {
 }
 [[ "$1" == -h || "$1" == --help ]] && usage
 
-cluster=mesos
+cluster=yarn
 do_parse_args() {
         while [[ -n "$1" ]] ; do
                 case $1 in
@@ -50,14 +50,14 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=/root/hadoop-2.2.0.2.0.6.0-101/conf
-export HIVE_CONF_DIR=/root/hive-0.9.0-bin/conf #${PA_HOME}/conf/hive-conf
+export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.2.0.2.0.6.0-101/conf}
+export HIVE_CONF_DIR=${PA_HOME}/conf/
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
-export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_ass*.jar | grep -v '\-tests.jar'`
-export DDF_SPARK_JAR=`find ${PA_HOME}/../spark_adatao/ -name ddf_spark_adatao*.jar | grep -v '\-tests.jar'`
-echo RSERVER_JAR=$RSERVER_JAR
-echo DDF_SPARK_JAR=$DDF_SPARK_JAR
+export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
+export DDF_SPARK_JAR=`find ${PA_HOME}/libs/jars/ -name ddf_spark_adatao*.jar | grep -v '\-tests.jar'`
+#echo RSERVER_JAR=$RSERVER_JAR
+#echo DDF_SPARK_JAR=$DDF_SPARK_JAR
 SPARK_CLASSPATH=$RSERVER_JAR
 #SPARK_CLASSPATH+=:"$DDF_CORE_JAR"
 #SPARK_CLASSPATH+=:"$DDF_SPARK_JAR"
@@ -76,6 +76,7 @@ export SPARK_CLASSPATH
 
 SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
 SPARK_JAVA_OPTS+=" -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+SPARK_JAVA_OPTS+=" -XX:MaxPermSize=1024m"
 SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer -Dspark.kryo.registrator=io.spark.content.KryoRegistrator"
 SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties "
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
@@ -85,20 +86,21 @@ SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
-#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytab"
-#SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
-#SPARK_JAVA_OPTS+=" -Dpa.user=pa"
+SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
+SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
+SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
+SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
 #SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
+
 export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=20
-        export SPARK_WORKER_CORES=8
+        export SPARK_WORKER_INSTANCES=${SPARK_WORKER_INSTANCES:-3}
+        export SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-8}
         export SPARK_WORKER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
-        export HADOOP_NAMENODE=`cat ${HADOOP_CONF_DIR}/masters`
-        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
+        export SPARK_YARN_APP_JAR=hdfs://${PA_JAR_HDFS_DIR:-/user/root}/ddf_pa_2.10-1.2.0.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
