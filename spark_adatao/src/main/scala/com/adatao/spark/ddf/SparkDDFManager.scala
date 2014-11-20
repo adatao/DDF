@@ -26,5 +26,4 @@ class SparkDDFManager extends IOSparkManager {
     case Some(hmap) => hmap
     case None => throw new DDFException("Error getting key -> value map")
   }
-
 }

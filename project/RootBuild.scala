@@ -118,7 +118,8 @@ object RootBuild extends Build {
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
     "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
-    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION
+    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
