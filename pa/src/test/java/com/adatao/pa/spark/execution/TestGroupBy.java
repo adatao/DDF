@@ -2,6 +2,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.Arrays;
+
+import com.adatao.pa.thrift.Server;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -15,6 +17,7 @@ import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.Gson;
+import com.adatao.pa.thrift.SessionManager;
 
 public class TestGroupBy extends BaseTest {
 
@@ -26,7 +29,8 @@ public class TestGroupBy extends BaseTest {
 
   @Before
   public void init() throws TException {
-    JsonCommand cmd = new JsonCommand().setCmdName("connect");
+    Server.makeFirstConnection(host, port);
+    JsonCommand cmd = new JsonCommand().setCmdName("connect").setParams("{clientID:testuser}");
     Gson gson = new Gson();
 
     JsonResult res = client.execJsonCommand(cmd);
