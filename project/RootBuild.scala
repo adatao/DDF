@@ -157,6 +157,7 @@ object RootBuild extends Build {
     
     resolvers ++= Seq(
       //"BetaDriven Repository" at "http://nexus.bedatadriven.com/content/groups/public/",
+      "Local ivy Repository" at "file://"+Path.userHome.absolutePath+"/.ivy2/repository",
       "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
       "Adatao Mvnrepos Snapshots" at "https://raw.github.com/adatao/mvnrepos/master/snapshots",
       "Adatao Mvnrepos Releases" at "https://raw.github.com/adatao/mvnrepos/master/releases",
@@ -194,6 +195,7 @@ object RootBuild extends Build {
     //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
     //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
+
     dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
@@ -294,6 +296,7 @@ object RootBuild extends Build {
                 <descriptors>
                   <descriptor>assembly.xml</descriptor>
                 </descriptors>
+                <finalName>pa-${{pom.version}}</finalName>
               </configuration>
             </plugin>
             <plugin>

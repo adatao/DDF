@@ -117,13 +117,13 @@ public class Server {
 			port = Integer.parseInt(args[0]);
 		}
 		final Server server = new Server(port);
-		
 		if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
 			Configuration conf = SparkHadoopUtil.get().newConfiguration();
 			UserGroupInformation.setConfiguration(conf);
 			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.admin.user"),
 					System.getProperty("pa.keytab.file"));
 
+System.out.println(">>>>>>>> +"+ugi.getRealAuthenticationMethod());
 			class ServerPrivilegedAction implements PrivilegedExceptionAction<Void> {
 				String host;
 				int port;

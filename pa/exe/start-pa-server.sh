@@ -3,8 +3,8 @@
 usage() {
     echo "
     Usage: start-pa-server
-        [--cluster (default: mesos; other options is:
-                            yarn (for yarn cluster),
+        [--cluster (default: yarn; other options is:
+                            mesos (for mesos cluster),
                             spark (for distributed standalone spark),
                             localspark (for local single-node standalone spark)]
         [--start-spark (default: No)]
@@ -14,7 +14,7 @@ usage() {
 
 [[ "$1" == -h || "$1" == --help ]] && usage
 
-cluster=mesos
+cluster=yarn
 
 do_parse_args() {
     while [[ -n "$1" ]] ; do

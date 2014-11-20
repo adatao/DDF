@@ -20,8 +20,8 @@ function define {
 usage() {
         echo "
         Usage: pa-env.sh
-            [--cluster (default: mesos; other options is:
-            yarn (for yarn cluster),
+            [--cluster (default: yarn; other options is:
+            mesos (for mesos cluster),
             spark (for distributed standalone spark),
             localspark (for local single-node standalone spark)]
         "
@@ -29,7 +29,7 @@ usage() {
 }
 [[ "$1" == -h || "$1" == --help ]] && usage
 
-cluster=mesos
+cluster=yarn
 do_parse_args() {
         while [[ -n "$1" ]] ; do
                 case $1 in
@@ -50,7 +50,7 @@ export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
 export LOG_DIR=/tmp # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
-export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.2.0.2.0.6.0-101/conf}
+export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.4.1/conf}
 
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
@@ -93,6 +93,7 @@ SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
 #SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
 #SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
 #SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
+
 export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"

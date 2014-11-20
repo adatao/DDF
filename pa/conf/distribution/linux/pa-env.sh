@@ -20,8 +20,8 @@ function define {
 usage() {
         echo "
         Usage: pa-env.sh
-            [--cluster (default: mesos; other options is:
-            yarn (for yarn cluster),
+            [--cluster (default: yarn; other options is:
+            mesos (for mesos cluster),
             spark (for distributed standalone spark),
             localspark (for local single-node standalone spark)]
         "
@@ -29,7 +29,7 @@ usage() {
 }
 [[ "$1" == -h || "$1" == --help ]] && usage
 
-cluster=mesos
+cluster=yarn
 do_parse_args() {
         while [[ -n "$1" ]] ; do
                 case $1 in
@@ -93,6 +93,7 @@ SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
 #SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
 #SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
 #SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
+
 export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"

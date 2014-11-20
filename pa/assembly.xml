@@ -2,7 +2,7 @@
     <id>bin</id>
     <!-- Generates a zip package containing the needed files -->
     <formats>
-        <format>zip</format>
+        <!--<format>zip</format>-->
         <format>tar.gz</format>
     </formats>
 
@@ -46,6 +46,13 @@
             <outputDirectory>libs</outputDirectory>
             <includes>
                 <include>*/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../spark_adatao/target/scala-2.10/</directory>
+            <outputDirectory>libs/jars</outputDirectory>
+            <includes>
+                <include>ddf_spark_adatao-assembly-0.9.jar</include>
             </includes>
         </fileSet>
         <fileSet>
