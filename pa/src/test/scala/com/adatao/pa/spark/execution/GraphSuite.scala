@@ -26,7 +26,7 @@ class GraphSuite extends ABigRClientTest {
     }
 
     val result = ls.map {
-      row => row.split(" ")
+      row => row.split("\\s+")
     }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
     //>>> row = "BUR"	"OAK"	1.7142857142857142
     //>>> row = "BUR"	"SFO"	0.2857142857142857
