@@ -22,7 +22,7 @@ import com.adatao.pa.spark.Utils.DataFrameResult
  *  retun ddf with field
  *    src, dest, if-idf
  */
-class GraphTFIDF(dataContainerID: String, src: String, dest: String) extends AExecutor[DataFrameResult] {
+class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: String = Nil) extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
@@ -36,11 +36,20 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String) extends AEx
 
     //create the original graph
     // vertice type of (String, Double) is neccessary for step 3
-    val vertices: RDD[(Long, (String, Double))] = sparkContext.union(rddVertices1, rddVertices2).map{str => (CreateGraph.hash(str), (str, 0.0))}
+    val vertices: RDD[(Long, (String, Double))] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), (str, 0.0))}
 
-    val edges = rddRow.map {
-      row => Edge(CreateGraph.hash(row.getString(srcIdx)), CreateGraph.hash(row.getString(destIdx)), 1.0)
+    //if edge column == null, choose 1 as a default value for edge
+    val edges = if(edge == null) {
+      rddRow.map {
+        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), 1.0)
+      }
+    } else {
+      val edgeIdx = ddf.getColumnIndex(edge)
+      rddRow.map {
+        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), row.getDouble(edgeIdx))
+      }
     }
+
     val graph = Graph(vertices, edges)
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
@@ -82,8 +91,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String) extends AEx
         Row(src, dest, tfidf)
       }
     }
-    val col1 = new Column(ddf.getColumnName(srcIdx), Schema.ColumnType.STRING)
-    val col2 = new Column(ddf.getColumnName(destIdx), Schema.ColumnType.STRING)
+    val col1 = new Column(src, Schema.ColumnType.STRING)
+    val col2 = new Column(dest, Schema.ColumnType.STRING)
     val col3 = new Column("ifidf", Schema.ColumnType.DOUBLE)
     val schema = new Schema(null, Array(col1, col2, col3))
 
@@ -93,7 +102,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String) extends AEx
   }
 }
 
-object CreateGraph {
+object GraphTFIDF {
   /**
    * Hash a string to a unique Long to to create Graph
    * @param str
