@@ -20,6 +20,15 @@ class GraphSuite extends ABigRClientTest {
     val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(100)
     val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r2.result.getData
+    val result = ls.map {
+      row => row.split(" ")
+    }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
+    //>>> row = "BUR"	"OAK"	1.7142857142857142
+    //>>> row = "BUR"	"SFO"	0.2857142857142857
+    //>>> row = "LAX"	"SFO"	1.7142857142857142
+    assert(result(0)(0) == "BUR")
+    assert(result(0)(1) == "OAK")
+    assert(result(0)(2) == 1.7142857142857142)
     ls.map{
       row => println(">>> row = " + row)
     }
