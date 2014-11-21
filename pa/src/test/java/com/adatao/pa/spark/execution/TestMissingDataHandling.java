@@ -2,6 +2,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.Arrays;
+
+import com.adatao.pa.thrift.Server;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -26,7 +28,8 @@ public class TestMissingDataHandling extends BaseTest {
 
   @Before
   public void init() throws TException {
-    JsonCommand cmd = new JsonCommand().setCmdName("connect");
+    Server.makeFirstConnection(host, port);
+    JsonCommand cmd = new JsonCommand().setCmdName("connect").setParams("{clientID:testuser}");;
     Gson gson = new Gson();
 
     JsonResult res = client.execJsonCommand(cmd);
