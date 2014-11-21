@@ -22,7 +22,7 @@ import com.adatao.pa.spark.Utils.DataFrameResult
  *  retun ddf with field
  *    src, dest, if-idf
  */
-class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: String = Nil) extends AExecutor[DataFrameResult] {
+class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: String = null) extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
