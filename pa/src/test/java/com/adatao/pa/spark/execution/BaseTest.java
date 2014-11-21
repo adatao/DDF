@@ -19,7 +19,7 @@ package com.adatao.pa.spark.execution;
 
 import static org.junit.Assert.fail;
 
-import com.adatao.pa.spark.types.BigRThriftServerUtils;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
