@@ -9,7 +9,7 @@
     <!-- Adds dependencies to zip package under lib directory -->
     <files>
     <file>
-      <source>ddf.ini</source>
+      <source>../ddf-conf/ddf.ini</source>
       <outputDirectory>.</outputDirectory>
     </file>
     </files>
@@ -26,13 +26,13 @@
                 <include>*</include>
             </includes>
         </fileSet>
-        <fileSet>
+        <!--<fileSet>
             <directory>../ddf-conf/</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
                 <include>ddf.ini</include>
             </includes>
-        </fileSet>    
+        </fileSet>    -->
         <fileSet>
             <directory>exe/</directory>
             <outputDirectory>exe</outputDirectory>
@@ -60,7 +60,7 @@
             <directory>../spark_adatao/target/scala-2.10/</directory>
             <outputDirectory>libs/jars</outputDirectory>
             <includes>
-                <include>ddf_spark_adatao-assembly-0.9.jar</include>
+                <include>ddf_pa-assembly-1.2.0.jar</include>
             </includes>
         </fileSet>
         <fileSet>
