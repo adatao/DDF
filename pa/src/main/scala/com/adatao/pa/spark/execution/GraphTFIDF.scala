@@ -10,6 +10,8 @@ import org.apache.spark.sql.catalyst.expressions.Row
 import io.ddf.content.Schema
 import io.ddf.content.Schema.Column
 import com.adatao.pa.spark.Utils.DataFrameResult
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
 
 /**
  * author: daoduchuan
@@ -27,6 +29,13 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
     val ddf = manager.getDDF(dataContainerID)
+    if(ddf == null) {
+      throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, s"not found DDF $dataContainerID", null)
+    }
+    LOG.info(">>> src =" + src)
+    LOG.info(">>> dest = " + dest)
+    LOG.info(">>> edge = " + edge)
+
     val srcIdx = ddf.getColumnIndex(src)
     val destIdx = ddf.getColumnIndex(dest)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
