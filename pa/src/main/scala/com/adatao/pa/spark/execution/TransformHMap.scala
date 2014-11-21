@@ -14,14 +14,16 @@ import scala.util
 import com.adatao.pa.spark.Utils.DataFrameResult
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
+import com.adatao.spark.ddf.{SparkDDFManager, SparkDDF}
 
 /**
  * author: daoduchuan
  */
-class TransformHMap(dataContainerID: String, keyValMap: Array[(JInt, java.util.Map[String, JDouble])]) extends AExecutor[DataFrameResult] {
+class TransformHMap(dataContainerID: String, keyValMapID: String) extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val ddf = ctx.sparkThread.getDDFManager.getDDF(dataContainerID)
+    val keyValMap = ctx.sparkThread.getDDFManager.asInstanceOf[SparkDDFManager].getMap(keyValMapID)
     val keyValueMap = keyValMap.toMap
 
     LOG.info(">>> keyValueMap = " + keyValueMap.keySet.mkString(", "))

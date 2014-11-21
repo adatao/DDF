@@ -68,7 +68,10 @@ public class Connect {
     
     String adminuser = SessionManager.ADMINUSER();
     String adminSessionID = sessionManager.getSessionID(adminuser);
-    
+    if(clientID == null) {
+      LOG.error("ClientID is null, cannot connect to PA");
+      return new JsonResult().setResult(new FailResult().setMessage("You need to specify clientID"));
+    }
     if (clientID.equals(adminuser) && adminSessionID!=null && !Boolean.parseBoolean(System.getProperty("run.as.admin"))){
     	LOG.error("Someone try to connect as an adminuser");
     	return new JsonResult().setResult(new FailResult().setMessage("You cannnot connect using admin user"));

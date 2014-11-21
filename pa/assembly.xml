@@ -7,7 +7,12 @@
     </formats>
 
     <!-- Adds dependencies to zip package under lib directory -->
-
+    <files>
+    <file>
+      <source>ddf.ini</source>
+      <outputDirectory>.</outputDirectory>
+    </file>
+    </files>
     <fileSets>
         <!--
            Adds startup scripts to the root directory of zip package. The startup
