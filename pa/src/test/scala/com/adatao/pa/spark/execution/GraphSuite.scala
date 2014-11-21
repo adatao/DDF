@@ -44,6 +44,14 @@ class GraphSuite extends ABigRClientTest {
     assert(result(2)(1) == "SFO")
     assert(result(2)(2) == 1.7142857142857142)
 
+    assert(result(8)(0) == "LAS")
+    assert(result(8)(1) == "SNA")
+    assert(result(8)(2) == 2.0)
+
+    assert(result(9)(0) == "PHX")
+    assert(result(9)(1) == "LAX")
+    assert(result(9)(2) == 2.0)
+
     assert(r.isSuccess)
   }
 }
