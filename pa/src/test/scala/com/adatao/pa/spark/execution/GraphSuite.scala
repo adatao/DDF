@@ -15,7 +15,7 @@ class GraphSuite extends ABigRClientTest {
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
     assert(r0.isSuccess)
     val dataContainerID = r0.dataContainerID
-    val cmd = new GraphTFIDF(dataContainerID, 0, 1)
+    val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
     val r = bigRClient.execute[DataFrameResult](cmd)
     val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(100)
     val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
