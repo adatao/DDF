@@ -13,11 +13,16 @@ import com.adatao.pa.spark.Utils.DataFrameResult
 
 /**
  * author: daoduchuan
- * assuming table with following schema for graph
- * Source         , Dest           , TF-IDF
- * Vertice: String, Vertice: String, EdgeAttribute: double
+ *
+ *  use graphx to calculate if-idf on HH data
+ *  each entry in the table is one call from source number to destination number
+ *
+ *  @param: srcIdx index of source column
+ *  @param: destIdx: index of destination column
+ *  retun ddf with field
+ *    src, dest, if-idf
  */
-class CreateGraph(dataContainerID: String, srcIdx: Int, destIdx: Int) extends AExecutor[DataFrameResult] {
+class GraphTFIDF(dataContainerID: String, srcIdx: Int, destIdx: Int) extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
@@ -63,13 +68,13 @@ class CreateGraph(dataContainerID: String, srcIdx: Int, destIdx: Int) extends AE
     //Step 4 compute total number of calls
     val totalCalls = graph2.vertices.map{case (id, tuple) => tuple._2}.reduce{case (x , y) => x + y}
     val idf = log10(totalCalls)
-
+    LOG.info(">>> idf = " + idf)
     val newrdd: RDD[Row] = graph2.triplets.map{
       edge => {
         val cnt = edge.attr
         val dn_cnt = edge.srcAttr._2
         val src = edge.srcAttr._1
-        val dest = edge.srcAttr._2
+        val dest = edge.dstAttr._1
         val tf = cnt/dn_cnt
         val tfidf = tf * idf
         Row(src, dest, tfidf)
