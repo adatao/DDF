@@ -22,7 +22,7 @@ import com.adatao.pa.spark.Utils.DataFrameResult
  *  retun ddf with field
  *    src, dest, if-idf
  */
-class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: String = null) extends AExecutor[DataFrameResult] {
+class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: String = "") extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
@@ -39,7 +39,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val vertices: RDD[(Long, (String, Double))] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), (str, 0.0))}
 
     //if edge column == null, choose 1 as a default value for edge
-    val edges = if(edge == null) {
+    val edges = if(edge.isEmpty()) {
       rddRow.map {
         row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), 1.0)
       }
