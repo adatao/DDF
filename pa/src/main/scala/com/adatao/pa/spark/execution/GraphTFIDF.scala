@@ -22,11 +22,13 @@ import com.adatao.pa.spark.Utils.DataFrameResult
  *  retun ddf with field
  *    src, dest, if-idf
  */
-class GraphTFIDF(dataContainerID: String, srcIdx: Int, destIdx: Int) extends AExecutor[DataFrameResult] {
+class GraphTFIDF(dataContainerID: String, src: String, dest: String) extends AExecutor[DataFrameResult] {
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
     val ddf = manager.getDDF(dataContainerID)
+    val srcIdx = ddf.getColumnIndex(src)
+    val destIdx = ddf.getColumnIndex(dest)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val rddVertices1 = rddRow.map{row => row.getString(srcIdx)}
