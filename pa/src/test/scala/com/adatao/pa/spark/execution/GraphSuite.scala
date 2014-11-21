@@ -17,7 +17,7 @@ class GraphSuite extends ABigRClientTest {
     val dataContainerID = r0.dataContainerID
     val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
     val r = bigRClient.execute[DataFrameResult](cmd)
-    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(100)
+    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(10)
     val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r2.result.getData
 
@@ -35,9 +35,15 @@ class GraphSuite extends ABigRClientTest {
     assert(result(0)(0) == "BUR")
     assert(result(0)(1) == "OAK")
     assert(result(0)(2) == 1.7142857142857142)
-    ls.map{
-      row => println(">>> row = " + row)
-    }
+
+    assert(result(0)(0) == "LAX")
+    assert(result(0)(1) == "SFO")
+    assert(result(0)(2) == 1.7142857142857142)
+
+    assert(result(0)(0) == "BUR")
+    assert(result(0)(1) == "SFO")
+    assert(result(0)(2) == 0.2857142857142857)
+
     assert(r.isSuccess)
   }
 }
