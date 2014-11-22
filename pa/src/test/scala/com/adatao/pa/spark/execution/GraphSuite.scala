@@ -17,7 +17,7 @@ class GraphSuite extends ABigRClientTest {
     val dataContainerID = r0.dataContainerID
     val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
     val r = bigRClient.execute[DataFrameResult](cmd)
-    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(100)
+    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(10)
     val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r2.result.getData
 
@@ -26,7 +26,7 @@ class GraphSuite extends ABigRClientTest {
     }
 
     val result = ls.map {
-      row => row.split(" ")
+      row => row.replace("\"", "").split("\\s+")
     }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
     //>>> row = "BUR"	"OAK"	1.7142857142857142
     //>>> row = "BUR"	"SFO"	0.2857142857142857
@@ -35,9 +35,23 @@ class GraphSuite extends ABigRClientTest {
     assert(result(0)(0) == "BUR")
     assert(result(0)(1) == "OAK")
     assert(result(0)(2) == 1.7142857142857142)
-    ls.map{
-      row => println(">>> row = " + row)
-    }
+
+    assert(result(1)(0) == "BUR")
+    assert(result(1)(1) == "SFO")
+    assert(result(1)(2) == 0.2857142857142857)
+
+    assert(result(2)(0) == "LAX")
+    assert(result(2)(1) == "SFO")
+    assert(result(2)(2) == 1.7142857142857142)
+
+    assert(result(8)(0) == "LAS")
+    assert(result(8)(1) == "SNA")
+    assert(result(8)(2) == 2.0)
+
+    assert(result(9)(0) == "PHX")
+    assert(result(9)(1) == "LAX")
+    assert(result(9)(2) == 2.0)
+
     assert(r.isSuccess)
   }
 }
