@@ -39,22 +39,35 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val srcIdx = ddf.getColumnIndex(src)
     val destIdx = ddf.getColumnIndex(dest)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
+    val filteredRDDRow = if(edge == null || edge.isEmpty()) {
+      rddRow.filter {
+        row => row.isNullAt(srcIdx) || row.isNullAt(destIdx)
+      }
+    } else {
+      val edgeIdx = ddf.getColumnIndex(edge)
+      rddRow.filter {
+        row => row.isNullAt(srcIdx) || row.isNullAt(destIdx) || row.isNullAt(edgeIdx)
+      }
+    }
+
     val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
-    val rddVertices1 = rddRow.map{row => row.getString(srcIdx)}
-    val rddVertices2 = rddRow.map{row => row.getString(destIdx)}
+
+    val rddVertices1 = filteredRDDRow.map{row => {row.getString(srcIdx)}}
+    val rddVertices2 = filteredRDDRow.map{row => {row.getString(destIdx)}}
+
 
     //create the original graph
     // vertice type of (String, Double) is neccessary for step 3
     val vertices: RDD[(Long, (String, Double))] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), (str, 0.0))}
 
     //if edge column == null, choose 1 as a default value for edge
-    val edges = if(edge.isEmpty()) {
-      rddRow.map {
+    val edges = if(edge == null || edge.isEmpty()) {
+      filteredRDDRow.map {
         row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), 1.0)
       }
     } else {
       val edgeIdx = ddf.getColumnIndex(edge)
-      rddRow.map {
+      filteredRDDRow.map {
         row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), row.getDouble(edgeIdx))
       }
     }
