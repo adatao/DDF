@@ -14,7 +14,7 @@ class TransformHiveSuite extends ABigRClientTest {
     assert(df.isSuccess)
     val dcID = df.dataContainerID
 
-    val cmd = new TransformHive(dcID, "foobar = v1 - v2, speed = v3 / v4")
+    val cmd = new TransformHive(dcID, "is_sfo = if(v9=\"SFO\",1,0), foobar = v1 - v2, speed = v3 / v4")
     val result = bigRClient.execute[com.adatao.pa.spark.Utils.DataFrameResult](cmd)
     assert(result.isSuccess)
   }

@@ -44,6 +44,33 @@ public class TestGroupBy extends BaseTest {
     mtcarsID = ddf.dataContainerID;
 
   }
+  
+  @Test
+  public void testTransformHive() throws TException {
+    JsonCommand cmd = new JsonCommand();
+    JsonResult res;
+    com.adatao.pa.spark.Utils.DataFrameResult transformedResult;
+    NRowResult nrResult;
+    MetaInfo[] metaInfo;
+
+    res = client.execJsonCommand(cmd
+        .setSid(sid)
+        .setCmdName("TransformHive")
+        .setParams(
+            String.format("{dataContainerID: %s," + "transformExpression: ['4cyl = if(cyl=4,1,0)']",
+                mtcarsID)));
+    transformedResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
+
+    metaInfo = transformedResult.getMetaInfo();
+    LOG.info("transformHive result: " + Arrays.toString(metaInfo));
+
+    Assert.assertTrue(metaInfo[0].getHeader().equals("c_0"));
+
+    res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
+        .setParams(String.format("{dataContainerID: %s}", transformedResult.getDataContainerID())));
+    nrResult = ExecutionResult.fromJson(res.getResult(), NRowResult.class).result();
+    Assert.assertTrue(nrResult.nrow > 1);
+  }
 
   @Test
   public void testGroupBy() throws TException {
