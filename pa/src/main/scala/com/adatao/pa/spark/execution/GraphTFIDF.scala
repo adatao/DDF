@@ -12,7 +12,6 @@ import io.ddf.content.Schema.Column
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
-import org.apache.spark.storage.StorageLevel
 
 /**
  * author: daoduchuan
@@ -73,8 +72,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       }
     }
 
-    val graph = Graph(vertices, edges, edgeStorageLevel = StorageLevel.MEMORY_AND_DISK,
-    vertexStorageLevel = StorageLevel.MEMORY_AND_DISK)
+    val graph = Graph(vertices, edges)
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
     //Step 1
