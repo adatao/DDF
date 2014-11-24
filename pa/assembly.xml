@@ -39,6 +39,7 @@
                 <include>stop-pa-server.sh</include>
                 <include>stop-spark-cluster.sh</include>
                 <include>mem-size-detection.sh</include>
+		<include>compute-classpath.sh</include>
             </includes>
         </fileSet>
         <fileSet>

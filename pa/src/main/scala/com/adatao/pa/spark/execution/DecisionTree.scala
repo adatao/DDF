@@ -35,6 +35,8 @@ class DecisionTree(dataContainerID: String,
   var rules = ""
   var indexRule = 1
 
+  var treeJson = ""
+
   override def runImpl(ctx: ExecutionContext): DecisionTreeModel = {
 
     val manager = ctx.sparkThread.getDDFManager
@@ -94,13 +96,75 @@ class DecisionTree(dataContainerID: String,
     visitTree(root, "","",0.0)
     //print initial rule set
 
-    println("\n")
-    println(rules)
+    println(">>>> finish producing rules")
 
     val modelDescription = s"${model.toString}"
-    val modelTree= serializedTree(model.topNode, 1)//.subtreeToString(1)
-    new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules)
+    val modelTree= serializedTree(root, 1)//.subtreeToString(1)
+
+    println(">>>> finish producing tree")
+
+    var jsontree = buildJsonTree(root, null, false, true)
+    //remove the last comma
+    jsontree = jsontree.substring(0, jsontree.length-2)
+
+    println(">>>> finish producing json tree")
+
+    new DecisionTreeModel(imodel.getName, modelDescription, modelTree, rules, jsontree)
   }
+
+  /*
+  generate json tree for tree visualizing
+   */
+  def buildJsonTree(node: Node, parentNode: Node, isLeft: Boolean, isRoot: Boolean): String = {
+    //visit this node
+    if(!node.isLeaf) {
+      if(parentNode !=  null) {
+        treeJson += "{ \"node\":\"" + printNodeLabel(node, true, false) + "\",\"parentNode\":\"" + printNodeLabel(parentNode, isLeft, isRoot) + "\"},\n"
+        treeJson += "{ \"node\":\"" + printNodeLabel(node, false, false) + "\",\"parentNode\":\"" + printNodeLabel(parentNode, isLeft, isRoot) + "\"},\n"
+      }
+      else {
+        treeJson += "{ \"node\":\"" + printNodeLabel(node, true, false) + "\",\"parentNode\":\"" + printNodeLabel(node, isLeft, isRoot) + "\"},\n"
+        treeJson += "{ \"node\":\"" + printNodeLabel(node, false, false) + "\",\"parentNode\":\"" + printNodeLabel(node, isLeft, isRoot) + "\"},\n"
+
+      }
+
+        //vissit left child node
+        buildJsonTree(node.leftNode.get, node, true, false)
+        //visit right child node
+        buildJsonTree(node.rightNode.get, node, false, false)
+    }
+    else {
+      treeJson += "{ \"node\":\"" + printNodeLabel(node, true, false) + "\",\"parentNode\":\"" + printNodeLabel(parentNode, isLeft, isRoot) + "\"},\n"
+    }
+    treeJson
+  }
+
+  /*
+  just simply print node label
+   */
+  def printNodeLabel(node: Node, isLeft: Boolean, isRoot: Boolean): String = {
+    if(isRoot)
+      return "Root node"
+
+    if(!node.isLeaf) {
+      if (node.split.get.featureType.equals(FeatureType.Continuous)) {
+        if (isLeft)
+          return "    feature " + node.split.get.feature + " <= " + node.split.get.threshold + "\n"
+        else
+          return "    feature " + node.split.get.feature + " > " + node.split.get.threshold + "\n"
+      }
+      else {
+        if (isLeft)
+          return "    feature " + node.split.get.feature + " in " + node.split.get.categories.toString() + "\n"
+        else return "    feature " + node.split.get.feature + " not in " + node.split.get.categories.toString() + "\n"
+      }
+    }
+    //leaf node
+    else {
+      return s"Predict: ${node.predict.predict}\n"
+    }
+  }
+
 
   def splitToString(split: Split, left: Boolean): String = {
     split.featureType match {
@@ -146,7 +210,6 @@ class DecisionTree(dataContainerID: String,
           visitTree(node.leftNode.get, precedent + leftstr ,leftstr, split.threshold)
         }
 
-
         var rightstr = "    feature " + split.feature + " > " + split.threshold + "\n"
         //adhoc optimization to remove non-sense rule
         if(previousRule.contains( "    feature " + split.feature) && previousThreshold < split.threshold) {
@@ -177,7 +240,7 @@ class DecisionTree(dataContainerID: String,
   }
 }
 
-class DecisionTreeModel(val modelID: String, val description: String, val tree: String, val rules: String) extends Serializable
+class DecisionTreeModel(val modelID: String, val description: String, val tree: String, val rules: String, val jsonTree: String) extends Serializable
 
 object DecisionTree {
   def getNumClasses(dataContainerID: String, colIndex: Int, ctx: ExecutionContext): Int = {
