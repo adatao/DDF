@@ -12,7 +12,8 @@ class PersistDDF(dataContainerID: String, tableName: String) extends AExecutor[U
   override def runImpl(ctx: ExecutionContext): Unit = {
     val manager = ctx.sparkThread.getDDFManager.asInstanceOf[SparkDDFManager]
     val ddf = manager.getDDF(dataContainerID)
-    val schemardd = ddf.getRepresentationHandler.get(RepresentationHandler.SCHEMARDD.getTypeSpecsString).asInstanceOf[SchemaRDD]
+    val ddfName = ddf.getTableName
+    val schemardd = manager.getHiveContext.sql(s"select * from $ddfName")
     schemardd.saveAsTable(tableName)
   }
 }
