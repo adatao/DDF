@@ -78,7 +78,7 @@ SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
 SPARK_JAVA_OPTS+=" -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 SPARK_JAVA_OPTS+=" -XX:MaxPermSize=1024m"
 SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer -Dspark.kryo.registrator=io.spark.content.KryoRegistrator"
-SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties "
+SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties"
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
@@ -86,6 +86,11 @@ SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
 SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
+SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
+SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000000"
+SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=sort"
+SPARK_JAVA_OPTS+=" -Dspark.shuffle.consolidateFiles=true"
+
 #SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
 #SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
 #SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
@@ -99,6 +104,7 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_INSTANCES=${SPARK_WORKER_INSTANCES:-3}
         export SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-8}
         export SPARK_WORKER_MEMORY=$SPARK_MEM
+        export SPARK_DRIVER_MEMORY=$SPARK_MEM
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         export SPARK_YARN_APP_JAR=hdfs://${PA_JAR_HDFS_DIR:-/user/root}/ddf_pa_2.10-1.2.0.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
