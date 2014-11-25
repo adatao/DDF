@@ -26,7 +26,8 @@ class DecisionTree(dataContainerID: String,
                    impurity: String = "Gini",
                    maxDepth: Int = 10,
                    minInstancePerNode: Int = 1,
-                   minInfomationGain: Double = 0.0
+                   minInfomationGain: Double = 0.0,
+                   maxBin: Int = 32
                    ) extends AExecutor[DecisionTreeModel](true) {
 
   //List of tuple (feature, operator, value)
@@ -57,9 +58,9 @@ class DecisionTree(dataContainerID: String,
     val mapCategorical = listLevels.map{case (idx, listLevels) => (idx.toInt, listLevels.size())}.toMap
     val maxBins = if(mapCategorical.size > 0) {
       val maxCategorical = mapCategorical.map{case (a,b)=> b}.max
-      if(maxCategorical > 32) maxCategorical else 32
+      if(maxCategorical > maxBin) maxCategorical else maxBin
     } else {
-      32
+      maxBin
     }
 
     LOG.info(">>>> mapCategorical = " + mapCategorical.mkString(", "))

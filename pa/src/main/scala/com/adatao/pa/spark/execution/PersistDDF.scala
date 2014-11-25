@@ -5,6 +5,9 @@ import io.spark.ddf.content.RepresentationHandler
 import org.apache.spark.sql.SchemaRDD
 import io.ddf.DDF
 import scala.collection.JavaConversions._
+import com.adatao.pa.AdataoException
+import com.adatao.pa.AdataoException.AdataoExceptionCode
+
 /**
  */
 
@@ -14,9 +17,14 @@ class PersistDDF(dataContainerID: String, tableName: String) extends AExecutor[U
     val manager = ctx.sparkThread.getDDFManager.asInstanceOf[SparkDDFManager]
     val ddf = manager.getDDF(dataContainerID)
     val hiveSchema = PersistDDF.createHiveSchema(ddf)
-    manager.getHiveContext.sql(s"create table ${tableName} ($hiveSchema)")
-    val schemaRDD = ddf.getRepresentationHandler.get(RepresentationHandler.SCHEMARDD.getTypeSpecsString).asInstanceOf[SchemaRDD]
-    schemaRDD.insertInto(tableName)
+    try {
+      manager.getHiveContext.sql(s"create table ${tableName} ($hiveSchema)")
+      val schemaRDD = ddf.getRepresentationHandler.get(RepresentationHandler.SCHEMARDD.getTypeSpecsString).asInstanceOf[SchemaRDD]
+      schemaRDD.insertInto(tableName)
+    } catch {
+      case e: org.apache.spark.sql.execution.QueryExecutionException =>
+        throw new AdataoException(AdataoExceptionCode.ERR_GENERAL, s"Table $tableName exists, please choose other table name", null)
+    }
   }
 }
 

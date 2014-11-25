@@ -115,7 +115,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     }
     val col1 = new Column(src, Schema.ColumnType.STRING)
     val col2 = new Column(dest, Schema.ColumnType.STRING)
-    val col3 = new Column("ifidf", Schema.ColumnType.DOUBLE)
+    val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)
     val schema = new Schema(null, Array(col1, col2, col3))
 
     val newDDF = manager.newDDF(manager, newrdd, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
