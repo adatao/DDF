@@ -17,6 +17,8 @@
 package com.adatao.pa.spark;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import com.adatao.pa.AdataoException;
 import io.ddf.DDF;
@@ -50,11 +52,16 @@ public class Utils {
   public static MetaInfo[] generateMetaInfo(Schema schema) throws DDFException {
     List<Column> columns = schema.getColumns();
     MetaInfo[] metaInfo = new MetaInfo[columns.size()];
+
     for (int i = 0; i < columns.size(); i++) {
       metaInfo[i] = new MetaInfo(columns.get(i).getName(), columns.get(i).getType().toString().toLowerCase());
       
       if (columns.get(i).getColumnClass() == ColumnClass.FACTOR) {
-        metaInfo[i].setFactor(columns.get(i).getOptionalFactor().getLevelMap());
+        if(columns.get(i).getOptionalFactor()!= null && columns.get(i).getOptionalFactor().getLevelMap() != null) {
+            metaInfo[i].setFactor(columns.get(i).getOptionalFactor().getLevelMap());
+        } else {
+            metaInfo[i].setFactor(new HashMap<String, Integer>());
+        }
       }
     }
     return metaInfo;

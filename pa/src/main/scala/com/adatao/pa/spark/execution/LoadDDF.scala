@@ -13,6 +13,7 @@ class LoadDDF(uri: String) extends AExecutor[DataFrameResult] {
     val dummyDDF = manager.newDDF()
     val persistenceHandler = dummyDDF.getPersistenceHandler
     val ddf = persistenceHandler.load(uri).asInstanceOf[DDF]
+
     manager.addDDF(ddf)
     new DataFrameResult(ddf)
   }
