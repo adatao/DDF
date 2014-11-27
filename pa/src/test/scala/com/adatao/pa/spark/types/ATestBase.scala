@@ -27,6 +27,8 @@ import com.adatao.ML.ATimedAlgorithmTest
 import com.adatao.pa.spark.execution.Sql2DataFrame.Sql2DataFrameResult
 import com.adatao.pa.spark.execution.Sql2ListString.Sql2ListStringResult
 
+import com.adatao.pa.thrift.Server
+
 @RunWith(classOf[JUnitRunner])
 abstract class ATestBase extends ATimedAlgorithmTest {
 	override def beforeEach {
@@ -40,19 +42,30 @@ abstract class ATestBase extends ATimedAlgorithmTest {
  *
  */
 @RunWith(classOf[JUnitRunner])
-abstract class ABigRClientTest extends ATimedAlgorithmTest with BeforeAndAfterAll {
+abstract class ABigRClientTest extends ATimedAlgorithmTest {
 	var bigRClient: BigRClient = null
 	
-	override def beforeAll = {
-		bigRClient = BigRThriftServerUtils.startServer
-		bigRClient.connect()
-	}
+//	override def beforeAll = {
+//		bigRClient = BigRThriftServerUtils.startServer
+//		bigRClient.connect()
+//	}
+//
+//	override def afterAll = {
+//		bigRClient.disconnect
+//		BigRThriftServerUtils.stopServer
+////		Thread.sleep(60000)
+//	}
+  override def beforeEach = {
+    bigRClient = BigRThriftServerUtils.startServer
+    Server.makeFirstConnection(BigRThriftServerUtils.HOST, BigRThriftServerUtils.PORT);
+    bigRClient.connect("{clientID:testuser}")
+  }
 
-	override def afterAll = {
-		bigRClient.disconnect
-		BigRThriftServerUtils.stopServer
-//		Thread.sleep(60000)
-	}
+  override def afterEach = {
+    bigRClient.disconnect
+    BigRThriftServerUtils.stopServer
+    Thread.sleep(600)
+  }
 
 	def loadFile(fileUrls: List[String], hasHeader: Boolean, fieldSeparator: String): String 
 		= BigRClientTestUtils.loadFile(bigRClient, fileUrls, hasHeader, fieldSeparator, 5)
@@ -80,6 +93,7 @@ abstract class ABigRClientTest extends ATimedAlgorithmTest with BeforeAndAfterAl
 
 	def createTableKmeans = BigRClientTestUtils.createTableKmeans(bigRClient)
 
+  def createTableGraph = BigRClientTestUtils.createTableGraph(bigRClient)
 	def createTableAirlineWithNA = BigRClientTestUtils.createTableAirlineWithNA(bigRClient)
 	
 	def createTableRatings = BigRClientTestUtils.createTableRatings(bigRClient)

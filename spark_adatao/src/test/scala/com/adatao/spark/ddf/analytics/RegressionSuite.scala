@@ -11,7 +11,7 @@ import com.adatao.spark.ddf.ATestSuite
 
 class RegressionSuite extends ATestSuite {
 
-  test("Logistic Regression with sparse input") {
+  ignore("Logistic Regression with sparse input") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 
@@ -53,7 +53,7 @@ class RegressionSuite extends ATestSuite {
     manager.shutdown()
   }
 	
-	test("Logistic Regression IRLS") {
+	ignore("Logistic Regression IRLS") {
 
     createTableAdmission()
     val ddfTrain3 = manager.sql2ddf("select v2, v3, v4, v1 from admission")
@@ -76,7 +76,7 @@ class RegressionSuite extends ATestSuite {
     manager.shutdown()
   }
 
-  test("Linear Regression with Normal Equation") {
+  ignore("Linear Regression with Normal Equation") {
     val manager = DDFManager.get("spark")
     val sparkManager = manager.asInstanceOf[SparkDDFManager]
 

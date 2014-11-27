@@ -47,6 +47,7 @@ import scala.collection.JavaConversions._
 class RegressionSuite extends ABigRClientTest {
 
 
+
   //smoke test
   test("Single-variable linear regression - normal equation categorical - no regularization") {
     //		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
@@ -364,7 +365,7 @@ class RegressionSuite extends ABigRClientTest {
     println(">>>>>>>>> " + model.trainingLosses)
 
   }
-  //
+
   test("Single variable linear regression on Shark") {
     createTableMtcars
 
@@ -386,7 +387,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(0), 4) === 40.9919)
     assert(truncate(model.trainingLosses(1), 4) === 9.9192)
   }
-  //
+
   test("Single-variable linear regression on Shark, binned var") {
     createTableAirline
 
@@ -407,7 +408,6 @@ class RegressionSuite extends ABigRClientTest {
     val cmd3 = new FetchRows().setDataContainerID(dataContainerId).setLimit(1)
     val res3 = bigRClient.execute[FetchRowsResult](cmd3)
     println(">>>>>>> res3=" + res3.result.data)
-
     val executor = new LinearRegressionNormalEquation(dataContainerId, Array(1, 18), 14, lambda)
     val r = bigRClient.execute[IModel](executor)
     assert(r.isSuccess)
@@ -577,9 +577,7 @@ class RegressionSuite extends ABigRClientTest {
 
   }
 
-
   test("Multiple-variable logistic regression IRLS - ddf") {
-
     //load data
     createTableAdmission
     val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
@@ -605,7 +603,7 @@ class RegressionSuite extends ABigRClientTest {
     val r = bigRClient.execute[LogisticRegressionModel](executor)
     assert(r.isSuccess)
   }
-
+//
   test("test YtrueYPred") {
     createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)

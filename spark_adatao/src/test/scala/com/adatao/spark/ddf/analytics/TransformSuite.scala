@@ -11,9 +11,11 @@ import com.adatao.spark.ddf.etl.TransformationHandler
 import io.ddf.types.TupleMatrixVector
 import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.types.Vector
+import org.apache.spark.sql.columnar.{NativeColumnAccessor, ColumnAccessor, CachedBatch}
+import java.nio.ByteBuffer
+import org.apache.spark.sql.catalyst.expressions.{GenericMutableRow, GenericRow}
 
 class TransformSuite extends ATestSuite {
-
 
   createTableAirlineSmall()
   test("dummy coding") {
@@ -23,6 +25,29 @@ class TransformSuite extends ATestSuite {
 
     val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     val a = rdd.collect()
+    val rdd2 = ddf.asInstanceOf[SparkDDF].getRDD(classOf[CachedBatch])
+
+    val collection = rdd2.collect()
+    collection.map{
+      case CachedBatch(buffers, row) => {
+        println("buffer.count = " + buffers.size)
+        println("buffers(0). count = " + buffers(0).size)
+        println("row = " + row.mkString(", "))
+        val columnAccessors = buffers.map{buffer => ColumnAccessor(ByteBuffer.wrap(buffer))}
+
+        val colAccessor = columnAccessors(3).asInstanceOf[NativeColumnAccessor[_]]
+        val colType = colAccessor.columnType
+        val buffer = colAccessor.buffer
+        println(">>>> colType = " + colType.toString())
+        val mutableRow = new GenericMutableRow(1)
+        while(colAccessor.hasNext) {
+           colAccessor.extractSingle(mutableRow, 0)
+           val value = mutableRow.get(0)
+           println(">>>> value = " + value)
+        }
+      }
+    }
+
     var m = a(0)._1
 
     assertEquals(m.getRows(), 16, 0.0)
@@ -62,9 +87,17 @@ class TransformSuite extends ATestSuite {
     val dummyCodingDDF = ddf.getTransformationHandler.dummyCoding(Array("year", "month", "dayofmonth"), "arrdelay")
 
     val model = new DummyModel(Vector(Array(0.5,0.1, 0.2, 0.3)), 100)
-    val rddMatrixVector = dummyCodingDDF.getRDD(classOf[TupleMatrixVector])
+    val rddMatrixVector = dummyCodingDDF.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     assert(rddMatrixVector.count() > 0)
     val rdd = model.yTrueYPred(rddMatrixVector)
     assert(rdd.count() == 31)
+  }
+
+  test("test DummyCoding handling NA") {
+    createTableAirlineWithNA()
+    val ddf = manager.sql2ddf("select * from airlineWithNA")
+    val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("year"), "arrdelay")
+    val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
+    rdd.count
   }
 }

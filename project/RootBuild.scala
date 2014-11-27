@@ -18,15 +18,8 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  //Use adatao spark + shark version
-  lazy val MAIN_SHARK_VERSION = "0.9.2"
-  lazy val SHARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SHARK_VERSION+"-adatao"
-  else MAIN_SHARK_VERSION+"-hadoop"+hadoopVersion+"-adatao"
-
-  lazy val MAIN_SPARK_VERSION = "0.9.2"
-  lazy val SPARK_VERSION = if (hadoopVersion == OBSELETE_HADOOP_VERSION) MAIN_SPARK_VERSION+"-adatao"
-  else MAIN_SPARK_VERSION+"-hadoop"+hadoopVersion+"-adatao"
-
+  val SPARK_VERSION = "1.2.0-adatao"
+  val DDF_VERSION= "1.1"
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
@@ -40,12 +33,12 @@ object RootBuild extends Build {
 
   val YARN_ENABLED = env("SPARK_YARN").getOrElse("true").toBoolean
 
-  //val rootVersion = "0.9"
-  val rootVersion = if(YARN_ENABLED) {
-    "0.9"
-  } else {
-    "0.9-mesos"
-  }
+  val rootVersion = "1.2.0"
+//  val rootVersion = if(YARN_ENABLED) {
+//    "0.9"
+//  } else {
+//    "0.9-mesos"
+//  }
 
   val projectOrganization = rootOrganization + "." + projectName
 
@@ -59,7 +52,7 @@ object RootBuild extends Build {
   val paJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + ".jar"
   val paTestJarName = paProjectName + "_" + theScalaVersion + "-" + sparkVersion + "-tests.jar"
 
-  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao,pa)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(spark_adatao, pa)
   lazy val spark_adatao = Project("spark_adatao", file("spark_adatao"), settings = spark_adatao_Settings)
   lazy val pa = Project("pa", file("pa"), settings = paSettings)  dependsOn(spark_adatao)
 
@@ -109,17 +102,25 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "ddf_core_2.10" %  rootVersion,
-    "io.ddf" % "ddf_spark_2.10" % rootVersion exclude("org.apache.spark", "spark-core_2.10")
-      exclude("edu.berkeley.cs.shark", "shark_2.10") exclude("org.apache.spark", "spark-mllib_2.10") exclude("org.apache.spark", "spark-yarn_2.10"),
-    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    //"org.apache.spark" % "spark-repl_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
-    "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
+    "io.ddf" % "ddf_core_2.10" %  DDF_VERSION,
+    "io.ddf" % "ddf_spark_2.10" % DDF_VERSION exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
+      "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10")
+      exclude("org.apache.spark", "spark-yarn_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
+    "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
     "uk.com.robust-it" % "cloning" % "1.9.0",
-    "org.scalanlp" % "breeze_2.10" % "0.9" exclude("junit", "junit") exclude("org.apache.commons", "commons-math3")
+    "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
+    "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION exclude("io.netty", "netty-all"),
+    "org.apache.spark" % "spark-sql_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
+    "org.apache.spark" % "spark-hive_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty") exclude("org.mortbay.jetty", "servlet-api"),
+    "org.apache.spark" % "spark-network-shuffle_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
+    "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION
+    //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
   val pa_dependencies = Seq(
@@ -174,8 +175,8 @@ object RootBuild extends Build {
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-      "org.scalacheck"   %% "scalacheck" % "1.10.0" % "test",
+      "org.scalatest" % "scalatest_2.10" % "2.1.5" % "test",
+      "org.scalacheck"   %% "scalacheck" % "1.11.3" % "test",
       "com.novocode" % "junit-interface" % "0.10" % "test"
     ),
 
@@ -194,7 +195,8 @@ object RootBuild extends Build {
     //dependencyOverrides += "org.scala-lang" % "scala-library" % theScalaVersion,
     //dependencyOverrides += "org.scala-lang" % "scala-compiler" % theScalaVersion,
     // dependencyOverrides += "commons-configuration" % "commons-configuration" % "1.6",
-    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.1",
+
+    dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3",
     dependencyOverrides += "commons-lang" % "commons-lang" % "2.6",
     dependencyOverrides += "it.unimi.dsi" % "fastutil" % "6.4.4",
     dependencyOverrides += "log4j" % "log4j" % "1.2.17",
@@ -203,8 +205,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-io" % "commons-io" % "2.4", //tachyon 0.2.1
     dependencyOverrides += "org.apache.thrift" % "libthrift" % "0.9.0", //bigr
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
-    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.1", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
-    dependencyOverrides += "org.apache.commons" % "commons-math3" % "3.1.1",
+    //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.2", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
     dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
     dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
@@ -217,6 +218,7 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.avro" % "avro" % "1.7.4",
     dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.5",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
+    dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
 //     dependencyOverrides += "org.eclipse.jetty" % "jetty-security" % "8.1.14.v20131031",
@@ -238,11 +240,10 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-collections" % "commons-collections" % "3.2.1",
     dependencyOverrides += "org.mockito" % "mockito-all" % "1.8.5",
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.10.3",
-    dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0-M8",
-//    dependencyOverrides += "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-//    dependencyOverrides += "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION excludeAll(excludeSpark) exclude("io.netty", "netty-all") exclude("org.jboss.netty", "netty"),
-//    dependencyOverrides += "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
-//    dependencyOverrides += "edu.berkeley.cs.shark" %% "shark" % SHARK_VERSION exclude("org.apache.avro", "avro-ipc") exclude("com.google.protobuf", "protobuf-java") exclude("io.netty", "netty-all"),
+    dependencyOverrides += "commons-net" % "commons-net" % "3.1",
+    dependencyOverrides += "org.scalamacros" % "quasiquotes_2.10" % "2.0.0",
+    dependencyOverrides += "commons-httpclient" % "commons-httpclient" % "3.1",
+    dependencyOverrides += "org.apache.avro" % "avro-mapred" % "1.7.6",
     pomExtra := (
       <!--
       **************************************************************************************************
@@ -272,7 +273,8 @@ object RootBuild extends Build {
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>com.adatao.spark.content.KryoRegistrator</spark.kryo.registrator>
                   <spark.ui.port>8085</spark.ui.port>
-                  <log4j.configuration>pa-local-log4j.properties</log4j.configuration>
+                  <bigr.multiuser>false</bigr.multiuser>
+                  <log4j.configuration>ddf-log4j.properties</log4j.configuration>
                   <derby.stream.error.file>${{basedir}}/target/derby.log</derby.stream.error.file>
                 </systemPropertyVariables>
                 <additionalClasspathElements>

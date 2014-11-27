@@ -1,7 +1,8 @@
 package com.adatao.spark.content
 
 import com.esotericsoftware.kryo.Kryo
-import shark.{ KryoRegistrator => SharkKryoRegistrator }
+import org.apache.spark.serializer.{KryoRegistrator => SparkKryoRegistrator}
+
 import com.esotericsoftware.kryo.serializers.{ JavaSerializer => KryoJavaSerializer, FieldSerializer }
 import io.ddf.types.Matrix
 import io.ddf.types.Vector
@@ -17,7 +18,7 @@ import io.ddf.types.Matrix
 import io.spark.ddf.ml.ROCComputer
 import io.ddf.ml.RocMetric
 
-class KryoRegistrator extends SharkKryoRegistrator {
+class KryoRegistrator extends SparkKryoRegistrator {
   override def registerClasses(kryo: Kryo) {
     kryo.register(classOf[Vector])
     kryo.register(classOf[Matrix])
@@ -26,6 +27,5 @@ class KryoRegistrator extends SharkKryoRegistrator {
     kryo.register(classOf[RocMetric])
     kryo.register(classOf[REXP])
     kryo.register(classOf[RList], new FieldSerializer(kryo, classOf[RList]))
-    super.registerClasses(kryo)
   }
 }

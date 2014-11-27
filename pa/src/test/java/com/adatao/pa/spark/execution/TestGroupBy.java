@@ -2,6 +2,8 @@ package com.adatao.pa.spark.execution;
 
 
 import java.util.Arrays;
+
+import com.adatao.pa.thrift.Server;
 import junit.framework.Assert;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -15,6 +17,7 @@ import com.adatao.pa.spark.types.ExecutionResult;
 import com.adatao.pa.thrift.generated.JsonCommand;
 import com.adatao.pa.thrift.generated.JsonResult;
 import com.google.gson.Gson;
+import com.adatao.pa.thrift.SessionManager;
 
 public class TestGroupBy extends BaseTest {
 
@@ -26,7 +29,8 @@ public class TestGroupBy extends BaseTest {
 
   @Before
   public void init() throws TException {
-    JsonCommand cmd = new JsonCommand().setCmdName("connect");
+    Server.makeFirstConnection(host, port);
+    JsonCommand cmd = new JsonCommand().setCmdName("connect").setParams("{clientID:testuser}");
     Gson gson = new Gson();
 
     JsonResult res = client.execJsonCommand(cmd);
@@ -39,6 +43,33 @@ public class TestGroupBy extends BaseTest {
     Sql2DataFrame.Sql2DataFrameResult ddf = this.runSQL2RDDCmd(sid, "SELECT * FROM mtcars", true);
     mtcarsID = ddf.dataContainerID;
 
+  }
+  
+  @Test
+  public void testTransformHive() throws TException {
+    JsonCommand cmd = new JsonCommand();
+    JsonResult res;
+    com.adatao.pa.spark.Utils.DataFrameResult transformedResult;
+    NRowResult nrResult;
+    MetaInfo[] metaInfo;
+
+    res = client.execJsonCommand(cmd
+        .setSid(sid)
+        .setCmdName("TransformHive")
+        .setParams(
+            String.format("{dataContainerID: %s," + "transformExpression: ['4cyl = if(cyl=4,1,0)']",
+                mtcarsID)));
+    transformedResult = ExecutionResult.fromJson(res.getResult(), com.adatao.pa.spark.Utils.DataFrameResult.class).result();
+
+    metaInfo = transformedResult.getMetaInfo();
+    LOG.info("transformHive result: " + Arrays.toString(metaInfo));
+
+    Assert.assertTrue(metaInfo[0].getHeader().equals("c_0"));
+
+    res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
+        .setParams(String.format("{dataContainerID: %s}", transformedResult.getDataContainerID())));
+    nrResult = ExecutionResult.fromJson(res.getResult(), NRowResult.class).result();
+    Assert.assertTrue(nrResult.nrow > 1);
   }
 
   @Test
@@ -60,7 +91,7 @@ public class TestGroupBy extends BaseTest {
     metaInfo = groupbyResult.getMetaInfo();
     LOG.info("GroupBy result: " + Arrays.toString(metaInfo));
 
-    Assert.assertTrue(metaInfo[0].getHeader().equals("_c0"));
+    Assert.assertTrue(metaInfo[0].getHeader().equals("c_0"));
 
     res = client.execJsonCommand(cmd.setSid(sid).setCmdName("NRow")
         .setParams(String.format("{dataContainerID: %s}", groupbyResult.getDataContainerID())));

@@ -118,30 +118,32 @@ public class Server {
 		}
 		final Server server = new Server(port);
 		if(Boolean.parseBoolean(System.getProperty("pa.authentication")) == true){
-      Configuration conf = SparkHadoopUtil.get().newConfiguration();				
-  UserGroupInformation.setConfiguration(conf);
-  UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.admin.user"), 
+			Configuration conf = SparkHadoopUtil.get().newConfiguration();
+			UserGroupInformation.setConfiguration(conf);
+			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(System.getProperty("pa.admin.user"),
 					System.getProperty("pa.keytab.file"));
-	
+
 System.out.println(">>>>>>>> +"+ugi.getRealAuthenticationMethod());
 			class ServerPrivilegedAction implements PrivilegedExceptionAction<Void> {
 				String host;
 				int port;
-				
+
 				public ServerPrivilegedAction(String host, int port){
 					this.host = host;
 					this.port = port;
 				}
-				
+
 				@Override
 				public Void run() throws Exception {
 					server.start();
 					makeFirstConnection(host, port);
 					return (null);
 				}
-				
+
 			}
 			ugi.doAs(new ServerPrivilegedAction(host, port));
+      server.start();
+      makeFirstConnection(host, port);
 			
 		} else {
 			server.start();

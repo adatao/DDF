@@ -38,10 +38,10 @@ do_parse_args $@
 cd `dirname $0`/../ >/dev/null 2>&1
 DIR=`pwd`
 
-if [[ -z "$SPARK_MEM" ]]; then
+if [[ -z "$SPARK_MEMORY" ]]; then
 	. ${DIR}/exe/mem-size-detection.sh
 fi
-echo "SPARK_MEM = "$SPARK_MEM
+echo "SPARK_MEMORY = "$SPARK_MEMORY
 
 paenv="${DIR}/conf/pa-env.sh"
 [ ! -f $paenv ] && echo "Fatal: $paenv file does not exist" && exit 1
@@ -64,13 +64,17 @@ ${DIR}/exe/stop-pa-server.sh
 [ "X$start_spark" == "X1" ] && ${DIR}/exe/start-spark-cluster.sh $@
 
 # Start Rserve
-${DIR}/exe/start-rserve.sh
+#${DIR}/exe/start-rserve.sh
 
 echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
+#nohup
+
 nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+
+#nohup ${DIR}/exe/bin/spark-submit --class com.adatao.pa.thrift.Server --master ${SPARK_MASTER}  --num-executors ${SPARK_WORKER_INSTANCES} --driver-memory ${SPARK_MEMORY} --executor-memory ${SPARK_MEMORY} --executor-cores ${SPARK_WORKER_CORES} local:/root/adatao/ddf-enterprise-1.1.0/pa/target/scala-2.10/ddf_pa-assembly-1.2.0.jar >${LOG_DIR}/pa.out 2>&1 & 
 echo
 
 sleep 5

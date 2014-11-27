@@ -29,14 +29,13 @@ FWDIR="$(cd `dirname $0`/..; pwd)"
 if [ -e $FWDIR/conf/spark-env.sh ] ; then
   . $FWDIR/conf/spark-env.sh
 fi
-
 # Build up classpath
 CLASSPATH="$SPARK_CLASSPATH:$FWDIR/conf"
-if [ -f "$FWDIR/RELEASE" ]; then
-  ASSEMBLY_JAR=`ls "$FWDIR"/jars/spark-assembly*.jar`
-else
-  ASSEMBLY_JAR=`ls "$FWDIR"/assembly/target/scala-$SCALA_VERSION/spark-assembly*hadoop*.jar`
-fi
+#if [ -f "$FWDIR/RELEASE" ]; then
+  #ASSEMBLY_JAR=`ls "$FWDIR"/jars/spark-assembly*.jar`
+#else
+  #ASSEMBLY_JAR=`ls "$FWDIR"/assembly/target/scala-$SCALA_VERSION/spark-assembly*hadoop*.jar`
+#fi
 CLASSPATH="$CLASSPATH:$ASSEMBLY_JAR"
 
 # Add test classes if we're running from SBT or Maven with SPARK_TESTING set to 1

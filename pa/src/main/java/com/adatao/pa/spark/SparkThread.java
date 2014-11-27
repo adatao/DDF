@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.ddf.DDFManager;
-import io.spark.ddf.SparkDDFManager;
 import io.ddf.content.ViewHandler.Expression;
 import io.ddf.exception.DDFException;
 import com.adatao.pa.AdataoException;

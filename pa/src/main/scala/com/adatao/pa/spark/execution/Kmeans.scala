@@ -8,6 +8,7 @@ import io.spark.ddf.content.RepresentationHandler
 import io.ddf.ml.IModel
 import io.ddf.ml.Model
 import org.apache.spark.mllib.clustering.KMeansModel
+import org.apache.spark.mllib.linalg.Vector
 import com.adatao.ML.spark.clustering.KMeansModel
 import org.apache.spark.rdd.RDD;
 import io.spark.ddf.content.RepresentationHandler.RDD_ARR_DOUBLE
@@ -40,12 +41,14 @@ class Kmeans(
 
     val imodel = projectedDDF.ML.train("kmeans", K: java.lang.Integer, numIterations: java.lang.Integer)
     val mllibKMeansModel = imodel.getRawModel.asInstanceOf[org.apache.spark.mllib.clustering.KMeansModel]
-    val wcss = mllibKMeansModel.computeCost(projectedDDF.getRepresentationHandler().get(RDD_ARR_DOUBLE.getTypeSpecsString()).asInstanceOf[RDD[Array[Double]]])
+
+    val rddVector = projectedDDF.getRepresentationHandler.get(classOf[RDD[_]], classOf[Vector]).asInstanceOf[RDD[Vector]]
+    val wcss = mllibKMeansModel.computeCost(rddVector)
     val km = new com.adatao.ML.spark.clustering.KMeansModel(mllibKMeansModel.clusterCenters, wcss)
     var model = new Model(km)
     model.setTrainedColumns(trainedColumns)
-    ddfManager.addModel(model);
-    return model;
+    ddfManager.addModel(model)
+    return model
   }
 }
 

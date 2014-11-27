@@ -52,7 +52,6 @@ export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
 export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.4.1/conf}
 
-export HIVE_CONF_DIR=${PA_HOME}/conf/hive-conf
 export RLIBS="${PA_HOME}/rlibs"
 export RSERVE_LIB_DIR="${RLIBS}/Rserve/libs/"
 export RSERVER_JAR=`find ${PA_HOME}/ -name ddf_pa_*.jar | grep -v '\-tests.jar'`
@@ -60,12 +59,12 @@ export DDFSPARK_JAR=`find ${PA_HOME}/../spark_adatao/ -name ddf_spark_adatao-ass
 echo RSERVER_JAR=$RSERVER_JAR
 echo DDFSPARK_JAR=$DDFSPARK_JAR
 SPARK_CLASSPATH=$RSERVER_JAR
-SPARK_CLASSPATH+=:"$DDF_CORE_JAR"
+
 SPARK_CLASSPATH+=:"$DDFSPARK_JAR"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/jars/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/bundles/*"
 SPARK_CLASSPATH+=:"${PA_HOME}/../lib_managed/orbits/*"
-SPARK_CLASSPATH+=:"${PA_HOME}/conf/"
+SPARK_CLASSPATH+=:"${PA_HOME}/conf/distributed/"
 
 #The order of the following two lines is important please dont change
 SPARK_CLASSPATH+=":${HIVE_CONF_DIR}"
@@ -75,30 +74,42 @@ export SPARK_CLASSPATH
 SPARK_JAVA_OPTS="-Dspark.storage.memoryFraction=0.6"
 SPARK_JAVA_OPTS+=" -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 SPARK_JAVA_OPTS+=" -Dspark.serializer=org.apache.spark.serializer.KryoSerializer -Dspark.kryo.registrator=io.spark.content.KryoRegistrator"
-SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties "
+SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-log4j.properties"
 SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
-SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
+SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEMORY}"
+SPARK_JAVA_OPTS+=" -Dspark.driver.memory=${SPARK_MEMORY}"
+SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
+SPARK_JAVA_OPTS+=" -Dspark.akka.heartbeat.interval=3"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
-
-SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
-SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
-SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
-SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
+SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=hash"
+SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
+SPARK_JAVA_OPTS+=" -Dspark.shuffle.consolidateFiles=true"
+#SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
+#SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
+#SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
+#SPARK_JAVA_OPTS+=" -Drun.as.admin=true"
 #SPARK_JAVA_OPTS+=" -Dsun.security.krb5.debug=true"
 
-export SPARK_JAVA_OPTS
 if [ "X$cluster" == "Xyarn" ]; then
         echo "Running pAnalytics with Yarn"
         export SPARK_MASTER="yarn-client"
-        export SPARK_WORKER_INSTANCES=`nl -ba /root/spark-ec2/slaves | tail -1 | awk '{ print $1 }'`
+        export SPARK_WORKER_INSTANCES=12
         export SPARK_WORKER_CORES=8
-        export SPARK_WORKER_MEMORY=$SPARK_MEM
+        export SPARK_WORKER_MEMORY=$SPARK_MEMORY
+        export SPARK_DRIVER_MEMORY=$SPARK_MEMORY
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
-        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
+        echo SPARK_JAR=$SPARK_JAR
+        export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-1.2.0.jar
+        
+        SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000000"
+        SPARK_CLASSPATH+=:"${PA_HOME}/conf/distributed/"
+         
+        #export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
+        #export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa-assembly-0.9.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
         [ "X$HADOOP_CONF_DIR" == "X" ] && echo "Please define HADOOP_CONF_DIR" && exit 1
         [ "X$SPARK_WORKER_INSTANCES" == "X" ] && echo "Notice! SPARK_WORKER_INSTANCES is not defined, the default value will be used instead"
@@ -112,6 +123,12 @@ elif [ "X$cluster" == "Xspark" ]; then
 elif [ "X$cluster" == "Xlocalspark" ]; then
         echo "Running pAnalytics with Spark in local node"
         export SPARK_MEM=512m
-        export SPARK_WORKER_MEMORY=$SPARK_MEM
-        export SPARK_MASTER=spark://localhost:7070
+        SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000"
+       # export SPARK_WORKER_MEMORY=$SPARK_MEMORY
+        export SPARK_MASTER=local
+        SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-local-log4j.properties" 
+        #SPARK_CLASSPATH+=:"pa-local-log4j.properties"
+        SPARK_CLASSPATH+=:"${PA_HOME}/conf/local/"
 fi
+export SPARK_JAVA_OPTS
+export SPARK_CLASSPATH
