@@ -2,8 +2,10 @@ package com.adatao.pa.spark.execution
 import io.spark.ddf.content.PersistenceHandler
 /**
  * author: daoduchuan
+ * dataContainerID is a dummy variable
+ * as I have error trying to create executor without variable
  */
-class ListPersistedDDF extends AExecutor[Array[String]] {
+class ListPersistedDDF(dataContainerID: String) extends AExecutor[Array[String]] {
 
   override def runImpl(ctx: ExecutionContext): Array[String] = {
 
