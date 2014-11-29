@@ -3,12 +3,16 @@ import io.spark.ddf.content.PersistenceHandler
 /**
  * author: daoduchuan
  */
-class ListPersistedDDF extends AExecutor[List[String]] {
+class ListPersistedDDF extends AExecutor[Array[String]] {
 
-  override def runImpl(ctx: ExecutionContext): List[String] = {
+  override def runImpl(ctx: ExecutionContext): Array[String] = {
 
     val manager = ctx.sparkThread.getDDFManager
     val dummyDDF = manager.newDDF()
-    dummyDDF.getPersistenceHandler.asInstanceOf[PersistenceHandler].listPersistedDDFUris
+    val listUris = dummyDDF.getPersistenceHandler.asInstanceOf[PersistenceHandler].listPersistedDDFUris
+    listUris.foreach{
+      str => LOG.info(">>> uri = " + str)
+    }
+    listUris.toArray
   }
 }
