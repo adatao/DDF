@@ -137,6 +137,6 @@ object RDDCachedBatch2REXP {
         }
       }
     }
-    listREXP.map(partdf => new RList(partdf.toArray, columns.map(col => col.getType.toString).toArray)).map(dfList => REXP.createDataFrame(dfList))
+    listREXP.map(partdf => new RList(partdf.toArray, columns.map(col => col.getName).toArray)).map(dfList => REXP.createDataFrame(dfList))
   }
 }
