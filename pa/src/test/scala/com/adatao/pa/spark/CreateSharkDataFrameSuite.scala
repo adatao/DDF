@@ -73,7 +73,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     }
   }
 
-  ignore("test SampleDataFrame") {
+  test("test SampleDataFrame") {
 
     createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
@@ -92,7 +92,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     assert(result.isSuccess)
   }
 
-  ignore("test Kmeans prediction") {
+  test("test Kmeans prediction") {
     createTableKmeans
 
     val df = this.runSQL2RDDCmd("select * from kmeans", true)
@@ -116,7 +116,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     assert(r4.isSuccess)
   }
 
-  ignore("test YtrueYpred ") {
+  test("test YtrueYpred ") {
     createTableKmeans
     val loader = new Sql2DataFrame("select * from kmeans", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -160,7 +160,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
   }
 
 
-  ignore("test MapReduceNative") {
+  test("test MapReduceNative") {
     createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
