@@ -1,4 +1,4 @@
-package com.adatao.spark.content
+package com.adatao.spark.ddf.content
 
 import io.ddf.DDF
 import io.ddf.content.{Representation, ConvertFunction}
