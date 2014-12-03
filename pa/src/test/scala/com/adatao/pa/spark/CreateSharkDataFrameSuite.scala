@@ -23,7 +23,7 @@ import com.adatao.pa.spark.execution.NRow.NRowResult
  */
 class CreateSharkDataFrameSuite extends ABigRClientTest {
 
-	ignore("test CVRandomSplit"){
+  test("test CVRandomSplit") {
 
     createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
@@ -48,53 +48,54 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     }
   }
 
-	ignore("test CVFoldSplit") {
+  test("test CVFoldSplit") {
 
     createTableMtcars
-		val df = this.runSQL2RDDCmd("select * from mtcars", true)
-		val dcID = df.dataContainerID
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
+    val dcID = df.dataContainerID
 
 
-		val splitter= new CVKFoldSplit(dcID, 5, 42)
-		val r= bigRClient.execute[Array[Array[String]]](splitter)
-		assert(r.isSuccess)
-		println(r.result)
-		assert(r.result.length === 5)
+    val splitter = new CVKFoldSplit(dcID, 5, 42)
+    val r = bigRClient.execute[Array[Array[String]]](splitter)
+    assert(r.isSuccess)
+    println(r.result)
+    assert(r.result.length === 5)
 
-		r.result(0) match{
-			case Array(train, test) => {
-				val cmd= new NRow().setDataContainerID(test)
-				val res= bigRClient.execute[NRowResult](cmd)
-				assert(res.isSuccess)
-				val cmd2= new NRow().setDataContainerID(train)
-				val res2= bigRClient.execute[NRowResult](cmd2)
-				assert(res2.isSuccess)
-			}
-		}
-	}
+    r.result(0) match {
+      case Array(train, test) => {
+        val cmd = new NRow().setDataContainerID(test)
+        val res = bigRClient.execute[NRowResult](cmd)
+        assert(res.isSuccess)
+        val cmd2 = new NRow().setDataContainerID(train)
+        val res2 = bigRClient.execute[NRowResult](cmd2)
+        assert(res2.isSuccess)
+      }
+    }
+  }
 
-	test("test SampleDataFrame"){
+  ignore("test SampleDataFrame") {
 
-		createTableMtcars
-		val df = this.runSQL2RDDCmd("select * from mtcars", true)
-		val dcID = df.dataContainerID
+    createTableMtcars
+    val df = this.runSQL2RDDCmd("select * from mtcars", true)
+    val dcID = df.dataContainerID
 
-		val cmd= new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
-		val res= bigRClient.execute[SampleDataFramePercentResult](cmd)
-		assert(res.isSuccess == true)
-		LOG.info("datacontainerID= " + dcID)
-		val dcID2= res.result.getDataContainerID
-		val cmd2= new GetMultiFactor(dcID2, Array(0,1,2,3,4,5))
+    val cmd = new SampleDataFrame().setDataContainerID(dcID).setPercent(0.5).setReplace(false).setGetPercent(true)
+    val res = bigRClient.execute[SampleDataFramePercentResult](cmd)
+    assert(res.isSuccess == true)
+    LOG.info("datacontainerID= " + dcID)
+    val dcID2 = res.result.getDataContainerID
+    val cmd2 = new GetMultiFactor(dcID2, Array(0, 1, 2, 3, 4, 5))
 
-		println(">>>>>>>>>>>>>>> dcID2 = " + dcID2)
+    println(">>>>>>>>>>>>>>> dcID2 = " + dcID2)
 
-		val result= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd2)
-		assert(result.isSuccess)
-	}
-	ignore("test Kmeans prediction") {
-		createTableKmeans
+    val result = bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd2)
+    assert(result.isSuccess)
+  }
 
-		val df = this.runSQL2RDDCmd("select * from kmeans", true)
+  ignore("test Kmeans prediction") {
+    createTableKmeans
+
+    val df = this.runSQL2RDDCmd("select * from kmeans", true)
     val dcID = df.dataContainerID
 
     val executor = new Kmeans(dcID, Array(0, 1), 5, 4, null, "random")
@@ -115,11 +116,11 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     assert(r4.isSuccess)
   }
 
-	ignore("test YtrueYpred "){
-		createTableKmeans
-		val loader = new Sql2DataFrame("select * from kmeans", true)
-		val r0= bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-		val dcID= r0.dataContainerID
+  ignore("test YtrueYpred ") {
+    createTableKmeans
+    val loader = new Sql2DataFrame("select * from kmeans", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    val dcID = r0.dataContainerID
 
     val cmd = new LinearRegressionNormalEquation(dcID, Array(0), 1, 0.0)
     val r = bigRClient.execute[IModel](cmd)
@@ -138,8 +139,8 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
     assert(r3.isSuccess)
   }
 
-	test("test TransformNativeRserve") {
-		createTableMtcars
+  test("test TransformNativeRserve") {
+    createTableMtcars
     val df = this.runSQL2RDDCmd("select mpg, gear from mtcars", true)
 
     val dataContainerId = df.dataContainerID
@@ -159,8 +160,8 @@ class CreateSharkDataFrameSuite extends ABigRClientTest {
   }
 
 
-	ignore("test MapReduceNative") {
-		createTableMtcars
+  ignore("test MapReduceNative") {
+    createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
     val dataContainerId = df.dataContainerID
