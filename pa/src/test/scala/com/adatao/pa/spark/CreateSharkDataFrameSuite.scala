@@ -23,7 +23,7 @@ import com.adatao.pa.spark.execution.NRow.NRowResult
  */
 class CreateSharkDataFrameSuite extends ABigRClientTest{
 
-	test("test CVRandomSplit"){
+	ignore("test CVRandomSplit"){
 
 		createTableMtcars
 		val df = this.runSQL2RDDCmd("select * from mtcars", true)
@@ -48,7 +48,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		}
 	}
 
-	test("test CVFoldSplit") {
+	ignore("test CVFoldSplit") {
 
     createTableMtcars
 		val df = this.runSQL2RDDCmd("select * from mtcars", true)
@@ -91,7 +91,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		val result= bigRClient.execute[Array[(Int, JMap[String, java.lang.Integer])]](cmd2)
 		assert(result.isSuccess)
 	}
-	test("test Kmeans prediction") {
+	ignore("test Kmeans prediction") {
 		createTableKmeans
 
 		val df = this.runSQL2RDDCmd("select * from kmeans", true)
@@ -115,7 +115,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		assert(r4.isSuccess)
 	}
 
-	test("test YtrueYpred "){
+	ignore("test YtrueYpred "){
 		createTableKmeans
 		val loader = new Sql2DataFrame("select * from kmeans", true)
 		val r0= bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -138,7 +138,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 		assert(r3.isSuccess)
 	}
 
-	test("test TransformNativeRserve") {
+	ignore("test TransformNativeRserve") {
 		createTableMtcars
     val df = this.runSQL2RDDCmd("select mpg, gear from mtcars", true)
 
@@ -160,7 +160,7 @@ class CreateSharkDataFrameSuite extends ABigRClientTest{
 	}
 
 
-	test("test MapReduceNative") {
+	ignore("test MapReduceNative") {
 		createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
 
