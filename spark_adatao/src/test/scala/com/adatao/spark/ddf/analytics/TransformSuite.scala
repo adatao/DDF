@@ -104,7 +104,7 @@ class TransformSuite extends ATestSuite {
   test("Test TransformDummy with NA") {
     createTableKmeans()
     val ddf = manager.sql2ddf("select * from kmeans")
-    val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("v1"), "v2", "v3")
+    val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("v1", "v3"), "v2")
     val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     rdd.count
   }
