@@ -57,8 +57,10 @@ object TransformDummy {
           case e: java.nio.BufferUnderflowException => terminated = true
         }
       }
+      LOG.info(">>>>>> count= " + count)
       count
     }
+    LOG.info(">>>>> count.max = " + counts.max)
     LOG.info(">>>>> numRows = " + counts.min)
     counts.min
   }
