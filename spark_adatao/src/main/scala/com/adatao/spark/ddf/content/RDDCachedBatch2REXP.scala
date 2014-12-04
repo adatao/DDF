@@ -13,6 +13,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 import org.apache.spark.sql.catalyst.expressions.GenericMutableRow
 import io.spark.ddf.content.{RepresentationHandler => SparkRepresentationHandler}
+import org.slf4j.LoggerFactory
+
 
 /**
  * author: daoduchuan
@@ -34,12 +36,14 @@ class RDDCachedBatch2REXP(@transient ddf: DDF) extends ConvertFunction(ddf) {
 }
 
 object RDDCachedBatch2REXP {
+  val Logger = LoggerFactory.getLogger(this.getClass)
   val DEFAULT_NUM_RSERVER_SPLITS = "4"
   def arrByteBuffer2REXP(cachedBatch: CachedBatch, columns: java.util.List[Column]): Array[REXP] = {
     val arr = cachedBatch.buffers.map {
       arrByte => ByteBuffer.wrap(arrByte)
     }
     val numRows = cachedBatch.stats.getInt(3)
+    Logger.info(">>>> number of rows = " + numRows)
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
     val numRowsPerSplit = numRows / numSplits + 1
     val REXPColumns = columns.zipWithIndex.map {
