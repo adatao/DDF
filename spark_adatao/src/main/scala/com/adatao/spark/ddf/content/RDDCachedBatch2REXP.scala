@@ -44,6 +44,8 @@ object RDDCachedBatch2REXP {
     }
 
     val numRows = cachedBatch.stats.getInt(3)
+    val nullCounts = cachedBatch.stats.getInt(2)
+    Logger.info(">>>> nullCounts = " + nullCounts)
     Logger.info(">>>> number of rows = " + numRows)
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
     val numRowsPerSplit = numRows / numSplits + 1
