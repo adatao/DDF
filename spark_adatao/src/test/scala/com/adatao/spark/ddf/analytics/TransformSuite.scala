@@ -100,4 +100,8 @@ class TransformSuite extends ATestSuite {
     val rdd = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     rdd.count
   }
+
+  test("Test TransformDummy with NA") {
+
+  }
 }

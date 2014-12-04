@@ -45,13 +45,13 @@ object TransformDummy {
   def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
 
     val counts = columnIterators.map {
-      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
+      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer)
       var count = 0
       var terminated = false
       val mutableRow = new GenericMutableRow(1)
       while (columnAccessor.hasNext && !terminated) {
         try {
-          columnAccessor.extractSingle(mutableRow, 0)
+          columnAccessor.extractTo(mutableRow, 0)
           count += 1
         } catch {
           case e: java.nio.BufferUnderflowException => terminated = true
