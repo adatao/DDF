@@ -23,16 +23,9 @@ class RDDCachedBatch2REXP(@transient ddf: DDF) extends ConvertFunction(ddf) {
     val columnList = ddf.getSchemaHandler.getColumns
     representation.getValue match {
       case rdd: RDD[CachedBatch] => {
-        val cachedColumnBuffers = rdd.map {
-          cachedBatch => {
-            val buffers = cachedBatch.buffers
-            buffers.map {
-              arrByte => ByteBuffer.wrap(arrByte)
-            }
-          }
-        }
-        val rddREXP = cachedColumnBuffers.flatMap {
-          arrByteBuffer => RDDCachedBatch2REXP.arrByteBuffer2REXP(arrByteBuffer, columnList)
+
+        val rddREXP = rdd.flatMap {
+          cachedBatch => RDDCachedBatch2REXP.arrByteBuffer2REXP(cachedBatch, columnList)
         }
         new Representation(rddREXP, SparkRepresentationHandler.RDD_REXP.getTypeSpecsString)
       }
@@ -42,8 +35,11 @@ class RDDCachedBatch2REXP(@transient ddf: DDF) extends ConvertFunction(ddf) {
 
 object RDDCachedBatch2REXP {
   val DEFAULT_NUM_RSERVER_SPLITS = "4"
-  def arrByteBuffer2REXP(arr: Array[ByteBuffer], columns: java.util.List[Column]): Array[REXP] = {
-    val numRows = TransformDummy.getNrowFromColumnIterator(arr)
+  def arrByteBuffer2REXP(cachedBatch: CachedBatch, columns: java.util.List[Column]): Array[REXP] = {
+    val arr = cachedBatch.buffers.map {
+      arrByte => ByteBuffer.wrap(arrByte)
+    }
+    val numRows = cachedBatch.stats.getInt(3)
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
     val numRowsPerSplit = numRows / numSplits + 1
     val REXPColumns = columns.zipWithIndex.map {
@@ -88,7 +84,7 @@ object RDDCachedBatch2REXP {
                 if(!mutableRow.isNullAt(0)) {
                   builder += mutableRow.getDouble(0)
                 } else {
-                  builder += REXPInteger.NA
+                  builder += REXPDouble.NA
                 }
 
                 i += 1
