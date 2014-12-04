@@ -42,11 +42,12 @@ object RDDCachedBatch2REXP {
     val arr = cachedBatch.buffers.map {
       arrByte => ByteBuffer.wrap(arrByte)
     }
-
+    val numRows2 = TransformDummy.getNrowFromColumnIterator(arr)
     val numRows = cachedBatch.stats.getInt(3)
     val nullCounts = cachedBatch.stats.getInt(2)
     Logger.info(">>>> nullCounts = " + nullCounts)
     Logger.info(">>>> number of rows = " + numRows)
+    Logger.info(">>>> numRows2 = " + numRows2)
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
     val numRowsPerSplit = numRows / numSplits + 1
     val REXPColumns = columns.zipWithIndex.map {
