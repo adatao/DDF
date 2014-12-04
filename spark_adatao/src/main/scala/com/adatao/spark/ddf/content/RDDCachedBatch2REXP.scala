@@ -42,6 +42,7 @@ object RDDCachedBatch2REXP {
     val arr = cachedBatch.buffers.map {
       arrByte => ByteBuffer.wrap(arrByte)
     }
+
     val numRows = cachedBatch.stats.getInt(3)
     Logger.info(">>>> number of rows = " + numRows)
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
@@ -59,7 +60,7 @@ object RDDCachedBatch2REXP {
               val builder = new mutable.ArrayBuilder.ofInt
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows)) {
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
 
                 columnAccessor.extractSingle(mutableRow, 0)
                 if(!mutableRow.isNullAt(0)) {
@@ -82,7 +83,7 @@ object RDDCachedBatch2REXP {
               val builder = new mutable.ArrayBuilder.ofDouble
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows)) {
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
 
                 columnAccessor.extractSingle(mutableRow, 0)
                 if(!mutableRow.isNullAt(0)) {
@@ -106,7 +107,7 @@ object RDDCachedBatch2REXP {
               val builder = ArrayBuffer[String]()
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows)) {
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
 
                 columnAccessor.extractSingle(mutableRow, 0)
                 if(!mutableRow.isNullAt(0)) {
@@ -138,5 +139,26 @@ object RDDCachedBatch2REXP {
       }
     }
     listREXP.map(partdf => new RList(partdf.toArray, columns.map(col => col.getName).toArray)).map(dfList => REXP.createDataFrame(dfList))
+  }
+
+  def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
+
+    val counts = columnIterators.map {
+      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
+        var count = 0
+        var terminated = false
+        val mutableRow = new GenericMutableRow(1)
+        while (columnAccessor.hasNext && !terminated) {
+          try {
+            columnAccessor.extractSingle(mutableRow, 0)
+            count += 1
+          } catch {
+            case e: java.nio.BufferUnderflowException => terminated = true
+          }
+        }
+        count
+    }
+    Logger.info(">>>>> numRows = " + counts.max)
+    counts.min
   }
 }
