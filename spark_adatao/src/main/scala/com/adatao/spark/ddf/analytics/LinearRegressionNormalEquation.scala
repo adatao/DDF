@@ -232,13 +232,13 @@ class TempCalculationValue(var x1: DoubleMatrix, var x2: DoubleMatrix, var x3: L
 
   def compute(other: TempCalculationValue): TempCalculationValue = {
     //    x._1.addi(y._1), x._2.addi(y._2), x._3 + y._3, x._4 + y._4, x._5 + y._5, x._6.addi(y._6), x._7 + y._7
-    this.x1 = this.x1.addi(other.x1)
-    this.x2 = this.x2.addi(other.x2)
-    this.x3 = this.x3 + other.x3
-    this.x4 = this.x4 + other.x4
-    this.x5 = this.x5 + other.x5
-    this.x6 = this.x6.addi(other.x6)
-    this.x7 = this.x7 + other.x7
+//    this.x1 = this.x1.addi(other.x1)
+//    this.x2 = this.x2.addi(other.x2)
+//    this.x3 = this.x3 + other.x3
+//    this.x4 = this.x4 + other.x4
+//    this.x5 = this.x5 + other.x5
+//    this.x6 = this.x6.addi(other.x6)
+//    this.x7 = this.x7 + other.x7
 
     var result: TempCalculationValue = new TempCalculationValue(this.x1.addi(other.x1), this.x2.addi(other.x2), this.x3 + other.x3, this.x4 + other.x4, this.x5 + other.x5, this.x6.addi(other.x6), this.x7 + other.x7)
 
