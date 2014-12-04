@@ -134,7 +134,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 
 	}
 
-	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using R mean(), false") {
+	ignore("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using R mean(), false") {
     createTableAirQuality
 		val loader = new Sql2DataFrame("select * from airquality", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -251,7 +251,7 @@ class MapReduceNativeSuite extends ABigRClientTest {
 //		assert(r2.isSuccess)
 	}
 
-	test("multiple reduce output per key") {
+	ignore("multiple reduce output per key") {
     createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result

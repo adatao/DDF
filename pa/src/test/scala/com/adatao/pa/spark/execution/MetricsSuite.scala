@@ -161,31 +161,14 @@ class MetricsSuite extends ABigRClientTest {
     val dataContainerId = df.dataContainerID
     val lambda = 0.0
 
-    //minimum threshold range for sparse columns
-    System.setProperty("sparse.max.range", "10000")
-    var cmd2 = new FiveNumSummary(dataContainerId)
-    val summary = bigRClient.execute[Array[ASummary]](cmd2).result
-    assert(summary.size > 0)
-
-    //construct columnSummary parameter
-    var columnsSummary = new HashMap[String, Array[Double]]
-    var hmin = new Array[Double](summary.size)
-    var hmax = new Array[Double](summary.size)
-    //convert columnsSummary to HashMap
-    var i = 0
-    while (i < summary.size) {
-      hmin(i) = summary(i).min
-      hmax(i) = summary(i).max
-      i += 1
-    }
-    columnsSummary.put("min", hmin)
-    columnsSummary.put("max", hmax)
 
     val trainer = new LogisticRegression(dataContainerId, Array(0, 1), 2, 1, 0.0, lambda, Array(37.285, -5.344, 1))
     val r = bigRClient.execute[IModel](trainer)
     assert(r.isSuccess)
 
     val modelID = r.result.getName
+
+    println(">>>>>>>>> modelID=" + modelID)
 
     val scorer = new Residuals(dataContainerId, modelID, Array(0), 1)
     val residuals = bigRClient.execute[DataFrameResult](scorer)
