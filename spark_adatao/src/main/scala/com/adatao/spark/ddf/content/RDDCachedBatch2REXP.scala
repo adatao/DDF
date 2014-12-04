@@ -54,23 +54,30 @@ object RDDCachedBatch2REXP {
         val columnAccessor = ColumnAccessor(arr(idx)).asInstanceOf[NativeColumnAccessor[_]]
         var currentSplit = 0
         var rowNumber = 0
+        var terminated = false
 
         val arrOfVector = column.getType match {
           case ColumnType.INT => {
             val REXPBuffer = ArrayBuffer[REXP]()
+
             while(currentSplit < numSplits) {
               val builder = new mutable.ArrayBuilder.ofInt
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
-
-                columnAccessor.extractSingle(mutableRow, 0)
-                if(!mutableRow.isNullAt(0)) {
-                  builder += mutableRow.getInt(0)
-                } else {
-                  builder += REXPInteger.NA
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
+                try {
+                  columnAccessor.extractSingle(mutableRow, 0)
+                } catch {
+                  case e: java.nio.BufferUnderflowException => terminated = true
                 }
 
+                if(!terminated) {
+                  if (!mutableRow.isNullAt(0)) {
+                    builder += mutableRow.getInt(0)
+                  } else {
+                    builder += REXPInteger.NA
+                  }
+                }
                 i += 1
                 rowNumber += 1
               }
@@ -85,15 +92,21 @@ object RDDCachedBatch2REXP {
               val builder = new mutable.ArrayBuilder.ofDouble
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
 
-                columnAccessor.extractSingle(mutableRow, 0)
-                if(!mutableRow.isNullAt(0)) {
-                  builder += mutableRow.getDouble(0)
-                } else {
-                  builder += REXPDouble.NA
+                try {
+                  columnAccessor.extractSingle(mutableRow, 0)
+                } catch {
+                  case e: java.nio.BufferUnderflowException => terminated = true
                 }
 
+                if(!terminated) {
+                  if (!mutableRow.isNullAt(0)) {
+                    builder += mutableRow.getDouble(0)
+                  } else {
+                    builder += REXPDouble.NA
+                  }
+                }
                 i += 1
                 rowNumber += 1
               }
@@ -109,15 +122,20 @@ object RDDCachedBatch2REXP {
               val builder = ArrayBuffer[String]()
               val mutableRow = new GenericMutableRow(1)
               var i = 0
-              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext) {
+              while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
 
-                columnAccessor.extractSingle(mutableRow, 0)
-                if(!mutableRow.isNullAt(0)) {
-                  builder += mutableRow.getString(0)
-                } else {
-                  builder += null
+                try {
+                  columnAccessor.extractSingle(mutableRow, 0)
+                } catch {
+                  case e: java.nio.BufferUnderflowException => terminated = true
                 }
-
+                if(!terminated) {
+                  if (!mutableRow.isNullAt(0)) {
+                    builder += mutableRow.getString(0)
+                  } else {
+                    builder += null
+                  }
+                }
                 i += 1
                 rowNumber += 1
               }
