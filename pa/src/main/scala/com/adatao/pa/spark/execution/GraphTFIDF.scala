@@ -100,8 +100,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     //Step 4 compute total number of calls
     val totalCalls = graph2.vertices.map{case (id, tuple) => tuple._2}.reduce{case (x , y) => x + y}
-    val idf = log10(totalCalls)
-    LOG.info(">>> idf = " + idf)
+    //val idf = log10(totalCalls)
+
     val newrdd: RDD[Row] = graph2.triplets.map{
       edge => {
         val cnt = edge.attr
@@ -109,6 +109,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         val src = edge.srcAttr._1
         val dest = edge.dstAttr._1
         val tf = cnt/dn_cnt
+        val idf = log10(totalCalls/cnt)
         val tfidf = tf * idf
         Row(src, dest, tfidf)
       }
