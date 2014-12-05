@@ -70,5 +70,28 @@ class GraphSuite extends ABigRClientTest {
     ls.map{
       row => println(">>> row = " + row)
     }
+    val result = ls.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
+
+    assert(result(0)(0) == "SFO")
+    assert(result(0)(1) == "SAN")
+    assert(result(0)(2) == 1.2148111519023101)
+
+    assert(result(1)(0) == "SFO")
+    assert(result(1)(1) == "SJC")
+    assert(result(1)(2) == 0.20827853703164503)
+
+    assert(result(2)(0) == "SMF")
+    assert(result(2)(1) == "LAX")
+    assert(result(2)(2) == 1.0123426265852582)
+
+    assert(result(3)(0) == "SMF")
+    assert(result(3)(1) == "SJC")
+    assert(result(3)(2) == 0.3471308950527417)
+
+    assert(result(5)(0) == "SNA")
+    assert(result(5)(1) == "OAK")
+    assert(result(5)(2) == 0.8282803308424841)
   }
 }
