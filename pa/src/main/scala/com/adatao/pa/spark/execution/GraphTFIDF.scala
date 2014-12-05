@@ -3,7 +3,7 @@ package com.adatao.pa.spark.execution
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import com.adatao.spark.ddf.SparkDDFManager
-import org.apache.spark.graphx.{PartitionStrategy, EdgeTriplet, Edge, Graph, GraphOps}
+import org.apache.spark.graphx._
 import org.apache.spark.mllib.linalg.Vectors
 import scala.math.log10
 import org.apache.spark.sql.catalyst.expressions.Row
@@ -52,13 +52,13 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
 
-    val rddVertices1 = filteredRDDRow.map{row => {row.getString(srcIdx)}}
-    val rddVertices2 = filteredRDDRow.map{row => {row.getString(destIdx)}}
+    val rddVertices1: RDD[String] = filteredRDDRow.map{row => {row.getString(srcIdx)}}
+    val rddVertices2: RDD[String] = filteredRDDRow.map{row => {row.getString(destIdx)}}
 
 
     //create the original graph
     // vertice type of (String, Double) is neccessary for step 3
-    val vertices: RDD[(Long, (String, Double))] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), (str, 0.0))}
+    val vertices: RDD[(Long, String)] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), str)}
 
     //if edge column == null, choose 1 as a default value for edge
     val edges = if(edge == null || edge.isEmpty()) {
@@ -72,48 +72,56 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       }
     }
 
-    val graph = Graph(vertices, edges)
+    val graph: Graph[String, Double] = Graph(vertices, edges)
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
     //Step 1
     //calculate CNT column in HH ppt slide
-    val groupedEdges: Graph[(String, Double), Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
+    val groupedEdges: Graph[String, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
 
     //Step 2
     //calculate DN_CNT in HH ppt slide
-    val dn_cnt = groupedEdges.mapReduceTriplets(
-      (edge: EdgeTriplet[(String, Double), Double]) => {
-        val srcId = edge.srcId
-        Iterator((edge.srcId, edge.attr))
-      },
-      (x: Double, y: Double) => x + y
+    //And denominator of tfidf
+    // Tuple2(DN_CNT, Denominator of tfidf)
+    val dn_cnt: VertexRDD[Tuple2[Double, Double]] = groupedEdges.aggregateMessages(
+      (edgeCtx: EdgeContext[String, Double, Tuple2[Double, Double]]) => {
+        edgeCtx.sendToSrc((edgeCtx.attr, 0.0))
+        edgeCtx.sendToDst((0.0, 1.0))
+      }
+      ,
+      (a: (Double, Double), b: (Double, Double)) => (a._1 + b._1, a._2 + b._2),
+      TripletFields.EdgeOnly
     )
 
-    //Step 3
-    //vertice: (string, double) with double is DN_CNT or the total number of count
-    //edge: count or CNT column in HH ppt
-    val graph2: Graph[(String, Double), Double] = groupedEdges.joinVertices(dn_cnt)(
-      (id: Long, attribute: (String, Double), d: Double) => {
-        (attribute._1, d)
+    case class CDRVertice(id: String, dn_cnt: Double, denom_tfidf: Double)
+    val finalGraph: Graph[CDRVertice, Double] = groupedEdges.outerJoinVertices(dn_cnt) (
+      (vertexId: Long, vd: String, tuple: Option[Tuple2[Double, Double]]) => {
+        tuple match {
+          case Some(tuple2) => CDRVertice(vd, tuple2._1, tuple2._2)
+          case None => CDRVertice(vd, 0.0 ,0.0)
+        }
       }
     )
-
     //Step 4 compute total number of calls
-    val totalCalls = graph2.vertices.map{case (id, tuple) => tuple._2}.reduce{case (x , y) => x + y}
+    val totalCalls = finalGraph.vertices.map{case CDRVertice(id, dn_cnt, denom) => dn_cnt}.reduce{case (x , y) => x + y}
+
+    LOG.info(">>>>> totalCalls = " + totalCalls)
     //val idf = log10(totalCalls)
 
-    val newrdd: RDD[Row] = graph2.triplets.map{
+    val newrdd: RDD[Row] = finalGraph.triplets.map {
       edge => {
         val cnt = edge.attr
-        val dn_cnt = edge.srcAttr._2
-        val src = edge.srcAttr._1
-        val dest = edge.dstAttr._1
+        val dn_cnt = edge.srcAttr.dn_cnt
+        val denom_tfidf = edge.srcAttr.denom_tfidf
+        val src = edge.srcAttr.id
+        val dest = edge.dstAttr.id
         val tf = cnt/dn_cnt
-        val idf = log10(totalCalls/cnt)
+        val idf = log10(totalCalls/denom_tfidf)
         val tfidf = tf * idf
         Row(src, dest, tfidf)
       }
     }
+
     val col1 = new Column(src, Schema.ColumnType.STRING)
     val col2 = new Column(dest, Schema.ColumnType.STRING)
     val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)

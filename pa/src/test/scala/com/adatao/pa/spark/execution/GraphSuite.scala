@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
  */
 class GraphSuite extends ABigRClientTest {
 
-  test("test graph") {
+  ignore("test graph") {
     createTableGraph
     val loader = new Sql2DataFrame("select * from graph", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -53,5 +53,22 @@ class GraphSuite extends ABigRClientTest {
     assert(result(9)(2) == 2.0)
 
     assert(r.isSuccess)
+  }
+
+  test("test graph2") {
+    createTableGraph
+    val loader = new Sql2DataFrame("select * from graph", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+    val dataContainerID = r0.dataContainerID
+    val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
+    val r = bigRClient.execute[DataFrameResult](cmd)
+    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(10)
+    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
+    val ls = r2.result.getData
+
+    ls.map{
+      row => println(">>> row = " + row)
+    }
   }
 }
