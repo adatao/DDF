@@ -42,29 +42,28 @@ abstract class ATestBase extends ATimedAlgorithmTest {
  *
  */
 @RunWith(classOf[JUnitRunner])
-abstract class ABigRClientTest extends ATimedAlgorithmTest {
+abstract class ABigRClientTest extends ATimedAlgorithmTest with BeforeAndAfterAll {
 	var bigRClient: BigRClient = null
 	
-//	override def beforeAll = {
-//		bigRClient = BigRThriftServerUtils.startServer
-//		bigRClient.connect()
-//	}
-//
-//	override def afterAll = {
-//		bigRClient.disconnect
-//		BigRThriftServerUtils.stopServer
-////		Thread.sleep(60000)
-//	}
-  override def beforeEach = {
+	override def beforeAll = {
+	
+
     bigRClient = BigRThriftServerUtils.startServer
     Server.makeFirstConnection(BigRThriftServerUtils.HOST, BigRThriftServerUtils.PORT);
     bigRClient.connect("{clientID:testuser}")
-  }
-
-  override def afterEach = {
+	}
+//
+	override def afterAll = {
+	
     bigRClient.disconnect
     BigRThriftServerUtils.stopServer
     Thread.sleep(600)
+    }
+  override def beforeEach = {
+  
+  }
+
+  override def afterEach = {
   }
 
 	def loadFile(fileUrls: List[String], hasHeader: Boolean, fieldSeparator: String): String 

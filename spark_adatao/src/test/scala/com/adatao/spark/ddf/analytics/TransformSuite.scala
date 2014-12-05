@@ -18,7 +18,7 @@ import org.apache.spark.sql.catalyst.expressions.{GenericMutableRow, GenericRow}
 class TransformSuite extends ATestSuite {
 
   createTableAirlineSmall()
-  ignore("dummy coding") {
+  test("dummy coding") {
     val ddf: DDF = manager.sql2ddf("select * from airline")
 
     val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("origin"), "arrdelay")
@@ -75,7 +75,7 @@ class TransformSuite extends ATestSuite {
     val n = a(0)._2
     assertEquals(n(0), -14.0, 0.0)
   }
-  ignore("test ytrueypred") {
+  test("test ytrueypred") {
     //createTableAirline
     class DummyModel(weights: Vector, numSamples: Long) extends ALinearModel[Double](weights, numSamples) {
       override def predict(features: Vector) = {
@@ -93,7 +93,7 @@ class TransformSuite extends ATestSuite {
     assert(rdd.count() == 31)
   }
 
-  ignore("test DummyCoding handling NA") {
+  test("test DummyCoding handling NA") {
     createTableAirlineWithNA()
     val ddf = manager.sql2ddf("select * from airlineWithNA")
     val ddf2 = (ddf.getTransformationHandler()).dummyCoding(Array("year"), "arrdelay")

@@ -49,19 +49,15 @@ object TransformDummy {
       var count = 0
       var terminated = false
       val mutableRow = new GenericMutableRow(1)
-      while (columnAccessor.hasNext && !terminated) {
-        try {
-          columnAccessor.extractTo(mutableRow, 0)
-          count += 1
-        } catch {
-          case e: java.nio.BufferUnderflowException => terminated = true
-        }
+      while (columnAccessor.hasNext) {
+        columnAccessor.extractTo(mutableRow, 0)
+        count += 1
       }
       LOG.info(">>>>>> count= " + count)
       count
     }
     LOG.info(">>>>> count.max = " + counts.max)
-    LOG.info(">>>>> numRows = " + counts.min)
+    LOG.info(">>>>> count.min = " + counts.min)
     counts.min
   }
 
@@ -117,7 +113,7 @@ object TransformDummy {
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
         case _ => throw new IllegalArgumentException(s"cannot not convert column type ${columnAccessor.columnType} to double.")
       }
-    while (i < numRows) {
+    while (i < numRows && columnAccessor.hasNext) {
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         //val columnType = columnAccessor.columnType
@@ -176,7 +172,8 @@ object TransformDummy {
       val numElements = this.getNrowFromColumnIterator(usedColumnIterators)
       //TODO: handle number of rows in long
       val nullBitmap = buildNullBitmap(usedColumnIterators)
-      val numRows = numElements //numElements - nullBitmap.cardinality()
+      val numRows = numElements - nullBitmap.cardinality()
+      LOG.info(">>> numRows = " + numRows)
       val numXCols = xCols.length + 1
 
       var numDummyCols = 0
