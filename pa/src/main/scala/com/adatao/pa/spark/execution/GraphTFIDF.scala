@@ -103,7 +103,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       }
     )
     //Step 4 compute total number of calls
-    val totalCalls = finalGraph.vertices.map{case CDRVertice(id, dn_cnt, denom) => dn_cnt}.reduce{case (x , y) => x + y}
+    val totalCalls = finalGraph.vertices.map{case (verticeId, CDRVertice(id, dn_cnt, denom)) => dn_cnt}.reduce{case (x , y) => x + y}
 
     LOG.info(">>>>> totalCalls = " + totalCalls)
     //val idf = log10(totalCalls)
