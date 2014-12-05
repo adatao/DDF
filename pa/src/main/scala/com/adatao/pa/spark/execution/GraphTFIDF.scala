@@ -112,7 +112,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       edge => {
         val cnt = edge.attr
         val dn_cnt = edge.srcAttr.dn_cnt
-        val denom_tfidf = edge.srcAttr.denom_tfidf
+        val denom_tfidf = edge.dstAttr.denom_tfidf
         val src = edge.srcAttr.id
         val dest = edge.dstAttr.id
         val tf = cnt/dn_cnt
