@@ -73,6 +73,7 @@ object TransformDummy {
         }
       }
     }
+    LOG.info(">>> nullBitmap = \n" + nullBitmap.toString())
     nullBitmap
   }
 
@@ -89,13 +90,13 @@ object TransformDummy {
                                            columnIterator: ByteBuffer,
                                            numRows: Int,
                                            nullBitmap: BitSet) = {
-    val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
+    val columnAccessor = ColumnAccessor(columnIterator)
     //temporary Row to hold the value from ColumnAccessor.extractSingle
     val mutableRow = new GenericMutableRow(1)
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     // For performance, branching outside the tight loop
-    val toDouble: (Object => Double) = columnAccessor.columnType match {
+    val toDouble: (Object => Double) = columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType match {
         case INT => (x: Object) => x.asInstanceOf[Int].toDouble
         case LONG => (x: Object) => x.asInstanceOf[Long].toDouble
         case FLOAT => (x: Object) => x.asInstanceOf[Float].toDouble
@@ -105,17 +106,20 @@ object TransformDummy {
         }
         case BYTE => (x: Object) => x.asInstanceOf[ByteWritable].get().toDouble
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
-        case _ => throw new IllegalArgumentException(s"cannot not convert column type ${columnAccessor.columnType} to double.")
+        case typ => throw new IllegalArgumentException(s"cannot not convert column type ${typ} to double.")
       }
+    LOG.info(">>> nullBitMap = " + nullBitmap.toString)
     while (i < numRows) {
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         //val columnType = columnAccessor.columnType
         //val value = columnType.extract(bytebuffer)
-        columnAccessor.extractSingle(mutableRow, 0)
+        columnAccessor.extractTo(mutableRow, 0)
 
         matrix.put(i, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
+      } else {
+        columnAccessor.extractTo(mutableRow, 0) 
       }
       j += 1
     }
@@ -130,18 +134,17 @@ object TransformDummy {
                                                    nullBitmap: BitSet,
                                                    convert: (Object) => Double) = {
     //val byteBuffer = columnAccessor.buffer
-    val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
+    val columnAccessor = ColumnAccessor(columnIterator)
     //val columnType =
 
     //val bytebuffer = columnAccessor.underlyingBuffer
     val mutableRow = new GenericMutableRow(1)
-    LOG.info(">>>> columnType = " + columnAccessor.columnType.toString())
-    LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.columnType.toString())
+    LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType.toString())
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     while (i < numRows) {
       if (!nullBitmap.get(j)) {
-        columnAccessor.extractSingle(mutableRow, 0)
+        columnAccessor.extractTo(mutableRow, 0)
         matrix.put(i, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }

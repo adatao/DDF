@@ -115,10 +115,17 @@ class TransformSuite extends ATestSuite {
     val ddf4 = (ddf3.getTransformationHandler()).dummyCoding(Array("v1"), "v2")
     val rdd2 = ddf4.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     LOG.info(">>>> rdd2.count = " + rdd2.count)
-    val matrix1 = rdd2.collect()(0)._1
-    val vector1 = rdd2.collect()(0)._2
+    val tupleMatrix = rdd2.collect()
+    val matrix1 = tupleMatrix(0)._1
+    val vector1 = tupleMatrix(0)._2
     LOG.info(">>> matrix1 = " + matrix1.toString())
     LOG.info(">>> vector1 = " + vector1.toString())
+
+    val matrix2 = tupleMatrix(1)._1
+    val vector2 = tupleMatrix(1)._2
+    LOG.info(">>> matrix2 = " + matrix2.toString())
+    LOG.info(">>> vector2 = " + vector2.toString())
+
   }
 
 }
