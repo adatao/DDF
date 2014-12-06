@@ -118,12 +118,15 @@ class TransformSuite extends ATestSuite {
     val tupleMatrix = rdd2.collect()
     val matrix1 = tupleMatrix(0)._1
     val vector1 = tupleMatrix(0)._2
+    assert(matrix1.rows == 6)
     assert(matrix1(0, 1) == 10.0)
     assert(matrix1(1, 1) == 5.0)
     assert(matrix1(2, 1) == 8.0)
     assert(matrix1(3, 1) == 8.0)
     assert(matrix1(4, 1) == -10.0)
+    assert(matrix1(4, 1) == -10.0)
 
+    assert(vector1.rows == 6)
     assert(vector1(0) == -5.0)
     assert(vector1(1) == -10.0)
     assert(vector1(2) == -9.0)
@@ -138,12 +141,14 @@ class TransformSuite extends ATestSuite {
     val vector2 = tupleMatrix(1)._2
     LOG.info(">>> matrix2 = " + matrix2.toString())
     LOG.info(">>> vector2 = " + vector2.toString())
+    assert(matrix2.rows == 21)
     assert(matrix2(0, 1) == -9.0)
     assert(matrix2(1, 1) == 4.0)
     assert(matrix2(2, 1) == 10.0)
     assert(matrix2(3, 1) == 10.0)
     assert(matrix2(4, 1) == -10.0)
 
+    assert(vector2.rows == 21)
     assert(vector2(0) == 8.0)
     assert(vector2(1) == 3.0)
     assert(vector2(2) == 4.0)
@@ -151,5 +156,4 @@ class TransformSuite extends ATestSuite {
     assert(vector2(4) == -10.0)
     assert(vector2(5) == 6.0)
   }
-
 }
