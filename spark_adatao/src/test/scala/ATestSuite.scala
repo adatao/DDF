@@ -107,8 +107,8 @@ abstract class ATestSuite extends FunSuite with BeforeAndAfterEach with BeforeAn
 
   def createTableTransform() = {
     manager.sql2txt("set shark.test.data.path=../pa/resources")
-    manager.sql2txt("drop table if exists transform")
-    manager.sql2txt("CREATE TABLE transform (v1 double, v2 double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+    manager.sql2txt("drop table if exists kmeans")
+    manager.sql2txt("CREATE TABLE kmeans (v1 double, v2 double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
     manager.sql2txt("LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/TransformTest2.csv' INTO TABLE kmeans")
   }
 

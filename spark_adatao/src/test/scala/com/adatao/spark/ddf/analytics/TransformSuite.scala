@@ -111,7 +111,7 @@ class TransformSuite extends ATestSuite {
 
   test("check validity of TransformDummy") {
     createTableTransform()
-    val ddf3 = manager.sql2ddf("select * from transform")
+    val ddf3 = manager.sql2ddf("select * from kmeans")
     val ddf4 = (ddf3.getTransformationHandler()).dummyCoding(Array("v1"), "v2")
     val rdd2 = ddf4.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
     rdd2.count
