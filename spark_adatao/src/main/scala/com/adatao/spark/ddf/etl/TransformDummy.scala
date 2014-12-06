@@ -110,16 +110,14 @@ object TransformDummy {
       }
     LOG.info(">>> nullBitMap = " + nullBitmap.toString)
     while (i < numRows) {
+      //Always have to increase the columnAccessor iterator regardless the position is null or not
+      columnAccessor.extractTo(mutableRow, 0)
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         //val columnType = columnAccessor.columnType
         //val value = columnType.extract(bytebuffer)
-        columnAccessor.extractTo(mutableRow, 0)
-
         matrix.put(i, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
-      } else {
-        columnAccessor.extractTo(mutableRow, 0) 
       }
       j += 1
     }
@@ -143,8 +141,9 @@ object TransformDummy {
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     while (i < numRows) {
+      //Always have to increase the columnAccessor iterator regardless the position is null or not
+      columnAccessor.extractTo(mutableRow, 0)
       if (!nullBitmap.get(j)) {
-        columnAccessor.extractTo(mutableRow, 0)
         matrix.put(i, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }
