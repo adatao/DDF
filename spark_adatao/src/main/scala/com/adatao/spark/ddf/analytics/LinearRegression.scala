@@ -37,7 +37,7 @@ object LinearRegression {
     initialWeights: Vector
     ): LinearRegressionModel = {
 
-    val numFeatures = XYData._1.getColumns() - 1
+    val numFeatures = XYData._1.getColumns()
     this.train(new LinearRegression.LossFunction(XYData, ridgeLambda), numIters, learningRate, initialWeights, numFeatures)
   }
 

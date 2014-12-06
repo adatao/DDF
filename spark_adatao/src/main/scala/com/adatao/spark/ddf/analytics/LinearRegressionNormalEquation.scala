@@ -113,7 +113,7 @@ object LinearRegressionNormalEquation {
     val sst = ret.x4 - (ret.x5 * ret.x5) / ret.x3
 
     var XtXlambda: DoubleMatrix = ret.x1
-    val numFeatures = XtXlambda.getColumns() - 1
+    val numFeatures = XtXlambda.getColumns()
 
     if (ridgeLambda != 0) {
       XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numFeatures).muli(ridgeLambda))
@@ -208,7 +208,7 @@ object LinearRegressionNormalEquation {
     /*
         new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
+    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures - 1, vif, messages)
   }
 
 }
