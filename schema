@@ -1,1 +1,0 @@
-{"mTableName":"SparkDDF_spark_70f7f9cf_77e6_4694_aae8_9f3c5bde1f0a","mColumns":[{"mName":"year","mType":"INT","mClass":"FACTOR"},{"mName":"month","mType":"INT"},{"mName":"dayofmonth","mType":"INT"},{"mName":"dayofweek","mType":"INT"}],"_class":"io.ddf.content.Schema","_timestamp":"11/29/14 1:45:02 AM UTC","_user":"root"}
