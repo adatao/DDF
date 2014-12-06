@@ -42,17 +42,16 @@ object RDDCachedBatch2REXP {
     val arr = cachedBatch.buffers.map {
       arrByte => ByteBuffer.wrap(arrByte)
     }
-    val numRows2 = TransformDummy.getNrowFromColumnIterator(arr)
     val numRows = cachedBatch.stats.getInt(3)
     val nullCounts = cachedBatch.stats.getInt(2)
     Logger.info(">>>> nullCounts = " + nullCounts)
     Logger.info(">>>> number of rows = " + numRows)
-    Logger.info(">>>> numRows2 = " + numRows2)
+
     val numSplits = System.getProperty("pa.Rserve.split", DEFAULT_NUM_RSERVER_SPLITS).toInt
     val numRowsPerSplit = numRows / numSplits + 1
     val REXPColumns = columns.zipWithIndex.map {
       case (column, idx) => {
-        val columnAccessor = ColumnAccessor(arr(idx)).asInstanceOf[NativeColumnAccessor[_]]
+        val columnAccessor = ColumnAccessor(arr(idx))
         var currentSplit = 0
         var rowNumber = 0
         var terminated = false
@@ -67,7 +66,7 @@ object RDDCachedBatch2REXP {
               var i = 0
               while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
                 try {
-                  columnAccessor.extractSingle(mutableRow, 0)
+                  columnAccessor.extractTo(mutableRow, 0)
                 } catch {
                   case e: java.nio.BufferUnderflowException => terminated = true
                 }
@@ -96,7 +95,7 @@ object RDDCachedBatch2REXP {
               while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
 
                 try {
-                  columnAccessor.extractSingle(mutableRow, 0)
+                  columnAccessor.extractTo(mutableRow, 0)
                 } catch {
                   case e: java.nio.BufferUnderflowException => terminated = true
                 }
@@ -126,7 +125,7 @@ object RDDCachedBatch2REXP {
               while((i < numRowsPerSplit) && (rowNumber < numRows) && columnAccessor.hasNext && !terminated) {
 
                 try {
-                  columnAccessor.extractSingle(mutableRow, 0)
+                  columnAccessor.extractTo(mutableRow, 0)
                 } catch {
                   case e: java.nio.BufferUnderflowException => terminated = true
                 }
@@ -160,26 +159,5 @@ object RDDCachedBatch2REXP {
       }
     }
     listREXP.map(partdf => new RList(partdf.toArray, columns.map(col => col.getName).toArray)).map(dfList => REXP.createDataFrame(dfList))
-  }
-
-  def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
-
-    val counts = columnIterators.map {
-      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
-        var count = 0
-        var terminated = false
-        val mutableRow = new GenericMutableRow(1)
-        while (columnAccessor.hasNext && !terminated) {
-          try {
-            columnAccessor.extractSingle(mutableRow, 0)
-            count += 1
-          } catch {
-            case e: java.nio.BufferUnderflowException => terminated = true
-          }
-        }
-        count
-    }
-    Logger.info(">>>>> numRows = " + counts.max)
-    counts.min
   }
 }
