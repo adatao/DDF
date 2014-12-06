@@ -114,7 +114,11 @@ class TransformSuite extends ATestSuite {
     val ddf3 = manager.sql2ddf("select * from kmeans")
     val ddf4 = (ddf3.getTransformationHandler()).dummyCoding(Array("v1"), "v2")
     val rdd2 = ddf4.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])
-    rdd2.count
+    LOG.info(">>>> rdd2.count = " + rdd2.count)
+    val matrix1 = rdd2.collect()(0)._1
+    val vector1 = rdd2.collect()(0)._2
+    LOG.info(">>> matrix1 = " + matrix1.toString())
+    LOG.info(">>> vector1 = " + vector1.toString())
   }
 
 }
