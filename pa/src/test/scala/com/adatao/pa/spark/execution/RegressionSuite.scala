@@ -71,7 +71,6 @@ class RegressionSuite extends ABigRClientTest {
 
   }
 
-  // TODO: failed due to
   // TestFailedException: 37.674034 did not equal 37.22727
   test("Multiple-variable linear regression - normal equation - no regularization") {
     //		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
@@ -95,9 +94,6 @@ class RegressionSuite extends ABigRClientTest {
     //println(model.nFeatures + " " + model.nRows)
     //println(model.rss + " " + model.sst)
     //println(model.vif(0) + " "  + model.vif(1))
-
-
-    println(">>>>>>>>>>model=" + model)
 
     assert(truncate(model.weights(0), 6) === 37.674034)
     assert(truncate(model.weights(1), 6) === -0.032085)
