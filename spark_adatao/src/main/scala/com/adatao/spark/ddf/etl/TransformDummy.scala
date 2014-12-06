@@ -44,21 +44,15 @@ object TransformDummy {
 
   def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
 
-    val counts = columnIterators.map {
-      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer)
-      var count = 0
-      var terminated = false
-      val mutableRow = new GenericMutableRow(1)
-      while (columnAccessor.hasNext) {
-        columnAccessor.extractTo(mutableRow, 0)
-        count += 1
-      }
-      LOG.info(">>>>>> count= " + count)
-      count
+    val columnAccessor = ColumnAccessor(columnIterators(0))
+    var count = 0
+    val mutableRow = new GenericMutableRow(1)
+    while(columnAccessor.hasNext) {
+      columnAccessor.extractTo(mutableRow, 0)
+      count += 1
     }
-    LOG.info(">>>>> count.max = " + counts.max)
-    LOG.info(">>>>> count.min = " + counts.min)
-    counts.min
+    LOG.info(">>>> rows count = " + count)
+    count
   }
 
   def buildNullBitmap(usedColumnIterators: Array[ByteBuffer]): BitSet = {
@@ -113,7 +107,7 @@ object TransformDummy {
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
         case _ => throw new IllegalArgumentException(s"cannot not convert column type ${columnAccessor.columnType} to double.")
       }
-    while (i < numRows && columnAccessor.hasNext) {
+    while (i < numRows) {
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         //val columnType = columnAccessor.columnType
