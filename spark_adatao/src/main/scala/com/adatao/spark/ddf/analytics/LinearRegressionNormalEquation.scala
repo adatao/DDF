@@ -113,7 +113,7 @@ object LinearRegressionNormalEquation {
     val sst = ret.x4 - (ret.x5 * ret.x5) / ret.x3
 
     var XtXlambda: DoubleMatrix = ret.x1
-    val numFeatures = XtXlambda.getColumns()
+    val numFeatures = XtXlambda.getColumns() - 1
 
     if (ridgeLambda != 0) {
       XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numFeatures).muli(ridgeLambda))
