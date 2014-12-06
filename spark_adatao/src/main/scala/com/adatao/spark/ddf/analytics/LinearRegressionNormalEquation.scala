@@ -113,10 +113,10 @@ object LinearRegressionNormalEquation {
     val sst = ret.x4 - (ret.x5 * ret.x5) / ret.x3
 
     var XtXlambda: DoubleMatrix = ret.x1
-    val numFeatures = XtXlambda.getColumns()
+    val numColumns = XtXlambda.getColumns()
 
     if (ridgeLambda != 0) {
-      XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numFeatures).muli(ridgeLambda))
+      XtXlambda = XtXlambda.addi(DoubleMatrix.eye(numColumns).muli(ridgeLambda))
     }
 
     var w: DoubleMatrix = null
@@ -125,19 +125,19 @@ object LinearRegressionNormalEquation {
     var isSingular: Boolean = false
     try {
       w = Solve.solvePositive(XtXlambda, ret.x2)
-      invXtX = Solve.solvePositive(XtXlambda, DoubleMatrix.eye(numFeatures))
+      invXtX = Solve.solvePositive(XtXlambda, DoubleMatrix.eye(numColumns))
     } catch {
       case lae: LapackArgumentException ⇒ {
         isPositive = false
         try {
           w = Solve.solveSymmetric(XtXlambda, ret.x2)
-          invXtX = Solve.solveSymmetric(XtXlambda, DoubleMatrix.eye(numFeatures))
+          invXtX = Solve.solveSymmetric(XtXlambda, DoubleMatrix.eye(numColumns))
         } catch {
           case lse: LapackSingularityException ⇒ {
             isSingular = true
             try {
               w = Solve.solve(XtXlambda, ret.x2)
-              invXtX = Solve.solve(XtXlambda, DoubleMatrix.eye(numFeatures))
+              invXtX = Solve.solve(XtXlambda, DoubleMatrix.eye(numColumns))
             } catch {
               case le: LapackException ⇒ {
                 throw new RuntimeException("The covariance matrix is singular. Please check independent variables for collinearity.\n" + XtXlambda.toString().replaceAll(";", "\n"))
@@ -199,6 +199,7 @@ object LinearRegressionNormalEquation {
       res ⇒ res.muli(res).sum()
     }.reduce(_ + _)
 
+    val numFeatures = numColumns - 1
     // degree of freedom
     val df = ret.x3 - numFeatures
 
@@ -208,7 +209,7 @@ object LinearRegressionNormalEquation {
     /*
         new NQLinearRegressionModel(Vector.apply(w), res_df_id, rss, sst, Vector.apply(stderrs), ret._3, numFeatures - 1, vif, messages)
         */
-    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures - 1, vif, messages)
+    new NQLinearRegressionModel(Vector.apply(w), rss, sst, Vector.apply(stderrs), ret.x3, numFeatures, vif, messages)
   }
 
 }
