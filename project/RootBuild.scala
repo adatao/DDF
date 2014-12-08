@@ -19,7 +19,7 @@ object RootBuild extends Build {
     DEFAULT_HADOOP_VERSION
 
   val SPARK_VERSION = "1.3.0-adatao"
-  val DDF_VERSION= "1.1"
+  val DDF_VERSION= "1.1-adatao"
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
   val JAVAC_JVM_VERSION = "1.6"
