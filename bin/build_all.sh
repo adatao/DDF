@@ -2,7 +2,7 @@
 
 export DDF_ENTERPRISE_HOME="$(cd `dirname ${BASH_SOURCE[0]}`/../ >/dev/null 2>&1; echo $PWD)"
 echo DDF_ENTERPRISE_HOME=$DDF_ENTERPRISE_HOME
-export DDF_OPENSOURCE_HOME=${DDF_ENTERPRISE_HOME}/../ddf-opensource
+export DDF_OPENSOURCE_HOME=${DDF_ENTERPRISE_HOME}/../ddf-opensource-1.1.0
 echo DDF_OPRNSOURCE_HOME=$DDF_OPENSOURCE_HOME
 
 echo "building ddf-opensource"
