@@ -12,6 +12,8 @@ import io.ddf.content.Schema.Column
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
+import com.adatao.pa.spark.execution.GraphTFIDF.CDRVertice
+import com.adatao.spark.ddf.content.RepresentationHandler
 
 /**
  * author: daoduchuan
@@ -93,7 +95,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       TripletFields.EdgeOnly
     )
 
-    case class CDRVertice(id: String, dn_cnt: Double, denom_tfidf: Double)
+
     val finalGraph: Graph[CDRVertice, Double] = groupedEdges.outerJoinVertices(dn_cnt) (
       (vertexId: Long, vd: String, tuple: Option[Tuple2[Double, Double]]) => {
         tuple match {
@@ -108,26 +110,45 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     LOG.info(">>>>> totalCalls = " + totalCalls)
     //val idf = log10(totalCalls)
 
-    val newrdd: RDD[Row] = finalGraph.triplets.map {
-      edge => {
-        val cnt = edge.attr
-        val dn_cnt = edge.srcAttr.dn_cnt
-        val denom_tfidf = edge.dstAttr.denom_tfidf
-        val src = edge.srcAttr.id
-        val dest = edge.dstAttr.id
-        val tf = cnt/dn_cnt
+//    val newrdd: RDD[Row] = finalGraph.triplets.map {
+//      edge => {
+//        val cnt = edge.attr
+//        val dn_cnt = edge.srcAttr.dn_cnt
+//        val denom_tfidf = edge.dstAttr.denom_tfidf
+//        val src = edge.srcAttr.id
+//        val dest = edge.dstAttr.id
+//        val tf = cnt/dn_cnt
+//        val idf = log10(totalCalls/denom_tfidf)
+//        val tfidf = tf * idf
+//        Row(src, dest, tfidf)
+//      }
+//    }
+
+    val tfidf_Graph = finalGraph.mapTriplets(
+      (edgeTriplet: EdgeTriplet[CDRVertice, Double]) => {
+        val cnt = edgeTriplet.attr
+        val dn_cnt = edgeTriplet.srcAttr.dn_cnt
+        val denom_tfidf = edgeTriplet.dstAttr.denom_tfidf
+        val src = edgeTriplet.srcAttr.id
+        val dest = edgeTriplet.dstAttr.id
+        val tf = cnt / dn_cnt
         val idf = log10(totalCalls/denom_tfidf)
         val tfidf = tf * idf
-        Row(src, dest, tfidf)
+        tfidf
       }
-    }
+    )
 
+    val newRDD: RDD[Row] = tfidf_Graph.triplets.map(
+      edge => Row(edge.srcAttr.id, edge.dstAttr.id, edge.attr)
+    )
     val col1 = new Column(src, Schema.ColumnType.STRING)
     val col2 = new Column(dest, Schema.ColumnType.STRING)
     val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)
     val schema = new Schema(null, Array(col1, col2, col3))
 
-    val newDDF = manager.newDDF(manager, newrdd, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
+    val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
+    newDDF.getRepresentationHandler.add(tfidf_Graph, classOf[Graph[_, _]])
+
     manager.addDDF(newDDF)
     new DataFrameResult(newDDF)
   }
@@ -148,4 +169,5 @@ object GraphTFIDF {
     }
     h
   }
+  case class CDRVertice(id: String, dn_cnt: Double, denom_tfidf: Double)
 }
