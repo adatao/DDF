@@ -11,8 +11,11 @@ echo
 echo "#############################" 
 echo "# Start Spark cluster #"
 echo "#############################"
-nohup ${DIR}/exe/run spark.deploy.master.Master --ip ${SPARK_HOST} --port ${SPARK_PORT} >${TMP_DIR}/spark-master.out 2>&1 &
-nohup ${DIR}/exe/run spark.deploy.worker.Worker ${SPARK_MASTER} >${TMP_DIR}/spark-worker.out 2>&1 &
+nohup ${DIR}/exe/run spark.deploy.master.Master \
+    --ip ${SPARK_HOST} \
+    --port ${SPARK_PORT} &>${TMP_DIR}/spark-master.out </dev/null &
+nohup ${DIR}/exe/run spark.deploy.worker.Worker \
+    ${SPARK_MASTER} &>${TMP_DIR}/spark-worker.out </dev/null &
 
 sleep 10
 

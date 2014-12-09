@@ -24,10 +24,16 @@ cd "$DIR" 2>&1 >/dev/null
 
 echo "" ; echo "########"
 echo $SPARK_HOME/run spark.deploy.master.Master --ip $host --port $port --webui-port $webui_port
-nohup $SPARK_HOME/run spark.deploy.master.Master --ip $host --port $port --webui-port $webui_port &
+nohup $SPARK_HOME/run spark.deploy.master.Master \
+    --ip $host \
+    --port $port \
+    --webui-port $webui_port &>>nohup.out </dev/null &
+
 echo "" ; echo "########"
 echo $SPARK_HOME/run spark.deploy.worker.Worker $SPARK_MASTER --webui-port $((webui_port+1))
-nohup $SPARK_HOME/run spark.deploy.worker.Worker $SPARK_MASTER --webui-port $((webui_port+1)) &
+nohup $SPARK_HOME/run spark.deploy.worker.Worker \
+    $SPARK_MASTER \
+    --webui-port $((webui_port+1)) &>>nohup.out </dev/null &
 
 sleep 2
 

@@ -58,7 +58,9 @@ echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
-nohup ${DIR}/exe/run -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} adatao.bigr.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+nohup ${DIR}/exe/run \
+    -Dbigr.multiuser=false \
+    -Dlog.dir=${LOG_DIR} adatao.bigr.thrift.Server $PA_PORT &>${LOG_DIR}/pa.out </dev/null &
 echo
 
 sleep 5
