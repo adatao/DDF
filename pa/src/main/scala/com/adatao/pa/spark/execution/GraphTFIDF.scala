@@ -77,6 +77,9 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val graph: Graph[String, Double] = Graph(vertices, edges)
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
+    //persist the original graph because it's expensive to create the graph
+    partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
+
     //Step 1
     //calculate CNT column in HH ppt slide
     val groupedEdges: Graph[String, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
@@ -137,7 +140,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         tfidf
       }
     ).mapVertices{case (verticeID, vertice) => vertice.id}
-
+    tfidf_Graph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
     val newRDD: RDD[Row] = tfidf_Graph.triplets.map(
       edge => Row(edge.srcAttr, edge.dstAttr, edge.attr)
     )
