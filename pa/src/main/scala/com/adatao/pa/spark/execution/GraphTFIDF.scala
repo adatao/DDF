@@ -124,7 +124,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 //      }
 //    }
 
-    val tfidf_Graph = finalGraph.mapTriplets(
+    val tfidf_Graph: Graph[String, Double] = finalGraph.mapTriplets(
       (edgeTriplet: EdgeTriplet[CDRVertice, Double]) => {
         val cnt = edgeTriplet.attr
         val dn_cnt = edgeTriplet.srcAttr.dn_cnt
@@ -136,11 +136,12 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         val tfidf = tf * idf
         tfidf
       }
-    )
+    ).mapVertices{case (verticeID, vertice) => vertice.id}
 
     val newRDD: RDD[Row] = tfidf_Graph.triplets.map(
-      edge => Row(edge.srcAttr.id, edge.dstAttr.id, edge.attr)
+      edge => Row(edge.srcAttr, edge.dstAttr, edge.attr)
     )
+
     val col1 = new Column(src, Schema.ColumnType.STRING)
     val col2 = new Column(dest, Schema.ColumnType.STRING)
     val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)
