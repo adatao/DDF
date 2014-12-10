@@ -44,6 +44,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val broadcastBF1: Broadcast[BF] = sparkCtx.broadcast(bloomFilter1)
     val broadcastBF2: Broadcast[BF] = sparkCtx.broadcast(bloomFilter2)
 
+    LOG.info("bloomFilter2.contains(HCM) = " + bloomFilter2.contains("HCM").isTrue)
+    LOG.info("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
     val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
     val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
     val count1 = filteredGraph1.vertices.count()
