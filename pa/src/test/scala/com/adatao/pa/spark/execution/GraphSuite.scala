@@ -62,9 +62,10 @@ class GraphSuite extends ABigRClientTest {
 
     val result = ls.map {
       row => row.replace("\"", "").split("\\s+")
-    }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
     result.map{
-      row => println(row.mkString(", "))
+      row => println(row.mkString(","))
     }
   }
 }
