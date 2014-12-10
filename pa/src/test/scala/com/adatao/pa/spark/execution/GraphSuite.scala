@@ -53,12 +53,19 @@ class GraphSuite extends ABigRClientTest {
     createTableGraph2
     val loader = new Sql2DataFrame("select * from graph1", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
-    assert(r0.isSuccess)
     val dataContainerID = r0.dataContainerID
+    assert(r0.isSuccess)
+
+    val loader2 = new Sql2DataFrame("select * from graph2", true)
+    val r02 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader2).result
+    val dataContainerID2 = r02.dataContainerID
+    assert(r02.isSuccess)
+
+
     val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
     val r = bigRClient.execute[DataFrameResult](cmd).result
 
-    val cmd1 = new GraphTFIDF(dataContainerID, "source", "dest")
+    val cmd1 = new GraphTFIDF(dataContainerID2, "source", "dest")
     val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
     val cmd2 = new CosineSimilarity(r.dataContainerID, r2.dataContainerID, 0.5)
