@@ -64,18 +64,20 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     println("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
     println("bloomFilter1.size = " + bloomFilter1.size.estimate)
     println("bloomFilter2.size = " + bloomFilter2.size.estimate)
-    val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
-    val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
+//    val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
+//    val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
+    val filteredGraph2 = graph2.subgraph(epred = (edge => broadcastBF1.value.contains(edge.srcAttr).isTrue))
+    val filteredGraph1 = graph1.subgraph(epred = (edge => broadcastBF2.value.contains(edge.srcAttr).isTrue))
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
     println("filteredGraph1.vertices.count() = " + count1)
     println("filteredGraph2.vertices.count() = " + count2)
     val arr1 = filteredGraph1.triplets.collect()
     val arr2 = filteredGraph2.triplets.collect()
-    //arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
-    //arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
-    arr1.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
-    arr2.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+    arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
+    arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
+    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
     val localMatrix = matrix2.collect()
