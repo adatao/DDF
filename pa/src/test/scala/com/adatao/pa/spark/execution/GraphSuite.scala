@@ -21,13 +21,12 @@ class GraphSuite extends ABigRClientTest {
     val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r2.result.getData
 
-    ls.map{
-      row => println(">>> row = " + row)
-    }
     val result = ls.map {
       row => row.replace("\"", "").split("\\s+")
     }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
-
+    result.map{
+      row => println(row.mkString(", "))
+    }
     assert(result(0)(0) == "SFO")
     assert(result(0)(1) == "SAN")
     assert(result(0)(2) == 1.2148111519023101)
