@@ -139,7 +139,7 @@ object CosineSimilarity {
     val data = vector.data
 
     var i = 0
-    var norm = 0
+    var norm = 0.0
     while( i < data.size) {
       val value = data(i)
       norm += value * value
