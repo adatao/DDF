@@ -74,11 +74,12 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       }
     }
 
+    //persist the original graph because it's expensive to create the graph
     val graph: Graph[String, Double] = Graph(vertices, edges)
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
     //persist the original graph because it's expensive to create the graph
-    partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
+    //partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
 
     //Step 1
     //calculate CNT column in HH ppt slide
