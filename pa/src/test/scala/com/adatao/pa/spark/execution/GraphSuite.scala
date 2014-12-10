@@ -69,19 +69,44 @@ class GraphSuite extends ABigRClientTest {
     val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
     val cmd2 = new CosineSimilarity(r.dataContainerID, r2.dataContainerID, 0.5)
-    val r3 = bigRClient.execute[DataFrameResult](cmd2).result
+    val cosine = bigRClient.execute[DataFrameResult](cmd2).result
 
-    assert(r3.isSuccess)
-//    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(200)
-//    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
-//    val ls = r2.result.getData
-//
-//    val result = ls.map {
-//      row => row.replace("\"", "").split("\\s+")
-//    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
-//
-//    result.map{
-//      row => println(row.mkString(","))
-//    }
+    assert(cosine.isSuccess)
+    val fetchRows = new FetchRows().setDataContainerID(r.dataContainerID).setLimit(200)
+    val r4 = bigRClient.execute[FetchRowsResult](fetchRows)
+    val ls = r4.result.getData
+
+    val result = ls.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
+    result.map{
+      row => println(row.mkString(","))
+    }
+
+
+    val fetchRows2 = new FetchRows().setDataContainerID(r2.dataContainerID).setLimit(200)
+    val r5 = bigRClient.execute[FetchRowsResult](fetchRows2)
+    val ls1 = r5.result.getData
+
+    val result1 = ls1.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
+    result1.map{
+      row => println(row.mkString(","))
+    }
+
+    val fetchRows3 = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
+    val r6 = bigRClient.execute[FetchRowsResult](fetchRows3)
+    val ls2 = r6.result.getData
+
+    val result2 = ls2.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
+    result2.map{
+      row => println(row.mkString(","))
+    }
   }
 }
