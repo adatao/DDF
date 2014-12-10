@@ -50,22 +50,31 @@ class GraphSuite extends ABigRClientTest {
 
   test("test Cosine Similarity") {
     createTableGraph1
+    createTableGraph2
     val loader = new Sql2DataFrame("select * from graph1", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
     assert(r0.isSuccess)
     val dataContainerID = r0.dataContainerID
     val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
-    val r = bigRClient.execute[DataFrameResult](cmd)
-    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(200)
-    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
-    val ls = r2.result.getData
+    val r = bigRClient.execute[DataFrameResult](cmd).result
 
-    val result = ls.map {
-      row => row.replace("\"", "").split("\\s+")
-    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+    val cmd1 = new GraphTFIDF(dataContainerID, "source", "dest")
+    val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
-    result.map{
-      row => println(row.mkString(","))
-    }
+    val cmd2 = new CosineSimilarity(r.dataContainerID, r2.dataContainerID, 0.5)
+    val r3 = bigRClient.execute[DataFrameResult](cmd2).result
+
+
+//    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(200)
+//    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
+//    val ls = r2.result.getData
+//
+//    val result = ls.map {
+//      row => row.replace("\"", "").split("\\s+")
+//    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+//
+//    result.map{
+//      row => println(row.mkString(","))
+//    }
   }
 }
