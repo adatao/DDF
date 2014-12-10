@@ -34,16 +34,25 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val vertices1 = graph1.vertices
     val vertices2 = graph2.vertices
 
-    val diff21: VertexRDD[String] = vertices1.diff(vertices2)
+    val vertice1BF = CosineSimilarity.createBloomFilter(vertices1)
+    val vertice2BF = CosineSimilarity.createBloomFilter(vertices2)
+    val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
+    val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
 
-    val diff12: VertexRDD[String] = vertices2.diff(vertices1)
+    val diff21 = graph2.subgraph(vpred = ((v, d) => broadcastVBF1.value.contains(d).isTrue))
+    val diff12 = graph1.subgraph(vpred = ((v, d) => broadcastVBF2.value.contains(d).isTrue))
+
+//    val diff21: VertexRDD[String] = vertices1.diff(vertices2)
+//
+//    val diff12: VertexRDD[String] = vertices2.diff(vertices1)
     LOG.info("vertices1.size = " + vertices1.count())
     LOG.info("vertices2.size = " + vertices2.count())
-    LOG.info("diff21.size = " + diff21.count())
-    LOG.info("diff12.size = " + diff12.count())
+    LOG.info("diff21.size = " + diff21.vertices.count())
+    LOG.info("diff12.size = " + diff12.vertices.count())
     //need to filter graph2 with only src vertex from diff21
-    val bloomFilter2: BF = CosineSimilarity.createBloomFilter(diff21)
-    val bloomFilter1: BF = CosineSimilarity.createBloomFilter(diff12)
+    val bloomFilter2: BF = CosineSimilarity.createBloomFilter(diff21.vertices)
+    val bloomFilter1: BF = CosineSimilarity.createBloomFilter(diff12.vertices)
+
     val broadcastBF1: Broadcast[BF] = sparkCtx.broadcast(bloomFilter1)
     val broadcastBF2: Broadcast[BF] = sparkCtx.broadcast(bloomFilter2)
 
@@ -101,13 +110,12 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 }
 
 object CosineSimilarity {
-  val numSamples = 1000000
-  val numBits = 1000000
+
   //val numHashes =
   def createBloomFilter(vertexRDD: VertexRDD[String]): BF = {
     //http://hur.st/bloomfilter?n=1000000&p=0.2
     val n = vertexRDD.count()
-    val width = n * 10
+    val width = n * 5
     val numHashes = scala.math.round(scala.math.log(2) * width / n).toInt
     val bloomFilterMonoid = BloomFilterMonoid(numHashes, width.toInt, 17)
     val bfRDD: RDD[BF] = vertexRDD.mapPartitions {
