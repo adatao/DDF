@@ -37,7 +37,10 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val diff21: VertexRDD[String] = vertices1.diff(vertices2)
 
     val diff12: VertexRDD[String] = vertices2.diff(vertices1)
-
+    LOG.info("vertices1.size = " + vertices1.count())
+    LOG.info("vertices2.size = " + vertices2.count())
+    LOG.info("diff21.size = " + diff21.count())
+    LOG.info("diff12.size = " + diff12.count())
     //need to filter graph2 with only src vertex from diff21
     val bloomFilter2: BF = CosineSimilarity.createBloomFilter(diff21)
     val bloomFilter1: BF = CosineSimilarity.createBloomFilter(diff12)
