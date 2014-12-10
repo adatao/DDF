@@ -33,8 +33,10 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
     val vertices1 = graph1.vertices
     val vertices2 = graph2.vertices
-
+    //Create a BloomFilter for all vertices in graph1
     val vertice1BF = CosineSimilarity.createBloomFilter(vertices1)
+
+    //Create a BloomFilter for all vertices in graph2
     val vertice2BF = CosineSimilarity.createBloomFilter(vertices2)
     LOG.info("vertice1BF.size = " + vertice1BF.size.estimate)
     LOG.info("vertice2BF.size = " + vertice2BF.size.estimate)
@@ -44,44 +46,68 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
     val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
 
-    val diff21 = graph2.subgraph(vpred = ((v, d) => !broadcastVBF1.value.contains(d).isTrue))
-    val diff12 = graph1.subgraph(vpred = ((v, d) => !broadcastVBF2.value.contains(d).isTrue))
-
-//    val diff21: VertexRDD[String] = vertices1.diff(vertices2)
-//
-//    val diff12: VertexRDD[String] = vertices2.diff(vertices1)
-
-    LOG.info("diff21.size = " + diff21.vertices.count())
-    LOG.info("diff12.size = " + diff12.vertices.count())
-    //need to filter graph2 with only src vertex from diff21
-    val bloomFilter2: BF = CosineSimilarity.createBloomFilter(diff21.vertices)
-    val bloomFilter1: BF = CosineSimilarity.createBloomFilter(diff12.vertices)
-
-    val broadcastBF1: Broadcast[BF] = sparkCtx.broadcast(bloomFilter1)
-    val broadcastBF2: Broadcast[BF] = sparkCtx.broadcast(bloomFilter2)
-
-    println("bloomFilter2.contains(HCM) = " + bloomFilter2.contains("HCM").isTrue)
-    println("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
-    println("bloomFilter1.size = " + bloomFilter1.size.estimate)
-    println("bloomFilter2.size = " + bloomFilter2.size.estimate)
-//    val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
-//    val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
     val filteredGraph2 = graph2.subgraph(epred =
       (edge =>
-          {
-            val isTrue = broadcastBF2.value.contains(edge.srcAttr).isTrue
-            println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
-            isTrue
-          }
-      ))
-    val filteredGraph1 = graph1.subgraph(epred =
-      (edge =>
       {
-        val isTrue = broadcastBF1.value.contains(edge.srcAttr).isTrue
+        val isTrue = !broadcastVBF1.value.contains(edge.srcAttr).isTrue
         println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
         isTrue
       }
         ))
+    val filteredGraph1 = graph1.subgraph(epred =
+      (edge =>
+      {
+        val isTrue = !broadcastVBF2.value.contains(edge.srcAttr).isTrue
+        println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
+        isTrue
+      }
+      ))
+
+//    //Find vertices that exists in graph2 but not in graph1
+//    val diff21 = graph2.subgraph(vpred = ((v, d) => !broadcastVBF1.value.contains(d).isTrue))
+//
+//    //Find vertices that exists in graph1 but not in graph2
+//    val diff12 = graph1.subgraph(vpred = ((v, d) => !broadcastVBF2.value.contains(d).isTrue))
+//
+////    val diff21: VertexRDD[String] = vertices1.diff(vertices2)
+////
+////    val diff12: VertexRDD[String] = vertices2.diff(vertices1)
+//
+//    LOG.info("diff21.size = " + diff21.vertices.count())
+//    LOG.info("diff12.size = " + diff12.vertices.count())
+//    //need to filter graph2 with only src vertex from diff21
+//
+//    //Set2 - Set1
+//    val bloomFilter2: BF = CosineSimilarity.createBloomFilter(diff21.vertices)
+//
+//    //Set1 - Set2
+//    val bloomFilter1: BF = CosineSimilarity.createBloomFilter(diff12.vertices)
+//
+//    val broadcastBF1: Broadcast[BF] = sparkCtx.broadcast(bloomFilter1)
+//    val broadcastBF2: Broadcast[BF] = sparkCtx.broadcast(bloomFilter2)
+//
+//    println("bloomFilter2.contains(HCM) = " + bloomFilter2.contains("HCM").isTrue)
+//    println("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
+//    println("bloomFilter1.size = " + bloomFilter1.size.estimate)
+//    println("bloomFilter2.size = " + bloomFilter2.size.estimate)
+//    val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
+//    val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
+//    val filteredGraph2 = graph2.subgraph(epred =
+//      (edge =>
+//          {
+//            val isTrue = broadcastBF2.value.contains(edge.srcAttr).isTrue
+//            println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
+//            isTrue
+//          }
+//      ))
+//    val filteredGraph1 = graph1.subgraph(epred =
+//      (edge =>
+//      {
+//        val isTrue = broadcastBF1.value.contains(edge.srcAttr).isTrue
+//        println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
+//        isTrue
+//      }
+//        ))
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
     println("filteredGraph1.vertices.count() = " + count1)
