@@ -38,6 +38,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val vertice2BF = CosineSimilarity.createBloomFilter(vertices2)
     LOG.info("vertice1BF.size = " + vertice1BF.size.estimate)
     LOG.info("vertice2BF.size = " + vertice2BF.size.estimate)
+    LOG.info("vertices1.size = " + vertices1.count())
+    LOG.info("vertices2.size = " + vertices2.count())
 
     val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
     val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
