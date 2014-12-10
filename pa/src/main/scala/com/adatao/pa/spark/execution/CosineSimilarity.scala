@@ -66,8 +66,22 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     println("bloomFilter2.size = " + bloomFilter2.size.estimate)
 //    val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
 //    val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
-    val filteredGraph2 = graph2.subgraph(epred = (edge => broadcastBF1.value.contains(edge.srcAttr).isTrue))
-    val filteredGraph1 = graph1.subgraph(epred = (edge => broadcastBF2.value.contains(edge.srcAttr).isTrue))
+    val filteredGraph2 = graph2.subgraph(epred =
+      (edge =>
+          {
+            val isTrue = broadcastBF1.value.contains(edge.srcAttr).isTrue
+            println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
+            isTrue
+          }
+      ))
+    val filteredGraph1 = graph1.subgraph(epred =
+      (edge =>
+      {
+        val isTrue = broadcastBF2.value.contains(edge.srcAttr).isTrue
+        println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
+        isTrue
+      }
+        ))
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
     println("filteredGraph1.vertices.count() = " + count1)
