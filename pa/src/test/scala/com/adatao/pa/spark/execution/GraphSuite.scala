@@ -72,6 +72,8 @@ class GraphSuite extends ABigRClientTest {
     val cosine = bigRClient.execute[DataFrameResult](cmd2).result
 
     assert(cosine.isSuccess)
+
+    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     val fetchRows = new FetchRows().setDataContainerID(r.dataContainerID).setLimit(200)
     val r4 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r4.result.getData
@@ -84,7 +86,7 @@ class GraphSuite extends ABigRClientTest {
       row => println(row.mkString(","))
     }
 
-
+    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     val fetchRows2 = new FetchRows().setDataContainerID(r2.dataContainerID).setLimit(200)
     val r5 = bigRClient.execute[FetchRowsResult](fetchRows2)
     val ls1 = r5.result.getData
@@ -96,7 +98,7 @@ class GraphSuite extends ABigRClientTest {
     result1.map{
       row => println(row.mkString(","))
     }
-
+    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     val fetchRows3 = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
     val r6 = bigRClient.execute[FetchRowsResult](fetchRows3)
     val ls2 = r6.result.getData
