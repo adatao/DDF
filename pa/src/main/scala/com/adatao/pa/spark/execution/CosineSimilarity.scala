@@ -70,11 +70,12 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val count2 = filteredGraph2.vertices.count()
     println("filteredGraph1.vertices.count() = " + count1)
     println("filteredGraph2.vertices.count() = " + count2)
-    val arr1 = filteredGraph1.vertices.collect()
-    val arr2 = filteredGraph2.vertices.collect()
-    arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
-    arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
-
+    val arr1 = filteredGraph1.triplets.collect()
+    val arr2 = filteredGraph2.triplets.collect()
+    //arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
+    //arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
+    arr1.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+    arr2.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
     val localMatrix = matrix2.collect()
