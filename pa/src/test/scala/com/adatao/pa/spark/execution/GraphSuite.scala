@@ -4,6 +4,8 @@ import com.adatao.pa.spark.types.ABigRClientTest
 import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.pa.spark.execution.FetchRows.FetchRowsResult
 import scala.collection.JavaConversions._
+import org.junit.Assert.assertEquals
+
 /**
  * author: daoduchuan
  */
@@ -99,15 +101,19 @@ class GraphSuite extends ABigRClientTest {
       row => println(row.mkString(","))
     }
     println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    val fetchRows3 = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
-    val r6 = bigRClient.execute[FetchRowsResult](fetchRows3)
-    val ls2 = r6.result.getData
+    val fetchRowsCosine = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
+    val fetchRowsCosineResult = bigRClient.execute[FetchRowsResult](fetchRowsCosine)
+    val cosineResult = fetchRowsCosineResult.result.getData
 
-    val result2 = ls2.map {
+    val cosineResult2 = cosineResult.map {
       row => row.replace("\"", "").split("\\s+")
     }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
 
-    result2.map{
+    assert(cosineResult2.size == 1)
+    assert(cosineResult2(0).asInstanceOf[String] == "SNA")
+    assert(cosineResult2(1).asInstanceOf[String] == "HCM")
+    assertEquals(cosineResult2(3).asInstanceOf[Double], 1, 0.1)
+    cosineResult.map{
       row => println(row.mkString(","))
     }
   }
