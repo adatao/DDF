@@ -15,6 +15,7 @@ import com.adatao.pa.spark.Utils.DataFrameResult
 import io.ddf.content.Schema.Column
 import io.ddf.content.Schema
 import com.adatao.spark.ddf.SparkDDFManager
+import org.slf4j.LoggerFactory
 
 /**
  * author: daoduchuan
@@ -31,52 +32,32 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val graph2: Graph[String, Double] = ddf2.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
       getTypeSpecsString).asInstanceOf[Graph[String, Double]]
 
-    val vertices1 = graph1.vertices
-    val vertices2 = graph2.vertices
-    //Create a BloomFilter for all vertices in graph1
-    val vertice1BF = CosineSimilarity.createBloomFilter(vertices1)
+    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 
-    //Create a BloomFilter for all vertices in graph2
-    val vertice2BF = CosineSimilarity.createBloomFilter(vertices2)
-    LOG.info("vertice1BF.size = " + vertice1BF.size.estimate)
-    LOG.info("vertice2BF.size = " + vertice2BF.size.estimate)
-    LOG.info("vertices1.size = " + vertices1.count())
-    LOG.info("vertices2.size = " + vertices2.count())
+//    val count1 = filteredGraph1.vertices.count()
+//    val count2 = filteredGraph2.vertices.count()
+//    println("filteredGraph1.vertices.count() = " + count1)
+//    println("filteredGraph2.vertices.count() = " + count2)
+//    val arr1 = filteredGraph1.triplets.collect()
+//    val arr2 = filteredGraph2.triplets.collect()
+//    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+//    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
 
-    val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
-    val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
-
-    val filteredGraph2 = graph2.subgraph(epred =
-      (edge =>
-      {
-        val isTrue = !broadcastVBF1.value.contains(edge.srcAttr).isTrue
-        println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
-        isTrue
-      }
-        ))
-    val filteredGraph1 = graph1.subgraph(epred =
-      (edge =>
-      {
-        val isTrue = !broadcastVBF2.value.contains(edge.srcAttr).isTrue
-        println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
-        isTrue
-      }
-      ))
-
-    val count1 = filteredGraph1.vertices.count()
-    val count2 = filteredGraph2.vertices.count()
-    println("filteredGraph1.vertices.count() = " + count1)
-    println("filteredGraph2.vertices.count() = " + count2)
-    val arr1 = filteredGraph1.triplets.collect()
-    val arr2 = filteredGraph2.triplets.collect()
-    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
-    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
-    val localMatrix = matrix2.collect()
+
+    //val localMatrix = matrix2.collect()
+    val nrow1 = matrix1.count
+    val nrow2 = matrix2. count
+
+    val (distMatrix, localMatrix) = if(nrow1 > nrow2) {
+      (matrix1, matrix2.collect())
+    } else {
+      (matrix2, matrix1.collect())
+    }
 
     val broadcastMatrix: Broadcast[Array[(String, SparseVector[Double])]] = sparkCtx.broadcast(localMatrix)
-    val result: RDD[Row] = matrix1.mapPartitions {
+    val result: RDD[Row] = distMatrix.mapPartitions {
       (iter: Iterator[(String, SparseVector[Double])]) => {
         //val arr: ArrayBuffer[Tuple3[String, String, Double]] =  ArrayBuffer[Tuple3[String, String, Double]]()
         val arr: ArrayBuffer[Row] = ArrayBuffer[Row]()
@@ -90,11 +71,11 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
             val mul: Double = vector2.dot(vector1)
 
             val cosine = mul / (CosineSimilarity.normVector(vector1) * CosineSimilarity.normVector(vector2))
-            println(s">>>> vector2 = ${vector2.toString()}")
-            println(s">>>> vector1 = ${vector1.toString()}")
-            println(s">>> mul = $mul")
-            println(s">>> num1 = $num1 , num2=$num2")
-            println(">>>> cosine = " + cosine)
+//            println(s">>>> vector2 = ${vector2.toString()}")
+//            println(s">>>> vector1 = ${vector1.toString()}")
+//            println(s">>> mul = $mul")
+//            println(s">>> num1 = $num1 , num2=$num2")
+//            println(">>>> cosine = " + cosine)
             //only append to result if cosine > threshold
             if(cosine > threshold) {
               arr append Row(num1, num2, cosine)
@@ -119,6 +100,32 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 }
 
 object CosineSimilarity {
+  val LOG = LoggerFactory.getLogger(this.getClass)
+  //Calculate the symmetricDifference of vertices iin graph1 and graph2
+
+  def symmetricDifference(graph1: Graph[String, Double], graph2: Graph[String, Double], sparkCtx: SparkContext) = {
+    val vertices1 = graph1.vertices
+    val vertices2 = graph2.vertices
+    //Create a BloomFilter for all vertices in graph1
+    val vertice1BF = CosineSimilarity.createBloomFilter(vertices1)
+
+    //Create a BloomFilter for all vertices in graph2
+    val vertice2BF = CosineSimilarity.createBloomFilter(vertices2)
+    LOG.info("vertice1BF.size = " + vertice1BF.size.estimate)
+    LOG.info("vertice2BF.size = " + vertice2BF.size.estimate)
+    LOG.info("vertices1.size = " + vertices1.count())
+    LOG.info("vertices2.size = " + vertices2.count())
+
+    val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
+    val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
+
+    //Filter number that in graph2 but not in graph1
+    val filteredGraph2 = graph2.subgraph(epred = (edge => !broadcastVBF1.value.contains(edge.srcAttr).isTrue))
+
+    //Filter number that in graph1 but not in graph2
+    val filteredGraph1 = graph1.subgraph(epred = (edge => !broadcastVBF2.value.contains(edge.srcAttr).isTrue ))
+    Tuple2(filteredGraph1, filteredGraph2)
+  }
 
   //val numHashes =
   def createBloomFilter(vertexRDD: VertexRDD[String]): BF = {
