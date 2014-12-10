@@ -20,7 +20,7 @@ import io.ddf.content.Schema
  */
 class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double) extends AExecutor[DataFrameResult] {
 
-  override def runImpl(context: ExecutionContext): Unit = {
+  override def runImpl(context: ExecutionContext): DataFrameResult = {
     val manager = context.sparkThread.getDDFManager
     val sparkCtx: SparkContext = context.sparkContext.sc
     val ddf1 = manager.getDDF(dataContainerID1)
