@@ -109,12 +109,12 @@ class GraphSuite extends ABigRClientTest {
       row => row.replace("\"", "").split("\\s+")
     }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
 
+    cosineResult.map{
+      row => println(row.mkString(","))
+    }
     assert(cosineResult2.size == 1)
     assert(cosineResult2(0).asInstanceOf[String] == "SNA")
     assert(cosineResult2(1).asInstanceOf[String] == "HCM")
     assertEquals(cosineResult2(3).asInstanceOf[Double], 1, 0.1)
-    cosineResult.map{
-      row => println(row.mkString(","))
-    }
   }
 }
