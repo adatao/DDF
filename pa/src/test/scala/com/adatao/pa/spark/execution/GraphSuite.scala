@@ -71,7 +71,7 @@ class GraphSuite extends ABigRClientTest {
     val cmd2 = new CosineSimilarity(r.dataContainerID, r2.dataContainerID, 0.5)
     val r3 = bigRClient.execute[DataFrameResult](cmd2).result
 
-
+    assert(r3.isSuccess)
 //    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(200)
 //    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
 //    val ls = r2.result.getData
