@@ -141,7 +141,9 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         tfidf
       }
     ).mapVertices{case (verticeID, vertice) => vertice.id}
+
     tfidf_Graph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
+
     val newRDD: RDD[Row] = tfidf_Graph.triplets.map(
       edge => Row(edge.srcAttr, edge.dstAttr, edge.attr)
     )
