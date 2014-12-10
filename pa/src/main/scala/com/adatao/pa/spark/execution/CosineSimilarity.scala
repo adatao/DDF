@@ -10,12 +10,15 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.Vector
 import breeze.linalg.{norm, SparseVector}
 import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.expressions.{GenericMutableRow, Row}
 import com.adatao.pa.spark.Utils.DataFrameResult
 import io.ddf.content.Schema.Column
 import io.ddf.content.Schema
-import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager}
 import org.slf4j.LoggerFactory
+import io.ddf.DDF
+import org.apache.spark.sql.columnar.{ColumnAccessor, CachedBatch}
+import java.nio.ByteBuffer
 
 /**
  * author: daoduchuan
@@ -134,6 +137,28 @@ object CosineSimilarity {
     Tuple2(filteredGraph1, filteredGraph2)
   }
 
+  def createBloomFilterFromDDF(ddf: DDF, colName: String): BF = {
+    val sparkDDF = ddf.asInstanceOf[SparkDDF]
+    sparkDDF.cacheTable()
+    val rddCachedBatch = sparkDDF.getRDD(classOf[CachedBatch])
+    val nrow = sparkDDF.getRDD(classOf[Row]).count()
+    val width = nrow * 20
+    val numHashes = scala.math.round(scala.math.log(2) * width / nrow).toInt
+    val bloomFilterMonoid = BloomFilterMonoid(numHashes, width.toInt, 17)
+    val colIdx = ddf.getColumnIndex(colName)
+    rddCachedBatch.map{
+      cachedBatch => {
+        val buffer = ByteBuffer.wrap(cachedBatch.buffers(colIdx))
+        val columnAccessor = ColumnAccessor(buffer)
+        val mutableRow = new GenericMutableRow(1)
+        var bf = bloomFilterMonoid.zero
+        while(columnAccessor.hasNext) {
+          columnAccessor.extractTo(mutableRow, 0)
+        }
+      }
+    }
+    bloomFilterMonoid.zero
+  }
   //val numHashes =
   def createBloomFilter(vertexRDD: VertexRDD[String]): BF = {
     //http://hur.st/bloomfilter?n=1000000&p=0.2
@@ -165,6 +190,7 @@ object CosineSimilarity {
       (seq1: Tuple2[String, Seq[Tuple2[Int, Double]]], seq2: Tuple2[String, Seq[Tuple2[Int, Double]]]) => Tuple2(seq1._1, seq1._2 ++ seq2._2)
     )
 
+    LOG.info(">>>> tfIDFGraph2Matrix, vertices.count = " + vertices.count())
     val parseMatrix = vertices.map {
       case (id, (num, elements)) => {
         val (indices, values) = elements.sortBy(_._1).unzip
