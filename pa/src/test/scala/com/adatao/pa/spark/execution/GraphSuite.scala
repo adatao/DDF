@@ -75,7 +75,24 @@ class GraphSuite extends ABigRClientTest {
 
     assert(cosine.isSuccess)
 
-    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    val fetchRowsCosine = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
+    val fetchRowsCosineResult = bigRClient.execute[FetchRowsResult](fetchRowsCosine)
+    val cosineResult = fetchRowsCosineResult.result.getData
+
+    val cosineResult2 = cosineResult.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
+    assert(cosineResult2.size == 1)
+    assert(cosineResult2(0)(0).asInstanceOf[String] == "SNA")
+    assert(cosineResult2(0)(1).asInstanceOf[String] == "HCM")
+    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
+
+    /**
+     * print out result from TFIDF and CosineSimilarity
+     */
+    println("#################################")
+    println("########### TFIDF 1 ###############")
     val fetchRows = new FetchRows().setDataContainerID(r.dataContainerID).setLimit(200)
     val r4 = bigRClient.execute[FetchRowsResult](fetchRows)
     val ls = r4.result.getData
@@ -88,7 +105,8 @@ class GraphSuite extends ABigRClientTest {
       row => println(row.mkString(","))
     }
 
-    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    println("#################################")
+    println("########### TFIDF 2 ###############")
     val fetchRows2 = new FetchRows().setDataContainerID(r2.dataContainerID).setLimit(200)
     val r5 = bigRClient.execute[FetchRowsResult](fetchRows2)
     val ls1 = r5.result.getData
@@ -100,22 +118,10 @@ class GraphSuite extends ABigRClientTest {
     result1.map{
       row => println(row.mkString(","))
     }
-    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    val fetchRowsCosine = new FetchRows().setDataContainerID(cosine.dataContainerID).setLimit(200)
-    val fetchRowsCosineResult = bigRClient.execute[FetchRowsResult](fetchRowsCosine)
-    val cosineResult = fetchRowsCosineResult.result.getData
-
-    val cosineResult2 = cosineResult.map {
-      row => row.replace("\"", "").split("\\s+")
-    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
-
+    println("#################################")
+    println("########### Cosine similarity ###############")
     cosineResult2.map{
       row => println(row.mkString(","))
     }
-
-    assert(cosineResult2.size == 1)
-    assert(cosineResult2(0)(0).asInstanceOf[String] == "SNA")
-    assert(cosineResult2(0)(1).asInstanceOf[String] == "HCM")
-    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
   }
 }
