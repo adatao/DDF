@@ -14,6 +14,7 @@ import org.apache.spark.sql.catalyst.expressions.Row
 import com.adatao.pa.spark.Utils.DataFrameResult
 import io.ddf.content.Schema.Column
 import io.ddf.content.Schema
+import com.adatao.spark.ddf.SparkDDFManager
 
 /**
  * author: daoduchuan
@@ -22,7 +23,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     val manager = context.sparkThread.getDDFManager
-    val sparkCtx: SparkContext = context.sparkContext.sc
+    val sparkCtx: SparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val ddf1 = manager.getDDF(dataContainerID1)
     val ddf2 = manager.getDDF(dataContainerID2)
     val graph1: Graph[String, Double] = ddf1.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
