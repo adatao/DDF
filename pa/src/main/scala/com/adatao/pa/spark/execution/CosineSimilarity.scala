@@ -60,20 +60,21 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val broadcastBF1: Broadcast[BF] = sparkCtx.broadcast(bloomFilter1)
     val broadcastBF2: Broadcast[BF] = sparkCtx.broadcast(bloomFilter2)
 
-    LOG.info("bloomFilter2.contains(HCM) = " + bloomFilter2.contains("HCM").isTrue)
-    LOG.info("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
-    LOG.info("bloomFilter1.size = " + bloomFilter1.size.estimate)
-    LOG.info("bloomFilter2.size = " + bloomFilter2.size.estimate)
+    println("bloomFilter2.contains(HCM) = " + bloomFilter2.contains("HCM").isTrue)
+    println("bloomFilter1.contains(SNA) = " + bloomFilter1.contains("SNA").isTrue)
+    println("bloomFilter1.size = " + bloomFilter1.size.estimate)
+    println("bloomFilter2.size = " + bloomFilter2.size.estimate)
     val filteredGraph2 = graph2.subgraph(vpred = ((v, d) => broadcastBF2.value.contains(d).isTrue))
     val filteredGraph1 = graph1.subgraph(vpred = ((v, d) => broadcastBF1.value.contains(d).isTrue))
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
-    LOG.info("filteredGraph1.vertices.count() = " + count1)
-    LOG.info("filteredGraph2.vertices.count() = " + count2)
+    println("filteredGraph1.vertices.count() = " + count1)
+    println("filteredGraph2.vertices.count() = " + count2)
     val arr1 = filteredGraph1.vertices.collect()
     val arr2 = filteredGraph2.vertices.collect()
-    LOG.info(">>filteredGraph1 = " + arr1.map{case (id, num) => println(">>> num= " + num)})
-    LOG.info(">>filteredGraph2 = " + arr2.map{case (id, num) => println(">>> num= " + num)})
+    arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
+    arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
+
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
     val localMatrix = matrix2.collect()
@@ -93,8 +94,11 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
             val mul: Double = vector2.dot(vector1)
 
             val cosine = mul / (CosineSimilarity.normVector(vector1) * CosineSimilarity.normVector(vector2))
-            LOG.info(s">>> num1 = $num1 , num2=$num2")
-            LOG.info(">>>> cosine = " + cosine)
+            println(s">>>> vector2 = ${vector2.toString()}")
+            println(s">>>> vector1 = ${vector1.toString()}")
+            println(s">>> mul = $mul")
+            println(s">>> num1 = $num1 , num2=$num2")
+            println(">>>> cosine = " + cosine)
             //only append to result if cosine > threshold
             if(cosine > threshold) {
               arr append Row(num1, num2, cosine)
