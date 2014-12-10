@@ -118,7 +118,7 @@ object CosineSimilarity {
 
   def tfIDFGraph2Matrix(graph: Graph[String, Double]): RDD[(String, SparseVector[Double])] = {
     val vertices: VertexRDD[Tuple2[String, Seq[Tuple2[Int, Double]]]] = graph.aggregateMessages (
-      (edgeCtx: EdgeContext[String, Double, Tuple2[String, Seq[Tuple2[Int, Double]]]) => {
+      (edgeCtx: EdgeContext[String, Double, Tuple2[String, Seq[Tuple2[Int, Double]]]]) => {
         val tfidf = edgeCtx.attr
         val id = scala.math.abs(edgeCtx.dstAttr.hashCode)
         edgeCtx.sendToSrc(edgeCtx.srcAttr, Seq((id, tfidf)))
