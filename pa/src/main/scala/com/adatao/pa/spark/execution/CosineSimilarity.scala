@@ -44,14 +44,13 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val broadcastVBF1 = sparkCtx.broadcast(vertice1BF)
     val broadcastVBF2 = sparkCtx.broadcast(vertice2BF)
 
-    val diff21 = graph2.subgraph(vpred = ((v, d) => broadcastVBF1.value.contains(d).isTrue))
-    val diff12 = graph1.subgraph(vpred = ((v, d) => broadcastVBF2.value.contains(d).isTrue))
+    val diff21 = graph2.subgraph(vpred = ((v, d) => !broadcastVBF1.value.contains(d).isTrue))
+    val diff12 = graph1.subgraph(vpred = ((v, d) => !broadcastVBF2.value.contains(d).isTrue))
 
 //    val diff21: VertexRDD[String] = vertices1.diff(vertices2)
 //
 //    val diff12: VertexRDD[String] = vertices2.diff(vertices1)
-    LOG.info("vertices1.size = " + vertices1.count())
-    LOG.info("vertices2.size = " + vertices2.count())
+
     LOG.info("diff21.size = " + diff21.vertices.count())
     LOG.info("diff12.size = " + diff12.vertices.count())
     //need to filter graph2 with only src vertex from diff21
