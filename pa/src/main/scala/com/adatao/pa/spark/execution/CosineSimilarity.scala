@@ -49,10 +49,11 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     //val localMatrix = matrix2.collect()
     val nrow1 = matrix1.count
     val nrow2 = matrix2. count
-
-    val (distMatrix, localMatrix) = if(nrow1 > nrow2) {
+    var switchedOrder = false
+    val (distMatrix, localMatrix) = if(nrow1 >= nrow2) {
       (matrix1, matrix2.collect())
     } else {
+      switchedOrder = true
       (matrix2, matrix1.collect())
     }
 
@@ -78,7 +79,11 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 //            println(">>>> cosine = " + cosine)
             //only append to result if cosine > threshold
             if(cosine > threshold) {
-              arr append Row(num1, num2, cosine)
+              if(!switchedOrder) {
+                arr append Row(num1, num2, cosine)
+              } else {
+                arr append Row(num2, num1, cosine)
+              }
             }
             i += 1
           }
