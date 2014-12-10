@@ -70,7 +70,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val count2 = filteredGraph2.vertices.count()
     LOG.info("filteredGraph1.vertices.count() = " + count1)
     LOG.info("filteredGraph2.vertices.count() = " + count2)
-
+    LOG.info(">>filteredGraph1 = " + filteredGraph1.vertices.map{case (id, num) => println(">>> num= " + num)})
+    LOG.info(">>filteredGraph2 = " + filteredGraph2.vertices.map{case (id, num) => println(">>> num= " + num)})
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
     val localMatrix = matrix2.collect()
@@ -90,6 +91,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
             val mul: Double = vector2.dot(vector1)
 
             val cosine = mul / (CosineSimilarity.normVector(vector1) * CosineSimilarity.normVector(vector2))
+            LOG.info(s">>> num1 = $num1 , num2=$num2")
+            LOG.info(">>>> cosine = " + cosine)
             //only append to result if cosine > threshold
             if(cosine > threshold) {
               arr append Row(num1, num2, cosine)

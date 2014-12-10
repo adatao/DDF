@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
  */
 class GraphSuite extends ABigRClientTest {
 
-  test("test graphtfidf") {
+  ignore("test graphtfidf") {
     createTableGraph
     val loader = new Sql2DataFrame("select * from graph", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
