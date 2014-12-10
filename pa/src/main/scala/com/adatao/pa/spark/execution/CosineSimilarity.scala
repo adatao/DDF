@@ -34,10 +34,10 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
     val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 
-//    val count1 = filteredGraph1.vertices.count()
-//    val count2 = filteredGraph2.vertices.count()
-//    println("filteredGraph1.vertices.count() = " + count1)
-//    println("filteredGraph2.vertices.count() = " + count2)
+    val count1 = filteredGraph1.vertices.count()
+    val count2 = filteredGraph2.vertices.count()
+    println("filteredGraph1.vertices.count() = " + count1)
+    println("filteredGraph2.vertices.count() = " + count2)
 //    val arr1 = filteredGraph1.triplets.collect()
 //    val arr2 = filteredGraph2.triplets.collect()
 //    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
@@ -49,6 +49,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     //val localMatrix = matrix2.collect()
     val nrow1 = matrix1.count
     val nrow2 = matrix2. count
+    LOG.info(">>> matrix1.count = " + nrow1)
+    LOG.info(">>> matrix2.count = " + nrow2)
     var switchedOrder = false
     val (distMatrix, localMatrix) = if(nrow1 >= nrow2) {
       (matrix1, matrix2.collect())
