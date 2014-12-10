@@ -93,7 +93,9 @@ abstract class ABigRClientTest extends ATimedAlgorithmTest with BeforeAndAfterAl
 	def createTableKmeans = BigRClientTestUtils.createTableKmeans(bigRClient)
 
   def createTableGraph = BigRClientTestUtils.createTableGraph(bigRClient)
-	def createTableAirlineWithNA = BigRClientTestUtils.createTableAirlineWithNA(bigRClient)
+	def createTableGraph1 = BigRClientTestUtils.createTableGraph1(bigRClient)
+
+  def createTableAirlineWithNA = BigRClientTestUtils.createTableAirlineWithNA(bigRClient)
 	
 	def createTableRatings = BigRClientTestUtils.createTableRatings(bigRClient)
 	

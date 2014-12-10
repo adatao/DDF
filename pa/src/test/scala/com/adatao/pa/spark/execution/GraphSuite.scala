@@ -47,4 +47,24 @@ class GraphSuite extends ABigRClientTest {
     assert(result(5)(1) == "OAK")
     assert(result(5)(2) == 0.8282803308424841)
   }
+
+  test("test Cosine Similarity") {
+    createTableGraph1
+    val loader = new Sql2DataFrame("select * from graph1", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+    val dataContainerID = r0.dataContainerID
+    val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
+    val r = bigRClient.execute[DataFrameResult](cmd)
+    val fetchRows = new FetchRows().setDataContainerID(r.result.dataContainerID).setLimit(200)
+    val r2 = bigRClient.execute[FetchRowsResult](fetchRows)
+    val ls = r2.result.getData
+
+    val result = ls.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => Array(arr(0), arr(1), arr(2).toDouble)}
+    result.map{
+      row => println(row.mkString(", "))
+    }
+  }
 }
