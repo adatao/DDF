@@ -69,7 +69,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val filteredGraph2 = graph2.subgraph(epred =
       (edge =>
           {
-            val isTrue = broadcastBF1.value.contains(edge.srcAttr).isTrue
+            val isTrue = broadcastBF2.value.contains(edge.srcAttr).isTrue
             println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
             isTrue
           }
@@ -77,7 +77,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val filteredGraph1 = graph1.subgraph(epred =
       (edge =>
       {
-        val isTrue = broadcastBF2.value.contains(edge.srcAttr).isTrue
+        val isTrue = broadcastBF1.value.contains(edge.srcAttr).isTrue
         println(s"edge.srcAttr = ${edge.srcAttr}, isTrue=$isTrue")
         isTrue
       }
