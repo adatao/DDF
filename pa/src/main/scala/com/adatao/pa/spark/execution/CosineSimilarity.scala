@@ -74,8 +74,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val arr2 = filteredGraph2.triplets.collect()
     //arr1.map{case (id, num) => println(">>> filteredGraph1= " + num)}
     //arr2.map{case (id, num) => println(">>> filteredGraph2= " + num)}
-    arr1.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
-    arr2.map(edge => println(s">>>edge = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
+    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
     val localMatrix = matrix2.collect()
@@ -129,7 +129,7 @@ object CosineSimilarity {
   def createBloomFilter(vertexRDD: VertexRDD[String]): BF = {
     //http://hur.st/bloomfilter?n=1000000&p=0.2
     val n = vertexRDD.count()
-    val width = n * 5
+    val width = n * 20
     val numHashes = scala.math.round(scala.math.log(2) * width / n).toInt
     val bloomFilterMonoid = BloomFilterMonoid(numHashes, width.toInt, 17)
     val bfRDD: RDD[BF] = vertexRDD.mapPartitions {
