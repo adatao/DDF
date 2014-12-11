@@ -41,7 +41,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 //    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 //
 
-    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2, "", sparkCtx)
+    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2, ddf1.getColumnNames.get(0), sparkCtx)
 
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
