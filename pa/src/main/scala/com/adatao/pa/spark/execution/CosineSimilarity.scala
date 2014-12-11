@@ -39,8 +39,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
-    println("filteredGraph1.vertices.count() = " + count1)
-    println("filteredGraph2.vertices.count() = " + count2)
+    LOG.info("filteredGraph1.vertices.count() = " + count1)
+    LOG.info("filteredGraph2.vertices.count() = " + count2)
 //    val arr1 = filteredGraph1.triplets.collect()
 //    val arr2 = filteredGraph2.triplets.collect()
 //    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
@@ -137,6 +137,26 @@ object CosineSimilarity {
     Tuple2(filteredGraph1, filteredGraph2)
   }
 
+  def symmetricDifference(ddf1: DDF, ddf2: DDF, colName: String, sparkCtx: SparkContext) = {
+    val BF1 = createBloomFilterFromDDF(ddf1, colName)
+    val BF2 = createBloomFilterFromDDF(ddf2, colName)
+    val broadcastedBF1 = sparkCtx.broadcast(BF1)
+    val broadcastedBF2 = sparkCtx.broadcast(BF2)
+
+    val colIdx1 = ddf1.getColumnIndex(colName)
+    val colIdx2 = ddf2.getColumnIndex(colName)
+    //filter out caller in ddf1 that exists in ddf2
+    val rddRow1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
+      row => !broadcastedBF2.value.contains(row.getString(colIdx1)).isTrue
+    }
+
+    //filter out caller in ddf2 that exists in ddf1
+    val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
+      row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
+    }
+
+  }
+
   def createBloomFilterFromDDF(ddf: DDF, colName: String): BF = {
     val sparkDDF = ddf.asInstanceOf[SparkDDF]
     sparkDDF.cacheTable()
@@ -146,7 +166,7 @@ object CosineSimilarity {
     val numHashes = scala.math.round(scala.math.log(2) * width / nrow).toInt
     val bloomFilterMonoid = BloomFilterMonoid(numHashes, width.toInt, 17)
     val colIdx = ddf.getColumnIndex(colName)
-    rddCachedBatch.map{
+    val bfRDD: RDD[BF] = rddCachedBatch.map{
       cachedBatch => {
         val buffer = ByteBuffer.wrap(cachedBatch.buffers(colIdx))
         val columnAccessor = ColumnAccessor(buffer)
@@ -154,11 +174,14 @@ object CosineSimilarity {
         var bf = bloomFilterMonoid.zero
         while(columnAccessor.hasNext) {
           columnAccessor.extractTo(mutableRow, 0)
+          bf = bf + mutableRow.getString(0)
         }
+        bf
       }
     }
-    bloomFilterMonoid.zero
+    bfRDD.reduce{case (bf1, bf2) => bf1 ++ bf2}
   }
+
   //val numHashes =
   def createBloomFilter(vertexRDD: VertexRDD[String]): BF = {
     //http://hur.st/bloomfilter?n=1000000&p=0.2
