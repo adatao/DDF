@@ -49,53 +49,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
     val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
 
-    //val localMatrix = matrix2.collect()
-    val nrow1 = matrix1.count
-    val nrow2 = matrix2. count
-    LOG.info(">>> matrix1.count = " + nrow1)
-    LOG.info(">>> matrix2.count = " + nrow2)
-    var switchedOrder = false
-    val (distMatrix, localMatrix) = if(nrow1 >= nrow2) {
-      (matrix1, matrix2.collect())
-    } else {
-      switchedOrder = true
-      (matrix2, matrix1.collect())
-    }
+    val result: RDD[Row] = CosineSimilarity.cosineSim(matrix1, matrix2, threshold, sparkCtx)
 
-    val broadcastMatrix: Broadcast[Array[(String, SparseVector[Double])]] = sparkCtx.broadcast(localMatrix)
-    val result: RDD[Row] = distMatrix.mapPartitions {
-      (iter: Iterator[(String, SparseVector[Double])]) => {
-        //val arr: ArrayBuffer[Tuple3[String, String, Double]] =  ArrayBuffer[Tuple3[String, String, Double]]()
-        val arr: ArrayBuffer[Row] = ArrayBuffer[Row]()
-        while(iter.hasNext) {
-          val (num1, vector1) = iter.next()
-          val mat: Array[(String, SparseVector[Double])] = broadcastMatrix.value
-          var i = 0
-          while(i < mat.size) {
-            val vector2 = mat(i)._2
-            val num2 = mat(i)._1
-            val mul: Double = vector2.dot(vector1)
-
-            val cosine = mul / (CosineSimilarity.normVector(vector1) * CosineSimilarity.normVector(vector2))
-//            println(s">>>> vector2 = ${vector2.toString()}")
-//            println(s">>>> vector1 = ${vector1.toString()}")
-//            println(s">>> mul = $mul")
-//            println(s">>> num1 = $num1 , num2=$num2")
-//            println(">>>> cosine = " + cosine)
-            //only append to result if cosine > threshold
-            if(cosine > threshold) {
-              if(!switchedOrder) {
-                arr append Row(num1, num2, cosine)
-              } else {
-                arr append Row(num2, num1, cosine)
-              }
-            }
-            i += 1
-          }
-        }
-        arr.toIterator
-      }
-    }
     val col1 = new Column("number1", Schema.ColumnType.STRING)
     val col2 = new Column("number2", Schema.ColumnType.STRING)
     val col3 = new Column("score", Schema.ColumnType.DOUBLE)
@@ -112,7 +67,55 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 object CosineSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
   //Calculate the symmetricDifference of vertices iin graph1 and graph2
+  def cosineSim(matrix1: RDD[(String, SparseVector[Double])], matrix2: RDD[(String, SparseVector[Double])], threshold: Double,
+                sparkCtx: SparkContext): RDD[Row] = {
+    val nrow1 = matrix1.count
+    val nrow2 = matrix2. count
+    LOG.info(">>> matrix1.count = " + nrow1)
+    LOG.info(">>> matrix2.count = " + nrow2)
+    var switchedOrder = false
+    val (distMatrix, localMatrix) = if(nrow1 >= nrow2) {
+      (matrix1, matrix2.collect())
+    } else {
+      switchedOrder = true
+      (matrix2, matrix1.collect())
+    }
 
+    val broadcastMatrix: Broadcast[Array[(String, SparseVector[Double])]] = sparkCtx.broadcast(localMatrix)
+    distMatrix.mapPartitions {
+      (iter: Iterator[(String, SparseVector[Double])]) => {
+        //val arr: ArrayBuffer[Tuple3[String, String, Double]] =  ArrayBuffer[Tuple3[String, String, Double]]()
+        val arr: ArrayBuffer[Row] = ArrayBuffer[Row]()
+        while(iter.hasNext) {
+          val (num1, vector1) = iter.next()
+          val mat: Array[(String, SparseVector[Double])] = broadcastMatrix.value
+          var i = 0
+          while(i < mat.size) {
+            val vector2 = mat(i)._2
+            val num2 = mat(i)._1
+            val mul: Double = vector2.dot(vector1)
+
+            val cosine = mul / (CosineSimilarity.normVector(vector1) * CosineSimilarity.normVector(vector2))
+            //            println(s">>>> vector2 = ${vector2.toString()}")
+            //            println(s">>>> vector1 = ${vector1.toString()}")
+            //            println(s">>> mul = $mul")
+            //            println(s">>> num1 = $num1 , num2=$num2")
+            //            println(">>>> cosine = " + cosine)
+            //only append to result if cosine > threshold
+            if(cosine > threshold) {
+              if(!switchedOrder) {
+                arr append Row(num1, num2, cosine)
+              } else {
+                arr append Row(num2, num1, cosine)
+              }
+            }
+            i += 1
+          }
+        }
+        arr.toIterator
+      }
+    }
+  }
   def symmetricDifference(graph1: Graph[String, Double], graph2: Graph[String, Double], sparkCtx: SparkContext) = {
     val vertices1 = graph1.vertices
     val vertices2 = graph2.vertices
