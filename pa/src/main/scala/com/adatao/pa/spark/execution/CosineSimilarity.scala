@@ -27,7 +27,7 @@ import org.apache.spark.SparkContext._
 /**
  * author: daoduchuan
  */
-class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double) extends AExecutor[DataFrameResult] {
+class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double, filterDup: Boolean = true) extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     val manager = context.sparkThread.getDDFManager
@@ -41,7 +41,12 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 //
 //    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 //
-    val (ddf11, ddf22) = CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
+    val (ddf11, ddf22) = if(filterDup) {
+      CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
+    } else {
+      (ddf1, ddf2)
+    }
+
     val rdd1 = ddf11.asInstanceOf[SparkDDF].getRDD(classOf[Row])
     val rdd2 = ddf22.asInstanceOf[SparkDDF].getRDD(classOf[Row])
     val matrix1 = CosineSimilarity.rddRow2Matrix(rdd1)
