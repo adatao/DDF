@@ -16,7 +16,7 @@ import io.ddf.content.Schema.Column
 import io.ddf.content.Schema
 import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager}
 import org.slf4j.LoggerFactory
-import io.ddf.DDF
+import io.ddf.{DDFManager, DDF}
 import org.apache.spark.sql.columnar.{ColumnAccessor, CachedBatch}
 import java.nio.ByteBuffer
 import com.twitter.algebird.BloomFilterMonoid
@@ -41,7 +41,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 //    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 //
 
-    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2, ddf1.getColumnNames.get(0), sparkCtx)
+    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2,
+      ddf1.getColumnNames.get(0), sparkCtx)
 
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
@@ -164,8 +165,38 @@ object CosineSimilarity {
     val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
       row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
     }
+
     (graphFromRDDRow(rddRow1, sparkCtx), graphFromRDDRow(rddRow2, sparkCtx))
   }
+
+  def symmetricDifference2DDFs(ddf1: DDF, ddf2: DDF, colName: String, manager: DDFManager, sparkCtx: SparkContext): Tuple2[DDF, DDF] = {
+    val BF1 = createBloomFilterFromDDF(ddf1, colName)
+    val BF2 = createBloomFilterFromDDF(ddf2, colName)
+    val broadcastedBF1 = sparkCtx.broadcast(BF1)
+    val broadcastedBF2 = sparkCtx.broadcast(BF2)
+
+    val colIdx1 = ddf1.getColumnIndex(colName)
+    val colIdx2 = ddf2.getColumnIndex(colName)
+    //filter out caller in ddf1 that exists in ddf2
+    val rddRow1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
+      row => !broadcastedBF2.value.contains(row.getString(colIdx1)).isTrue
+    }
+
+    //filter out caller in ddf2 that exists in ddf1
+    val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
+      row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
+    }
+    val col1 = ddf1.getSchemaHandler.getColumns.get(0)
+    val col2 = ddf1.getSchemaHandler.getColumns.get(1)
+    val col3 = ddf1.getSchemaHandler.getColumns.get(2)
+    val schema1 = new Schema(null, Array(col1, col2, col3))
+    val schema2 = new Schema(null, Array(col1, col2, col3))
+
+    val newDDF1 = manager.newDDF(manager, rddRow1, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema1)
+    val newDDF2 = manager.newDDF(manager, rddRow2, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema2)
+    (newDDF1, newDDF2)
+  }
+
   //Create graph from RDD row
   //assuming caller is col0, callee is col1, tfidf is col2
 
