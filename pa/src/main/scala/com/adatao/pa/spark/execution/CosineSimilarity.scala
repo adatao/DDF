@@ -1,7 +1,7 @@
 package com.adatao.pa.spark.execution
 
 import com.adatao.spark.ddf.content.RepresentationHandler
-import org.apache.spark.graphx.{EdgeContext, VertexRDD, Graph}
+import org.apache.spark.graphx._
 import com.twitter.algebird.{BloomFilterMonoid, BF}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory
 import io.ddf.DDF
 import org.apache.spark.sql.columnar.{ColumnAccessor, CachedBatch}
 import java.nio.ByteBuffer
+import com.twitter.algebird.BloomFilterMonoid
+import org.apache.spark.sql.columnar.CachedBatch
+import scala.Tuple2
 
 /**
  * author: daoduchuan
@@ -116,6 +119,7 @@ object CosineSimilarity {
       }
     }
   }
+
   def symmetricDifference(graph1: Graph[String, Double], graph2: Graph[String, Double], sparkCtx: SparkContext) = {
     val vertices1 = graph1.vertices
     val vertices2 = graph2.vertices
@@ -157,7 +161,25 @@ object CosineSimilarity {
     val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
       row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
     }
+    (graphFromRDDRow(rddRow1, sparkCtx), graphFromRDDRow(rddRow2, sparkCtx))
+  }
+  //Create graph from RDD row
+  //assuming caller is col0, callee is col1, tfidf is col2
 
+  def graphFromRDDRow(rdd: RDD[Row], sparkCtx: SparkContext): Graph[String, Double] = {
+    val rddRow = rdd.filter {
+      row => !(row.isNullAt(0) || row.isNullAt(1) || row.isNullAt(2))
+    }
+    val rddVertices1: RDD[String] = rddRow.map{row => {row.getString(0)}}
+    val rddVertices2: RDD[String] = rddRow.map{row => {row.getString(1)}}
+    val edges = rddRow.map {
+      row => Edge(GraphTFIDF.hash(row.getString(0)), GraphTFIDF.hash(row.getString(1)), row.getDouble(2))
+    }
+    val vertices: RDD[(Long, String)] = sparkCtx.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), str)}
+
+    val graph: Graph[String, Double] = Graph(vertices, edges)
+    val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
+    partitionedGraph
   }
 
   def createBloomFilterFromDDF(ddf: DDF, colName: String): BF = {
