@@ -33,12 +33,15 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val sparkCtx: SparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val ddf1 = manager.getDDF(dataContainerID1)
     val ddf2 = manager.getDDF(dataContainerID2)
-    val graph1: Graph[String, Double] = ddf1.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
-      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
-    val graph2: Graph[String, Double] = ddf2.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
-      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
+//    val graph1: Graph[String, Double] = ddf1.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
+//      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
+//    val graph2: Graph[String, Double] = ddf2.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
+//      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
+//
+//    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
+//
 
-    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
+    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2, "", sparkCtx)
 
     val count1 = filteredGraph1.vertices.count()
     val count2 = filteredGraph2.vertices.count()
@@ -144,7 +147,7 @@ object CosineSimilarity {
     Tuple2(filteredGraph1, filteredGraph2)
   }
 
-  def symmetricDifference(ddf1: DDF, ddf2: DDF, colName: String, sparkCtx: SparkContext) = {
+  def symmetricDifference2Graphs(ddf1: DDF, ddf2: DDF, colName: String, sparkCtx: SparkContext) = {
     val BF1 = createBloomFilterFromDDF(ddf1, colName)
     val BF2 = createBloomFilterFromDDF(ddf2, colName)
     val broadcastedBF1 = sparkCtx.broadcast(BF1)
