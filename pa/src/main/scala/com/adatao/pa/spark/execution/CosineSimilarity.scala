@@ -22,6 +22,7 @@ import java.nio.ByteBuffer
 import com.twitter.algebird.BloomFilterMonoid
 import org.apache.spark.sql.columnar.CachedBatch
 import scala.Tuple2
+import org.apache.spark.SparkContext._
 
 /**
  * author: daoduchuan
@@ -40,21 +41,26 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 //
 //    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
 //
+    val (ddf11, ddf22) = CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
+    val rdd1 = ddf11.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val rdd2 = ddf22.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val matrix1 = CosineSimilarity.rddRow2Matrix(rdd1)
+    val matrix2 = CosineSimilarity.rddRow2Matrix(rdd2)
 
-    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2,
-      ddf1.getColumnNames.get(0), sparkCtx)
-
-    val count1 = filteredGraph1.vertices.count()
-    val count2 = filteredGraph2.vertices.count()
-    LOG.info("filteredGraph1.vertices.count() = " + count1)
-    LOG.info("filteredGraph2.vertices.count() = " + count2)
+//    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2,
+//      ddf1.getColumnNames.get(0), sparkCtx)
+//
+//    val count1 = filteredGraph1.vertices.count()
+//    val count2 = filteredGraph2.vertices.count()
+//    LOG.info("filteredGraph1.vertices.count() = " + count1)
+//    LOG.info("filteredGraph2.vertices.count() = " + count2)
 //    val arr1 = filteredGraph1.triplets.collect()
 //    val arr2 = filteredGraph2.triplets.collect()
 //    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
 //    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
 
-    val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
-    val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
+//    val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
+//    val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
 
     val result: RDD[Row] = CosineSimilarity.cosineSim(matrix1, matrix2, threshold, sparkCtx)
 
@@ -169,7 +175,8 @@ object CosineSimilarity {
     (graphFromRDDRow(rddRow1, sparkCtx), graphFromRDDRow(rddRow2, sparkCtx))
   }
 
-  def symmetricDifference2DDFs(ddf1: DDF, ddf2: DDF, colName: String, manager: DDFManager, sparkCtx: SparkContext): Tuple2[DDF, DDF] = {
+  def symmetricDifference2DDFs(ddf1: DDF, ddf2: DDF, colName: String, manager: DDFManager): Tuple2[DDF, DDF] = {
+    val sparkCtx: SparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val BF1 = createBloomFilterFromDDF(ddf1, colName)
     val BF2 = createBloomFilterFromDDF(ddf2, colName)
     val broadcastedBF1 = sparkCtx.broadcast(BF1)
@@ -293,5 +300,19 @@ object CosineSimilarity {
       i += 1
     }
     scala.math.sqrt(norm)
+  }
+
+  def rddRow2Matrix(rdd: RDD[Row]): RDD[(String, SparseVector[Double])] = {
+    val pairRDD = rdd.map{row => {
+      val num = row.getString(0)
+      val idx = scala.math.abs(row.getString(1).hashCode)
+      (num, (idx, row.getDouble(2)))
+    }}.groupByKey()
+    pairRDD.map {
+      case (num, elements) => {
+        val (indices, values) = elements.toSeq.sortBy(_._1).unzip
+        Tuple2(num, new SparseVector[Double](indices.toArray, values.toArray, Int.MaxValue))
+      }
+    }
   }
 }
