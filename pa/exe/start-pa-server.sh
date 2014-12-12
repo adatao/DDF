@@ -46,6 +46,7 @@ if [[ -z "$SPARK_MEMORY" ]]; then
 	. ${DIR}/exe/mem-size-detection.sh
 fi
 echo "SPARK_MEMORY = "$SPARK_MEMORY
+export SPARK_MEM=${SPARK_MEMORY}
 
 paenv="${DIR}/conf/pa-env.sh"
 [ ! -f $paenv ] && echo "Fatal: $paenv file does not exist" && exit 1
