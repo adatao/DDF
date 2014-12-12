@@ -39,6 +39,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, tfid
       switchedOrder = true
       (rddMinHash2, rddMinHash1.collect())
     }
+
     val broadCastMinHash: Broadcast[Array[(String, MinHashSignature)]] = sparkCtx.broadcast(minHash)
 
     val result = distMinHash.mapPartitions {
@@ -83,7 +84,7 @@ object JaccardSimilarity {
   val minHasher = new MinHasher32(200, 20)
   def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(String, MinHashSignature)] = {
 
-    val pairRDD = rdd.map {
+    val pairRDD = rdd.map{
       row => {
         if(row.getDouble(2) > threshold) {
           (row.getString(0), row.getString(1))
@@ -93,7 +94,7 @@ object JaccardSimilarity {
       }
     }
 
-    pairRDD.groupByKey().map {
+    pairRDD.filter(row => row != null).groupByKey().map {
       case (number, elements) => {
         val minhash = elements.map {
           value => minHasher.init(value)
