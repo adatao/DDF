@@ -34,13 +34,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val sparkCtx: SparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val ddf1 = manager.getDDF(dataContainerID1)
     val ddf2 = manager.getDDF(dataContainerID2)
-//    val graph1: Graph[String, Double] = ddf1.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
-//      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
-//    val graph2: Graph[String, Double] = ddf2.getRepresentationHandler.get(RepresentationHandler.GRAPH_REPRESENTATION.
-//      getTypeSpecsString).asInstanceOf[Graph[String, Double]]
-//
-//    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference(graph1, graph2, sparkCtx)
-//
+
     val (ddf11, ddf22) = if(filterDup) {
       CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
     } else {
@@ -51,21 +45,6 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
     val rdd2 = ddf22.asInstanceOf[SparkDDF].getRDD(classOf[Row])
     val matrix1 = CosineSimilarity.rddRow2Matrix(rdd1)
     val matrix2 = CosineSimilarity.rddRow2Matrix(rdd2)
-
-//    val (filteredGraph1, filteredGraph2) = CosineSimilarity.symmetricDifference2Graphs(ddf1, ddf2,
-//      ddf1.getColumnNames.get(0), sparkCtx)
-//
-//    val count1 = filteredGraph1.vertices.count()
-//    val count2 = filteredGraph2.vertices.count()
-//    LOG.info("filteredGraph1.vertices.count() = " + count1)
-//    LOG.info("filteredGraph2.vertices.count() = " + count2)
-//    val arr1 = filteredGraph1.triplets.collect()
-//    val arr2 = filteredGraph2.triplets.collect()
-//    arr1.map(edge => println(s">>>edge1 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
-//    arr2.map(edge => println(s">>>edge2 = ${edge.srcAttr} -> ${edge.dstAttr} : ${edge.attr}"))
-
-//    val matrix1 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph1)
-//    val matrix2 = CosineSimilarity.tfIDFGraph2Matrix(filteredGraph2)
 
     val result: RDD[Row] = CosineSimilarity.cosineSim(matrix1, matrix2, threshold, sparkCtx)
 
