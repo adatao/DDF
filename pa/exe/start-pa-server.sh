@@ -35,6 +35,10 @@ do_parse_args() {
 }
 do_parse_args $@
 
+# Wait until HDFS goes out of safemode
+echo "Wait until HDFS has fully started"
+hdfs dfsadmin -safemode wait
+
 cd `dirname $0`/../ >/dev/null 2>&1
 DIR=`pwd`
 
