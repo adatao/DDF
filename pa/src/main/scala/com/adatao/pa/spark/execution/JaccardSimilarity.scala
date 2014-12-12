@@ -14,7 +14,8 @@ import io.ddf.content.Schema
 /**
  * author: daoduchuan
  */
-class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, tfidfThreshold: Double, JCthreshhold: Double)
+class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, tfidfThreshold: Double= 0.0,
+                        JCthreshhold: Double, filterDup: Boolean = true)
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
@@ -23,8 +24,14 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, tfid
     val ddf1 = manager.getDDF(dataContainerID1)
     val ddf2 = manager.getDDF(dataContainerID2)
 
-    val rdd1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row])
-    val rdd2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val (ddf11, ddf22) = if(filterDup) {
+      CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
+    } else {
+      (ddf1, ddf2)
+    }
+
+    val rdd1 = ddf11.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val rdd2 = ddf22.asInstanceOf[SparkDDF].getRDD(classOf[Row])
 
     val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, tfidfThreshold)
     val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, tfidfThreshold)
