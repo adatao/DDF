@@ -48,8 +48,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
     val result: RDD[Row] = CosineSimilarity.cosineSim(matrix1, matrix2, threshold, sparkCtx)
 
-    val col1 = new Column("number1", Schema.ColumnType.STRING)
-    val col2 = new Column("number2", Schema.ColumnType.STRING)
+    val col1 = new Column(ddf1.getColumnNames.get(0), Schema.ColumnType.STRING)
+    val col2 = new Column(ddf1.getColumnNames.get(1), Schema.ColumnType.STRING)
     val col3 = new Column("score", Schema.ColumnType.DOUBLE)
 
     val schema = new Schema(null, Array(col1, col2, col3))
