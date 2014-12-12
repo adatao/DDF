@@ -145,7 +145,7 @@ class GraphSuite extends ABigRClientTest {
     val cmd1 = new GraphTFIDF(dataContainerID2, "source", "dest")
     val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
-    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.2, 0.8)
+    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.0, 0.8)
     val jaccard = bigRClient.execute[DataFrameResult](cmd2).result
 
     assert(jaccard.isSuccess)
@@ -158,7 +158,7 @@ class GraphSuite extends ABigRClientTest {
       row => row.replace("\"", "").split("\\s+")
     }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
 
-    assert(cosineResult2.size == 1)
+    assert(cosineResult2.size == 18)
 //    assert(cosineResult2(0)(0).asInstanceOf[String] == "SNA")
 //    assert(cosineResult2(0)(1).asInstanceOf[String] == "HCM")
 //    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
