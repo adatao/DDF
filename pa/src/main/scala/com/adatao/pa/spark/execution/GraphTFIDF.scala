@@ -154,7 +154,6 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val schema = new Schema(null, Array(col1, col2, col3))
 
     val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
-    newDDF.getRepresentationHandler.add(tfidf_Graph, classOf[Graph[_, _]])
 
     manager.addDDF(newDDF)
     new DataFrameResult(newDDF)
