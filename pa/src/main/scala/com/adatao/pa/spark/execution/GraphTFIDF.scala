@@ -112,11 +112,13 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
 
     //cache the resulting ddf and unpersist all graph RDD
+
+    manager.addDDF(newDDF)
+
     newDDF.asInstanceOf[SparkDDF].cacheTable()
     groupedEdges.unpersist()
     finalGraph.unpersist()
     tfidf_Graph.unpersist()
-    manager.addDDF(newDDF)
 
     new DataFrameResult(newDDF)
   }
