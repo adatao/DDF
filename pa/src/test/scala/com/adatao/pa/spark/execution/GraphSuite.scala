@@ -50,7 +50,7 @@ class GraphSuite extends ABigRClientTest {
     assert(result(5)(2) == 0.8282803308424841)
   }
 
-  ignore("test Cosine Similarity") {
+  test("test Cosine Similarity") {
     createTableGraph1
     createTableGraph2
     val loader = new Sql2DataFrame("select * from graph1", true)
