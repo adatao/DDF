@@ -292,9 +292,9 @@ object BigRClientTestUtils {
   def createTableGraph(bigRClient: BigRClient) = {
     assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
     assert(runSQLCmd(bigRClient, "drop table if exists graph").isSuccess);
-    assert(runSQLCmd(bigRClient, "CREATE TABLE graph (source bigint, dest bigint)" +
-      " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
-    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graph.csv' INTO TABLE graph").isSuccess);
+    assert(runSQLCmd(bigRClient, "CREATE TABLE graph (source bigint, dest bigint, id double, cnt double, dn_cnt double," +
+      "opp_users double, tf double, idf double, tfidf double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
+    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graphNumeric2.csv' INTO TABLE graph").isSuccess);
   }
 
   def createTableGraph1(bigRClient: BigRClient) = {
