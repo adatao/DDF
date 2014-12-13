@@ -209,7 +209,6 @@ object GraphTFIDF {
       case (num, hmap) => {
         for {
           item <- hmap.toList
-          println("item = " + item._1 + ", " + item._2)
         } yield(Row(num, item._1, item._2))
       }
     }
