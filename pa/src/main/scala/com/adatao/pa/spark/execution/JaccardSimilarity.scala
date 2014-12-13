@@ -15,7 +15,7 @@ import io.ddf.content.Schema
  * author: daoduchuan
  */
 class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val tfidfThreshold: Double= 0.0,
-                        val jc_threshhold: Double, val filterDup: Boolean = true)
+                          val threshold: Double, val filterDup: Boolean = true)
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
@@ -62,7 +62,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
             val minHash2 =  minHashSignatures(i)._2
             val num2 = minHashSignatures(i)._1
             val jc = JaccardSimilarity.minHasher.similarity(minHash1, minHash2)
-            if(jc > jc_threshhold) {
+            if(jc > threshold) {
               if(!switchedOrder) {
                 arr.append(Row(num1, num2, jc))
               } else {
