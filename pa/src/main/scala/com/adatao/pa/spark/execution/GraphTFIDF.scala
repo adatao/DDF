@@ -209,6 +209,7 @@ object GraphTFIDF {
       case (num, hmap) => {
         for {
           item <- hmap.toList
+          println("item = " + item._1 + ", " + item._2)
         } yield(Row(num, item._1, item._2))
       }
     }
@@ -216,15 +217,8 @@ object GraphTFIDF {
     val rddVertices2 = rdd3.map{row => row.getLong(1)}
     val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
 
-    val edges: RDD[Edge[Double]] = if(edgeIdx < 0) {
-      rdd3.map {
-        row => Edge(row.getLong(0), row.getLong(1), 1.0)
-      }
-    } else {
-      rdd3.map {
-        row => Edge(row.getLong(0), row.getLong(1), row.getDouble(2))
-      }
-    }
+    val edges: RDD[Edge[Double]] = rdd3.map{row => Edge(row.getLong(0), row.getLong(1), row.getDouble(2))}
+
     Graph(vertices, edges)
   }
 }
