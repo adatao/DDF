@@ -14,6 +14,7 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.execution.GraphTFIDF.CDRVertice
 import com.adatao.spark.ddf.content.RepresentationHandler
+import org.apache.spark.SparkContext._
 
 /**
  * author: daoduchuan
@@ -54,28 +55,29 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
 
-    val rddVertices1: RDD[String] = filteredRDDRow.map{row => {row.getString(srcIdx)}}
-    val rddVertices2: RDD[String] = filteredRDDRow.map{row => {row.getString(destIdx)}}
+    val rddVertices1: RDD[Long] = filteredRDDRow.map{row => {row.getLong(srcIdx)}}
+    val rddVertices2: RDD[Long] = filteredRDDRow.map{row => {row.getLong(destIdx)}}
 
 
     //create the original graph
     // vertice type of (String, Double) is neccessary for step 3
-    val vertices: RDD[(Long, String)] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), str)}
+    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
 
     //if edge column == null, choose 1 as a default value for edge
-    val edges = if(edge == null || edge.isEmpty()) {
+    val edges: RDD[Edge[Double]] = if(edge == null || edge.isEmpty()) {
       filteredRDDRow.map {
-        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), 1.0)
+        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), 1.0)
       }
     } else {
       val edgeIdx = ddf.getColumnIndex(edge)
       filteredRDDRow.map {
-        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), row.getDouble(edgeIdx))
+        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), row.getDouble(edgeIdx))
       }
     }
 
     //persist the original graph because it's expensive to create the graph
-    val graph: Graph[String, Double] = Graph(vertices, edges)
+    val graph: Graph[Long, Double] = Graph(vertices, edges)
+
     val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
 
     //persist the original graph because it's expensive to create the graph
@@ -83,14 +85,14 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     //Step 1
     //calculate CNT column in HH ppt slide
-    val groupedEdges: Graph[String, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
+    val groupedEdges: Graph[Long, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
 
     //Step 2
     //calculate DN_CNT in HH ppt slide
     //And denominator of tfidf
     // Tuple2(DN_CNT, Denominator of tfidf)
     val dn_cnt: VertexRDD[Tuple2[Double, Double]] = groupedEdges.aggregateMessages(
-      (edgeCtx: EdgeContext[String, Double, Tuple2[Double, Double]]) => {
+      (edgeCtx: EdgeContext[Long, Double, Tuple2[Double, Double]]) => {
         edgeCtx.sendToSrc((edgeCtx.attr, 0.0))
         edgeCtx.sendToDst((0.0, 1.0))
       }
@@ -101,7 +103,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
 
     val finalGraph: Graph[CDRVertice, Double] = groupedEdges.outerJoinVertices(dn_cnt) (
-      (vertexId: Long, vd: String, tuple: Option[Tuple2[Double, Double]]) => {
+      (vertexId: Long, vd: Long, tuple: Option[Tuple2[Double, Double]]) => {
         tuple match {
           case Some(tuple2) => CDRVertice(vd, tuple2._1, tuple2._2)
           case None => CDRVertice(vd, 0.0 ,0.0)
@@ -128,7 +130,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 //      }
 //    }
 
-    val tfidf_Graph: Graph[String, Double] = finalGraph.mapTriplets(
+    val tfidf_Graph: Graph[Long, Double] = finalGraph.mapTriplets(
       (edgeTriplet: EdgeTriplet[CDRVertice, Double]) => {
         val cnt = edgeTriplet.attr
         val dn_cnt = edgeTriplet.srcAttr.dn_cnt
@@ -148,8 +150,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       edge => Row(edge.srcAttr, edge.dstAttr, edge.attr)
     )
 
-    val col1 = new Column(src, Schema.ColumnType.STRING)
-    val col2 = new Column(dest, Schema.ColumnType.STRING)
+    val col1 = new Column(src, Schema.ColumnType.LONG)
+    val col2 = new Column(dest, Schema.ColumnType.LONG)
     val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)
     val schema = new Schema(null, Array(col1, col2, col3))
 
@@ -175,5 +177,5 @@ object GraphTFIDF {
     }
     h
   }
-  case class CDRVertice(id: String, dn_cnt: Double, denom_tfidf: Double)
+  case class CDRVertice(id: Long, dn_cnt: Double, denom_tfidf: Double)
 }
