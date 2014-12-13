@@ -2,7 +2,7 @@ package com.adatao.pa.spark.execution
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
-import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager}
 import org.apache.spark.graphx._
 import org.apache.spark.mllib.linalg.Vectors
 import scala.math.log10
@@ -59,42 +59,6 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     }
     val groupedEdges: Graph[Long, Double] = GraphTFIDF.groupEdge2Graph(filteredRDDRow, srcIdx, destIdx, edgeIdx, sparkContext)
 
-//    val rddVertices1: RDD[Long] = filteredRDDRow.map{row => {row.getLong(srcIdx)}}
-//    val rddVertices2: RDD[Long] = filteredRDDRow.map{row => {row.getLong(destIdx)}}
-//
-//
-//    //create the original graph
-//    // vertice type of (String, Double) is neccessary for step 3
-//    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
-//
-//    //if edge column == null, choose 1 as a default value for edge
-//    val edges: RDD[Edge[Double]] = if(edge == null || edge.isEmpty()) {
-//      filteredRDDRow.map {
-//        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), 1.0)
-//      }
-//    } else {
-//      val edgeIdx = ddf.getColumnIndex(edge)
-//      filteredRDDRow.map {
-//        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), row.getDouble(edgeIdx))
-//      }
-//    }
-//
-//    //persist the original graph because it's expensive to create the graph
-//    val graph: Graph[Long, Double] = Graph(vertices, edges)
-//
-//    val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
-//
-//    //persist the original graph because it's expensive to create the graph
-//    //partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
-//
-//    //Step 1
-//    //calculate CNT column in HH ppt slide
-//    val groupedEdges: Graph[Long, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
-
-    //Step 2
-    //calculate DN_CNT in HH ppt slide
-    //And denominator of tfidf
-    // Tuple2(DN_CNT, Denominator of tfidf)
     val dn_cnt: VertexRDD[Tuple2[Double, Double]] = groupedEdges.aggregateMessages(
       (edgeCtx: EdgeContext[Long, Double, Tuple2[Double, Double]]) => {
         edgeCtx.sendToSrc((edgeCtx.attr, 0.0))
@@ -118,21 +82,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val totalCalls = finalGraph.vertices.map{case (verticeId, CDRVertice(id, dn_cnt, denom)) => dn_cnt}.reduce{case (x , y) => x + y}
 
     LOG.info(">>>>> totalCalls = " + totalCalls)
-    //val idf = log10(totalCalls)
 
-//    val newrdd: RDD[Row] = finalGraph.triplets.map {
-//      edge => {
-//        val cnt = edge.attr
-//        val dn_cnt = edge.srcAttr.dn_cnt
-//        val denom_tfidf = edge.dstAttr.denom_tfidf
-//        val src = edge.srcAttr.id
-//        val dest = edge.dstAttr.id
-//        val tf = cnt/dn_cnt
-//        val idf = log10(totalCalls/denom_tfidf)
-//        val tfidf = tf * idf
-//        Row(src, dest, tfidf)
-//      }
-//    }
 
     val tfidf_Graph: Graph[Long, Double] = finalGraph.mapTriplets(
       (edgeTriplet: EdgeTriplet[CDRVertice, Double]) => {
@@ -161,7 +111,13 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
 
+    //cache the resulting ddf and unpersist all graph RDD
+    newDDF.asInstanceOf[SparkDDF].cacheTable()
+    groupedEdges.unpersist()
+    finalGraph.unpersist()
+    tfidf_Graph.unpersist()
     manager.addDDF(newDDF)
+
     new DataFrameResult(newDDF)
   }
 }
