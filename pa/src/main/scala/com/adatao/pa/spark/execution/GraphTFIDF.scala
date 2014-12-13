@@ -45,6 +45,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val srcIdx = ddf.getColumnIndex(src)
     val destIdx = ddf.getColumnIndex(dest)
     val edgeIdx = ddf.getColumnIndex(edge)
+    LOG.info("edgeIdx = " + edgeIdx)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val filteredRDDRow = if(edge == null || edge.isEmpty()) {
       rddRow.filter {
