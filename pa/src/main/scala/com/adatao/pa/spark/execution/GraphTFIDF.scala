@@ -15,6 +15,7 @@ import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.execution.GraphTFIDF.CDRVertice
 import com.adatao.spark.ddf.content.RepresentationHandler
 import org.apache.spark.SparkContext._
+import org.apache.spark.SparkContext
 
 /**
  * author: daoduchuan
@@ -31,6 +32,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
+    val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
+
     val ddf = manager.getDDF(dataContainerID)
     if(ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, s"not found DDF $dataContainerID", null)
@@ -41,6 +44,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     val srcIdx = ddf.getColumnIndex(src)
     val destIdx = ddf.getColumnIndex(dest)
+    val edgeIdx = ddf.getColumnIndex(edge)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val filteredRDDRow = if(edge == null || edge.isEmpty()) {
       rddRow.filter {
@@ -52,40 +56,39 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         row => !(row.isNullAt(srcIdx) || row.isNullAt(destIdx) || row.isNullAt(edgeIdx))
       }
     }
+    val groupedEdges: Graph[Long, Double] = GraphTFIDF.groupEdge2Graph(filteredRDDRow, srcIdx, destIdx, edgeIdx, sparkContext)
 
-    val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
-
-    val rddVertices1: RDD[Long] = filteredRDDRow.map{row => {row.getLong(srcIdx)}}
-    val rddVertices2: RDD[Long] = filteredRDDRow.map{row => {row.getLong(destIdx)}}
-
-
-    //create the original graph
-    // vertice type of (String, Double) is neccessary for step 3
-    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
-
-    //if edge column == null, choose 1 as a default value for edge
-    val edges: RDD[Edge[Double]] = if(edge == null || edge.isEmpty()) {
-      filteredRDDRow.map {
-        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), 1.0)
-      }
-    } else {
-      val edgeIdx = ddf.getColumnIndex(edge)
-      filteredRDDRow.map {
-        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), row.getDouble(edgeIdx))
-      }
-    }
-
-    //persist the original graph because it's expensive to create the graph
-    val graph: Graph[Long, Double] = Graph(vertices, edges)
-
-    val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
-
-    //persist the original graph because it's expensive to create the graph
-    //partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
-
-    //Step 1
-    //calculate CNT column in HH ppt slide
-    val groupedEdges: Graph[Long, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
+//    val rddVertices1: RDD[Long] = filteredRDDRow.map{row => {row.getLong(srcIdx)}}
+//    val rddVertices2: RDD[Long] = filteredRDDRow.map{row => {row.getLong(destIdx)}}
+//
+//
+//    //create the original graph
+//    // vertice type of (String, Double) is neccessary for step 3
+//    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
+//
+//    //if edge column == null, choose 1 as a default value for edge
+//    val edges: RDD[Edge[Double]] = if(edge == null || edge.isEmpty()) {
+//      filteredRDDRow.map {
+//        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), 1.0)
+//      }
+//    } else {
+//      val edgeIdx = ddf.getColumnIndex(edge)
+//      filteredRDDRow.map {
+//        row => Edge(row.getLong(srcIdx), row.getLong(destIdx), row.getDouble(edgeIdx))
+//      }
+//    }
+//
+//    //persist the original graph because it's expensive to create the graph
+//    val graph: Graph[Long, Double] = Graph(vertices, edges)
+//
+//    val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
+//
+//    //persist the original graph because it's expensive to create the graph
+//    //partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
+//
+//    //Step 1
+//    //calculate CNT column in HH ppt slide
+//    val groupedEdges: Graph[Long, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
 
     //Step 2
     //calculate DN_CNT in HH ppt slide
@@ -178,4 +181,49 @@ object GraphTFIDF {
     h
   }
   case class CDRVertice(id: Long, dn_cnt: Double, denom_tfidf: Double)
+
+  def groupEdge2Graph(rdd: RDD[Row], srcIdx: Int, destIdx: Int, edgeIdx: Int, sparkContext: SparkContext): Graph[Long, Double] = {
+    def reduceByKey[K,V](collection: Traversable[Tuple2[K, V]])(implicit num: Numeric[V]) = {
+      import num._
+      collection
+        .groupBy(_._1)
+        .map { case (group: K, traversable) => traversable.reduce{(a,b) => (a._1, a._2 + b._2)} }
+    }
+
+    val pairRDD: RDD[(Long, (Long, Double))] =
+      if(edgeIdx >= 0) {
+        rdd.map {
+          row => (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+        }
+      } else {
+        rdd.map {
+          row => (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+        }
+      }
+
+    val rdd2 = pairRDD.groupByKey().map{
+      case (num, iter) => (num, reduceByKey(iter))
+    }
+    val rdd3: RDD[Row] = rdd2.flatMap {
+      case (num, hmap) => {
+        for {
+          item <- hmap.toList
+        } yield(Row(num, item._1, item._2))
+      }
+    }
+    val rddVertices1 = rdd3.map{row => row.getLong(0)}
+    val rddVertices2 = rdd3.map{row => row.getLong(1)}
+    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
+
+    val edges: RDD[Edge[Double]] = if(edgeIdx < 0) {
+      rdd3.map {
+        row => Edge(row.getLong(0), row.getLong(1), 1.0)
+      }
+    } else {
+      rdd3.map {
+        row => Edge(row.getLong(0), row.getLong(1), row.getDouble(2))
+      }
+    }
+    Graph(vertices, edges)
+  }
 }

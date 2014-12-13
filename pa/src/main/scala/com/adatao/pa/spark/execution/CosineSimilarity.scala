@@ -211,8 +211,8 @@ object CosineSimilarity {
     val sparkDDF = ddf.asInstanceOf[SparkDDF]
     sparkDDF.cacheTable()
     val rddCachedBatch = sparkDDF.getRDD(classOf[CachedBatch])
-    val nrow = sparkDDF.getRDD(classOf[Row]).count()
-    val width = nrow * 20
+    val nrow = sparkDDF.getRDD(classOf[Row]).count() / 10
+    val width = nrow * 10
     val numHashes = scala.math.round(scala.math.log(2) * width / nrow).toInt
     val bloomFilterMonoid = BloomFilterMonoid(numHashes, width.toInt, 17)
     val colIdx = ddf.getColumnIndex(colName)
