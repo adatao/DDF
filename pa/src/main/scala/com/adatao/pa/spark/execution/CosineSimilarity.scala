@@ -27,7 +27,7 @@ import org.apache.spark.SparkContext._
 /**
  * author: daoduchuan
  */
-class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double, filterDup: Boolean = true) extends AExecutor[DataFrameResult] {
+class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double, val filterDup: Boolean = true) extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     val manager = context.sparkThread.getDDFManager
