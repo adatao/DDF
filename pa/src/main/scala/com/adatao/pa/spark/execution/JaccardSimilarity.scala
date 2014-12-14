@@ -10,6 +10,7 @@ import org.apache.spark.broadcast.Broadcast
 import scala.collection.mutable.ArrayBuffer
 import io.ddf.content.Schema.Column
 import io.ddf.content.Schema
+import org.slf4j.LoggerFactory
 
 /**
  * author: daoduchuan
@@ -36,45 +37,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
     val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, tfidfThreshold)
     val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, tfidfThreshold)
     val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
-//    var switchedOrder = false
-//    val nrow1 = rddMinHash1.count()
-//    val nrow2 = rddMinHash2.count()
-//
-//    val (distMinHash, minHash) = if(nrow1 >= nrow2) {
-//      (rddMinHash1, rddMinHash2.collect())
-//    } else {
-//      switchedOrder = true
-//      (rddMinHash2, rddMinHash1.collect())
-//    }
 
-//    val broadCastMinHash: Broadcast[Array[(String, MinHashSignature)]] = sparkCtx.broadcast(minHash)
-//
-//    val result = distMinHash.mapPartitions {
-//      (iter: Iterator[(String, MinHashSignature)]) => {
-//        val arr = ArrayBuffer[Row]()
-//        while(iter.hasNext) {
-//          val value = iter.next()
-//          val minHash1 = value._2
-//          val num1 = value._1
-//          val minHashSignatures = broadCastMinHash.value
-//          var i = 0
-//          while(i < minHashSignatures.size) {
-//            val minHash2 =  minHashSignatures(i)._2
-//            val num2 = minHashSignatures(i)._1
-//            val jc = JaccardSimilarity.minHasher.similarity(minHash1, minHash2)
-//            if(jc > threshold) {
-//              if(!switchedOrder) {
-//                arr.append(Row(num1, num2, jc))
-//              } else {
-//                arr.append(Row(num2, num1, jc))
-//              }
-//            }
-//            i += 1
-//          }
-//        }
-//        arr.toIterator
-//      }
-//    }
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
     val col2 = new Column("caller_2", Schema.ColumnType.LONG)
     //val col3 = new Column("jc_score", Schema.ColumnType.DOUBLE)
@@ -88,9 +51,17 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
 }
 
 object JaccardSimilarity {
-  val minHasher = new MinHasher32(200, 20)
-  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(Long, MinHashSignature)] = {
+  val LOG = LoggerFactory.getLogger(this.getClass)
 
+  val DEFAULT_NUM_HASHES = "200"
+  val DEFAULT_NUM_BANDS = "10"
+  val numHashes = System.getProperty("pa.jaccard.numHashes", DEFAULT_NUM_HASHES).toInt
+  val numBands = System.getProperty("pa.jaccard.numBands", DEFAULT_NUM_BANDS).toInt
+
+  val minHasher = new MinHasher32(numHashes, numBands)
+  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(Long, MinHashSignature)] = {
+    LOG.info(">>> numHashes = " + numHashes)
+    LOG.info(">>> numBands = " + numBands)
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
         if(row.getDouble(2) > threshold) {
@@ -145,7 +116,7 @@ object JaccardSimilarity {
     val rddPair2 = rddPair.groupByKey().flatMap {
       case (num1, iter) => {
         val (iter1, iter2) = iter.unzip
-        iter1.toList.removeDuplicates.map{num2 => Row(num1, num2)}
+        iter1.toList.distinct.map{num2 => Row(num1, num2)}
       }
     }
     rddPair2
