@@ -119,6 +119,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     groupedEdges.unpersist()
     finalGraph.unpersist()
     tfidf_Graph.unpersist()
+    dn_cnt.unpersist()
 
     new DataFrameResult(newDDF)
   }
