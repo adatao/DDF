@@ -156,12 +156,12 @@ class GraphSuite extends ABigRClientTest {
 
     val cosineResult2 = cosineResult.map {
       row => row.replace("\"", "").split("\\s+")
-    }.map{arr => if(arr.size == 2) Array(arr(0), arr(1)) else Array()}
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2)) else Array()}
 
     assert(cosineResult2.size == 1)
     assert(cosineResult2(0)(0).asInstanceOf[String] == "-3351804022671213759")
     assert(cosineResult2(0)(1).asInstanceOf[String] == "-3351804022671224659")
-//    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
+    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
 
     /**
      * print out result from TFIDF and CosineSimilarity
