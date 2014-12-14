@@ -40,9 +40,9 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
 
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
     val col2 = new Column("caller_2", Schema.ColumnType.LONG)
-    //val col3 = new Column("jc_score", Schema.ColumnType.DOUBLE)
+    val col3 = new Column("jc_score", Schema.ColumnType.DOUBLE)
 
-    val schema = new Schema(null, Array(col1, col2))
+    val schema = new Schema(null, Array(col1, col2, col3))
 
     val newDDF = manager.newDDF(manager, rddRow, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
     manager.addDDF(newDDF)
@@ -115,8 +115,28 @@ object JaccardSimilarity {
     //filter out similar pair
     val rddPair2 = rddPair.groupByKey().flatMap {
       case (num1, iter) => {
-        val (iter1, iter2) = iter.unzip
-        iter1.toList.distinct.map{num2 => Row(num1, num2)}
+        val sorted = iter.toList.sortBy(_._1)
+        var i = 0
+
+        var num2: Long = 0L
+        var lastNum2: Long = 0L
+        var arrBuffer = new ArrayBuffer[Row]()
+        //filter out duplicate
+        while(i < sorted.size) {
+          num2 = sorted(i)._1
+          val score = sorted(i)._2
+          if(i > 0) {
+            if(num2 != lastNum2) {
+              arrBuffer += Row(num1, num2, score)
+            }
+          } else {
+            arrBuffer += Row(num1, num2, score)
+          }
+
+          lastNum2 = num2
+          i += 1
+        }
+        arrBuffer.toIterator
       }
     }
     rddPair2
