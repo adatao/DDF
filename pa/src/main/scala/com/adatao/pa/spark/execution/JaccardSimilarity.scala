@@ -35,53 +35,53 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
 
     val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, tfidfThreshold)
     val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, tfidfThreshold)
+    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
+//    var switchedOrder = false
+//    val nrow1 = rddMinHash1.count()
+//    val nrow2 = rddMinHash2.count()
+//
+//    val (distMinHash, minHash) = if(nrow1 >= nrow2) {
+//      (rddMinHash1, rddMinHash2.collect())
+//    } else {
+//      switchedOrder = true
+//      (rddMinHash2, rddMinHash1.collect())
+//    }
 
-    var switchedOrder = false
-    val nrow1 = rddMinHash1.count()
-    val nrow2 = rddMinHash2.count()
+//    val broadCastMinHash: Broadcast[Array[(String, MinHashSignature)]] = sparkCtx.broadcast(minHash)
+//
+//    val result = distMinHash.mapPartitions {
+//      (iter: Iterator[(String, MinHashSignature)]) => {
+//        val arr = ArrayBuffer[Row]()
+//        while(iter.hasNext) {
+//          val value = iter.next()
+//          val minHash1 = value._2
+//          val num1 = value._1
+//          val minHashSignatures = broadCastMinHash.value
+//          var i = 0
+//          while(i < minHashSignatures.size) {
+//            val minHash2 =  minHashSignatures(i)._2
+//            val num2 = minHashSignatures(i)._1
+//            val jc = JaccardSimilarity.minHasher.similarity(minHash1, minHash2)
+//            if(jc > threshold) {
+//              if(!switchedOrder) {
+//                arr.append(Row(num1, num2, jc))
+//              } else {
+//                arr.append(Row(num2, num1, jc))
+//              }
+//            }
+//            i += 1
+//          }
+//        }
+//        arr.toIterator
+//      }
+//    }
+    val col1 = new Column("caller_1", Schema.ColumnType.LONG)
+    val col2 = new Column("caller_2", Schema.ColumnType.LONG)
+    //val col3 = new Column("jc_score", Schema.ColumnType.DOUBLE)
 
-    val (distMinHash, minHash) = if(nrow1 >= nrow2) {
-      (rddMinHash1, rddMinHash2.collect())
-    } else {
-      switchedOrder = true
-      (rddMinHash2, rddMinHash1.collect())
-    }
+    val schema = new Schema(null, Array(col1, col2))
 
-    val broadCastMinHash: Broadcast[Array[(String, MinHashSignature)]] = sparkCtx.broadcast(minHash)
-
-    val result = distMinHash.mapPartitions {
-      (iter: Iterator[(String, MinHashSignature)]) => {
-        val arr = ArrayBuffer[Row]()
-        while(iter.hasNext) {
-          val value = iter.next()
-          val minHash1 = value._2
-          val num1 = value._1
-          val minHashSignatures = broadCastMinHash.value
-          var i = 0
-          while(i < minHashSignatures.size) {
-            val minHash2 =  minHashSignatures(i)._2
-            val num2 = minHashSignatures(i)._1
-            val jc = JaccardSimilarity.minHasher.similarity(minHash1, minHash2)
-            if(jc > threshold) {
-              if(!switchedOrder) {
-                arr.append(Row(num1, num2, jc))
-              } else {
-                arr.append(Row(num2, num1, jc))
-              }
-            }
-            i += 1
-          }
-        }
-        arr.toIterator
-      }
-    }
-    val col1 = new Column("caller_1", Schema.ColumnType.STRING)
-    val col2 = new Column("caller_2", Schema.ColumnType.STRING)
-    val col3 = new Column("jc_score", Schema.ColumnType.DOUBLE)
-
-    val schema = new Schema(null, Array(col1, col2, col3))
-
-    val newDDF = manager.newDDF(manager, result, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
+    val newDDF = manager.newDDF(manager, rddRow, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
     manager.addDDF(newDDF)
     new DataFrameResult(newDDF)
   }
@@ -89,12 +89,12 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
 
 object JaccardSimilarity {
   val minHasher = new MinHasher32(200, 20)
-  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(String, MinHashSignature)] = {
+  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(Long, MinHashSignature)] = {
 
-    val pairRDD = rdd.map{
+    val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
         if(row.getDouble(2) > threshold) {
-          (row.getString(0), row.getString(1))
+          (row.getLong(0), row.getLong(1))
         } else {
           null
         }
@@ -110,6 +110,57 @@ object JaccardSimilarity {
       }
     }
   }
+  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double) = {
+    val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1)
+    val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2)
+
+    //group buckets1 and buckets2 by bucket id
+    //filter out bucket with empty list in one of the lists
+    val rdd: RDD[(Long, (Iterable[Item], Iterable[Item]))] = buckets1.join(buckets2).filter {
+      case (bucket, (items1, items2)) => (items1.size > 0) || (items2.size > 0)
+    }
+
+    // find similar items in each bucket ussing Jaccard Similarity
+    val rddPair: RDD[(Long, (Long, Double))] = rdd.flatMap {
+      case (bucket, (items1, items2)) => {
+        val iterator1= items1.toIterator
+        val iterator2 = items2.toIterator
+        val similarItems: ArrayBuffer[(Long, (Long, Double))] = new ArrayBuffer[(Long, (Long, Double))]()
+        while(iterator1.hasNext) {
+          val item1 = iterator1.next()
+          while(iterator2.hasNext) {
+
+            val item2 = iterator2.next()
+            val score = minHasher.similarity(item1.signature, item2.signature)
+            if(score > threshold) {
+              similarItems.append((item1.id, (item2.id, score)))
+            }
+          }
+        }
+        similarItems
+      }
+    }
+
+    //filter out similar pair
+    val rddPair2 = rddPair.groupByKey().flatMap {
+      case (num1, iter) => {
+        val (iter1, iter2) = iter.unzip
+        iter1.toList.removeDuplicates.map{num2 => Row(num1, num2)}
+      }
+    }
+    rddPair2
+  }
+  //apply LSH to RDD[(Long, MinHashSignature)]
+  //return rdd of bucket and items that belong to each bucket
+  def hashSignature(rddSignature: RDD[(Long, MinHashSignature)]): RDD[(Long, Iterable[Item])] = {
+    rddSignature.flatMap{
+      case (id, sig) => {
+        val buckets = minHasher.buckets(sig)
+        buckets.map{bucket => (bucket, Item(id, sig))}
+      }
+    }.groupByKey()
+  }
+  case class Item(id: Long, signature: MinHashSignature)
 }
 
 
