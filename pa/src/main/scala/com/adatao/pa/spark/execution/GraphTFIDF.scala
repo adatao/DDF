@@ -57,7 +57,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         row => !(row.isNullAt(srcIdx) || row.isNullAt(destIdx) || row.isNullAt(edgeIdx))
       }
     }
-    val groupedEdges: Graph[Long, Double] = GraphTFIDF.groupEdge2Graph(filteredRDDRow, srcIdx, destIdx, edgeIdx, sparkContext)
+    val (vertices, edges)  = GraphTFIDF.groupEdge2Graph(filteredRDDRow, srcIdx, destIdx, edgeIdx, sparkContext)
+    val groupedEdges: Graph[Long, Double] = Graph(vertices, edges)
 
     val dn_cnt: VertexRDD[Tuple2[Double, Double]] = groupedEdges.aggregateMessages(
       (edgeCtx: EdgeContext[Long, Double, Tuple2[Double, Double]]) => {
@@ -116,10 +117,11 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     manager.addDDF(newDDF)
 
     newDDF.asInstanceOf[SparkDDF].cacheTable()
-    groupedEdges.unpersist()
-    finalGraph.unpersist()
-    tfidf_Graph.unpersist()
-    dn_cnt.unpersist()
+    edges.unpersist()
+    groupedEdges.unpersistVertices(true)
+    finalGraph.unpersistVertices(true)
+    tfidf_Graph.unpersistVertices(true)
+    dn_cnt.unpersist(true)
 
     new DataFrameResult(newDDF)
   }
@@ -142,7 +144,7 @@ object GraphTFIDF {
   }
   case class CDRVertice(id: Long, dn_cnt: Double, denom_tfidf: Double)
 
-  def groupEdge2Graph(rdd: RDD[Row], srcIdx: Int, destIdx: Int, edgeIdx: Int, sparkContext: SparkContext): Graph[Long, Double] = {
+  def groupEdge2Graph(rdd: RDD[Row], srcIdx: Int, destIdx: Int, edgeIdx: Int, sparkContext: SparkContext) = {
     def reduceByKey[K,V](collection: Traversable[Tuple2[K, V]])(implicit num: Numeric[V]) = {
       import num._
       collection
@@ -176,7 +178,6 @@ object GraphTFIDF {
     val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
 
     val edges: RDD[Edge[Double]] = rdd3.map{row => Edge(row.getLong(0), row.getLong(1), row.getDouble(2))}
-
-    Graph(vertices, edges)
+    (vertices, edges)
   }
 }

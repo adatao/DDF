@@ -74,11 +74,11 @@ class DecisionTree(dataContainerID: String,
       case "classification" =>
         val numClasses = DecisionTree.getNumClasses(dataContainerID, yCol, ctx)
         new Strategy(algo = Classification, impurity = imp,
-        maxDepth = maxDepth, numClasses = numClasses, maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
+          maxDepth = maxDepth, numClassesForClassification = numClasses, maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
           minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
 
       case "regression" => new Strategy(algo = Regression, impurity = imp,
-        maxDepth =maxDepth, numClasses = 10,  maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
+        maxDepth =maxDepth, numClassesForClassification = 10,  maxBins = maxBins, categoricalFeaturesInfo= mapCategorical,
         minInstancesPerNode= minInstancePerNode, minInfoGain= minInfomationGain)
     }
     val rddLabelPoint = projectedDDF.getRepresentationHandler.get(RepresentationHandler.RDD_LABELED_POINT.getTypeSpecsString).asInstanceOf[RDD[LabeledPoint]]
