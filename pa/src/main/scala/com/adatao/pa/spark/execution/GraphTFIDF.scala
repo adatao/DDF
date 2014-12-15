@@ -115,13 +115,14 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     //cache the resulting ddf and unpersist all graph RDD
 
     manager.addDDF(newDDF)
-
     newDDF.asInstanceOf[SparkDDF].cacheTable()
+
     edges.unpersist()
-    groupedEdges.unpersistVertices(true)
-    finalGraph.unpersistVertices(true)
-    tfidf_Graph.unpersistVertices(true)
-    dn_cnt.unpersist(true)
+    groupedEdges.unpersistVertices()
+    groupedEdges.edges.unpersist()
+    finalGraph.unpersistVertices()
+    tfidf_Graph.unpersistVertices()
+    dn_cnt.unpersist()
 
     new DataFrameResult(newDDF)
   }

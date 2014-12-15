@@ -25,18 +25,12 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
     val ddf1 = manager.getDDF(dataContainerID1)
     val ddf2 = manager.getDDF(dataContainerID2)
 
-    val (ddf11, ddf22) = if(filterDup) {
-      CosineSimilarity.symmetricDifference2DDFs(ddf1, ddf2, ddf1.getColumnNames.get(0), manager)
-    } else {
-      (ddf1, ddf2)
-    }
-
-    val rdd1 = ddf11.asInstanceOf[SparkDDF].getRDD(classOf[Row])
-    val rdd2 = ddf22.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val rdd1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row])
+    val rdd2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row])
 
     val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, tfidfThreshold)
     val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, tfidfThreshold)
-    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
+    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold, filterDup)
 
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
     val col2 = new Column("caller_2", Schema.ColumnType.LONG)
@@ -81,7 +75,7 @@ object JaccardSimilarity {
       }
     }
   }
-  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double) = {
+  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double, filterDup: Boolean) = {
     val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1)
     val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2)
 
@@ -127,10 +121,18 @@ object JaccardSimilarity {
           val score = sorted(i)._2
           if(i > 0) {
             if(num2 != lastNum2) {
-              arrBuffer += Row(num1, num2, score)
+              if(filterDup) {
+                if(num1 != num2) arrBuffer += Row(num1, num2, score)
+              } else {
+                arrBuffer += Row(num1, num2, score)
+              }
             }
           } else {
-            arrBuffer += Row(num1, num2, score)
+            if(filterDup) {
+              if(num1 != num2) arrBuffer += Row(num1, num2, score)
+            } else {
+              arrBuffer += Row(num1, num2, score)
+            }
           }
 
           lastNum2 = num2
