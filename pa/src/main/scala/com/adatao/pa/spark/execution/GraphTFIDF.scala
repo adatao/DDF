@@ -118,10 +118,10 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     newDDF.asInstanceOf[SparkDDF].cacheTable()
 
     edges.unpersist()
-    groupedEdges.unpersistVertices()
+    groupedEdges.unpersist()
     groupedEdges.edges.unpersist()
-    finalGraph.unpersistVertices()
-    tfidf_Graph.unpersistVertices()
+    finalGraph.unpersist()
+    tfidf_Graph.unpersist()
     dn_cnt.unpersist()
 
     new DataFrameResult(newDDF)
