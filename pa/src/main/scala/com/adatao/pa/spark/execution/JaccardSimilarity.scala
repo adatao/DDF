@@ -47,12 +47,28 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
 object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  val DEFAULT_NUM_HASHES = "200"
-  val DEFAULT_NUM_BANDS = "10"
-  val numHashes = System.getProperty("pa.jaccard.numHashes", DEFAULT_NUM_HASHES).toInt
-  val numBands = System.getProperty("pa.jaccard.numBands", DEFAULT_NUM_BANDS).toInt
+  val DEFAULT_MAX_HASHES = "50"
 
-  val minHasher = new MinHasher32(numHashes, numBands)
+  val maxHashes = System.getProperty("pa.jaccard.maxHashes", DEFAULT_MAX_HASHES).toInt
+
+  def pickHashesAndBands(threshold: Double): Unit = {
+    val (hash, band) = com.twitter.algebird.MinHasher.pickHashesAndBands(threshold, maxHashes)
+    numHashes = hash
+    numBands = band
+  }
+
+  var numHashes = 0
+  var numBands = 0
+  lazy val minHasher = if(numHashes > 0 && numBands >0) {
+    LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
+    new MinHasher32(numHashes, numBands)
+  } else {
+    LOG.info(s">>> initialize minHasher with threshold= 0.7, numHashes = $numHashes, numBands = $numBands")
+    pickHashesAndBands(0.7)
+    new MinHasher32(numHashes, numBands)
+  }
+
+
   def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(Long, MinHashSignature)] = {
     LOG.info(">>> numHashes = " + numHashes)
     LOG.info(">>> numBands = " + numBands)
