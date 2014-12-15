@@ -145,7 +145,7 @@ class GraphSuite extends ABigRClientTest {
     val cmd1 = new GraphTFIDF(dataContainerID2, "source", "dest")
     val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
-    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.0, 0.8, true)
+    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.8)
     val jaccard = bigRClient.execute[DataFrameResult](cmd2).result
 
     assert(jaccard.isSuccess)

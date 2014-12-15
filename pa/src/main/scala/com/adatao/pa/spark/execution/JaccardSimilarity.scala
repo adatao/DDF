@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory
 /**
  * author: daoduchuan
  */
-class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val tfidfThreshold: Double= 0.0,
-                          val threshold: Double, val filterDup: Boolean = true)
+class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
+                          val threshold: Double)
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
@@ -28,9 +28,9 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String, val 
     val rdd1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row])
     val rdd2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row])
 
-    val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, tfidfThreshold)
-    val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, tfidfThreshold)
-    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold, filterDup)
+    val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1)
+    val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2)
+    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
 
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
     val col2 = new Column("caller_2", Schema.ColumnType.LONG)
@@ -69,16 +69,12 @@ object JaccardSimilarity {
   }
 
 
-  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double): RDD[(Long, MinHashSignature)] = {
+  def rddRow2rddMinHash(rdd: RDD[Row]): RDD[(Long, MinHashSignature)] = {
     LOG.info(">>> numHashes = " + numHashes)
     LOG.info(">>> numBands = " + numBands)
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
-        if(row.getDouble(2) > threshold) {
           (row.getLong(0), row.getLong(1))
-        } else {
-          null
-        }
       }
     }
 
@@ -91,7 +87,7 @@ object JaccardSimilarity {
       }
     }
   }
-  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double, filterDup: Boolean) = {
+  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double) = {
     val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1)
     val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2)
 
@@ -137,18 +133,10 @@ object JaccardSimilarity {
           val score = sorted(i)._2
           if(i > 0) {
             if(num2 != lastNum2) {
-              if(filterDup) {
-                if(num1 != num2) arrBuffer += Row(num1, num2, score)
-              } else {
-                arrBuffer += Row(num1, num2, score)
-              }
-            }
-          } else {
-            if(filterDup) {
-              if(num1 != num2) arrBuffer += Row(num1, num2, score)
-            } else {
               arrBuffer += Row(num1, num2, score)
             }
+          } else {
+            arrBuffer += Row(num1, num2, score)
           }
 
           lastNum2 = num2
