@@ -60,7 +60,7 @@ object JaccardSimilarity {
 
   var numHashes = 0
   var numBands = 0
-  lazy val minHasher = if(numHashes > 0 && numBands >0) {
+  lazy val minHasher = if(numHashes > 0 && numBands > 0) {
     LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
     new MinHasher32(numHashes, numBands)
   } else {
