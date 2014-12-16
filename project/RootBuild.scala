@@ -120,8 +120,7 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION,
-    "com.twitter" % "algebird-core_2.10" % "0.8.2",
-    "net.java.dev.jets3t" % "jets3t" % "0.7.1"
+    "com.twitter" % "algebird-core_2.10" % "0.8.2"
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
@@ -246,6 +245,7 @@ object RootBuild extends Build {
     dependencyOverrides += "commons-httpclient" % "commons-httpclient" % "3.1",
     dependencyOverrides += "org.apache.avro" % "avro-mapred" % "1.7.6",
     dependencyOverrides += "com.googlecode.javaewah" % "JavaEWAH" % "0.6.6",
+    dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.7.1",
     pomExtra := (
       <!--
       **************************************************************************************************
