@@ -120,7 +120,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-network-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION,
-    "com.twitter" % "algebird-core_2.10" % "0.8.2"
+    "com.twitter" % "algebird-core_2.10" % "0.8.2",
+    "net.java.dev.jets3t" % "jets3t" % "0.7.1"
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
@@ -218,7 +219,6 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.avro" % "avro-ipc" % "1.7.4",
     dependencyOverrides += "org.apache.avro" % "avro" % "1.7.4",
     dependencyOverrides += "org.apache.zookeeper" % "zookeeper" % "3.4.5",
-    dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.9.0",
     dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-server" % "8.1.14.v20131031",
 //    dependencyOverrides += "org.eclipse.jetty" % "jetty-jndi" % "8.1.14.v20131031",
