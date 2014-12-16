@@ -1,5 +1,6 @@
 package com.adatao.pa.spark.execution
 
+import io.ddf.content.Schema.ColumnType
 import io.spark.ddf.SparkDDFManager
 import io.spark.ddf.content.RepresentationHandler
 import org.apache.spark.sql.SchemaRDD
@@ -31,7 +32,18 @@ class SaveAsTable(dataContainerID: String, tableName: String) extends AExecutor[
 object SaveAsTable {
   def createHiveSchema(ddf: DDF): String = {
     ddf.getSchema.getColumns.map{
-      column => s"${column.getName} ${column.getType.toString}"
+      column => {
+        val colType = colunmnType2HiveType(column.getType)
+        s"${column.getName} $colType"
+      }
     }.mkString(", ")
+  }
+
+  def colunmnType2HiveType(colType: ColumnType): String = {
+    colType match {
+      case ColumnType.LONG => "bigint"
+      case ColumnType.LOGICAL => "boolean"
+      case typ => typ.toString
+    }
   }
 }
