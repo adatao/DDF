@@ -49,6 +49,9 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
+  var numHashes = 0
+  var numBands = 0
+
   val DEFAULT_MAX_HASHES = "50"
   //default threshold to calculate numHashes and numBands
   //lower the threshold longer the algorithm will take
@@ -64,8 +67,6 @@ object JaccardSimilarity {
     numBands = band
   }
 
-  var numHashes = 0
-  var numBands = 0
   lazy val minHasher = if(numHashes > 0 && numBands > 0) {
     LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
     new MinHasher32(numHashes, numBands)
