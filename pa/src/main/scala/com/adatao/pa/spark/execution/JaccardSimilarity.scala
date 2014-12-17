@@ -20,7 +20,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
-    assert(threshold > 0.0, "threshold must be > 0.0")
+    assert(threshold > 0.05, "threshold must be > 0.05")
     JaccardSimilarity.pickHashesAndBands(threshold)
     val manager = context.sparkThread.getDDFManager
     val sparkCtx = manager.asInstanceOf[SparkDDFManager].getSparkContext
@@ -51,7 +51,6 @@ object JaccardSimilarity {
 
   val DEFAULT_MAX_HASHES = "50"
   //default threshold to calculate numHashes and numBands
-  //as threshold = 0.0 will createnumHashes = 0,and numBands = -2147483648
   //lower the threshold longer the algorithm will take
   val DEFAULT_THREHOLD = "0.5"
 
