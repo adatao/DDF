@@ -20,6 +20,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
+    assert(threshold > 0.0, "threshold must be > 0.0")
     JaccardSimilarity.pickHashesAndBands(threshold)
     val manager = context.sparkThread.getDDFManager
     val sparkCtx = manager.asInstanceOf[SparkDDFManager].getSparkContext
@@ -51,12 +52,12 @@ object JaccardSimilarity {
   val DEFAULT_MAX_HASHES = "50"
   //default threshold to calculate numHashes and numBands
   //as threshold = 0.0 will createnumHashes = 0,and numBands = -2147483648
-  // lower the threshold longer the algorithm will take
-  val DEFAULT_MIN_THRESHOLD = "0.3"
+  //lower the threshold longer the algorithm will take
+  val DEFAULT_THREHOLD = "0.5"
 
   val maxHashes = System.getProperty("pa.jaccard.maxHashes", DEFAULT_MAX_HASHES).toInt
-  val minThreshold = System.getProperty("pa.min.threshold", DEFAULT_MIN_THRESHOLD).toDouble
-  assert(minThreshold > 0.0)
+  val defaultThreshold = System.getProperty("pa.default.threshold", DEFAULT_THREHOLD).toDouble
+  assert(defaultThreshold > 0.0)
 
   def pickHashesAndBands(threshold: Double): Unit = {
     val (hash, band) = com.twitter.algebird.MinHasher.pickHashesAndBands(threshold, maxHashes)
@@ -70,8 +71,8 @@ object JaccardSimilarity {
     LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
     new MinHasher32(numHashes, numBands)
   } else {
-    LOG.info(s">>> initialize minHasher with threshold= $minThreshold, numHashes = $numHashes, numBands = $numBands")
-    pickHashesAndBands(minThreshold)
+    LOG.info(s">>> initialize minHasher with threshold= $defaultThreshold, numHashes = $numHashes, numBands = $numBands")
+    pickHashesAndBands(defaultThreshold)
     new MinHasher32(numHashes, numBands)
   }
 
