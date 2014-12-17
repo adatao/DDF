@@ -126,17 +126,35 @@ object JaccardSimilarity {
       }
     }
 
+    //filter out similar pair
+    //because 2 similar pair can be hash to a same buckets multiple times
+    //eg: filter out result like this, and only take 1 row
+    //-3351804022671213759,-3351804022671224659,1.0
+    //-3351804022671213759,-3351804022671224659,1.0
+    //-3351804022671213759,-3351804022671224659,1.0
+    //-3351804022671213759,-3351804022671224659,1.0
+    //-3351804022671213759,-3351804022671224659,1.0
     val rddPair2 = rddPair.groupByKey().flatMap {
       case (num1, iter) => {
         val sorted = iter.toList.sortBy(_._1)
         var i = 0
 
+        var num2: Long = 0L
+        var lastNum2: Long = 0L
         var arrBuffer = new ArrayBuffer[Row]()
         //filter out duplicate
         while(i < sorted.size) {
-          val num2 = sorted(i)._1
+          num2 = sorted(i)._1
           val score = sorted(i)._2
-          arrBuffer += Row(num1, num2, score)
+          if(i > 0) {
+            if(num2 != lastNum2) {
+              arrBuffer += Row(num1, num2, score)
+            }
+          } else {
+            arrBuffer += Row(num1, num2, score)
+          }
+
+          lastNum2 = num2
           i += 1
         }
         arrBuffer.toIterator
