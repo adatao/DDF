@@ -20,7 +20,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
-    assert(threshold > 0.01, "threshold must be > 0.01")
+    assert(threshold > 0.02, "threshold must be > 0.02")
     JaccardSimilarity.pickHashesAndBands(threshold)
     val manager = context.sparkThread.getDDFManager
     val sparkCtx = manager.asInstanceOf[SparkDDFManager].getSparkContext
@@ -42,6 +42,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 
     val newDDF = manager.newDDF(manager, rddRow, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
     manager.addDDF(newDDF)
+    newDDF.asInstanceOf[SparkDDF].cacheTable()
     new DataFrameResult(newDDF)
   }
 }
