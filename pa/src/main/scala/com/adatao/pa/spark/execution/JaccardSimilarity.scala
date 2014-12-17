@@ -55,7 +55,7 @@ object JaccardSimilarity {
   val DEFAULT_MIN_THRESHOLD = "0.3"
 
   val maxHashes = System.getProperty("pa.jaccard.maxHashes", DEFAULT_MAX_HASHES).toInt
-  val minThreshold = System.getProperty("pa.min.threshold", DEFAULT_MIN_THRESHOLD).toInt
+  val minThreshold = System.getProperty("pa.min.threshold", DEFAULT_MIN_THRESHOLD).toDouble
   assert(minThreshold > 0.0)
 
   def pickHashesAndBands(threshold: Double): Unit = {
