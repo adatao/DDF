@@ -70,7 +70,7 @@ object JaccardSimilarity {
     LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
     new MinHasher32(numHashes, numBands)
   } else {
-    LOG.info(s">>> initialize minHasher with threshold= 0.7, numHashes = $numHashes, numBands = $numBands")
+    LOG.info(s">>> initialize minHasher with threshold= $minThreshold, numHashes = $numHashes, numBands = $numBands")
     pickHashesAndBands(minThreshold)
     new MinHasher32(numHashes, numBands)
   }
