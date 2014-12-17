@@ -49,8 +49,14 @@ object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
   val DEFAULT_MAX_HASHES = "50"
+  //default threshold to calculate numHashes and numBands
+  //as threshold = 0.0 will createnumHashes = 0,and numBands = -2147483648
+  // lower the threshold longer the algorithm will take
+  val DEFAULT_MIN_THRESHOLD = "0.3"
 
   val maxHashes = System.getProperty("pa.jaccard.maxHashes", DEFAULT_MAX_HASHES).toInt
+  val minThreshold = System.getProperty("pa.min.threshold", DEFAULT_MIN_THRESHOLD).toInt
+  assert(minThreshold > 0.0)
 
   def pickHashesAndBands(threshold: Double): Unit = {
     val (hash, band) = com.twitter.algebird.MinHasher.pickHashesAndBands(threshold, maxHashes)
@@ -65,7 +71,7 @@ object JaccardSimilarity {
     new MinHasher32(numHashes, numBands)
   } else {
     LOG.info(s">>> initialize minHasher with threshold= 0.7, numHashes = $numHashes, numBands = $numBands")
-    pickHashesAndBands(0.7)
+    pickHashesAndBands(minThreshold)
     new MinHasher32(numHashes, numBands)
   }
 
@@ -88,6 +94,7 @@ object JaccardSimilarity {
       }
     }
   }
+
   def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double) = {
     val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1)
     val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2)
@@ -119,28 +126,17 @@ object JaccardSimilarity {
       }
     }
 
-    //filter out similar pair
     val rddPair2 = rddPair.groupByKey().flatMap {
       case (num1, iter) => {
         val sorted = iter.toList.sortBy(_._1)
         var i = 0
 
-        var num2: Long = 0L
-        var lastNum2: Long = 0L
         var arrBuffer = new ArrayBuffer[Row]()
         //filter out duplicate
         while(i < sorted.size) {
-          num2 = sorted(i)._1
+          val num2 = sorted(i)._1
           val score = sorted(i)._2
-          if(i > 0) {
-            if(num2 != lastNum2) {
-              arrBuffer += Row(num1, num2, score)
-            }
-          } else {
-            arrBuffer += Row(num1, num2, score)
-          }
-
-          lastNum2 = num2
+          arrBuffer += Row(num1, num2, score)
           i += 1
         }
         arrBuffer.toIterator
