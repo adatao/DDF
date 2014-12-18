@@ -21,7 +21,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     assert(threshold > 0.02, "threshold must be > 0.02")
-    JaccardSimilarity.initializeMinHashes(threshold, maxHashes)
+    //JaccardSimilarity.initializeMinHashes(threshold, maxHashes)
     val manager = context.sparkThread.getDDFManager
     val sparkCtx = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val ddf1 = manager.getDDF(dataContainerID1)
@@ -30,8 +30,8 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
     val rdd1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row])
     val rdd2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row])
 
-    val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1)
-    val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2)
+    val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, threshold, maxHashes)
+    val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, threshold, maxHashes)
     val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
 
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
@@ -59,8 +59,8 @@ object JaccardSimilarity {
     minHasher = new MinHasher32(hash, band)
   }
 
-  def rddRow2rddMinHash(rdd: RDD[Row]): RDD[(Long, MinHashSignature)] = {
-
+  def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double, maxHashes: Int): RDD[(Long, MinHashSignature)] = {
+    initializeMinHashes(threshold, maxHashes)
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
         if(!row.isNullAt(0) && !row.isNullAt(1)) {
