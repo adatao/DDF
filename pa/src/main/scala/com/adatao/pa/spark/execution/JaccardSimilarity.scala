@@ -89,7 +89,7 @@ object JaccardSimilarity {
           null
         }
       }
-    }filter{row => row != null}
+    }
 
     pairRDD.filter(row => row != null).groupByKey().map {
       case (number, elements) => {
