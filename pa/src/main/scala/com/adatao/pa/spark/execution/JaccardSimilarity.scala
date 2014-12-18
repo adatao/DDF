@@ -4,7 +4,7 @@ import com.adatao.pa.spark.Utils.DataFrameResult
 import com.adatao.spark.ddf.{SparkDDFManager, SparkDDF}
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.rdd.RDD
-import com.twitter.algebird.{MinHasher32, MinHashSignature}
+import com.twitter.algebird.{MinHasher, MinHasher32, MinHashSignature}
 import org.apache.spark.SparkContext._
 import org.apache.spark.broadcast.Broadcast
 import scala.collection.mutable.ArrayBuffer
@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory
  * author: daoduchuan
  */
 class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
-                          val threshold: Double)
+                          val threshold: Double, val maxHashes: Int = 50)
     extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     assert(threshold > 0.02, "threshold must be > 0.02")
-    JaccardSimilarity.pickHashesAndBands(threshold)
+    JaccardSimilarity.initializeMinHashes(threshold, maxHashes)
     val manager = context.sparkThread.getDDFManager
     val sparkCtx = manager.asInstanceOf[SparkDDFManager].getSparkContext
     val ddf1 = manager.getDDF(dataContainerID1)
@@ -50,37 +50,17 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  var numHashes = 0
-  var numBands = 0
+  var minHasher: MinHasher = null
 
-  val DEFAULT_MAX_HASHES = "50"
-  //default threshold to calculate numHashes and numBands
-  //lower the threshold longer the algorithm will take
-  val DEFAULT_THREHOLD = "0.5"
-
-  val maxHashes = System.getProperty("pa.jaccard.maxHashes", DEFAULT_MAX_HASHES).toInt
-  val defaultThreshold = System.getProperty("pa.default.threshold", DEFAULT_THREHOLD).toDouble
-  assert(defaultThreshold > 0.0)
-
-  def pickHashesAndBands(threshold: Double): Unit = {
+  def initializeMinHashes(threshold: Double, maxHashes: Int) = {
+    require(threshold > 0.02, "threshold must be > 0.02")
     val (hash, band) = com.twitter.algebird.MinHasher.pickHashesAndBands(threshold, maxHashes)
-    numHashes = hash
-    numBands = band
+    LOG.info(s">>> initialize minHasher with numHashes = $hash, numBands = $band")
+    minHasher = new MinHasher32(hash, band)
   }
-
-  lazy val minHasher = if(numHashes > 0 && numBands > 0) {
-    LOG.info(s">>> initialize minHasher with numHashes = $numHashes, numBands = $numBands")
-    new MinHasher32(numHashes, numBands)
-  } else {
-    LOG.info(s">>> initialize minHasher with threshold= $defaultThreshold, numHashes = $numHashes, numBands = $numBands")
-    pickHashesAndBands(defaultThreshold)
-    new MinHasher32(numHashes, numBands)
-  }
-
 
   def rddRow2rddMinHash(rdd: RDD[Row]): RDD[(Long, MinHashSignature)] = {
-    LOG.info(">>> numHashes = " + numHashes)
-    LOG.info(">>> numBands = " + numBands)
+
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
         if(!row.isNullAt(0) && !row.isNullAt(1)) {
