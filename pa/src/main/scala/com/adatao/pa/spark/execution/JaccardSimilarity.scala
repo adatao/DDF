@@ -50,7 +50,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  var minHasher: MinHasher = null
+  var minHasher: MinHasher32 = null
 
   def initializeMinHashes(threshold: Double, maxHashes: Int) = {
     require(threshold > 0.02, "threshold must be > 0.02")
