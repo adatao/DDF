@@ -83,9 +83,13 @@ object JaccardSimilarity {
     LOG.info(">>> numBands = " + numBands)
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
+        if(!row.isNullAt(0) && !row.isNullAt(1)) {
           (row.getLong(0), row.getLong(1))
+        } else {
+          null
+        }
       }
-    }
+    }filter{row => row != null}
 
     pairRDD.filter(row => row != null).groupByKey().map {
       case (number, elements) => {

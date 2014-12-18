@@ -156,13 +156,23 @@ object GraphTFIDF {
     val pairRDD: RDD[(Long, (Long, Double))] =
       if(edgeIdx >= 0) {
         rdd.map {
-          row => (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx) && !row.isNullAt(edgeIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+            } else {
+              null
+            }
         }
       } else {
         rdd.map {
-          row => (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+            } else {
+              null
+            }
         }
-      }
+      }.filter(row => row != null)
 
     val rdd2 = pairRDD.groupByKey().map{
       case (num, iter) => (num, reduceByKey(iter))
