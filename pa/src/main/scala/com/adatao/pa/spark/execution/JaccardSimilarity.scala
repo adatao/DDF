@@ -50,17 +50,15 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 object JaccardSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
 
-  var minHasher: MinHasher32 = null
-
   def initializeMinHashes(threshold: Double, maxHashes: Int) = {
     require(threshold > 0.02, "threshold must be > 0.02")
     val (hash, band) = com.twitter.algebird.MinHasher.pickHashesAndBands(threshold, maxHashes)
     LOG.info(s">>> initialize minHasher with numHashes = $hash, numBands = $band")
-    minHasher = new MinHasher32(hash, band)
+    new MinHasher32(hash, band)
   }
 
   def rddRow2rddMinHash(rdd: RDD[Row], threshold: Double, maxHashes: Int): RDD[(Long, MinHashSignature)] = {
-    initializeMinHashes(threshold, maxHashes)
+    val minHasher = initializeMinHashes(threshold, maxHashes)
     val pairRDD: RDD[(Long, Long)] = rdd.map{
       row => {
         if(!row.isNullAt(0) && !row.isNullAt(1)) {
@@ -81,10 +79,10 @@ object JaccardSimilarity {
     }
   }
 
-  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double) = {
-    val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1)
-    val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2)
-
+  def lsh(rddSignature1: RDD[(Long, MinHashSignature)], rddSignature2: RDD[(Long, MinHashSignature)], threshold: Double, maxHashes: Int) = {
+    val buckets1: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature1, threshold, maxHashes)
+    val buckets2: RDD[(Long, Iterable[Item])] = hashSignature(rddSignature2, threshold, maxHashes)
+    val minHasher = initializeMinHashes(threshold, maxHashes)
     //group buckets1 and buckets2 by bucket id
     //filter out bucket with empty list in one of the lists
     val rdd: RDD[(Long, (Iterable[Item], Iterable[Item]))] = buckets1.join(buckets2).filter {
@@ -150,7 +148,8 @@ object JaccardSimilarity {
   }
   //apply LSH to RDD[(Long, MinHashSignature)]
   //return rdd of bucket and items that belong to each bucket
-  def hashSignature(rddSignature: RDD[(Long, MinHashSignature)]): RDD[(Long, Iterable[Item])] = {
+  def hashSignature(rddSignature: RDD[(Long, MinHashSignature)], threshold: Double, maxHashes: Int): RDD[(Long, Iterable[Item])] = {
+    val minHasher = initializeMinHashes(threshold, maxHashes)
     rddSignature.flatMap{
       case (id, sig) => {
         val buckets = minHasher.buckets(sig)
