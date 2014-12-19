@@ -32,7 +32,7 @@ class JaccardSimilarity(dataContainerID1: String, dataContainerID2: String,
 
     val rddMinHash1 = JaccardSimilarity.rddRow2rddMinHash(rdd1, threshold, maxHashes)
     val rddMinHash2 = JaccardSimilarity.rddRow2rddMinHash(rdd2, threshold, maxHashes)
-    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold)
+    val rddRow =  JaccardSimilarity.lsh(rddMinHash1, rddMinHash2, threshold, maxHashes)
 
     val col1 = new Column("caller_1", Schema.ColumnType.LONG)
     val col2 = new Column("caller_2", Schema.ColumnType.LONG)
