@@ -19,7 +19,9 @@ if [ ! -f ${RSERVE_LIB_DIR}/Rserve ]; then
 	[ "$?" -eq "0" ] || { echo "Failed to install Rserve"; exit 1; } 
 fi 
 echo -e '\t Starting Rserve ...'
-nohup R CMD ${RSERVE_LIB_DIR}/Rserve --vanilla --RS-workdir ${TMP_DIR}/Rserv/ --RS-encoding utf8 >>${LOG_DIR}/Rserve.log 2>&1 &
+nohup R CMD ${RSERVE_LIB_DIR}/Rserve \
+    --vanilla \
+    --RS-workdir ${TMP_DIR}/Rserv/ --RS-encoding utf8 &>>${LOG_DIR}/Rserve.log </dev/null &
 
 sleep 5
 pgrep -fl Rserve >/dev/null 2>&1 || echo "Error: No 'Rserve' process found. Something is wrong"

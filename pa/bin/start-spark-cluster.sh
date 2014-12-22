@@ -9,8 +9,14 @@ DIR="$(cd `dirname $0`/../ 2>&1 >/dev/null; echo $PWD)"
 paenv="$DIR/conf/pa-env.sh" ; source $paenv --standalone-spark
 
 ${DIR}/exe/stop-spark-cluster.sh
-nohup ${DIR}/exe/spark-class org.apache.spark.deploy.master.Master --ip ${SPARK_HOST} --port ${SPARK_PORT} >${TMP_DIR}/spark-master.out 2>&1 &
-nohup ${DIR}/exe/spark-class org.apache.spark.deploy.worker.Worker ${SPARK_MASTER} >${TMP_DIR}/spark-worker.out 2>&1 &
+nohup ${DIR}/exe/spark-class \
+    org.apache.spark.deploy.master.Master \
+    --ip ${SPARK_HOST} \
+    --port ${SPARK_PORT} \
+    &>${TMP_DIR}/spark-master.out </dev/null &
+nohup ${DIR}/exe/spark-class \
+    org.apache.spark.deploy.worker.Worker \
+    ${SPARK_MASTER} &>${TMP_DIR}/spark-worker.out </dev/null &
 
 sleep 10
 

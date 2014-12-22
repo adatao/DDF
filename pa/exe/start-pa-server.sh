@@ -35,6 +35,10 @@ do_parse_args() {
 }
 do_parse_args $@
 
+# Wait until HDFS goes out of safemode
+echo "Wait until HDFS has fully started"
+hdfs dfsadmin -safemode wait
+
 cd `dirname $0`/../ >/dev/null 2>&1
 DIR=`pwd`
 
@@ -70,9 +74,12 @@ echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
-#nohup
 
-nohup ${DIR}/exe/spark-class -Dpa.security=false -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+nohup ${DIR}/exe/spark-class \
+    -Dpa.security=false \
+    -Dbigr.multiuser=false \
+    -Dlog.dir=${LOG_DIR} \
+    com.adatao.pa.thrift.Server $PA_PORT &>${LOG_DIR}/pa.out </dev/null &
 
 #nohup ${DIR}/exe/bin/spark-submit --class com.adatao.pa.thrift.Server --master ${SPARK_MASTER}  --num-executors ${SPARK_WORKER_INSTANCES} --driver-memory ${SPARK_MEMORY} --executor-memory ${SPARK_MEMORY} --executor-cores ${SPARK_WORKER_CORES} local:/root/adatao/ddf-enterprise-1.1.0/pa/target/scala-2.10/ddf_pa-assembly-1.2.0.jar >${LOG_DIR}/pa.out 2>&1 & 
 echo

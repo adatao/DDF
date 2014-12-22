@@ -58,7 +58,10 @@ echo
 echo "###########################"
 echo "# Start pAnalytics server #"
 echo "###########################"
-nohup ${DIR}/exe/spark-class -Dbigr.multiuser=false -Dlog.dir=${LOG_DIR} com.adatao.pa.thrift.Server $PA_PORT >${LOG_DIR}/pa.out 2>&1 &
+nohup ${DIR}/exe/spark-class \
+    -Dbigr.multiuser=false \
+    -Dlog.dir=${LOG_DIR} \
+    com.adatao.pa.thrift.Server $PA_PORT &>${LOG_DIR}/pa.out </dev/null &
 echo
 
 sleep 5
