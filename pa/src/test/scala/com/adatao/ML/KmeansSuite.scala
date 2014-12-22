@@ -14,7 +14,7 @@ import org.apache.spark.mllib.linalg.DenseVector
 
 class KmeansSuite extends ABigRClientTest {
 
-  ignore("test Kmeans") {
+  test("test Kmeans") {
     val numIters = 10
     val xCols = Array(0, 1)
     val K = 4
