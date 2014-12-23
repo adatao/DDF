@@ -73,7 +73,6 @@ object TransformDummy {
         }
       }
     }
-    LOG.info(">>> nullBitmap = \n" + nullBitmap.toString())
     nullBitmap
   }
 
@@ -108,7 +107,6 @@ object TransformDummy {
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
         case typ => throw new IllegalArgumentException(s"cannot not convert column type ${typ} to double.")
       }
-    LOG.info(">>> nullBitMap = " + nullBitmap.toString)
     while (i < numRows) {
       //Always have to increase the columnAccessor iterator regardless the position is null or not
       columnAccessor.extractTo(mutableRow, 0)
