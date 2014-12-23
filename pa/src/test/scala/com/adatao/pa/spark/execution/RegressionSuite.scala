@@ -687,7 +687,7 @@ class RegressionSuite extends ABigRClientTest {
 
     assert(r.isSuccess)
 
-    val model = r.result.asInstanceOf[IRLSLogisticRegressionModel]
+    val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
 
     /*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2) + " " + model.weights(3))
     println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2) + " " + model.stderrs(3))
