@@ -53,7 +53,11 @@ public class NRow extends CExecutor {
     } else {
       LOG.info("Found the DDF " + dataContainerID);
     }
-    return new NRowResult(ddf.getNumRows());
+    try {
+      return new NRowResult(ddf.getNumRows());
+    } catch(Exception e) {
+      throw new AdataoException(AdataoException.AdataoExceptionCode.ERR_GENERAL,"Error getting NRow", e);
+    }
   }
 
   public NRow setDataContainerID(String dataContainerID) {

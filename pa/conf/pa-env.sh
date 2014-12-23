@@ -100,7 +100,7 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_WORKER_INSTANCES=12
         export SPARK_WORKER_CORES=8
         export SPARK_WORKER_MEMORY=$SPARK_MEMORY
-        export SPARK_DRIVER_MEMORY=$SPARK_MEMORY
+        export SPARK_DRIVER_MEMORY=2G
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         echo SPARK_JAR=$SPARK_JAR
         export SPARK_YARN_APP_JAR=hdfs:///user/root/ddf_pa_2.10-1.2.0.jar
