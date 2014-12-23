@@ -637,4 +637,80 @@ class RegressionSuite extends ABigRClientTest {
     assert(r3.result.data != null)
     assert(r4.result.nrow == 31)
   }
+
+  test("Multiple-variable logistic regression IRLS - no regularization") {
+    val dataContainerId = this.loadFile(List("resources/flu.table.noheader", "server/resources/flu.table.noheader"), false, " ")
+    val lambda = 0.0
+    val executor = new LogisticRegressionIRLS(dataContainerId, Array(1, 2), 0, 25, 1e-8, lambda, null, null, false)
+    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+
+    assert(r.isSuccess)
+
+    val model = r.result
+    /*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2))
+      println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2))
+      println(model.numSamples + " " + model.numFeatures)
+      println(model.deviance + " " + model.nullDeviance)
+      println(model.numIters)*/
+
+    assert(truncate(model.weights(0), 6) === -21.584582)
+    assert(truncate(model.weights(1), 6) === 0.221777)
+    assert(truncate(model.weights(2), 6) === 0.203507)
+    assert(truncate(model.deviance, 6) === 32.416312)
+    //assert(truncate(model.nullDeviance, 6) === 68.0292)
+    assert(truncate(model.stderrs(0), 6) === 6.417354)
+    assert(truncate(model.stderrs(1), 6) === 0.074349)
+    assert(truncate(model.stderrs(2), 6) === 0.062723)
+    assert(model.numFeatures == 2)
+    assert(model.numSamples == 50)
+    assert(model.numIters == 6)
+  }
+
+  test("Categorical variable logistic regression IRLS - no regularization - Shark ") {
+    createTableAdmission
+
+    val loader = new Sql2DataFrame("select * from admission", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    assert(r0.isSuccess)
+
+    System.setProperty("bigr.lm.maxNumFeatures", "50")
+
+    val dataContainerId = r0.dataContainerID
+
+    //var cmd1 = new GetFactor().setDataContainerID(dataContainerId).setColumnName("v4")
+    val cmd1 = new GetMultiFactor(dataContainerId, Array(3))
+    bigRClient.execute[GetFactor.GetFactorResult](cmd1)
+
+    val lambda = 0.0
+    val executor = new LogisticRegressionIRLS(dataContainerId, Array(3), 0, 25, 1e-8, lambda, null, null, false)
+    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+
+    assert(r.isSuccess)
+
+    val model = r.result
+
+    /*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2) + " " + model.weights(3))
+    println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2) + " " + model.stderrs(3))
+    println(model.numSamples + " " + model.numFeatures)
+    println(model.deviance + " " + model.nullDeviance)
+    println(model.numIters)*/
+
+    println(">>>>>> model.weights=" + model.weights)
+    assert(truncate(model.weights(0), 6) === -1.217465)
+    assert(truncate(model.weights(1), 6) === 0.631662)
+    assert(truncate(model.weights(2), 6) === 1.386286)
+    assert(truncate(model.weights(3), 6) === -0.321060)
+    //		assert(truncate(model.deviance, 6) === 474.966718)
+    //		assert(truncate(model.nullDeviance, 6) === 499.976518)
+    assert(truncate(model.stderrs(0), 6) === 0.043276)
+    assert(truncate(model.stderrs(1), 6) === 0.055039)
+    assert(truncate(model.stderrs(2), 6) === 0.067255)
+    assert(truncate(model.stderrs(3), 6) === 0.077128)
+
+    assert(model.numFeatures === 3)
+    assert(model.numSamples === 10000)
+    assert(model.numIters === 4)
+
+    //		assert(model.dummyColumnMapping != null)
+  }
 }
