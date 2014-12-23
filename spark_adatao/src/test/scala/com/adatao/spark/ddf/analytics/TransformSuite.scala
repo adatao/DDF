@@ -7,7 +7,7 @@ import org.junit.Assert._
 import com.adatao.spark.ddf.ATestSuite
 
 import io.ddf.DDF
-import com.adatao.spark.ddf.etl.TransformationHandler
+import com.adatao.spark.ddf.etl.{TransformDummy, TransformationHandler}
 import io.ddf.types.TupleMatrixVector
 import com.adatao.spark.ddf.etl.TransformationHandler._
 import io.ddf.types.Vector
@@ -159,7 +159,7 @@ class TransformSuite extends ATestSuite {
 
   test("check validity of TransformDummy with blow up factor") {
     createTableTransformTest()
-    System.setProperty("pa.blowup.factor", "4")
+    TransformDummy.blowUpFactor= 4
     val ddf3 = manager.sql2ddf("select * from transformTest")
     val ddf4 = (ddf3.getTransformationHandler()).dummyCoding(Array("v1"), "v2")
     val rdd2 = ddf4.asInstanceOf[SparkDDF].getRDD(classOf[TupleMatrixVector])

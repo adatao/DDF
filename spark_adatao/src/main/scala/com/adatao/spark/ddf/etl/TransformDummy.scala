@@ -22,8 +22,8 @@ import scala.collection.JavaConversions._
  * author: daoduchuan
  */
 object TransformDummy {
-  def DEFAULT_BLOWUP_FACTOR = "5"
-  val blowUpFactor = System.getProperty("pa.blowup.factor", DEFAULT_BLOWUP_FACTOR).toInt
+  val DEFAULT_BLOWUP_FACTOR = "5"
+  var blowUpFactor = System.getProperty("pa.blowup.factor", DEFAULT_BLOWUP_FACTOR).toInt
   val LOG = LoggerFactory.getLogger(this.getClass)
 
   def schemaRDD2MatrixVector(rddCachedBatch: RDD[CachedBatch], xCols: Array[Int], yCol: Int,
