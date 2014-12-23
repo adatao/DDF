@@ -7,8 +7,10 @@ import org.apache.spark.sql.columnar.{CachedBatch, InMemoryRelation}
 import io.ddf.exception.DDFException
 import org.apache.spark.rdd.RDD
 import java.nio.ByteBuffer
-import org.apache.spark.sql.CachedData
+import org.apache.spark.sql.{SchemaRDD, CachedData}
 import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.hive.HiveContext
+
 /**
  */
 class SparkDDF(manager: DDFManager, data: AnyRef,
@@ -17,9 +19,10 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
   //Cache table force the materializing of RDD[Array[ByteBuffer]]
   // also add RDd[Array[ByteBuffer]] into RepHandler
   override def cacheTable(): Unit = {
-    this.repartition()
-    this.saveAsTable()
     val hiveContext = this.getManager.asInstanceOf[SparkDDFManager].getHiveContext
+    this.repartition(hiveContext)
+    this.saveAsTable()
+
     hiveContext.cacheTable(this.getTableName)
 
     val cachedData: CachedData = hiveContext.lookupCachedData(hiveContext.table(this.getTableName)) match {
@@ -38,16 +41,21 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
     this(manager, null, null, manager.getNamespace, null, null)
   }
 
-  def repartition(): Unit = {
+  def repartition(hiveCtx: HiveContext): Unit = {
+    mLog.info(">>>> repartition the table")
     val blowUpFactor = System.getProperty("pa.blowup.factor", SparkDDF.DEFAULT_BLOWUP_FACTOR).toInt
-    val rddRow = this.getRDD(classOf[Row])
-    this.getRepresentationHandler.remove(classOf[RDD[_]], classOf[Row])
-    val numPartitions = rddRow.partitions.size
-    val repartitionRDD = rddRow.repartition(numPartitions * blowUpFactor)
-    this.getRepresentationHandler.add(repartitionRDD, classOf[RDD[_]], classOf[Row])
+    mLog.info(">>>> blow up factor = " + blowUpFactor)
+    val schemaRDD = this.getRepresentationHandler.get(classOf[SchemaRDD]).asInstanceOf[SchemaRDD]
+    val schema = schemaRDD.schema
+    val numPartitions = schemaRDD.partitions.size
+    val repartitionRDD = schemaRDD.repartition(numPartitions * blowUpFactor)
+
+    val newSchemaRDD =  hiveCtx.applySchema(repartitionRDD, schema)
+    this.getRepresentationHandler.remove(classOf[SchemaRDD])
+    this.getRepresentationHandler.add(newSchemaRDD, classOf[SchemaRDD])
   }
 }
 
 object SparkDDF {
-  val DEFAULT_BLOWUP_FACTOR = "10"
+  val DEFAULT_BLOWUP_FACTOR = "4"
 }
