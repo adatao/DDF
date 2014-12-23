@@ -274,6 +274,7 @@ object RootBuild extends Build {
                 <systemPropertyVariables>
                   <spark.serializer>org.apache.spark.serializer.KryoSerializer</spark.serializer>
                   <spark.kryo.registrator>com.adatao.spark.content.KryoRegistrator</spark.kryo.registrator>
+                  <pa.blowup.factor>1</pa.blowup.factor>
                   <spark.ui.port>8085</spark.ui.port>
                   <bigr.multiuser>false</bigr.multiuser>
                   <log4j.configuration>ddf-log4j.properties</log4j.configuration>

@@ -78,7 +78,7 @@ object TransformDummy {
     nullBitmap
   }
 
-  def fillConstantColumn[T <: DoubleMatrix](matrices: Array[T], col: Int, numRows: Int, value: Double) = {
+  def fillConstantColumn[T <: DoubleMatrix](matrices: Array[T], col: Int, value: Double) = {
 
     var matID = 0
     while (matID < matrices.size) {
@@ -136,7 +136,6 @@ object TransformDummy {
                                                    matrices: Array[M],
                                                    col: Int,
                                                    columnIterator: ByteBuffer,
-                                                   numRows: Int,
                                                    nullBitmap: BitSet,
                                                    convert: (Object) => Double) = {
     //val byteBuffer = columnAccessor.buffer
@@ -215,7 +214,7 @@ object TransformDummy {
         numRows.toString, nullBitmap.cardinality().toString, util.Arrays.toString(xCols), numDummyCols.toString)
 
       // fill in the first X column with bias value
-      fillConstantColumn(matrices, 0, numRows, 1.0)
+      fillConstantColumn(matrices, 0, 1.0)
 
       // fill Y
       val yColumnIter = usedColumnIterators.last
@@ -239,7 +238,7 @@ object TransformDummy {
               LOG.info(s">>>> columnMap = null??? ${columnMap == null}")
               LOG.info("extracting categorical column id {} using mapping {}", xColId, columnMap)
 
-              fillColumnWithConversion(matrices, i, columnIterator, numRows, nullBitmap, (current: Object) => {
+              fillColumnWithConversion(matrices, i, columnIterator, nullBitmap, (current: Object) => {
                 // invariant: columnMap.contains(x)
                 val k = current.toString
                 columnMap.get(k)
@@ -254,7 +253,7 @@ object TransformDummy {
               val columnMap = categoricalMap.get(xColId)
               LOG.info("extracting STRING column id {} using mapping {}", xColId, columnMap)
 
-              fillColumnWithConversion(matrices, i, columnIterator, numRows, nullBitmap, (current: Object) => {
+              fillColumnWithConversion(matrices, i, columnIterator, nullBitmap, (current: Object) => {
                 // invariant: columnMap.contains(x)
                 val k = current.toString
                 columnMap.get(k)
