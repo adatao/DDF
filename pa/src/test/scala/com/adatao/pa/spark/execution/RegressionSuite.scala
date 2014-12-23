@@ -642,11 +642,11 @@ class RegressionSuite extends ABigRClientTest {
     val dataContainerId = this.loadFile(List("resources/flu.table.noheader", "server/resources/flu.table.noheader"), false, " ")
     val lambda = 0.0
     val executor = new LogisticRegressionIRLS(dataContainerId, Array(1, 2), 0, 25, 1e-8, lambda, null, null, false)
-    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+    val r = bigRClient.execute[io.spark.ddf.ml.Model](executor)
 
     assert(r.isSuccess)
 
-    val model = r.result
+    val model = r.result.getRawModel.asInstanceOf[IRLSLogisticRegressionModel]
     /*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2))
       println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2))
       println(model.numSamples + " " + model.numFeatures)
@@ -666,7 +666,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(model.numIters == 6)
   }
 
-  test("Categorical variable logistic regression IRLS - no regularization - Shark ") {
+  test("Categorical variable logistic regression IRLS - no regularization") {
     createTableAdmission
 
     val loader = new Sql2DataFrame("select * from admission", true)
@@ -683,11 +683,11 @@ class RegressionSuite extends ABigRClientTest {
 
     val lambda = 0.0
     val executor = new LogisticRegressionIRLS(dataContainerId, Array(3), 0, 25, 1e-8, lambda, null, null, false)
-    val r = bigRClient.execute[IRLSLogisticRegressionModel](executor)
+    val r = bigRClient.execute[io.spark.ddf.ml.Model](executor)
 
     assert(r.isSuccess)
 
-    val model = r.result
+    val model = r.result.asInstanceOf[IRLSLogisticRegressionModel]
 
     /*println(model.weights(0) + " " + model.weights(1) + " " + model.weights(2) + " " + model.weights(3))
     println(model.stderrs(0) + " " + model.stderrs(1) + " " + model.stderrs(2) + " " + model.stderrs(3))
