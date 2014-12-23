@@ -20,7 +20,6 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
   // also add RDd[Array[ByteBuffer]] into RepHandler
   override def cacheTable(): Unit = {
     val hiveContext = this.getManager.asInstanceOf[SparkDDFManager].getHiveContext
-    this.repartition(hiveContext)
     this.saveAsTable()
 
     hiveContext.cacheTable(this.getTableName)
