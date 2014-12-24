@@ -49,7 +49,7 @@ class RegressionSuite extends ABigRClientTest {
 
 
   //smoke test
-  ignore("Single-variable linear regression - normal equation categorical - no regularization") {
+  test("Single-variable linear regression - normal equation categorical - no regularization") {
     //		val dataContainerId = this.loadFile(List("resources/airline.csv", "server/resources/airline.csv"), false, ",")
     createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -72,7 +72,7 @@ class RegressionSuite extends ABigRClientTest {
   }
 
   // TestFailedException: 37.674034 did not equal 37.22727
-  ignore("Multiple-variable linear regression - normal equation - no regularization") {
+  test("Multiple-variable linear regression - normal equation - no regularization") {
     //		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
     val lambda = 0.0
     createTableMtcars
@@ -121,7 +121,7 @@ class RegressionSuite extends ABigRClientTest {
 //    assert(truncate(model.vif(1), 6) == 1.766625)
   }
 
-  ignore("Single-variable linear regression") {
+  test("Single-variable linear regression") {
     createTableMtcars
     //
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -142,7 +142,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(1), 4) === 9.9192)
   } //
 
-  ignore("Single-variable linear regression on Shark") {
+  test("Single-variable linear regression on Shark") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -164,7 +164,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(1), 4) === 9.9192)
   }
 
-  ignore("Categorical variables linear regression normal equation on Shark") {
+  test("Categorical variables linear regression normal equation on Shark") {
     createTableAirline
 
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -187,7 +187,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(model.getDummy() != null)
   }
 
-  ignore("Single-variable linear regression with regularization") {
+  test("Single-variable linear regression with regularization") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -214,7 +214,7 @@ class RegressionSuite extends ABigRClientTest {
   }
 
 
-  ignore("Single-variable linear regression with null initialWeights") {
+  test("Single-variable linear regression with null initialWeights") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -231,7 +231,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(r.isSuccess)
   }
   //
-  ignore("Multiple-variable linear regression") {
+  test("Multiple-variable linear regression") {
     //		val dataContainerId = this.loadFile(List("resources/mtcars", "server/resources/mtcars"), false, " ")
     createTableMtcars
 
@@ -252,7 +252,7 @@ class RegressionSuite extends ABigRClientTest {
     assertEquals(-0.031, model.weights(1), 0.1)
     assertEquals(-3.877, model.weights(2), 0.1)
   }
-  ignore("Single-variable logistic regression") {
+  test("Single-variable logistic regression") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -275,7 +275,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(1), 4) === 14.9196)
   }
   //
-  ignore("Single-variable logistic regression on Shark") {
+  test("Single-variable logistic regression on Shark") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -295,7 +295,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.weights(1), 4) === -7.1806)
   }
 
-  ignore("Single-variable logistic regression with null initialWeights") {
+  test("Single-variable logistic regression with null initialWeights") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -309,7 +309,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(r.isSuccess)
   }
   //
-  ignore("Single-variable logistic regression with regularization") {
+  test("Single-variable logistic regression with regularization") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -332,7 +332,7 @@ class RegressionSuite extends ABigRClientTest {
   }
 
   //
-  ignore("Multiple-variable logistic regression") {
+  test("Multiple-variable logistic regression") {
     createTableAdmission
     val df = this.runSQL2RDDCmd("select * from admission", true)
     val dataContainerId = df.dataContainerID
@@ -352,7 +352,7 @@ class RegressionSuite extends ABigRClientTest {
     assertEquals(-0.9493, model.weights(2), 0.0001);
   }
 
-  ignore("Test Infinity bug on airline data") {
+  test("Test Infinity bug on airline data") {
     createTableAirline
 
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -374,7 +374,7 @@ class RegressionSuite extends ABigRClientTest {
 
   }
 
-  ignore("Single variable linear regression on Shark") {
+  test("Single variable linear regression on Shark") {
     createTableMtcars
 
     val loader = new Sql2DataFrame("select * from mtcars", true)
@@ -396,7 +396,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(truncate(model.trainingLosses(1), 4) === 9.9192)
   }
 
-  ignore("Single-variable linear regression on Shark, binned var") {
+  test("Single-variable linear regression on Shark, binned var") {
     createTableAirline
 
     val loader = new Sql2DataFrame("select * from airline", true)
@@ -424,7 +424,7 @@ class RegressionSuite extends ABigRClientTest {
     println(">>>>model=" + model)
   }
   //
-  ignore("test MaxFeatures") {
+  test("test MaxFeatures") {
     createTableMtcars
     val df = this.runSQL2RDDCmd("select * from mtcars", true)
     assert(df.isSuccess)
@@ -588,7 +588,7 @@ class RegressionSuite extends ABigRClientTest {
 
   }
 
-  ignore("Multiple-variable logistic regression IRLS - ddf") {
+  test("Multiple-variable logistic regression IRLS - ddf") {
     //load data
     createTableAdmission
     val df = this.runSQL2RDDCmd("select v2, v3, v4, v1 from admission", true)
@@ -601,7 +601,7 @@ class RegressionSuite extends ABigRClientTest {
   }
 
 
-  ignore("test dummy coding") {
+  test("test dummy coding") {
 
     //load data
     createTableAirline
@@ -615,7 +615,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(r.isSuccess)
   }
 //
-  ignore("test YtrueYPred") {
+  test("test YtrueYPred") {
     createTableAirline
     val loader = new Sql2DataFrame("select * from airline", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -638,7 +638,7 @@ class RegressionSuite extends ABigRClientTest {
     assert(r4.result.nrow == 31)
   }
 
-  ignore("Multiple-variable logistic regression IRLS - no regularization") {
+  test("Multiple-variable logistic regression IRLS - no regularization") {
     val dataContainerId = this.loadFile(List("resources/flu.table.noheader", "server/resources/flu.table.noheader"), false, " ")
     val lambda = 0.0
     val executor = new LogisticRegressionIRLS(dataContainerId, Array(1, 2), 0, 25, 1e-8, lambda, null, null, false)
@@ -669,7 +669,7 @@ class RegressionSuite extends ABigRClientTest {
   test("Categorical variable logistic regression IRLS - no regularization") {
     createTableAdmission2
     //com.adatao.spark.ddf.etl.TransformDummy.blowUpFactor = 10 
-    val loader = new Sql2DataFrame("select * from admission", true)
+    val loader = new Sql2DataFrame("select * from admission2", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
     assert(r0.isSuccess)
 
@@ -702,14 +702,14 @@ class RegressionSuite extends ABigRClientTest {
     assertEquals(truncate(model.weights(3), 6), -0.321060, 0.1)
     assert(truncate(model.deviance, 6) === 11837.39145)
     assert(truncate(model.nullDeviance, 6) === 0)
-    assertEquals(truncate(model.stderrs(0), 6), 0.043276, 0.01)
-    assertEquals(truncate(model.stderrs(1), 6), 0.055039, 0.01)
-    assertEquals(truncate(model.stderrs(2), 6), 0.067255, 0.01)
-    assertEquals(truncate(model.stderrs(3), 6), 0.077128, 0.01)
+    assertEquals(truncate(model.stderrs(0), 6), 0.098325, 0.01)
+    assertEquals(truncate(model.stderrs(1), 6), 0.124576, 0.01)
+    assertEquals(truncate(model.stderrs(2), 6), 0.152047, 0.01)
+    assertEquals(truncate(model.stderrs(3), 6), 0.174303, 0.01)
 
     assert(model.numFeatures === 3)
     assert(model.numSamples === 10000)
-    assert(model.numIters === 4)
+    assert(model.numIters === 5)
 
     //		assert(model.dummyColumnMapping != null)
   }
