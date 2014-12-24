@@ -115,13 +115,14 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     //cache the resulting ddf and unpersist all graph RDD
 
     manager.addDDF(newDDF)
-
     newDDF.asInstanceOf[SparkDDF].cacheTable()
+
     edges.unpersist()
-    groupedEdges.unpersistVertices(true)
-    finalGraph.unpersistVertices(true)
-    tfidf_Graph.unpersistVertices(true)
-    dn_cnt.unpersist(true)
+    groupedEdges.unpersist()
+    groupedEdges.edges.unpersist()
+    finalGraph.unpersist()
+    tfidf_Graph.unpersist()
+    dn_cnt.unpersist()
 
     new DataFrameResult(newDDF)
   }
@@ -155,13 +156,23 @@ object GraphTFIDF {
     val pairRDD: RDD[(Long, (Long, Double))] =
       if(edgeIdx >= 0) {
         rdd.map {
-          row => (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx) && !row.isNullAt(edgeIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+            } else {
+              null
+            }
         }
       } else {
         rdd.map {
-          row => (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+            } else {
+              null
+            }
         }
-      }
+      }.filter(row => row != null)
 
     val rdd2 = pairRDD.groupByKey().map{
       case (num, iter) => (num, reduceByKey(iter))
