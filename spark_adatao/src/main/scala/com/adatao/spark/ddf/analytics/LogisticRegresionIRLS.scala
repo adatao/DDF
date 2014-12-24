@@ -300,7 +300,7 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
     gradients = this.computeGradients(X, theWeights, errors)
     loss = this.computeLoss(X, Y, theWeights, errors, linearPredictor, hypothesis)
     weights = theWeights
-    numSamples = X.rows
+    numSamples = X.getRows()
 
     this
   }
