@@ -668,7 +668,7 @@ class RegressionSuite extends ABigRClientTest {
 
   test("Categorical variable logistic regression IRLS - no regularization") {
     createTableAdmission2
-    com.adatao.spark.ddf.etl.TransformDummy.blowUpFactor = 10 
+    //com.adatao.spark.ddf.etl.TransformDummy.blowUpFactor = 10 
     val loader = new Sql2DataFrame("select * from admission", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
     assert(r0.isSuccess)
@@ -696,19 +696,19 @@ class RegressionSuite extends ABigRClientTest {
     println(model.numIters)*/
 
     println(">>>>>> model.weights=" + model.weights)
-    //assertEquals(truncate(model.weights(0), 6), -1.217465, 0.1)
-    //assertEquals(truncate(model.weights(1), 6), 0.631662, 0.1)
-    //assertEquals(truncate(model.weights(2), 6), 1.386286, 0.1)
-    //assertEquals(truncate(model.weights(3), 6), -0.321060, 0.1)
-    //		assert(truncate(model.deviance, 6) === 474.966718)
-    //		assert(truncate(model.nullDeviance, 6) === 499.976518)
-    //assertEquals(truncate(model.stderrs(0), 6), 0.043276, 0.01)
-    //assertEquals(truncate(model.stderrs(1), 6), 0.055039, 0.01)
-    //assertEquals(truncate(model.stderrs(2), 6), 0.067255, 0.01)
-    //assertEquals(truncate(model.stderrs(3), 6), 0.077128, 0.01)
+    assertEquals(truncate(model.weights(0), 6), -1.217465, 0.1)
+    assertEquals(truncate(model.weights(1), 6), 0.631662, 0.1)
+    assertEquals(truncate(model.weights(2), 6), 1.386286, 0.1)
+    assertEquals(truncate(model.weights(3), 6), -0.321060, 0.1)
+    assert(truncate(model.deviance, 6) === 11837.39145)
+    assert(truncate(model.nullDeviance, 6) === 0)
+    assertEquals(truncate(model.stderrs(0), 6), 0.043276, 0.01)
+    assertEquals(truncate(model.stderrs(1), 6), 0.055039, 0.01)
+    assertEquals(truncate(model.stderrs(2), 6), 0.067255, 0.01)
+    assertEquals(truncate(model.stderrs(3), 6), 0.077128, 0.01)
 
     assert(model.numFeatures === 3)
-    assert(model.numSamples === 2000)
+    assert(model.numSamples === 10000)
     assert(model.numIters === 4)
 
     //		assert(model.dummyColumnMapping != null)

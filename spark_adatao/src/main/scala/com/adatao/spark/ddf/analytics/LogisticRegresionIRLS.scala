@@ -111,6 +111,7 @@ object LogisticRegressionIRLS {
 
     var lastDev = Double.MaxValue
     var computedLoss = lossFunction.compute(weights)
+
     println(computedLoss.gradients.toString)
     var currentDev = 2 * computedLoss.loss
     val numSamples: Long = computedLoss.numSamples
@@ -297,15 +298,28 @@ abstract class ALinearGradientLossFunction[XYDataType](@transient XYData: XYData
   override def compute(X: Matrix, Y: Vector, theWeights: Vector): ALossFunction = {
     val (linearPredictor, hypothesis) = this.computeHypothesis(X, theWeights)
     val errors = hypothesis.sub(Y)
-    gradients = this.computeGradients(X, theWeights, errors)
-    loss = this.computeLoss(X, Y, theWeights, errors, linearPredictor, hypothesis)
-    weights = theWeights
-    numSamples = X.getRows()
-
-    this
+    val aLossFunction = new TempLossFunction
+    aLossFunction.gradients = this.computeGradients(X, theWeights, errors)
+    aLossFunction.loss = this.computeLoss(X, Y, theWeights, errors, linearPredictor, hypothesis)
+    aLossFunction.weights = theWeights
+    aLossFunction.numSamples = X.getRows()
+    aLossFunction
   }
 }
+class TempLossFunction extends ALossFunction  {
+  override def compute(X: Matrix, Y: Vector, theWeights: Vector) = null
 
+  override def compute: Vector => ALossFunction = null
+
+  override def aggregate(other: ALossFunction): ALossFunction = {
+    val newLossFunction = new TempLossFunction
+    newLossFunction.gradients = Vector(this.gradients.add(other.gradients))
+    newLossFunction.loss = this.loss + other.loss
+    newLossFunction.numSamples = this.numSamples + other.numSamples
+
+    newLossFunction
+  }
+}
 abstract class ALogisticGradientLossFunction[XYDataType](@transient XYData: XYDataType, ridgeLambda: Double)
   extends ALinearGradientLossFunction[XYDataType](XYData, ridgeLambda) {
 

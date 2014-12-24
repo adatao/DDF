@@ -270,6 +270,7 @@ object TransformDummy {
 
         i += 1
       }
+
       //new TupleMatrixVector(X, Y)
       val result = (matrices zip vectors).map{case (mat, vec) => new TupleMatrixVector(mat, vec)}
       println(">>> result.size = " + result.size)
