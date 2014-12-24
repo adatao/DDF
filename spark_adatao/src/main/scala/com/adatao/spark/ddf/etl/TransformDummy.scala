@@ -179,6 +179,7 @@ object TransformDummy {
                                          categoricalMap: HashMap[java.lang.Integer,
                                            HashMap[java.lang.String, java.lang.Double]])
                                         (columnIterators: Array[ByteBuffer]): Array[TupleMatrixVector] = {
+    LOG.info(">>> blow up factor = " + blowUpFactor)
     // get the list of used columns
     val xyCol = xCols :+ yCol
 
@@ -272,9 +273,7 @@ object TransformDummy {
       }
 
       //new TupleMatrixVector(X, Y)
-      val result = (matrices zip vectors).map{case (mat, vec) => new TupleMatrixVector(mat, vec)}
-      println(">>> result.size = " + result.size)
-      result
+      (matrices zip vectors).map{case (mat, vec) => new TupleMatrixVector(mat, vec)}
     }
   }
 
