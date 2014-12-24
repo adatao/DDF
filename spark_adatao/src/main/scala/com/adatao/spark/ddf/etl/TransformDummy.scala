@@ -44,23 +44,15 @@ object TransformDummy {
 
   def getNrowFromColumnIterator(columnIterators: Array[ByteBuffer]): Int = {
 
-    val counts = columnIterators.map {
-      bytebuffer =>  val columnAccessor = ColumnAccessor(bytebuffer).asInstanceOf[NativeColumnAccessor[_]]
-      var count = 0
-      var terminated = false
-      val mutableRow = new GenericMutableRow(1)
-      while (columnAccessor.hasNext && !terminated) {
-        try {
-          columnAccessor.extractSingle(mutableRow, 0)
-          count += 1
-        } catch {
-          case e: java.nio.BufferUnderflowException => terminated = true
-        }
-      }
-      count
+    val columnAccessor = ColumnAccessor(columnIterators(0))
+    var count = 0
+    val mutableRow = new GenericMutableRow(1)
+    while(columnAccessor.hasNext) {
+      columnAccessor.extractTo(mutableRow, 0)
+      count += 1
     }
-    LOG.info(">>>>> numRows = " + counts.min)
-    counts.min
+    LOG.info(">>>> rows count = " + count)
+    count
   }
 
   def buildNullBitmap(usedColumnIterators: Array[ByteBuffer]): BitSet = {
@@ -97,13 +89,13 @@ object TransformDummy {
                                            columnIterator: ByteBuffer,
                                            numRows: Int,
                                            nullBitmap: BitSet) = {
-    val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
+    val columnAccessor = ColumnAccessor(columnIterator)
     //temporary Row to hold the value from ColumnAccessor.extractSingle
     val mutableRow = new GenericMutableRow(1)
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     // For performance, branching outside the tight loop
-    val toDouble: (Object => Double) = columnAccessor.columnType match {
+    val toDouble: (Object => Double) = columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType match {
         case INT => (x: Object) => x.asInstanceOf[Int].toDouble
         case LONG => (x: Object) => x.asInstanceOf[Long].toDouble
         case FLOAT => (x: Object) => x.asInstanceOf[Float].toDouble
@@ -113,15 +105,15 @@ object TransformDummy {
         }
         case BYTE => (x: Object) => x.asInstanceOf[ByteWritable].get().toDouble
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
-        case _ => throw new IllegalArgumentException(s"cannot not convert column type ${columnAccessor.columnType} to double.")
+        case typ => throw new IllegalArgumentException(s"cannot not convert column type ${typ} to double.")
       }
     while (i < numRows) {
+      //Always have to increase the columnAccessor iterator regardless the position is null or not
+      columnAccessor.extractTo(mutableRow, 0)
       if (!nullBitmap.get(j)) {
         // here, the tablePartition has non-null values in all other columns being extracted
         //val columnType = columnAccessor.columnType
         //val value = columnType.extract(bytebuffer)
-        columnAccessor.extractSingle(mutableRow, 0)
-
         matrix.put(i, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }
@@ -138,18 +130,18 @@ object TransformDummy {
                                                    nullBitmap: BitSet,
                                                    convert: (Object) => Double) = {
     //val byteBuffer = columnAccessor.buffer
-    val columnAccessor = ColumnAccessor(columnIterator).asInstanceOf[NativeColumnAccessor[_]]
+    val columnAccessor = ColumnAccessor(columnIterator)
     //val columnType =
 
     //val bytebuffer = columnAccessor.underlyingBuffer
     val mutableRow = new GenericMutableRow(1)
-    LOG.info(">>>> columnType = " + columnAccessor.columnType.toString())
-    LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.columnType.toString())
+    LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType.toString())
     var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     while (i < numRows) {
+      //Always have to increase the columnAccessor iterator regardless the position is null or not
+      columnAccessor.extractTo(mutableRow, 0)
       if (!nullBitmap.get(j)) {
-        columnAccessor.extractSingle(mutableRow, 0)
         matrix.put(i, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
         i += 1
       }
@@ -174,7 +166,8 @@ object TransformDummy {
       val numElements = this.getNrowFromColumnIterator(usedColumnIterators)
       //TODO: handle number of rows in long
       val nullBitmap = buildNullBitmap(usedColumnIterators)
-      val numRows = numElements //numElements - nullBitmap.cardinality()
+      val numRows = numElements - nullBitmap.cardinality()
+      LOG.info(">>> numRows = " + numRows)
       val numXCols = xCols.length + 1
 
       var numDummyCols = 0

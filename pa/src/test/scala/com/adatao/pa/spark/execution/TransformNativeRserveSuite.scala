@@ -66,7 +66,7 @@ class TransformNativeRserveSuite extends ABigRClientTest {
 	}
 
 	//TODO stack overflow
-	ignore("can add multiple columns using back-to-back transform") {
+	test("can add multiple columns using back-to-back transform") {
     createTableMtcars
 		val loader = new Sql2DataFrame("select * from mtcars", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader)
@@ -92,7 +92,7 @@ class TransformNativeRserveSuite extends ABigRClientTest {
 	}
 
 //	TODO fix this so we can return error properly
-	ignore("can return error msg to user") {
+	test("can return error msg to user") {
 		val loader = new Sql2DataFrame("select * from mtcars where mpg > 30", true)
 		val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
 		assert(r0.isSuccess)

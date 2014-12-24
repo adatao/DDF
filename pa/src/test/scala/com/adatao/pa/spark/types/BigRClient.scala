@@ -284,8 +284,25 @@ object BigRClientTestUtils {
   def createTableGraph(bigRClient: BigRClient) = {
     assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
     assert(runSQLCmd(bigRClient, "drop table if exists graph").isSuccess);
-    assert(runSQLCmd(bigRClient, "CREATE TABLE graph (source string, dest string ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
-    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graph.csv' INTO TABLE graph").isSuccess);
+    assert(runSQLCmd(bigRClient, "CREATE TABLE graph (source string, dest string, id double, cnt double, dn_cnt double, " +
+      "opp_users double, tf double, idf double, tfidf double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
+    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graph2.csv' INTO TABLE graph").isSuccess);
+  }
+
+  def createTableGraph1(bigRClient: BigRClient) = {
+    assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
+    assert(runSQLCmd(bigRClient, "drop table if exists graph1").isSuccess);
+    assert(runSQLCmd(bigRClient, "CREATE TABLE graph1 (source string, dest string)" +
+      " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
+    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graph3.csv' INTO TABLE graph1").isSuccess);
+  }
+
+  def createTableGraph2(bigRClient: BigRClient) = {
+    assert(runSQLCmd(bigRClient, "set shark.test.data.path=" + "resources").isSuccess);
+    assert(runSQLCmd(bigRClient, "drop table if exists graph2").isSuccess);
+    assert(runSQLCmd(bigRClient, "CREATE TABLE graph2 (source string, dest string)" +
+      " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','").isSuccess);
+    assert(runSQLCmd(bigRClient, "LOAD DATA LOCAL INPATH '${hiveconf:shark.test.data.path}/graph4.csv' INTO TABLE graph2").isSuccess);
   }
 
 	def createTableMtcars(bigRClient: BigRClient) = {

@@ -37,14 +37,14 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "val"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "int"))
 //
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 //
-//		// aggregate(hp ~ gear, mtcars, FUN=sum)
-//		// [["4",1074],["3",2642],["5",978]]
-//		val res = r2.result.data.map { row => (row(0), row(1)) }.toMap
-//		assert(res === Map("3" -> 2642, "4" -> 1074, "5" -> 978))
+		//aggregate(hp ~ gear, mtcars, FUN=sum)
+		// [["4",1074],["3",2642],["5",978]]
+		val res = r2.result.data.map { row => (row(0), row(1)) }.toMap
+		assert(res === Map("3" -> 2642, "4" -> 1074, "5" -> 978))
 	}
 
 	test("aggregate(hp ~ gear, mtcars, FUN=sum), several unique keys reduce, vector map key, vector map value, mapside.combine = false") {
@@ -67,14 +67,14 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "val"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "int"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 
 		// aggregate(hp ~ gear, mtcars, FUN=sum)
 		// [["4",1074],["3",2642],["5",978]]
-//		val res = r2.result.data.map { row => (row(0), row(1)) }.toMap
-//		assert(res === Map("3" -> 2642, "4" -> 1074, "5" -> 978))
+		val res = r2.result.data.map { row => (row(0), row(1)) }.toMap
+		assert(res === Map("3" -> 2642, "4" -> 1074, "5" -> 978))
 	}
 
 	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value") {
@@ -96,12 +96,12 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "wt", "hp"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "double", "int"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
-//
-//		assert(r2.result.data.get(0)(1) === 102.952) // sum(mtcars$wt)
-//		assert(r2.result.data.get(0)(2) === 4694.0)  // sum(mtcars$hp)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
+
+		assert(r2.result.data.get(0)(1) === 102.952) // sum(mtcars$wt)
+		assert(r2.result.data.get(0)(2) === 4694.0)  // sum(mtcars$hp)
 	}
 
 	test("sum(mtcars$wt) and sum(mtcars$hp), global reduce, vector map key, data.frame map value, false") {
@@ -125,12 +125,12 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "wt", "hp"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "double", "int"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
-//
-//		assert(r2.result.data.get(0)(1) === 102.952) // sum(mtcars$wt)
-//		assert(r2.result.data.get(0)(2) === 4694.0)  // sum(mtcars$hp)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
+
+		assert(r2.result.data.get(0)(1) === 102.952) // sum(mtcars$wt)
+		assert(r2.result.data.get(0)(2) === 4694.0)  // sum(mtcars$hp)
 
 	}
 
@@ -154,14 +154,14 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "val"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "double"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 //
-//		// aggregate(Solar.R ~ Month, airquality, mean)
-//		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double]) }.toMap
-//		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
-//		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
+		// aggregate(Solar.R ~ Month, airquality, mean)
+		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double]) }.toMap
+		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
+		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
 	}
 
 	test("aggregate(solar_radiation ~ month, airquality, mean) with NA handing using sum & count, false") {
@@ -184,14 +184,14 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "sum", "count"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "int", "double"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 //
 //		// aggregate(Solar.R ~ Month, airquality, mean)
-//		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double] / row(2).asInstanceOf[Double]) }.toMap
-//		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
-//		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
+		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double] / row(2).asInstanceOf[Double]) }.toMap
+		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
+		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
 	}
 
 
@@ -215,14 +215,14 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "sum", "count"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "int", "double"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 
-//		// aggregate(Solar.R ~ Month, airquality, mean)
-//		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double] / row(2).asInstanceOf[Double]) }.toMap
-//		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
-//		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
+		// aggregate(Solar.R ~ Month, airquality, mean)
+		val res = r2.result.data.map { row => (row(0), row(1).asInstanceOf[Double] / row(2).asInstanceOf[Double]) }.toMap
+		val expected = Map("5" -> 181.2963, "6" -> 190.1667, "7" -> 216.4839, "8" -> 171.8571, "9" -> 167.4333)
+		res.forall { case (k, v) => math.abs(v - expected.get(k)) < 0.01 }
 	}
 
 	test("heterogenous map values") {
@@ -246,9 +246,9 @@ class MapReduceNativeSuite extends ABigRClientTest {
 		assert(r1.result.metaInfo.map(_.getHeader) === Array("key", "arrdelay", "origin_count"))
 		assert(r1.result.metaInfo.map(_.getType) === Array("string", "double", "int"))
 
-//		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
-//		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
-//		assert(r2.isSuccess)
+		val fetcher = new FetchRows().setDataContainerID(r1.result.dataContainerID).setLimit(10)
+		val r2 = bigRClient.execute[FetchRowsResult](fetcher)
+		assert(r2.isSuccess)
 	}
 
 	ignore("multiple reduce output per key") {
