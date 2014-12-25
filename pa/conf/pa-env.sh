@@ -83,9 +83,12 @@ SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
 SPARK_JAVA_OPTS+=" -Dspark.akka.heartbeat.interval=3"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
+SPARK_JAVA_OPTS+=" -Dpa.jaccard.maxHashes=50"
+SPARK_JAVA_OPTS+=" -Dpa.default.threshold=0.3"
 SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=hash"
 SPARK_JAVA_OPTS+=" -Dspark.worker.reconnect.interval=10"
 SPARK_JAVA_OPTS+=" -Dspark.shuffle.consolidateFiles=true"
+
 #SPARK_JAVA_OPTS+=" -Dpa.keytab.file=${PA_HOME}/conf/pa.keytabs"
 #SPARK_JAVA_OPTS+=" -Dpa.authentication=true"
 #SPARK_JAVA_OPTS+=" -Dpa.admin.user=pa"
@@ -120,13 +123,14 @@ elif [ "X$cluster" == "Xspark" ]; then
         #export SPARK_MASTER= #spark://<host>:<port>
 elif [ "X$cluster" == "Xlocalspark" ]; then
         echo "Running pAnalytics with Spark in local node"
-        export SPARK_MEM=512m
+        export SPARK_MEMORY=512m
         SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000"
        # export SPARK_WORKER_MEMORY=$SPARK_MEMORY
         export SPARK_MASTER=local
         SPARK_JAVA_OPTS+=" -Dlog4j.configuration=pa-local-log4j.properties" 
         #SPARK_CLASSPATH+=:"pa-local-log4j.properties"
         SPARK_CLASSPATH+=:"${PA_HOME}/conf/local/"
+        export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
 fi
 export SPARK_JAVA_OPTS
 export SPARK_CLASSPATH

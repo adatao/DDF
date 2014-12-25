@@ -27,7 +27,7 @@ import org.apache.spark.SparkContext._
 /**
  * author: daoduchuan
  */
-class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double, filterDup: Boolean = true) extends AExecutor[DataFrameResult] {
+class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val threshold: Double, val filterDup: Boolean = true) extends AExecutor[DataFrameResult] {
 
   override def runImpl(context: ExecutionContext): DataFrameResult = {
     val manager = context.sparkThread.getDDFManager
@@ -48,8 +48,8 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 
     val result: RDD[Row] = CosineSimilarity.cosineSim(matrix1, matrix2, threshold, sparkCtx)
 
-    val col1 = new Column("number1", Schema.ColumnType.STRING)
-    val col2 = new Column("number2", Schema.ColumnType.STRING)
+    val col1 = new Column("caller_1", Schema.ColumnType.LONG)
+    val col2 = new Column("caller_2", Schema.ColumnType.LONG)
     val col3 = new Column("score", Schema.ColumnType.DOUBLE)
 
     val schema = new Schema(null, Array(col1, col2, col3))
@@ -64,7 +64,7 @@ class CosineSimilarity(dataContainerID1: String, dataContainerID2: String, val t
 object CosineSimilarity {
   val LOG = LoggerFactory.getLogger(this.getClass)
   //Calculate the symmetricDifference of vertices iin graph1 and graph2
-  def cosineSim(matrix1: RDD[(String, SparseVector[Double])], matrix2: RDD[(String, SparseVector[Double])], threshold: Double,
+  def cosineSim(matrix1: RDD[(Long, SparseVector[Double])], matrix2: RDD[(Long, SparseVector[Double])], threshold: Double,
                 sparkCtx: SparkContext): RDD[Row] = {
     val nrow1 = matrix1.count
     val nrow2 = matrix2. count
@@ -78,14 +78,14 @@ object CosineSimilarity {
       (matrix2, matrix1.collect())
     }
 
-    val broadcastMatrix: Broadcast[Array[(String, SparseVector[Double])]] = sparkCtx.broadcast(localMatrix)
+    val broadcastMatrix: Broadcast[Array[(Long, SparseVector[Double])]] = sparkCtx.broadcast(localMatrix)
     distMatrix.mapPartitions {
-      (iter: Iterator[(String, SparseVector[Double])]) => {
+      (iter: Iterator[(Long, SparseVector[Double])]) => {
         //val arr: ArrayBuffer[Tuple3[String, String, Double]] =  ArrayBuffer[Tuple3[String, String, Double]]()
         val arr: ArrayBuffer[Row] = ArrayBuffer[Row]()
         while(iter.hasNext) {
           val (num1, vector1) = iter.next()
-          val mat: Array[(String, SparseVector[Double])] = broadcastMatrix.value
+          val mat: Array[(Long, SparseVector[Double])] = broadcastMatrix.value
           var i = 0
           while(i < mat.size) {
             val vector2 = mat(i)._2
@@ -148,12 +148,12 @@ object CosineSimilarity {
     val colIdx2 = ddf2.getColumnIndex(colName)
     //filter out caller in ddf1 that exists in ddf2
     val rddRow1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
-      row => !broadcastedBF2.value.contains(row.getString(colIdx1)).isTrue
+      row => !broadcastedBF2.value.contains(row.getLong(colIdx1).toString).isTrue
     }
 
     //filter out caller in ddf2 that exists in ddf1
     val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
-      row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
+      row => !broadcastedBF1.value.contains(row.getLong(colIdx2).toString).isTrue
     }
 
     (graphFromRDDRow(rddRow1, sparkCtx), graphFromRDDRow(rddRow2, sparkCtx))
@@ -170,12 +170,12 @@ object CosineSimilarity {
     val colIdx2 = ddf2.getColumnIndex(colName)
     //filter out caller in ddf1 that exists in ddf2
     val rddRow1 = ddf1.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
-      row => !broadcastedBF2.value.contains(row.getString(colIdx1)).isTrue
+      row => !broadcastedBF2.value.contains(row.getLong(colIdx1).toString).isTrue
     }
 
     //filter out caller in ddf2 that exists in ddf1
     val rddRow2 = ddf2.asInstanceOf[SparkDDF].getRDD(classOf[Row]).filter {
-      row => !broadcastedBF1.value.contains(row.getString(colIdx2)).isTrue
+      row => !broadcastedBF1.value.contains(row.getLong(colIdx2).toString).isTrue
     }
     val col1 = ddf1.getSchemaHandler.getColumns.get(0)
     val col2 = ddf1.getSchemaHandler.getColumns.get(1)
@@ -224,7 +224,7 @@ object CosineSimilarity {
         var bf = bloomFilterMonoid.zero
         while(columnAccessor.hasNext) {
           columnAccessor.extractTo(mutableRow, 0)
-          bf = bf + mutableRow.getString(0)
+          bf = bf + mutableRow.getLong(0).toString
         }
         bf
       }
@@ -286,10 +286,10 @@ object CosineSimilarity {
     scala.math.sqrt(norm)
   }
 
-  def rddRow2Matrix(rdd: RDD[Row]): RDD[(String, SparseVector[Double])] = {
+  def rddRow2Matrix(rdd: RDD[Row]): RDD[(Long, SparseVector[Double])] = {
     val pairRDD = rdd.map{row => {
-      val num = row.getString(0)
-      val idx = scala.math.abs(row.getString(1).hashCode)
+      val num = row.getLong(0)
+      val idx = scala.math.abs(row.getLong(1).hashCode)
       (num, (idx, row.getDouble(2)))
     }}.groupByKey()
     pairRDD.map {

@@ -2,7 +2,7 @@ package com.adatao.pa.spark.execution
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
-import com.adatao.spark.ddf.SparkDDFManager
+import com.adatao.spark.ddf.{SparkDDF, SparkDDFManager}
 import org.apache.spark.graphx._
 import org.apache.spark.mllib.linalg.Vectors
 import scala.math.log10
@@ -14,6 +14,8 @@ import com.adatao.pa.AdataoException
 import com.adatao.pa.AdataoException.AdataoExceptionCode
 import com.adatao.pa.spark.execution.GraphTFIDF.CDRVertice
 import com.adatao.spark.ddf.content.RepresentationHandler
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkContext
 
 /**
  * author: daoduchuan
@@ -30,6 +32,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
   override def runImpl(ctx: ExecutionContext): DataFrameResult = {
     val manager = ctx.sparkThread.getDDFManager
+    val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
+
     val ddf = manager.getDDF(dataContainerID)
     if(ddf == null) {
       throw new AdataoException(AdataoExceptionCode.ERR_DATAFRAME_NONEXISTENT, s"not found DDF $dataContainerID", null)
@@ -40,6 +44,8 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
     val srcIdx = ddf.getColumnIndex(src)
     val destIdx = ddf.getColumnIndex(dest)
+    val edgeIdx = ddf.getColumnIndex(edge)
+    LOG.info("edgeIdx = " + edgeIdx)
     val rddRow = ddf.getRepresentationHandler.get(classOf[RDD[_]], classOf[Row]).asInstanceOf[RDD[Row]]
     val filteredRDDRow = if(edge == null || edge.isEmpty()) {
       rddRow.filter {
@@ -51,46 +57,11 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
         row => !(row.isNullAt(srcIdx) || row.isNullAt(destIdx) || row.isNullAt(edgeIdx))
       }
     }
+    val (vertices, edges)  = GraphTFIDF.groupEdge2Graph(filteredRDDRow, srcIdx, destIdx, edgeIdx, sparkContext)
+    val groupedEdges: Graph[Long, Double] = Graph(vertices, edges)
 
-    val sparkContext = manager.asInstanceOf[SparkDDFManager].getSparkContext
-
-    val rddVertices1: RDD[String] = filteredRDDRow.map{row => {row.getString(srcIdx)}}
-    val rddVertices2: RDD[String] = filteredRDDRow.map{row => {row.getString(destIdx)}}
-
-
-    //create the original graph
-    // vertice type of (String, Double) is neccessary for step 3
-    val vertices: RDD[(Long, String)] = sparkContext.union(rddVertices1, rddVertices2).map{str => (GraphTFIDF.hash(str), str)}
-
-    //if edge column == null, choose 1 as a default value for edge
-    val edges = if(edge == null || edge.isEmpty()) {
-      filteredRDDRow.map {
-        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), 1.0)
-      }
-    } else {
-      val edgeIdx = ddf.getColumnIndex(edge)
-      filteredRDDRow.map {
-        row => Edge(GraphTFIDF.hash(row.getString(srcIdx)), GraphTFIDF.hash(row.getString(destIdx)), row.getDouble(edgeIdx))
-      }
-    }
-
-    //persist the original graph because it's expensive to create the graph
-    val graph: Graph[String, Double] = Graph(vertices, edges)
-    val partitionedGraph = graph.partitionBy(PartitionStrategy.EdgePartition1D)
-
-    //persist the original graph because it's expensive to create the graph
-    //partitionedGraph.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)
-
-    //Step 1
-    //calculate CNT column in HH ppt slide
-    val groupedEdges: Graph[String, Double] = partitionedGraph.groupEdges((x: Double, y:Double) => x + y)
-
-    //Step 2
-    //calculate DN_CNT in HH ppt slide
-    //And denominator of tfidf
-    // Tuple2(DN_CNT, Denominator of tfidf)
     val dn_cnt: VertexRDD[Tuple2[Double, Double]] = groupedEdges.aggregateMessages(
-      (edgeCtx: EdgeContext[String, Double, Tuple2[Double, Double]]) => {
+      (edgeCtx: EdgeContext[Long, Double, Tuple2[Double, Double]]) => {
         edgeCtx.sendToSrc((edgeCtx.attr, 0.0))
         edgeCtx.sendToDst((0.0, 1.0))
       }
@@ -101,7 +72,7 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
 
 
     val finalGraph: Graph[CDRVertice, Double] = groupedEdges.outerJoinVertices(dn_cnt) (
-      (vertexId: Long, vd: String, tuple: Option[Tuple2[Double, Double]]) => {
+      (vertexId: Long, vd: Long, tuple: Option[Tuple2[Double, Double]]) => {
         tuple match {
           case Some(tuple2) => CDRVertice(vd, tuple2._1, tuple2._2)
           case None => CDRVertice(vd, 0.0 ,0.0)
@@ -112,23 +83,9 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
     val totalCalls = finalGraph.vertices.map{case (verticeId, CDRVertice(id, dn_cnt, denom)) => dn_cnt}.reduce{case (x , y) => x + y}
 
     LOG.info(">>>>> totalCalls = " + totalCalls)
-    //val idf = log10(totalCalls)
 
-//    val newrdd: RDD[Row] = finalGraph.triplets.map {
-//      edge => {
-//        val cnt = edge.attr
-//        val dn_cnt = edge.srcAttr.dn_cnt
-//        val denom_tfidf = edge.dstAttr.denom_tfidf
-//        val src = edge.srcAttr.id
-//        val dest = edge.dstAttr.id
-//        val tf = cnt/dn_cnt
-//        val idf = log10(totalCalls/denom_tfidf)
-//        val tfidf = tf * idf
-//        Row(src, dest, tfidf)
-//      }
-//    }
 
-    val tfidf_Graph: Graph[String, Double] = finalGraph.mapTriplets(
+    val tfidf_Graph: Graph[Long, Double] = finalGraph.mapTriplets(
       (edgeTriplet: EdgeTriplet[CDRVertice, Double]) => {
         val cnt = edgeTriplet.attr
         val dn_cnt = edgeTriplet.srcAttr.dn_cnt
@@ -148,15 +105,25 @@ class GraphTFIDF(dataContainerID: String, src: String, dest: String, edge: Strin
       edge => Row(edge.srcAttr, edge.dstAttr, edge.attr)
     )
 
-    val col1 = new Column(src, Schema.ColumnType.STRING)
-    val col2 = new Column(dest, Schema.ColumnType.STRING)
+    val col1 = new Column(src, Schema.ColumnType.LONG)
+    val col2 = new Column(dest, Schema.ColumnType.LONG)
     val col3 = new Column("tfidf", Schema.ColumnType.DOUBLE)
     val schema = new Schema(null, Array(col1, col2, col3))
 
     val newDDF = manager.newDDF(manager, newRDD, Array(classOf[RDD[_]], classOf[Row]), manager.getNamespace, null, schema)
-    newDDF.getRepresentationHandler.add(tfidf_Graph, classOf[Graph[_, _]])
+
+    //cache the resulting ddf and unpersist all graph RDD
 
     manager.addDDF(newDDF)
+    newDDF.asInstanceOf[SparkDDF].cacheTable()
+
+    edges.unpersist()
+    groupedEdges.unpersist()
+    groupedEdges.edges.unpersist()
+    finalGraph.unpersist()
+    tfidf_Graph.unpersist()
+    dn_cnt.unpersist()
+
     new DataFrameResult(newDDF)
   }
 }
@@ -176,5 +143,52 @@ object GraphTFIDF {
     }
     h
   }
-  case class CDRVertice(id: String, dn_cnt: Double, denom_tfidf: Double)
+  case class CDRVertice(id: Long, dn_cnt: Double, denom_tfidf: Double)
+
+  def groupEdge2Graph(rdd: RDD[Row], srcIdx: Int, destIdx: Int, edgeIdx: Int, sparkContext: SparkContext) = {
+    def reduceByKey[K,V](collection: Traversable[Tuple2[K, V]])(implicit num: Numeric[V]) = {
+      import num._
+      collection
+        .groupBy(_._1)
+        .map { case (group: K, traversable) => traversable.reduce{(a,b) => (a._1, a._2 + b._2)} }
+    }
+
+    val pairRDD: RDD[(Long, (Long, Double))] =
+      if(edgeIdx >= 0) {
+        rdd.map {
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx) && !row.isNullAt(edgeIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), row.getDouble(edgeIdx)))
+            } else {
+              null
+            }
+        }
+      } else {
+        rdd.map {
+          row =>
+            if(!row.isNullAt(srcIdx) && !row.isNullAt(destIdx)) {
+              (row.getLong(srcIdx), (row.getLong(destIdx), 1.0))
+            } else {
+              null
+            }
+        }
+      }.filter(row => row != null)
+
+    val rdd2 = pairRDD.groupByKey().map{
+      case (num, iter) => (num, reduceByKey(iter))
+    }
+    val rdd3: RDD[Row] = rdd2.flatMap {
+      case (num, hmap) => {
+        for {
+          item <- hmap.toList
+        } yield(Row(num, item._1, item._2))
+      }
+    }
+    val rddVertices1 = rdd3.map{row => row.getLong(0)}
+    val rddVertices2 = rdd3.map{row => row.getLong(1)}
+    val vertices: RDD[(Long, Long)] = sparkContext.union(rddVertices1, rddVertices2).map{long => (long, long)}
+
+    val edges: RDD[Edge[Double]] = rdd3.map{row => Edge(row.getLong(0), row.getLong(1), row.getDouble(2))}
+    (vertices, edges)
+  }
 }

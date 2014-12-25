@@ -11,7 +11,7 @@ import org.junit.Assert.assertEquals
  */
 class GraphSuite extends ABigRClientTest {
 
-  ignore("test graphtfidf") {
+  test("test graphtfidf") {
     createTableGraph
     val loader = new Sql2DataFrame("select * from graph", true)
     val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
@@ -29,28 +29,28 @@ class GraphSuite extends ABigRClientTest {
     result.map{
       row => println(row.mkString(", "))
     }
-    assert(result(0)(0) == "SFO")
-    assert(result(0)(1) == "SAN")
+    assert(result(0)(0) == "-3351804022671213993")
+    assert(result(0)(1) == "-3351804022671214149")
     assert(result(0)(2) == 1.2148111519023101)
 
-    assert(result(1)(0) == "SFO")
-    assert(result(1)(1) == "SJC")
+    assert(result(1)(0) == "-3351804022671213993")
+    assert(result(1)(1) == "-3351804022671213881")
     assert(result(1)(2) == 0.20827853703164503)
 
-    assert(result(2)(0) == "SMF")
-    assert(result(2)(1) == "LAX")
+    assert(result(2)(0) == "-3351804022671213785")
+    assert(result(2)(1) == "-3351804022671220866")
     assert(result(2)(2) == 1.0123426265852582)
 
-    assert(result(3)(0) == "SMF")
-    assert(result(3)(1) == "SJC")
+    assert(result(3)(0) == "-3351804022671213785")
+    assert(result(3)(1) == "-3351804022671213881")
     assert(result(3)(2) == 0.3471308950527417)
 
-    assert(result(5)(0) == "SNA")
-    assert(result(5)(1) == "OAK")
+    assert(result(5)(0) == "-3351804022671213759")
+    assert(result(5)(1) == "-3351804022671217996")
     assert(result(5)(2) == 0.8282803308424841)
   }
 
-  ignore("test Cosine Similarity") {
+  test("test Cosine Similarity") {
     createTableGraph1
     createTableGraph2
     val loader = new Sql2DataFrame("select * from graph1", true)
@@ -84,8 +84,8 @@ class GraphSuite extends ABigRClientTest {
     }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
 
     assert(cosineResult2.size == 1)
-    assert(cosineResult2(0)(0).asInstanceOf[String] == "SNA")
-    assert(cosineResult2(0)(1).asInstanceOf[String] == "HCM")
+    assert(cosineResult2(0)(0).asInstanceOf[String] == "-3351804022671213759")
+    assert(cosineResult2(0)(1).asInstanceOf[String] == "-3351804022671224659")
     assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
 
     /**
@@ -145,7 +145,7 @@ class GraphSuite extends ABigRClientTest {
     val cmd1 = new GraphTFIDF(dataContainerID2, "source", "dest")
     val r2 = bigRClient.execute[DataFrameResult](cmd1).result
 
-    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.0, 0.8)
+    val cmd2 = new JaccardSimilarity(r.dataContainerID, r2.dataContainerID, 0.8, 40)
     val jaccard = bigRClient.execute[DataFrameResult](cmd2).result
 
     assert(jaccard.isSuccess)
@@ -158,11 +158,10 @@ class GraphSuite extends ABigRClientTest {
       row => row.replace("\"", "").split("\\s+")
     }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
 
-
-    assert(cosineResult2.size == 1)
-//    assert(cosineResult2(0)(0).asInstanceOf[String] == "SNA")
-//    assert(cosineResult2(0)(1).asInstanceOf[String] == "HCM")
-//    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
+    assert(cosineResult2.size == 10)
+    assert(cosineResult2(0)(0).asInstanceOf[String] == "-3351804022671213759")
+    assert(cosineResult2(0)(1).asInstanceOf[String] == "-3351804022671224659")
+    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
 
     /**
      * print out result from TFIDF and CosineSimilarity
@@ -195,10 +194,58 @@ class GraphSuite extends ABigRClientTest {
       row => println(row.mkString(","))
     }
     println("#################################")
-    println("########### Cosine similarity ###############")
+    println("########### JaccardSimilarity ###############")
     cosineResult2.map{
       row => println(row.mkString(","))
     }
+  }
 
+  test("test Jaccard Similarity for raw data only") {
+    createTableGraph1
+    createTableGraph2
+    val loader = new Sql2DataFrame("select * from graph1", true)
+    val r0 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader).result
+    val dataContainerID = r0.dataContainerID
+    assert(r0.isSuccess)
+
+    val loader2 = new Sql2DataFrame("select * from graph2", true)
+    val r02 = bigRClient.execute[Sql2DataFrame.Sql2DataFrameResult](loader2).result
+    val dataContainerID2 = r02.dataContainerID
+    assert(r02.isSuccess)
+
+//
+//    val cmd = new GraphTFIDF(dataContainerID, "source", "dest")
+//    val r = bigRClient.execute[DataFrameResult](cmd).result
+//
+//    val cmd1 = new GraphTFIDF(dataContainerID2, "source", "dest")
+//    val r2 = bigRClient.execute[DataFrameResult](cmd1).result
+
+    val cmd2 = new JaccardSimilarity(r0.dataContainerID, r02.dataContainerID, 0.8, 40)
+    val jaccard = bigRClient.execute[DataFrameResult](cmd2).result
+
+    assert(jaccard.isSuccess)
+
+    val fetchRowsJC = new FetchRows().setDataContainerID(jaccard.dataContainerID).setLimit(200)
+    val fetchRowsJCResult = bigRClient.execute[FetchRowsResult](fetchRowsJC)
+    val jcResult = fetchRowsJCResult.result.getData
+
+    val cosineResult2 = jcResult.map {
+      row => row.replace("\"", "").split("\\s+")
+    }.map{arr => if(arr.size == 3) Array(arr(0), arr(1), arr(2).toDouble) else Array()}
+
+//    assert(cosineResult2.size == 10)
+//    assert(cosineResult2(0)(0).asInstanceOf[String] == "-3351804022671213759")
+//    assert(cosineResult2(0)(1).asInstanceOf[String] == "-3351804022671224659")
+//    assertEquals(cosineResult2(0)(2).asInstanceOf[Double], 1, 0.1)
+
+    /**
+     * print out result from JaccardSimilarity
+     */
+
+    println("#################################")
+    println("########### Jaccard similarity ###############")
+    cosineResult2.map{
+      row => println(row.mkString(","))
+    }
   }
 }
