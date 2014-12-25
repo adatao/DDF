@@ -53,7 +53,7 @@ class FiveNumSummary(dataContainerID: String) extends AExecutor[Array[ASummary]]
       case _ ⇒ throw new IllegalArgumentException(s"Only accept DDF, ddfID: $ddfId")
     }
     val fiveNums = ddf.getFiveNumSummary
-    val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getMax, s.getFirstQuantile, s.getMedian, s.getThirdQuantile)
+    val fiveNumsResult = for (s <- fiveNums) yield new ASummary(s.getMin, s.getFirstQuantile, s.getMedian, s.getThirdQuantile, s.getMax)
     return fiveNumsResult
   }
 }
@@ -66,10 +66,10 @@ object FiveNumSummary extends Serializable {
   //FiveNumSummary only support Numeric column
   class ASummary(
     val min: Double = Double.NaN,
-    val max: Double = Double.NaN,
     val first_quartile: Double = Double.NaN,
     val median: Double = Double.NaN,
-    val third_quartile: Double = Double.NaN) extends TJsonSerializable {
+    val third_quartile: Double = Double.NaN,
+    val max: Double = Double.NaN) extends TJsonSerializable {
     def this() = this(Double.NaN)
     def this(a: Array[Double]) = this(a(0), a(1), a(2), a(3), a(4))
   }
