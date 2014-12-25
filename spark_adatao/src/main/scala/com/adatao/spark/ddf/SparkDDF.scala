@@ -7,7 +7,9 @@ import org.apache.spark.sql.columnar.{CachedBatch, InMemoryRelation}
 import io.ddf.exception.DDFException
 import org.apache.spark.rdd.RDD
 import java.nio.ByteBuffer
-import org.apache.spark.sql.CachedData
+import org.apache.spark.sql.{SchemaRDD, CachedData}
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.hive.HiveContext
 
 /**
  */
@@ -17,21 +19,15 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
   //Cache table force the materializing of RDD[Array[ByteBuffer]]
   // also add RDd[Array[ByteBuffer]] into RepHandler
   override def cacheTable(): Unit = {
-    this.saveAsTable()
     val hiveContext = this.getManager.asInstanceOf[SparkDDFManager].getHiveContext
+    this.saveAsTable()
+
     hiveContext.cacheTable(this.getTableName)
-//    val inMemoryRelation = hiveContext.table(this.getTableName).queryExecution.analyzed match {
-//      case inMemory: InMemoryRelation => inMemory
-//      case something => throw new DDFException("Not InMemory Relation, class = " + something.getClass.toString)
-//    }
+
     val cachedData: CachedData = hiveContext.lookupCachedData(hiveContext.table(this.getTableName)) match {
       case Some(cachedData) => cachedData
       case None => throw new DDFException("Not InMemory Relation")
     }
-//    val cachedData = hiveContext.table(this.getTableName).queryExecution.withCachedData.collect {
-//      case inMemoryRelation: InMemoryRelation => inMemoryRelation
-//    }
-//    mLog.info(">>>> cachedData.size = "  + cachedData.size)
 
     val cachedBatch: RDD[CachedBatch] = cachedData.cachedRepresentation.cachedColumnBuffers
     //force the table to materialzie
@@ -43,4 +39,22 @@ class SparkDDF(manager: DDFManager, data: AnyRef,
   def this(manager: DDFManager) = {
     this(manager, null, null, manager.getNamespace, null, null)
   }
+
+  def repartition(hiveCtx: HiveContext): Unit = {
+    mLog.info(">>>> repartition the table")
+    val blowUpFactor = System.getProperty("pa.blowup.factor", SparkDDF.DEFAULT_BLOWUP_FACTOR).toInt
+    mLog.info(">>>> blow up factor = " + blowUpFactor)
+    val schemaRDD = this.getRepresentationHandler.get(classOf[SchemaRDD]).asInstanceOf[SchemaRDD]
+    val schema = schemaRDD.schema
+    val numPartitions = schemaRDD.partitions.size
+    val repartitionRDD = schemaRDD.repartition(numPartitions * blowUpFactor)
+
+    val newSchemaRDD =  hiveCtx.applySchema(repartitionRDD, schema)
+    this.getRepresentationHandler.remove(classOf[SchemaRDD])
+    this.getRepresentationHandler.add(newSchemaRDD, classOf[SchemaRDD])
+  }
+}
+
+object SparkDDF {
+  val DEFAULT_BLOWUP_FACTOR = "4"
 }

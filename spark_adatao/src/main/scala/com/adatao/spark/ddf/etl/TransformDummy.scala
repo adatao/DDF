@@ -22,20 +22,22 @@ import scala.collection.JavaConversions._
  * author: daoduchuan
  */
 object TransformDummy {
+  val DEFAULT_BLOWUP_FACTOR = "5"
+  var blowUpFactor = System.getProperty("pa.blowup.factor", DEFAULT_BLOWUP_FACTOR).toInt
   val LOG = LoggerFactory.getLogger(this.getClass)
 
   def schemaRDD2MatrixVector(rddCachedBatch: RDD[CachedBatch], xCols: Array[Int], yCol: Int,
                              categoricalMap: HashMap[Integer,
                                HashMap[String, java.lang.Double]] = null): RDD[TupleMatrixVector] = {
     val cachedColumnBuffers = rddCachedBatch.map {
-      cachedBatch =>  {
+      cachedBatch => {
         val buffers = cachedBatch.buffers
         buffers.map(arrByte => {
           ByteBuffer.wrap(arrByte)
         })
       }
     }
-    cachedColumnBuffers.map {
+    cachedColumnBuffers.flatMap {
       arrayByteBuffer => {
         tablePartitionToMatrixVectorMapper(xCols, yCol, categoricalMap)(arrayByteBuffer)
       }
@@ -47,7 +49,7 @@ object TransformDummy {
     val columnAccessor = ColumnAccessor(columnIterators(0))
     var count = 0
     val mutableRow = new GenericMutableRow(1)
-    while(columnAccessor.hasNext) {
+    while (columnAccessor.hasNext) {
       columnAccessor.extractTo(mutableRow, 0)
       count += 1
     }
@@ -76,23 +78,27 @@ object TransformDummy {
     nullBitmap
   }
 
-  def fillConstantColumn[T <: DoubleMatrix](matrix: T, col: Int, numRows: Int, value: Double) = {
-    var row = 0
-    while (row < numRows) {
-      matrix.put(row, col, value)
-      row += 1
+  def fillConstantColumn[T <: DoubleMatrix](matrices: Array[T], col: Int, value: Double) = {
+
+    var matID = 0
+    while (matID < matrices.size) {
+      var row = 0
+      val matrix = matrices(matID)
+      while (row < matrix.rows) {
+        matrix.put(row, col, value)
+        row += 1
+      }
+      matID += 1
     }
   }
 
-  def fillNumericColumn[M <: DoubleMatrix](matrix: M,
+  def fillNumericColumn[M <: DoubleMatrix](matrices: Array[M],
                                            col: Int,
                                            columnIterator: ByteBuffer,
-                                           numRows: Int,
                                            nullBitmap: BitSet) = {
     val columnAccessor = ColumnAccessor(columnIterator)
     //temporary Row to hold the value from ColumnAccessor.extractSingle
     val mutableRow = new GenericMutableRow(1)
-    var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
     // For performance, branching outside the tight loop
     val toDouble: (Object => Double) = columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType match {
@@ -107,58 +113,78 @@ object TransformDummy {
         case SHORT => (x: Object) => x.asInstanceOf[ShortWritable].get().toDouble
         case typ => throw new IllegalArgumentException(s"cannot not convert column type ${typ} to double.")
       }
-    while (i < numRows) {
-      //Always have to increase the columnAccessor iterator regardless the position is null or not
-      columnAccessor.extractTo(mutableRow, 0)
-      if (!nullBitmap.get(j)) {
-        // here, the tablePartition has non-null values in all other columns being extracted
-        //val columnType = columnAccessor.columnType
-        //val value = columnType.extract(bytebuffer)
-        matrix.put(i, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
-        i += 1
+
+    var matID = 0
+    while (matID < matrices.size) {
+      var row = 0 // current matrix row counter
+      val matrix = matrices(matID)
+
+      while (row < matrix.rows) {
+        columnAccessor.extractTo(mutableRow, 0)
+        if (!nullBitmap.get(j)) {
+          matrix.put(row, col, toDouble(mutableRow.apply(0).asInstanceOf[Object]))
+          row += 1
+        }
+        j += 1
       }
-      j += 1
+      matID += 1
     }
   }
 
   // for ColumnIterator that returns Object and must be converted to Double
   def fillColumnWithConversion[M <: DoubleMatrix](
-                                                   matrix: M,
+                                                   matrices: Array[M],
                                                    col: Int,
                                                    columnIterator: ByteBuffer,
-                                                   numRows: Int,
                                                    nullBitmap: BitSet,
                                                    convert: (Object) => Double) = {
     //val byteBuffer = columnAccessor.buffer
     val columnAccessor = ColumnAccessor(columnIterator)
-    //val columnType =
 
-    //val bytebuffer = columnAccessor.underlyingBuffer
     val mutableRow = new GenericMutableRow(1)
     LOG.info(">>>> fillColumnWithConversion columnType = " + columnAccessor.asInstanceOf[NativeColumnAccessor[_]].columnType.toString())
-    var i = 0 // current matrix row counter
     var j = 0 // current ColumnIterator row counter
-    while (i < numRows) {
-      //Always have to increase the columnAccessor iterator regardless the position is null or not
-      columnAccessor.extractTo(mutableRow, 0)
-      if (!nullBitmap.get(j)) {
-        matrix.put(i, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
-        i += 1
+    var matID = 0
+    while (matID < matrices.size) {
+      var row = 0
+      val matrix = matrices(matID)
+      while (row < matrix.rows) {
+        columnAccessor.extractTo(mutableRow, 0)
+        if (!nullBitmap.get(j)) {
+          matrix.put(row, col, convert(mutableRow.apply(0).asInstanceOf[Object]))
+          row += 1
+        }
+        j += 1
       }
-      j += 1
+      matID += 1
     }
+  }
+
+  def splitMatrixVector(numRows: Int, numCols: Int): (Array[Matrix], Array[Vector]) = {
+    val nRowPerMatrix = numRows / blowUpFactor
+    var arrVector = Array.fill[Vector](blowUpFactor)(new Vector(nRowPerMatrix))
+    var arrMatrix = Array.fill[Matrix](blowUpFactor)(new Matrix(nRowPerMatrix, numCols))
+
+    if(numRows % blowUpFactor != 0) {
+      val lastVector = new Vector(numRows % blowUpFactor)
+      val lastMatrix = new Matrix(numRows % blowUpFactor, numCols)
+      arrVector = arrVector :+ lastVector
+      arrMatrix = arrMatrix :+ lastMatrix
+    }
+    (arrMatrix, arrVector)
   }
 
   def tablePartitionToMatrixVectorMapper(xCols: Array[Int],
                                          yCol: Int,
                                          categoricalMap: HashMap[java.lang.Integer,
                                            HashMap[java.lang.String, java.lang.Double]])
-                                        (columnIterators: Array[ByteBuffer]): TupleMatrixVector = {
+                                        (columnIterators: Array[ByteBuffer]): Array[TupleMatrixVector] = {
+    LOG.info(">>> blow up factor = " + blowUpFactor)
     // get the list of used columns
     val xyCol = xCols :+ yCol
 
     if (columnIterators.size == 0) {
-      new TupleMatrixVector(new Matrix(0, 0), Vector(0))
+      Array(new TupleMatrixVector(new Matrix(0, 0), Vector(0)))
     } else {
       val usedColumnIterators: Array[ByteBuffer] = xyCol.map {
         colId ⇒ columnIterators(colId)
@@ -172,27 +198,29 @@ object TransformDummy {
 
       var numDummyCols = 0
       if (categoricalMap != null) {
-        xCols.foreach{xCol => {
-            if(categoricalMap.containsKey(xCol)) {
+        xCols.foreach {
+          xCol => {
+            if (categoricalMap.containsKey(xCol)) {
               numDummyCols += categoricalMap.get(xCol).keySet().size - 2
             }
           }
         }
       }
 
-      val Y = new Vector(numRows)
-      val X = new Matrix(numRows, numXCols + numDummyCols) // this allocation won't be feasible for sparse features
+//      val Y = new Vector(numRows)
+//      val X = new Matrix(numRows, numXCols + numDummyCols) // this allocation won't be feasible for sparse features
+      val (matrices, vectors) = splitMatrixVector(numRows, numXCols + numDummyCols)
 
       LOG.info("tablePartitiontoMapper: numRows = {}, null bitmap cardinality = {}, xCols = {}, nunNewFeatures = {}",
         numRows.toString, nullBitmap.cardinality().toString, util.Arrays.toString(xCols), numDummyCols.toString)
 
       // fill in the first X column with bias value
-      fillConstantColumn(X, 0, numRows, 1.0)
+      fillConstantColumn(matrices, 0, 1.0)
 
       // fill Y
       val yColumnIter = usedColumnIterators.last
 
-      fillNumericColumn(Y, 0, yColumnIter, numRows, nullBitmap) // TODO: has caller checked that yCol is numeric?
+      fillNumericColumn(vectors, 0, yColumnIter, nullBitmap) // TODO: has caller checked that yCol is numeric?
 
       // fill the rest of X, column by column (except for the dummy columns, which is filled at a later pass)
       var i = 1 // column index in X matrix
@@ -211,14 +239,14 @@ object TransformDummy {
               LOG.info(s">>>> columnMap = null??? ${columnMap == null}")
               LOG.info("extracting categorical column id {} using mapping {}", xColId, columnMap)
 
-              fillColumnWithConversion(X, i, columnIterator, numRows, nullBitmap, (current: Object) => {
+              fillColumnWithConversion(matrices, i, columnIterator, nullBitmap, (current: Object) => {
                 // invariant: columnMap.contains(x)
                 val k = current.toString
                 columnMap.get(k)
               })
 
             } else {
-              fillNumericColumn(X, i, columnIterator, numRows, nullBitmap)
+              fillNumericColumn(matrices, i, columnIterator, nullBitmap)
             }
           }
           case STRING => {
@@ -226,7 +254,7 @@ object TransformDummy {
               val columnMap = categoricalMap.get(xColId)
               LOG.info("extracting STRING column id {} using mapping {}", xColId, columnMap)
 
-              fillColumnWithConversion(X, i, columnIterator, numRows, nullBitmap, (current: Object) => {
+              fillColumnWithConversion(matrices, i, columnIterator, nullBitmap, (current: Object) => {
                 // invariant: columnMap.contains(x)
                 val k = current.toString
                 columnMap.get(k)
@@ -243,7 +271,9 @@ object TransformDummy {
 
         i += 1
       }
-      new TupleMatrixVector(X, Y)
+
+      //new TupleMatrixVector(X, Y)
+      (matrices zip vectors).map{case (mat, vec) => new TupleMatrixVector(mat, vec)}
     }
   }
 
