@@ -83,11 +83,11 @@ SPARK_JAVA_OPTS+=" -Dspark.local.dir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.ui.port=30001"
 SPARK_JAVA_OPTS+=" -Djava.io.tmpdir=${TMP_DIR}"
 SPARK_JAVA_OPTS+=" -Dspark.kryoserializer.buffer.mb=125"
-SPARK_JAVA_OPTS+=" -Dspark.executor.memory=${SPARK_MEM}"
 SPARK_JAVA_OPTS+=" -Dbigr.Rserve.split=1"
 SPARK_JAVA_OPTS+=" -Dbigr.multiuser=false"
 SPARK_JAVA_OPTS+=" -Dpa.jaccard.maxHashes=50"
 SPARK_JAVA_OPTS+=" -Dpa.default.threshold=0.3"
+SPARK_JAVA_OPTS+=" -Dpa.blowup.factor=10"
 SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.compressed=true"
 SPARK_JAVA_OPTS+=" -Dspark.sql.inMemoryColumnarStorage.batchSize=1000000"
 SPARK_JAVA_OPTS+=" -Dspark.shuffle.manager=sort"
@@ -105,8 +105,8 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_MASTER="yarn-client"
         export SPARK_WORKER_INSTANCES=${SPARK_WORKER_INSTANCES:-3}
         export SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-8}
-        export SPARK_WORKER_MEMORY=$SPARK_MEM
-        export SPARK_DRIVER_MEMORY=$SPARK_MEM
+        export SPARK_WORKER_MEMORY=$SPARK_MEMORY
+        export SPARK_DRIVER_MEMORY=2G
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         export SPARK_YARN_APP_JAR=hdfs://${PA_JAR_HDFS_DIR:-/user/root}/ddf_pa_2.10-1.2.0.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
