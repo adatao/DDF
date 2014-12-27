@@ -121,7 +121,7 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION,
     "com.twitter" % "algebird-core_2.10" % "0.8.2",
-    "com.bizo" % "csv-serde" % "1.1.2-0.11.0"
+    "org.hive.serde" % "csv-serde" % "0.9.1"
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
