@@ -1,4 +1,4 @@
-package com.adatao.ML.spark;
+package com.adatao.ML.spark.recommendation;
 
 
 import java.io.Serializable;

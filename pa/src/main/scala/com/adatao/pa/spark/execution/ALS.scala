@@ -15,7 +15,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.recommendation.Rating
 import org.apache.spark.SparkContext._
 import org.jblas.{ DoubleMatrix, SimpleBlas, Solve }
-import com.adatao.ML.spark.ALSUtils._
+import com.adatao.ML.spark.recommendation.ALSUtils._
 
 class ALS(
   var dataContainerID: String,

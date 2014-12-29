@@ -7,7 +7,7 @@ import java.util.Arrays
 import io.ddf.ml.IModel
 import com.adatao.pa.spark.execution.ALS
 import com.adatao.pa.spark.execution.Sql2DataFrame
-import com.adatao.ML.spark.ALSUtils._
+import com.adatao.ML.spark.recommendation.ALSUtils._
 
 class CollaborativeFilteringSuite extends ABigRClientTest {
   test("Test ALS") {
