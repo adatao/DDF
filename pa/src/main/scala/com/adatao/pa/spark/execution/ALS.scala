@@ -15,7 +15,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.recommendation.Rating
 import org.apache.spark.SparkContext._
 import org.jblas.{ DoubleMatrix, SimpleBlas, Solve }
-import com.adatao.ML.spark.recommendation.ALSUtils._
+import com.adatao.ML.spark.recommendation.ALSModel
+//import com.adatao.ML.spark.recommendation.ALSUtils._
 
 class ALS(
   var dataContainerID: String,
@@ -26,7 +27,7 @@ class ALS(
   var implicitFeedback: Boolean = false,
   var alpha: Double = 1.0,
   var seed: Long = System.nanoTime())
-  extends AExecutor[IModel](true) {
+    extends AExecutor[IModel](true) {
   override def runImpl(ctx: ExecutionContext) = train(dataContainerID, ctx)
 
   def train(dataContainerID: String, context: ExecutionContext): IModel = {
@@ -41,10 +42,10 @@ class ALS(
     if (xCols.length == 3 || xCols == null) {
       trainedData = ddf
     } else {
-      
+
       trainedData = ddf.VIEWS.project(trainedColumns: _*)
     }
-    
+
     val imodel = trainedData.ML.train("collaborativeFiltering", numFeatures: java.lang.Integer, numIterations: java.lang.Integer, lambda: java.lang.Double)
     val matrixFactorizationModel = imodel.getRawModel.asInstanceOf[MatrixFactorizationModel]
 
@@ -56,20 +57,22 @@ class ALS(
 
     val rmse = ALS.computeRmse(matrixFactorizationModel, trainedData.getRepresentationHandler().get(classOf[RDD[_]], classOf[Rating]).asInstanceOf[RDD[Rating]], false)
     print(">>>>>>>>>>>IN ALS train RMES =" + rmse);
-    val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures, rmse)
+    //val alsModel = ALS.computeALSModel(matrixFactorizationModel, numUsers, numProducts, numFeatures, rmse)
 
+    //val alsModel = new ALSModel(matrixFactorizationModel.rank, matrixFactorizationModel.userFeatures, matrixFactorizationModel.productFeatures, rmse)
+    val alsModel = new ALSModel(matrixFactorizationModel, rmse)
     val model = new Model(alsModel)
     model.setTrainedColumns(trainedColumns)
     ddfManager.addModel(model);
     return model;
   }
 
-  def this() = this("dataContainerID", Array(0,1,2), 10, 0.01, 10)
+  def this() = this("dataContainerID", Array(0, 1, 2), 10, 0.01, 10)
   def setDataContainerID(dataContainerID: String): ALS = {
     this.dataContainerID = dataContainerID
     this
   }
-  
+
   def setTrainColumns(xCols: Array[Int]): ALS = {
     this.xCols = xCols
     this
@@ -111,11 +114,11 @@ class ALS(
 
 object ALS {
 
-  def computeALSModel(model: MatrixFactorizationModel, users: Int, products: Int, features: Int, rmse: Double): ALSModel = {
-    val userFeatures = getUserFeatureMatrix(model, users, features);
-    val productFeatures = getProductFeatureMatrix(model, products, features);
-    new ALSModel(features, userFeatures, productFeatures, rmse)
-  }
+  //  def computeALSModel(model: MatrixFactorizationModel, users: Int, products: Int, features: Int, rmse: Double): ALSModel = {
+  //    val userFeatures = getUserFeatureMatrix(model, users, features);
+  //    val productFeatures = getProductFeatureMatrix(model, products, features);
+  //    new ALSModel(features, userFeatures, productFeatures, rmse)
+  //  }
 
   /*  def toDoubleMatrix(componentMatrix: RDD[(Int, Array[Double])], m: Int, n: Int): DoubleMatrix = {
     val prediction = new DoubleMatrix(m, n)

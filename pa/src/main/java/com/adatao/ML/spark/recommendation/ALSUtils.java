@@ -37,7 +37,7 @@ public class ALSUtils implements Serializable {
     int numFeatures;
     DoubleMatrix userFeatures;
     DoubleMatrix productFeatures;
-    double rmse;
+    public double rmse;
 
 
     public ALSModel(int numFeatures, DoubleMatrix userFeatures, DoubleMatrix productFeatures, double rmse) {
