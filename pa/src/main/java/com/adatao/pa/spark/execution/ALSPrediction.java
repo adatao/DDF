@@ -10,13 +10,13 @@ import com.adatao.pa.spark.types.IExecutor;
 import com.adatao.pa.spark.types.SuccessResult;
 import io.ddf.ml.IModel;
 
-public class ALSPredriction implements IExecutor {
+public class ALSPrediction implements IExecutor {
   String modelId;
   int userId;
   int[] productIds;
 
 
-  public ALSPredriction(String modelId, int userId, int[] productIds) {
+  public ALSPrediction(String modelId, int userId, int[] productIds) {
     super();
     this.modelId = modelId;
     this.userId = userId;

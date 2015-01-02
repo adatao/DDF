@@ -55,7 +55,7 @@ class XsYpred(dataContainerID: String, val modelID: String) extends AExecutor[Da
           str => new Column(str, Schema.ColumnType.INT)
         } :+ new Column("predictedScore", Schema.ColumnType.DOUBLE)
         val schema = new Schema(null, columns)
-        val predictionDDF = manager.newDDF(manager, predictionRDD, Array(classOf[RDD[_]], classOf[RDD[Rating]]), manager.getNamespace, null, schema)
+        val predictionDDF = manager.newDDF(manager, predictionRDD, Array(classOf[RDD[_]], classOf[RDD[Row]]), manager.getNamespace, null, schema)
         manager.addDDF(predictionDDF)
         new DataFrameResult(predictionDDF)
       }
