@@ -25,6 +25,14 @@ public class ALSModel {
     return predictedRatings;
   }
   
+  public MatrixFactorizationModel getMfModel() {
+    return mfModel;
+  }
+
+  public void setMfModel(MatrixFactorizationModel mfModel) {
+    this.mfModel = mfModel;
+  }
+
   public double getRmse() {
     return this.rmse;
   }
