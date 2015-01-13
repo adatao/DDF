@@ -47,7 +47,7 @@ export PA_HOME="$(cd `dirname ${BASH_SOURCE[0]}`/../ >/dev/null 2>&1; echo $PWD)
 # You need to define the following evn vars           #
 #######################################################
 export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
-export LOG_DIR=/tmp # this where pAnalytics server stores log files
+export LOG_DIR=/var/log/pAnalytics # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
 export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.2.0.2.0.6.0-101/conf}
