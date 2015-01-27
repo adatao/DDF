@@ -18,7 +18,7 @@ object RootBuild extends Build {
   lazy val hadoopVersion = env("HADOOP_VERSION") getOrElse
     DEFAULT_HADOOP_VERSION
 
-  val SPARK_VERSION = "1.3.0-adatao"
+  val SPARK_VERSION = "1.3.0-adatao-2.6.0"
   val DDF_VERSION= "1.1-adatao"
   // Target JVM version
   val SCALAC_JVM_VERSION = "jvm-1.6"
@@ -102,12 +102,12 @@ object RootBuild extends Build {
 //  }
 
   val spark_adatao_dependencies = Seq(
-    "io.ddf" % "ddf_core_2.10" %  DDF_VERSION,
+    "io.ddf" % "ddf_core_2.10" %  DDF_VERSION exclude("org.apache.hadoop", "hadoop-common"),
     "io.ddf" % "ddf_spark_2.10" % DDF_VERSION exclude("org.apache.spark", "spark-core_2.10") exclude("org.apache.spark",
       "spark-mllib_2.10") exclude("org.apache.spark", "spark-sql_2.10") exclude("org.apache.spark", "spark-hive_2.10")
       exclude("org.apache.spark", "spark-yarn_2.10"),
     "com.novocode" % "junit-interface" % "0.10" % "test",
-    "org.apache.hadoop" % "hadoop-auth" % "2.2.0",
+    "org.apache.hadoop" % "hadoop-auth" % "2.6.0",
     "uk.com.robust-it" % "cloning" % "1.9.0",
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
@@ -121,7 +121,8 @@ object RootBuild extends Build {
     "org.apache.spark" % "spark-yarn_2.10" % SPARK_VERSION,
     "org.apache.spark" % "spark-graphx_2.10" % SPARK_VERSION,
     "com.twitter" % "algebird-core_2.10" % "0.8.2",
-    "org.hive.serde" % "csv-serde" % "0.9.1"
+    "org.hive.serde" % "csv-serde" % "0.9.1",
+    "org.apache.hadoop" % "hadoop-common" % "2.6.0"
     //"org.apache.commons" % "commons-math3" % "3.2"
   )
 
@@ -247,6 +248,9 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.avro" % "avro-mapred" % "1.7.6",
     dependencyOverrides += "com.googlecode.javaewah" % "JavaEWAH" % "0.6.6",
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.7.1",
+    dependencyOverrides += "com.google.code.gson" % "gson" % "2.2.4",
+    dependencyOverrides += "org.apache.curator" % "curator-recipes" % "2.6.0",
+    //dependencyOverrides += "org.apache.hadoop" % "hadoop-common" % "2.6.0",
     pomExtra := (
       <!--
       **************************************************************************************************
