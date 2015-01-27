@@ -47,7 +47,7 @@ export PA_HOME="$(cd `dirname ${BASH_SOURCE[0]}`/../ >/dev/null 2>&1; echo $PWD)
 # You need to define the following evn vars           #
 #######################################################
 export TMP_DIR=/tmp # this where pAnalytics server stores temporarily files
-export LOG_DIR=/tmp # this where pAnalytics server stores log files
+export LOG_DIR=/var/log/pAnalytics # this where pAnalytics server stores log files
 export SPARK_HOME=${PA_HOME}/exe/
 export PA_PORT=7911
 export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/root/hadoop-2.2.0.2.0.6.0-101/conf}
@@ -105,8 +105,8 @@ if [ "X$cluster" == "Xyarn" ]; then
         export SPARK_MASTER="yarn-client"
         export SPARK_WORKER_INSTANCES=${SPARK_WORKER_INSTANCES:-3}
         export SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-8}
-        export SPARK_WORKER_MEMORY=$SPARK_MEMORY
-        export SPARK_DRIVER_MEMORY=2G
+        export SPARK_WORKER_MEMORY=25G
+        export SPARK_DRIVER_MEMORY=1G
         export SPARK_JAR=`find ${PA_HOME}/ -name ddf_pa-assembly-*.jar`
         export SPARK_YARN_APP_JAR=hdfs://${PA_JAR_HDFS_DIR:-/user/root}/ddf_pa_2.10-1.2.0.jar
         [ "X$SPARK_YARN_APP_JAR" == "X" ] && echo "Please define SPARK_YARN_APP_JAR" && exit 1
