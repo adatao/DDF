@@ -110,7 +110,7 @@ object RootBuild extends Build {
     "org.apache.hadoop" % "hadoop-auth" % "2.6.0",
     "uk.com.robust-it" % "cloning" % "1.9.0",
     "org.apache.spark" % "spark-core_2.10" % SPARK_VERSION excludeAll(excludeJets3t) exclude("com.google.protobuf", "protobuf-java")
-      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
+      exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"), 
     "org.apache.spark" % "spark-mllib_2.10" % SPARK_VERSION exclude("io.netty", "netty-all"),
     "org.apache.spark" % "spark-sql_2.10" % SPARK_VERSION exclude("io.netty", "netty-all")
       exclude("org.jboss.netty", "netty") exclude("org.mortbay.jetty", "jetty"),
@@ -210,10 +210,11 @@ object RootBuild extends Build {
     dependencyOverrides += "org.apache.httpcomponents" % "httpclient" % "4.1.3", //libthrift
     //dependencyOverrides += "org.apache.commons" % "commons-math" % "2.2", //hadoop-core, renjin newer use a newer version but we prioritize hadoop
     dependencyOverrides += "com.google.guava" % "guava" % "14.0.1", //spark-core
-    dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
-    dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
-    dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
-    dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8",
+
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-core-asl" % "1.9.13",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-mapper-asl" % "1.9.13",
+    //dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.8.8",
+    //dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.8.8",
     dependencyOverrides += "com.thoughtworks.paranamer" % "paranamer" % "2.4.1", //net.liftweb conflict with avro
     dependencyOverrides += "org.xerial.snappy" % "snappy-java" % "1.0.5", //spark-core conflicts with avro
     dependencyOverrides += "org.apache.httpcomponents" % "httpcore" % "4.1.4",
@@ -250,6 +251,8 @@ object RootBuild extends Build {
     dependencyOverrides += "net.java.dev.jets3t" % "jets3t" % "0.7.1",
     dependencyOverrides += "com.google.code.gson" % "gson" % "2.2.4",
     dependencyOverrides += "org.apache.curator" % "curator-recipes" % "2.6.0",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-jaxrs" % "1.9.13",
+    dependencyOverrides += "org.codehaus.jackson" % "jackson-xc" % "1.9.13",
     //dependencyOverrides += "org.apache.hadoop" % "hadoop-common" % "2.6.0",
     pomExtra := (
       <!--
